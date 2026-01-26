@@ -1,9 +1,70 @@
+using Microsoft.EntityFrameworkCore;
+using CraftDailyCorner.Models;
+using CraftDailyCorner.Seed;
+using CraftDailyCorner.Seed.Datas;
+using CraftDailyCorner.Services;
+using CraftDailyCorner.Services.Interface;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+builder.Services.AddDbContext<CraftDailyCornerContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("CraftDailyCornerConnection")));
+builder.Services.AddScoped<IImageUploadService, ImageUploadService>();
+builder.Services.AddScoped<ISiteSettingService, SiteSettingService>();
+builder.Services.AddScoped<SeedRunner>();
+builder.Services.AddScoped<SeedMember>();
+builder.Services.AddScoped<SeedPrivacy>();
+builder.Services.AddScoped<SeedRole>();
+builder.Services.AddScoped<SeedMemberRole>();
+builder.Services.AddScoped<SeedMemberRoleHistory>();
+builder.Services.AddScoped<SeedCreatorApplication>();
+builder.Services.AddScoped<SeedCreatorProfile>();
+builder.Services.AddScoped<SeedProduct>();
+builder.Services.AddScoped<SeedProductImage>();
+builder.Services.AddScoped<SeedCategory>();
+builder.Services.AddScoped<SeedTag>();
+builder.Services.AddScoped <SeedProductRelation>();
+builder.Services.AddScoped <SeedCart>();
+builder.Services.AddScoped <SeedCartItem>();
+builder.Services.AddScoped <SeedOrder>();
+builder.Services.AddScoped <SeedOrderDetail>();
+builder.Services.AddScoped <SeedPayment>();
+builder.Services.AddScoped <SeedShipment>();
+builder.Services.AddScoped <SeedFavoriteProduct>();
+builder.Services.AddScoped <SeedFollowCreator>();
+builder.Services.AddScoped <SeedProductReview>();
+builder.Services.AddScoped <SeedMessageThread>();
+builder.Services.AddScoped <SeedMessage>();
+builder.Services.AddScoped <SeedAutoReplyTemplate>();
+builder.Services.AddScoped<SeedCreatorPost>();
+builder.Services.AddScoped <SeedPostComment>();
+builder.Services.AddScoped <SeedInventory>();
+builder.Services.AddScoped <SeedInventoryAlert>();
+builder.Services.AddScoped <SeedPlatformAnnouncement>();
+builder.Services.AddScoped <SeedHomepageBanner>();
+builder.Services.AddScoped <SeedPlatformSetting>();
+builder.Services.AddScoped<SeedPortfolio>();
+builder.Services.AddScoped<SeedPortfolioItem>();
+builder.Services.AddScoped<SeedNotificationPreference>();
+builder.Services.AddScoped<SeedNotificationEvent>();
+builder.Services.AddAuthentication("CraftDailyCornerLogin").AddCookie("CraftDailyCornerLogin", option =>
+{
+    option.LoginPath = "/Account/Login";//設定登入頁面路徑(入口)，若需登入而未登入時強制導到此路徑
+    option.LogoutPath = "/Account/Logout";//設定登出頁面路徑
+    option.AccessDeniedPath = "/Home/Index";//設定存取被拒絕頁面路徑(若已登入但角色權限不符,則強制導到此路徑)
+});
+
 
 var app = builder.Build();
+using (var scope = app.Services.CreateScope())
+{
+    //SeedData.Initialize(scope.ServiceProvider);
+    var services = scope.ServiceProvider;
+    var runner = services.GetRequiredService<SeedRunner>();
+    runner.Run();
+}
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())

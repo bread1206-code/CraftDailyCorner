@@ -1,0 +1,24 @@
+﻿@model IEnumerable<CraftDailyCorner.Models.HomepageBanner>
+@{
+    Layout = null;
+}
+<div id="BannerAutoplaying" class="carousel slide" data-bs-ride="carousel">
+    <div class="carousel-inner">
+        @foreach (var item in Model)
+        {
+            var a = item == Model.First() ? "active" : "";
+
+            <div class="carousel-item @a">
+                <img src="/Photos/08HomepageBanner/Other/@item.ImageUrl" class="d-block w-100">
+            </div>
+        }
+    </div>
+    <button class="carousel-control-prev" type="button" data-bs-target="#BannerAutoplaying" data-bs-slide="prev">
+        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Previous</span>
+    </button>
+    <button class="carousel-control-next" type="button" data-bs-target="#BannerAutoplaying" data-bs-slide="next">
+        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Next</span>
+    </button>
+</div>

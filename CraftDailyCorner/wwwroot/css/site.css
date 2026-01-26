@@ -20,3 +20,24 @@ html {
 body {
   margin-bottom: 60px;
 }
+
+.hover-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.hover-card:hover {
+    transform: translateY(-10px); /* 往上浮 10px */
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2); /* 陰影加深，浮起感 */
+}
+#hotpost{
+    border: 2px solid black;
+}
+#hotproduct {
+    border: 2px solid black;
+}
+.Logo{
+    width: 200px;
+    height: 40px;
+    object-fit: cover;
+}
+}

@@ -1,0 +1,36 @@
+﻿using CraftDailyCorner.Models;
+
+namespace CraftDailyCorner.Seed.Datas
+{
+    public class SeedPayment
+    {
+        private readonly CraftDailyCornerContext _context;
+
+        public SeedPayment(CraftDailyCornerContext context)
+        {
+            _context = context;
+        }
+        public void Run()
+        {
+            if (!_context.Payment.Any()) // 避免重複 Seed
+            {
+                var payments = new List<Payment>
+                {
+                    new Payment
+                    {
+                        PaymentMethod = (PaymentPaymentMethod)1,
+                        Amount = 1200,
+                        Status = (PaymentStatus)1,
+                        GatewayTradeNo = "TEST123456",
+                        AttemptNo = 1,
+                        PaidAt = DateTime.Now,
+                        CreatedAt = DateTime.Now,
+                        OrderID = "202601010001"
+                    }
+                };
+                _context.Payment.AddRange(payments);
+                _context.SaveChanges();
+            }
+        }
+    }
+}
