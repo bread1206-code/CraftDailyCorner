@@ -1,0 +1,21 @@
+﻿@model CraftDailyCorner.ViewModels.VMLogin
+@using CraftDailyCorner.ViewModels
+
+@{
+    ViewData["Title"] = "會員登入";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<hr />
+<div>
+    @await Html.PartialAsync("_LoginPartial", new VMLogin())
+</div>
+
+
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
