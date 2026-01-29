@@ -12,7 +12,7 @@ namespace CraftDailyCorner.Seed.Datas
         }
         public void Run()
         {
-            if (!_context.NotificationPreference.Any()) // 避免重複 Seed
+            if (!_context.NotificationPreferences.Any()) // 避免重複 Seed
             {
                 var notificationPreferences = new List<NotificationPreference>
                 {
@@ -25,7 +25,7 @@ namespace CraftDailyCorner.Seed.Datas
                         MemberID = "M0000002"
                     }
                 };
-                _context.NotificationPreference.AddRange(notificationPreferences);
+                _context.NotificationPreferences.AddRange(notificationPreferences);
                 _context.SaveChanges();
             }
         }

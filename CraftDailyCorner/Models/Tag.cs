@@ -12,6 +12,10 @@ namespace CraftDailyCorner.Models
         [Required(ErrorMessage = "必填欄位")]
         [StringLength(20)]
         public string TagName { get; set; } = null!;
+        [Display(Name = "是否啟用")]
+        public bool IsActive { get; set; }
+        [Display(Name = "建立時間")]
+        public DateTime CreatedAt { get; set; }
 
         public virtual List<ProductTag>? ProductTag { get; set; }
     }

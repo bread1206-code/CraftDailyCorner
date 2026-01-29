@@ -12,7 +12,7 @@ namespace CraftDailyCorner.Seed.Datas
         }
         public void Run()
         {
-            if (!_context.OrderDetail.Any()) // 避免重複 Seed
+            if (!_context.OrderDetails.Any()) // 避免重複 Seed
             {
                 var orderDetails = new List<OrderDetail>
                 {
@@ -25,7 +25,7 @@ namespace CraftDailyCorner.Seed.Datas
                         Quantity = 1
                     }
                 };
-                _context.OrderDetail.AddRange(orderDetails);
+                _context.OrderDetails.AddRange(orderDetails);
                 _context.SaveChanges();
             }
         }

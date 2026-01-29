@@ -12,7 +12,7 @@ namespace CraftDailyCorner.Seed.Datas
         }
         public void Run()
         {
-            if (!_context.AutoReplyTemplate.Any()) // 避免重複 Seed
+            if (!_context.AutoReplyTemplates.Any()) // 避免重複 Seed
             {
                 var autoReplyTemplates = new List<AutoReplyTemplate>
                 {
@@ -35,7 +35,7 @@ namespace CraftDailyCorner.Seed.Datas
                         CreatorID = "C00002"
                     }
                 };
-                _context.AutoReplyTemplate.AddRange(autoReplyTemplates);
+                _context.AutoReplyTemplates.AddRange(autoReplyTemplates);
                 _context.SaveChanges();
             }
         }

@@ -12,7 +12,7 @@ namespace CraftDailyCorner.Seed.Datas
         }
         public void Run()
         {
-            if (!_context.ProductReview.Any()) // 避免重複 Seed
+            if (!_context.ProductReviews.Any()) // 避免重複 Seed
             {
                 var productReviews = new List<ProductReview>
                 {
@@ -25,7 +25,7 @@ namespace CraftDailyCorner.Seed.Datas
                         ProductID = "P000000001"
                     }
                 };
-                _context.ProductReview.AddRange(productReviews);
+                _context.ProductReviews.AddRange(productReviews);
                 _context.SaveChanges();
             }
         }

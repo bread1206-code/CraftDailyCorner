@@ -12,7 +12,7 @@ namespace CraftDailyCorner.Seed.Datas
         }
         public void Run()
         {
-            if (!_context.Role.Any()) // 避免重複 Seed
+            if (!_context.Roles.Any()) // 避免重複 Seed
             {
                 var roles = new List<Role>
                 {
@@ -33,7 +33,7 @@ namespace CraftDailyCorner.Seed.Datas
                         Description = "可以管理平台資料。"
                     }
                 };
-                _context.Role.AddRange(roles);
+                _context.Roles.AddRange(roles);
                 _context.SaveChanges();
             }
         }

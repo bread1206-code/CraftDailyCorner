@@ -12,7 +12,7 @@ namespace CraftDailyCorner.Seed.Datas
         }
         public void Run()
         {
-            if (!_context.PlatformAnnouncement.Any()) // 避免重複 Seed
+            if (!_context.PlatformAnnouncements.Any()) // 避免重複 Seed
             {
                 var platformAnnouncements = new List<PlatformAnnouncement>
                 {
@@ -33,7 +33,7 @@ namespace CraftDailyCorner.Seed.Datas
                         CreatedBy = "M0000001"
                     }
                 };
-                _context.PlatformAnnouncement.AddRange(platformAnnouncements);
+                _context.PlatformAnnouncements.AddRange(platformAnnouncements);
                 _context.SaveChanges();
             }
         }

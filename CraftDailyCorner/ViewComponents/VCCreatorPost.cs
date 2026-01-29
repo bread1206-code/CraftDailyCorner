@@ -16,7 +16,7 @@ namespace CraftDailyCorner.ViewComponents
         public async Task<IViewComponentResult> InvokeAsync()
         {
 
-            var HPost = await _context.CreatorPost
+            var HPost = await _context.CreatorPosts
             .Where(p => p.Status == (CreatorPostStatus)1)
             .OrderByDescending(p => p.CreatedAt)
             .Take(4)

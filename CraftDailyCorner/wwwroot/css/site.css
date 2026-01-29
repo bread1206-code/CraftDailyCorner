@@ -40,4 +40,45 @@ body {
     height: 40px;
     object-fit: cover;
 }
+.hotpost-title {
+    font-size: 2rem;
+}
+.hotpost-Author {
+    font-size: 1.5rem;
+}
+
+@media (min-width: 576px) {
+    .hotpost-title {
+        font-size: 2rem; /* sm */
+    }
+    .hotpost-Author {
+        font-size: 1.5rem;
+    }
+}
+
+@media (min-width: 768px) {
+    .hotpost-title {
+        font-size: 0.85rem; /* md */
+    }
+    .hotpost-Author {
+        font-size: 0.61rem;
+    }
+}
+
+@media (min-width: 992px) {
+    .hotpost-title {
+        font-size: 1.3rem;
+    }
+    .hotpost-Author {
+        font-size: 1rem; 
+    }
+}
+.mega-menu {
+    width: 100%;
+    left: 0;
+    right: 0;
+}
+
+.mega-menu .dropdown-item {
+    white-space: normal;
 }

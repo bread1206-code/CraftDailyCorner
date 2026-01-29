@@ -12,7 +12,7 @@ namespace CraftDailyCorner.Seed.Datas
         }
         public void Run()
         {
-            if (!_context.FollowCreator.Any()) // 避免重複 Seed
+            if (!_context.FollowCreators.Any()) // 避免重複 Seed
             {
                 var followCreators = new List<FollowCreator>
                 {
@@ -23,7 +23,7 @@ namespace CraftDailyCorner.Seed.Datas
                         CreatedAt = DateTime.Now
                     }
                 };
-                _context.FollowCreator.AddRange(followCreators);
+                _context.FollowCreators.AddRange(followCreators);
                 _context.SaveChanges();
             }
         }

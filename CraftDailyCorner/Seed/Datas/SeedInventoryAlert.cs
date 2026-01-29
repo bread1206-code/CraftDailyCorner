@@ -12,7 +12,7 @@ namespace CraftDailyCorner.Seed.Datas
         }
         public void Run()
         {
-            if (!_context.InventoryAlert.Any()) // 避免重複 Seed
+            if (!_context.InventoryAlerts.Any()) // 避免重複 Seed
             {
                 var inventoryAlerts = new List<InventoryAlert>
                 {
@@ -23,7 +23,7 @@ namespace CraftDailyCorner.Seed.Datas
                         InventoryID = 1
                     }
                 };
-                _context.InventoryAlert.AddRange(inventoryAlerts);
+                _context.InventoryAlerts.AddRange(inventoryAlerts);
                 _context.SaveChanges();
             }
         }

@@ -12,7 +12,7 @@ namespace CraftDailyCorner.Seed.Datas
         }
         public void Run()
         {
-            if (!_context.FavoriteProduct.Any()) // 避免重複 Seed
+            if (!_context.FavoriteProducts.Any()) // 避免重複 Seed
             {
                 var favoriteProducts = new List<FavoriteProduct>
                 {
@@ -23,7 +23,7 @@ namespace CraftDailyCorner.Seed.Datas
                         CreatedAt = DateTime.Now
                     }
                 };
-                _context.FavoriteProduct.AddRange(favoriteProducts);
+                _context.FavoriteProducts.AddRange(favoriteProducts);
                 _context.SaveChanges();
             }
         }

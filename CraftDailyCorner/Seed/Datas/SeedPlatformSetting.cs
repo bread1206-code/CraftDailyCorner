@@ -12,7 +12,7 @@ namespace CraftDailyCorner.Seed.Datas
         }
         public void Run(string[] imageGuids)
         {
-            if (!_context.PlatformSetting.Any()) // 避免重複 Seed
+            if (!_context.PlatformSettings.Any()) // 避免重複 Seed
             {
                 var platformSettings = new List<PlatformSetting>
                 {
@@ -37,7 +37,7 @@ namespace CraftDailyCorner.Seed.Datas
                         UpdatedBy = "M0000001"
                     }
                 };
-                _context.PlatformSetting.AddRange(platformSettings);
+                _context.PlatformSettings.AddRange(platformSettings);
                 _context.SaveChanges();
             }
         }

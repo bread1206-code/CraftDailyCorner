@@ -13,7 +13,7 @@ namespace CraftDailyCorner.Seed.Datas
 
         public void Run(string[] imageGuids)
         {
-            if (!_context.Member.Any()) // 避免重複 Seed
+            if (!_context.Members.Any()) // 避免重複 Seed
             {
                 var members = new List<Member>
             {
@@ -59,7 +59,7 @@ namespace CraftDailyCorner.Seed.Datas
                 }
             };
 
-                _context.Member.AddRange(members);
+                _context.Members.AddRange(members);
                 _context.SaveChanges();
             }
         }

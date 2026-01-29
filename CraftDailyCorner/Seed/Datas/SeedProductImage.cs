@@ -12,7 +12,7 @@ namespace CraftDailyCorner.Seed.Datas
         }
         public void Run(string[] imageGuids)
         {
-            if (!_context.ProductImage.Any()) // 避免重複 Seed
+            if (!_context.ProductImages.Any()) // 避免重複 Seed
             {
                 var productImages = new List<ProductImage>
                 {
@@ -59,7 +59,7 @@ namespace CraftDailyCorner.Seed.Datas
                             ProductID = "P000000005"
                         }
                 };
-                _context.ProductImage.AddRange(productImages);
+                _context.ProductImages.AddRange(productImages);
                 _context.SaveChanges();
             }
         }

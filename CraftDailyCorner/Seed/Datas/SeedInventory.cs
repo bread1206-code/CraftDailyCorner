@@ -12,7 +12,7 @@ namespace CraftDailyCorner.Seed.Datas
         }
         public void Run()
         {
-            if (!_context.Inventory.Any()) // 避免重複 Seed
+            if (!_context.Inventories.Any()) // 避免重複 Seed
             {
                 var inventories = new List<Inventory>
                 {
@@ -23,7 +23,7 @@ namespace CraftDailyCorner.Seed.Datas
                         ProductID = "P000000001"
                     }
                 };
-                _context.Inventory.AddRange(inventories);
+                _context.Inventories.AddRange(inventories);
                 _context.SaveChanges();
             }
         }

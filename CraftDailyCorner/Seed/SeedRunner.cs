@@ -140,7 +140,7 @@ namespace CraftDailyCorner.Seed
 
         public void Run()
         {
-            if (!_context.Member.Any())
+            if (!_context.Members.Any())
             {
                 // 1️ 準備 GUID
             var memberGuids = GenerateGuids(5);

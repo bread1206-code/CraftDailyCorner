@@ -12,7 +12,7 @@ namespace CraftDailyCorner.Seed.Datas
         }
         public void Run(string[] imageGuids)
         {
-            if (!_context.CreatorApplication.Any()) // 避免重複 Seed
+            if (!_context.CreatorApplications.Any()) // 避免重複 Seed
             {
                 var creatorApplications = new List<CreatorApplication>
                 {
@@ -59,7 +59,7 @@ namespace CraftDailyCorner.Seed.Datas
                         ReviewedBy = "M0000001"
                     }
                 };
-                _context.CreatorApplication.AddRange(creatorApplications);
+                _context.CreatorApplications.AddRange(creatorApplications);
                 _context.SaveChanges();
             }
         }

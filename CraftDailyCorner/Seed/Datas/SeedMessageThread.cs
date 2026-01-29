@@ -12,7 +12,7 @@ namespace CraftDailyCorner.Seed.Datas
         }
         public void Run()
         {
-            if (!_context.MessageThread.Any()) // 避免重複 Seed
+            if (!_context.MessageThreads.Any()) // 避免重複 Seed
             {
                 var messageThreads = new List<MessageThread>
                 {
@@ -23,7 +23,7 @@ namespace CraftDailyCorner.Seed.Datas
                         CreatorID = "M0000004"
                     }
                 };
-                _context.MessageThread.AddRange(messageThreads);
+                _context.MessageThreads.AddRange(messageThreads);
                 _context.SaveChanges();
             }
         }

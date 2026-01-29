@@ -12,7 +12,7 @@ namespace CraftDailyCorner.Seed.Datas
         }
         public void Run()
         {
-            if (!_context.MemberRoleHistory.Any()) // 避免重複 Seed
+            if (!_context.MemberRoleHistories.Any()) // 避免重複 Seed
             {
                 var memberRoleHistories = new List<MemberRoleHistory>
                 {
@@ -74,7 +74,7 @@ namespace CraftDailyCorner.Seed.Datas
                         OperatorMemberID = null
                     }
                 };
-                _context.MemberRoleHistory.AddRange(memberRoleHistories);
+                _context.MemberRoleHistories.AddRange(memberRoleHistories);
                 _context.SaveChanges();
             }
         }

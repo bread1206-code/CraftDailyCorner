@@ -12,7 +12,7 @@ namespace CraftDailyCorner.Seed.Datas
         }
         public void Run()
         {
-            if (!_context.Product.Any()) // 避免重複 Seed
+            if (!_context.Products.Any()) // 避免重複 Seed
             {
                 var products = new List<Product>
                 {
@@ -66,7 +66,7 @@ namespace CraftDailyCorner.Seed.Datas
                             CreatorID = "C00002"
                         }
                 };
-                _context.Product.AddRange(products);
+                _context.Products.AddRange(products);
                 _context.SaveChanges();
             }
         }

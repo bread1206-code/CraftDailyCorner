@@ -12,7 +12,7 @@ namespace CraftDailyCorner.Seed.Datas
         }
         public void Run()
         {
-            if (!_context.MemberRole.Any()) // 避免重複 Seed
+            if (!_context.MemberRoles.Any()) // 避免重複 Seed
             {
                 var memberRoles = new List<MemberRole>
                 {
@@ -58,7 +58,7 @@ namespace CraftDailyCorner.Seed.Datas
                         AssignedAt = DateTime.Now
                     }
                 };
-                _context.MemberRole.AddRange(memberRoles);
+                _context.MemberRoles.AddRange(memberRoles);
                 _context.SaveChanges();
             }
         }

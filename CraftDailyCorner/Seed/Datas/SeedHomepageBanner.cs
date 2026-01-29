@@ -12,7 +12,7 @@ namespace CraftDailyCorner.Seed.Datas
         }
         public void Run(string[] imageGuids)
         {
-            if (!_context.HomepageBanner.Any()) // 避免重複 Seed
+            if (!_context.HomepageBanners.Any()) // 避免重複 Seed
             {
                 var homepageBanners = new List<HomepageBanner>
                 {
@@ -42,7 +42,7 @@ namespace CraftDailyCorner.Seed.Datas
                         CreatedBy = "M0000001"
                     }
                 };
-                _context.HomepageBanner.AddRange(homepageBanners);
+                _context.HomepageBanners.AddRange(homepageBanners);
                 _context.SaveChanges();
             }
         }

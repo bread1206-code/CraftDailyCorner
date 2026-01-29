@@ -12,7 +12,7 @@ namespace CraftDailyCorner.Seed.Datas
         }
         public void Run(string[] imageGuids)
         {
-            if (!_context.PostComment.Any()) // 避免重複 Seed
+            if (!_context.PostComments.Any()) // 避免重複 Seed
             {
                 var postComments = new List<PostComment>
                 {
@@ -26,7 +26,7 @@ namespace CraftDailyCorner.Seed.Datas
                         MemberID = "M0000002"
                     }
                 };
-                _context.PostComment.AddRange(postComments);
+                _context.PostComments.AddRange(postComments);
                 _context.SaveChanges();
             }
         }

@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using CraftDailyCorner.ViewModels;
 
 namespace CraftDailyCorner.Models
 {
@@ -9,42 +8,42 @@ namespace CraftDailyCorner.Models
 
         #region DbSet
 
-        public DbSet<Member> Member => Set<Member>();
-        public DbSet<Privacy> Privacy => Set<Privacy>();
-        public DbSet<Role> Role => Set<Role>();
-        public DbSet<MemberRole> MemberRole => Set<MemberRole>();
-        public DbSet<MemberRoleHistory> MemberRoleHistory => Set<MemberRoleHistory>();
-        public DbSet<CreatorApplication> CreatorApplication => Set<CreatorApplication>();
-        public DbSet<CreatorProfile> CreatorProfile => Set<CreatorProfile>();
-        public DbSet<Product> Product => Set<Product>();
-        public DbSet<ProductImage> ProductImage => Set<ProductImage>();
-        public DbSet<Category> Category => Set<Category>();
-        public DbSet<ProductCategory> ProductCategory => Set<ProductCategory>();
-        public DbSet<Tag> Tag => Set<Tag>();
-        public DbSet<ProductTag> ProductTag => Set<ProductTag>();
-        public DbSet<Cart> Cart => Set<Cart>();
-        public DbSet<CartItem> CartItem => Set<CartItem>();
-        public DbSet<Order> Order => Set<Order>();
-        public DbSet<OrderDetail> OrderDetail => Set<OrderDetail>();
-        public DbSet<Payment> Payment => Set<Payment>();
-        public DbSet<Shipment> Shipment => Set<Shipment>();
-        public DbSet<FavoriteProduct> FavoriteProduct => Set<FavoriteProduct>();
-        public DbSet<FollowCreator> FollowCreator => Set<FollowCreator>();
-        public DbSet<ProductReview> ProductReview => Set<ProductReview>();
-        public DbSet<MessageThread> MessageThread => Set<MessageThread>();
-        public DbSet<Message> Message => Set<Message>();
-        public DbSet<AutoReplyTemplate> AutoReplyTemplate => Set<AutoReplyTemplate>();
-        public DbSet<CreatorPost> CreatorPost => Set<CreatorPost>();
-        public DbSet<PostComment> PostComment => Set<PostComment>();
-        public DbSet<Inventory> Inventory => Set<Inventory>();
-        public DbSet<InventoryAlert> InventoryAlert => Set<InventoryAlert>();
-        public DbSet<PlatformAnnouncement> PlatformAnnouncement => Set<PlatformAnnouncement>();
-        public DbSet<HomepageBanner> HomepageBanner => Set<HomepageBanner>();
-        public DbSet<PlatformSetting> PlatformSetting => Set<PlatformSetting>();
-        public DbSet<Portfolio> Portfolio => Set<Portfolio>();
-        public DbSet<PortfolioItem> PortfolioItem => Set<PortfolioItem>();
-        public DbSet<NotificationPreference> NotificationPreference => Set<NotificationPreference>();
-        public DbSet<NotificationEvent> NotificationEvent => Set<NotificationEvent>();
+        public DbSet<Member> Members => Set<Member>();
+        public DbSet<Privacy> Privacies => Set<Privacy>();
+        public DbSet<Role> Roles => Set<Role>();
+        public DbSet<MemberRole> MemberRoles => Set<MemberRole>();
+        public DbSet<MemberRoleHistory> MemberRoleHistories => Set<MemberRoleHistory>();
+        public DbSet<CreatorApplication> CreatorApplications => Set<CreatorApplication>();
+        public DbSet<CreatorProfile> CreatorProfiles => Set<CreatorProfile>();
+        public DbSet<Product> Products => Set<Product>();
+        public DbSet<ProductImage> ProductImages => Set<ProductImage>();
+        public DbSet<Category> Categories => Set<Category>();
+        public DbSet<ProductCategory> ProductCategories => Set<ProductCategory>();
+        public DbSet<Tag> Tags => Set<Tag>();
+        public DbSet<ProductTag> ProductTags => Set<ProductTag>();
+        public DbSet<Cart> Carts => Set<Cart>();
+        public DbSet<CartItem> CartItems => Set<CartItem>();
+        public DbSet<Order> Orders => Set<Order>();
+        public DbSet<OrderDetail> OrderDetails => Set<OrderDetail>();
+        public DbSet<Payment> Payments => Set<Payment>();
+        public DbSet<Shipment> Shipments => Set<Shipment>();
+        public DbSet<FavoriteProduct> FavoriteProducts => Set<FavoriteProduct>();
+        public DbSet<FollowCreator> FollowCreators => Set<FollowCreator>();
+        public DbSet<ProductReview> ProductReviews => Set<ProductReview>();
+        public DbSet<MessageThread> MessageThreads => Set<MessageThread>();
+        public DbSet<Message> Messages => Set<Message>();
+        public DbSet<AutoReplyTemplate> AutoReplyTemplates => Set<AutoReplyTemplate>();
+        public DbSet<CreatorPost> CreatorPosts => Set<CreatorPost>();
+        public DbSet<PostComment> PostComments => Set<PostComment>();
+        public DbSet<Inventory> Inventories => Set<Inventory>();
+        public DbSet<InventoryAlert> InventoryAlerts => Set<InventoryAlert>();
+        public DbSet<PlatformAnnouncement> PlatformAnnouncements => Set<PlatformAnnouncement>();
+        public DbSet<HomepageBanner> HomepageBanners => Set<HomepageBanner>();
+        public DbSet<PlatformSetting> PlatformSettings => Set<PlatformSetting>();
+        public DbSet<Portfolio> Portfolios => Set<Portfolio>();
+        public DbSet<PortfolioItem> PortfolioItems => Set<PortfolioItem>();
+        public DbSet<NotificationPreference> NotificationPreferences => Set<NotificationPreference>();
+        public DbSet<NotificationEvent> NotificationEvents => Set<NotificationEvent>();
 
         #endregion
 
@@ -140,7 +139,7 @@ namespace CraftDailyCorner.Models
 
             modelBuilder.Entity<MemberRoleHistory>()
                 .HasOne(h => h.Member)
-                .WithMany(m=>m.MemberRoleHistory)
+                .WithMany(m => m.MemberRoleHistory)
                 .HasForeignKey(h => h.MemberID)
                 .OnDelete(DeleteBehavior.Restrict);
 
@@ -185,6 +184,12 @@ namespace CraftDailyCorner.Models
                 .WithMany(p => p.ProductImage)
                 .HasForeignKey(pi => pi.ProductID)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Category>()
+                .HasOne(c => c.ParentCategory)
+                .WithMany(c => c.SubCategories)
+                .HasForeignKey(c => c.ParentCategoryID)
+                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<ProductCategory>()
                 .HasOne(pc => pc.Product)
@@ -350,19 +355,19 @@ namespace CraftDailyCorner.Models
 
             modelBuilder.Entity<PlatformAnnouncement>()
                 .HasOne(pa => pa.Member)
-                .WithMany(p=> p.PlatformAnnouncement)
+                .WithMany(p => p.PlatformAnnouncement)
                 .HasForeignKey(pa => pa.CreatedBy)
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<HomepageBanner>()
                 .HasOne(hb => hb.Member)
-                .WithMany(h=>h.HomepageBanner)
+                .WithMany(h => h.HomepageBanner)
                 .HasForeignKey(hb => hb.CreatedBy)
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<PlatformSetting>()
                 .HasOne(ps => ps.Member)
-                .WithMany(p=>p.PlatformSetting)
+                .WithMany(p => p.PlatformSetting)
                 .HasForeignKey(ps => ps.UpdatedBy)
                 .OnDelete(DeleteBehavior.Restrict);
 
@@ -402,6 +407,5 @@ namespace CraftDailyCorner.Models
 
             #endregion
         }
-        public DbSet<CraftDailyCorner.ViewModels.VMLogin> VMLogin { get; set; } = default!;
     }
 }

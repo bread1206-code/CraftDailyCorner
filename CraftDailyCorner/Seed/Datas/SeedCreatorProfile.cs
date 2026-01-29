@@ -12,7 +12,7 @@ namespace CraftDailyCorner.Seed.Datas
         }
         public void Run(string[] imageGuids)
         {
-            if (!_context.CreatorProfile.Any()) // 避免重複 Seed
+            if (!_context.CreatorProfiles.Any()) // 避免重複 Seed
             {
                 var creatorProfiles = new List<CreatorProfile>
                 {
@@ -47,7 +47,7 @@ namespace CraftDailyCorner.Seed.Datas
                         MemberID = "M0000005"
                     }
                 };
-                _context.CreatorProfile.AddRange(creatorProfiles);
+                _context.CreatorProfiles.AddRange(creatorProfiles);
                 _context.SaveChanges();
             }
         }

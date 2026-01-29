@@ -16,7 +16,7 @@ namespace test.ViewComponents
         public async Task<IViewComponentResult> InvokeAsync()
         {
 
-            var HomepageBanner = await _context.HomepageBanner
+            var HomepageBanner = await _context.HomepageBanners
             .Where(p => p.Status == (HomepageBannerStatus)1)
             .OrderByDescending(p => p.CreatedAt)
             .Select(p => new HomepageBanner

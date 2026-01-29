@@ -12,7 +12,7 @@ namespace CraftDailyCorner.Seed.Datas
         }
         public void Run()
         {
-            if (!_context.NotificationEvent.Any()) // 避免重複 Seed
+            if (!_context.NotificationEvents.Any()) // 避免重複 Seed
             {
                 var notificationEvents = new List<NotificationEvent>
                 {
@@ -24,7 +24,7 @@ namespace CraftDailyCorner.Seed.Datas
                         MemberID = "M0000002"
                     }
                 };
-                _context.NotificationEvent.AddRange(notificationEvents);
+                _context.NotificationEvents.AddRange(notificationEvents);
                 _context.SaveChanges();
             }
         }

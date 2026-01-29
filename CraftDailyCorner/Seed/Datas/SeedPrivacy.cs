@@ -12,7 +12,7 @@ namespace CraftDailyCorner.Seed.Datas
         }
         public void Run()
         {
-            if (!_context.Privacy.Any()) // 避免重複 Seed
+            if (!_context.Privacies.Any()) // 避免重複 Seed
             {
                 var privacies = new List<Privacy>
                 {
@@ -58,7 +58,7 @@ namespace CraftDailyCorner.Seed.Datas
                         MemberID = "M0000005"
                     }
                 };
-                _context.Privacy.AddRange(privacies);
+                _context.Privacies.AddRange(privacies);
                 _context.SaveChanges();
             }
         }

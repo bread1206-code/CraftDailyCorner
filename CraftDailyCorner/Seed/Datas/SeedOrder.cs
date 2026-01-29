@@ -12,7 +12,7 @@ namespace CraftDailyCorner.Seed.Datas
         }
         public void Run()
         {
-            if (!_context.Order.Any()) // 避免重複 Seed
+            if (!_context.Orders.Any()) // 避免重複 Seed
             {
                 var orders = new List<Order>
                 {
@@ -28,7 +28,7 @@ namespace CraftDailyCorner.Seed.Datas
                         MemberID = "M0000002"
                     }
                 };
-                _context.Order.AddRange(orders);
+                _context.Orders.AddRange(orders);
                 _context.SaveChanges();
             }
         }

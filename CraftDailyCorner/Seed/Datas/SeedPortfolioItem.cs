@@ -12,7 +12,7 @@ namespace CraftDailyCorner.Seed.Datas
         }
         public void Run(string[] imageGuids)
         {
-            if (!_context.PortfolioItem.Any()) // 避免重複 Seed
+            if (!_context.PortfolioItems.Any()) // 避免重複 Seed
             {
                 var portfolioItems = new List<PortfolioItem>
                 {
@@ -28,7 +28,7 @@ namespace CraftDailyCorner.Seed.Datas
                         PortfolioID = imageGuids[0]
                     }
                 };
-                _context.PortfolioItem.AddRange(portfolioItems);
+                _context.PortfolioItems.AddRange(portfolioItems);
                 _context.SaveChanges();
             }
         }

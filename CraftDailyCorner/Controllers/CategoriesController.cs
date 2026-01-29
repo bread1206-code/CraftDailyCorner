@@ -9,23 +9,22 @@ using CraftDailyCorner.Models;
 
 namespace CraftDailyCorner.Controllers
 {
-    public class HomepageBannersController : Controller
+    public class CategoriesController : Controller
     {
         private readonly CraftDailyCornerContext _context;
 
-        public HomepageBannersController(CraftDailyCornerContext context)
+        public CategoriesController(CraftDailyCornerContext context)
         {
             _context = context;
         }
 
-        // GET: HomepageBanners
+        // GET: Categories
         public async Task<IActionResult> Index()
         {
-            var testContext = _context.HomepageBanners.Include(h => h.Member);
-            return View(await testContext.ToListAsync());
+            return View(await _context.Categories.ToListAsync());
         }
 
-        // GET: HomepageBanners/Details/5
+        // GET: Categories/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -33,42 +32,39 @@ namespace CraftDailyCorner.Controllers
                 return NotFound();
             }
 
-            var homepageBanner = await _context.HomepageBanners
-                .Include(h => h.Member)
-                .FirstOrDefaultAsync(m => m.BannerID == id);
-            if (homepageBanner == null)
+            var category = await _context.Categories
+                .FirstOrDefaultAsync(m => m.CategoryID == id);
+            if (category == null)
             {
                 return NotFound();
             }
 
-            return View(homepageBanner);
+            return View(category);
         }
 
-        // GET: HomepageBanners/Create
+        // GET: Categories/Create
         public IActionResult Create()
         {
-            ViewData["CreatedBy"] = new SelectList(_context.Members, "MemberID", "MemberID");
             return View();
         }
 
-        // POST: HomepageBanners/Create
+        // POST: Categories/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("BannerID,ImageUrl,Title,Subtitle,Status,CreatedAt,CreatedBy")] HomepageBanner homepageBanner)
+        public async Task<IActionResult> Create([Bind("CategoryID,CategoryName,ParentCategoryID,IsActive,CreatedAt")] Category category)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(homepageBanner);
+                _context.Add(category);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["CreatedBy"] = new SelectList(_context.Members, "MemberID", "MemberID", homepageBanner.CreatedBy);
-            return View(homepageBanner);
+            return View(category);
         }
 
-        // GET: HomepageBanners/Edit/5
+        // GET: Categories/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -76,23 +72,22 @@ namespace CraftDailyCorner.Controllers
                 return NotFound();
             }
 
-            var homepageBanner = await _context.HomepageBanners.FindAsync(id);
-            if (homepageBanner == null)
+            var category = await _context.Categories.FindAsync(id);
+            if (category == null)
             {
                 return NotFound();
             }
-            ViewData["CreatedBy"] = new SelectList(_context.Members, "MemberID", "MemberID", homepageBanner.CreatedBy);
-            return View(homepageBanner);
+            return View(category);
         }
 
-        // POST: HomepageBanners/Edit/5
+        // POST: Categories/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("BannerID,ImageUrl,Title,Subtitle,Status,CreatedAt,CreatedBy")] HomepageBanner homepageBanner)
+        public async Task<IActionResult> Edit(int id, [Bind("CategoryID,CategoryName,ParentCategoryID,IsActive,CreatedAt")] Category category)
         {
-            if (id != homepageBanner.BannerID)
+            if (id != category.CategoryID)
             {
                 return NotFound();
             }
@@ -101,12 +96,12 @@ namespace CraftDailyCorner.Controllers
             {
                 try
                 {
-                    _context.Update(homepageBanner);
+                    _context.Update(category);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!HomepageBannerExists(homepageBanner.BannerID))
+                    if (!CategoryExists(category.CategoryID))
                     {
                         return NotFound();
                     }
@@ -117,11 +112,10 @@ namespace CraftDailyCorner.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["CreatedBy"] = new SelectList(_context.Members, "MemberID", "MemberID", homepageBanner.CreatedBy);
-            return View(homepageBanner);
+            return View(category);
         }
 
-        // GET: HomepageBanners/Delete/5
+        // GET: Categories/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -129,35 +123,34 @@ namespace CraftDailyCorner.Controllers
                 return NotFound();
             }
 
-            var homepageBanner = await _context.HomepageBanners
-                .Include(h => h.Member)
-                .FirstOrDefaultAsync(m => m.BannerID == id);
-            if (homepageBanner == null)
+            var category = await _context.Categories
+                .FirstOrDefaultAsync(m => m.CategoryID == id);
+            if (category == null)
             {
                 return NotFound();
             }
 
-            return View(homepageBanner);
+            return View(category);
         }
 
-        // POST: HomepageBanners/Delete/5
+        // POST: Categories/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var homepageBanner = await _context.HomepageBanners.FindAsync(id);
-            if (homepageBanner != null)
+            var category = await _context.Categories.FindAsync(id);
+            if (category != null)
             {
-                _context.HomepageBanners.Remove(homepageBanner);
+                _context.Categories.Remove(category);
             }
 
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        private bool HomepageBannerExists(int id)
+        private bool CategoryExists(int id)
         {
-            return _context.HomepageBanners.Any(e => e.BannerID == id);
+            return _context.Categories.Any(e => e.CategoryID == id);
         }
     }
 }

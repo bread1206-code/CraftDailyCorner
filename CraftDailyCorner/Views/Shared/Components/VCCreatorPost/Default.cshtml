@@ -17,8 +17,8 @@
                         <img src="/Photos/05CreatorPost/Medium/@item.ImageUrl" alt="Photo" class="img-thumbnail rounded-circle m-2" />
                     }
                     <div class="card-body p-0">
-                        <div class="fw-bold fs-3 text-center"><i class="bi bi-filter-right"></i>@Html.DisplayFor(modelItem => item.Title)<i class="bi bi-filter-left"></i></div>
-                        <div class="fw-bold fs-6 text-end mx-2">
+                        <div class="fw-bold hotpost-title text-center"><i class="bi bi-filter-right"></i>@Html.DisplayFor(modelItem => item.Title)<i class="bi bi-filter-left"></i></div>
+                                <div class="fw-bold hotpost-Author text-end mx-2">
                             <a href="#" class="text-black">
                             @Html.DisplayFor(modelItem => item.DisplayName)</a>
                             <div>@Html.DisplayFor(modelItem => item.CreatedAt)</div>

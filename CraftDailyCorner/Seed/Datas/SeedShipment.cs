@@ -12,7 +12,7 @@ namespace CraftDailyCorner.Seed.Datas
         }
         public void Run()
         {
-            if (!_context.Shipment.Any()) // 避免重複 Seed
+            if (!_context.Shipments.Any()) // 避免重複 Seed
             {
                 var shipments = new List<Shipment>
                 {
@@ -23,7 +23,7 @@ namespace CraftDailyCorner.Seed.Datas
                         OrderID = "202601010001"
                     }
                 };
-                _context.Shipment.AddRange(shipments);
+                _context.Shipments.AddRange(shipments);
                 _context.SaveChanges();
             }
         }

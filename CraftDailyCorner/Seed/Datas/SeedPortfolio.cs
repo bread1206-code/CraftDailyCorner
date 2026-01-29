@@ -12,7 +12,7 @@ namespace CraftDailyCorner.Seed.Datas
         }
         public void Run(string[] imageGuids)
         {
-            if (!_context.Portfolio.Any()) // 避免重複 Seed
+            if (!_context.Portfolios.Any()) // 避免重複 Seed
             {
                 var portfolios = new List<Portfolio>
                 {
@@ -26,7 +26,7 @@ namespace CraftDailyCorner.Seed.Datas
                         CreatorID = "C00001"
                     }
                 };
-                _context.Portfolio.AddRange(portfolios);
+                _context.Portfolios.AddRange(portfolios);
                 _context.SaveChanges();
             }
         }

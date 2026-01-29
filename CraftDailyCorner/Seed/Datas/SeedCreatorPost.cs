@@ -12,7 +12,7 @@ namespace CraftDailyCorner.Seed.Datas
         }
         public void Run(string[] imageGuids)
         {
-            if (!_context.CreatorPost.Any()) // 避免重複 Seed
+            if (!_context.CreatorPosts.Any()) // 避免重複 Seed
             {
                 var creatorPosts = new List<CreatorPost>
                 {
@@ -105,7 +105,7 @@ namespace CraftDailyCorner.Seed.Datas
                         CreatorID = "C00001"
                     }
                 };
-                _context.CreatorPost.AddRange(creatorPosts);
+                _context.CreatorPosts.AddRange(creatorPosts);
                 _context.SaveChanges();
             }
         }

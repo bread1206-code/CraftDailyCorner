@@ -12,17 +12,17 @@ namespace CraftDailyCorner.Seed.Datas
         }
         public void Run()
         {
-            if (!_context.ProductCategory.Any()) // 避免重複 Seed
+            if (!_context.ProductCategories.Any()) // 避免重複 Seed
             {
                 var ProductCategory = new List<ProductCategory>
                 {
-                    new ProductCategory { ProductID = "P000000001", CategoryID = 1 },
-                    new ProductCategory { ProductID = "P000000002", CategoryID = 2 }
+                    new ProductCategory { ProductID = "P000000001", CategoryID = 8 },
+                    new ProductCategory { ProductID = "P000000002", CategoryID = 9 }
                 };
-                _context.ProductCategory.AddRange(ProductCategory);
+                _context.ProductCategories.AddRange(ProductCategory);
                 _context.SaveChanges();
             }
-            if (!_context.ProductTag.Any()) // 避免重複 Seed
+            if (!_context.ProductTags.Any()) // 避免重複 Seed
             {
                 var ProductTag = new List<ProductTag>
                 {
@@ -30,7 +30,7 @@ namespace CraftDailyCorner.Seed.Datas
                     new ProductTag { ProductID = "P000000001", TagID = 3 },
                     new ProductTag { ProductID = "P000000002", TagID = 1 }
                 };
-                _context.ProductTag.AddRange(ProductTag);
+                _context.ProductTags.AddRange(ProductTag);
                 _context.SaveChanges();
             }
         }
