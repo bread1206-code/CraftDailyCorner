@@ -48,6 +48,7 @@ namespace CraftDailyCorner.Models
         public virtual List<NotificationEvent>? NotificationEvent { get; set; }
         public virtual List<PostComment>? PostComment { get; set; }
         public virtual List<Message>? Message { get; set; }
+        public virtual List<PasswordResetToken>? PasswordResetTokens { get; set; }
 
     }
 }

@@ -19,12 +19,14 @@ namespace CraftDailyCorner.ViewModels
         [Display(Name = "密碼")]
         [Required(ErrorMessage = "必填")]
         [StringLength(20, MinimumLength = 8, ErrorMessage = "密碼為8-20碼")]
+        [DataType(DataType.Password)]
         public string Password { get; set; } = null!;
 
         [Display(Name = "確認密碼")]
         [Required(ErrorMessage = "必填")]
         [StringLength(20, MinimumLength = 8, ErrorMessage = "密碼為8-20碼")]
         [Compare("Password", ErrorMessage = "兩次密碼不一致")]
+        [DataType(DataType.Password)]
         public string ConfirmPassword { get; set; } = null!;
 
         [Key]

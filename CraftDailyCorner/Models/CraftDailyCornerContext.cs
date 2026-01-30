@@ -397,6 +397,12 @@ namespace CraftDailyCorner.Models
                 .HasForeignKey(ne => ne.MemberID)
                 .OnDelete(DeleteBehavior.Cascade);
 
+            modelBuilder.Entity<PasswordResetToken>()
+                .HasOne(t => t.Member)
+                .WithMany(m => m.PasswordResetTokens)
+                .HasForeignKey(t => t.MemberID)
+                .OnDelete(DeleteBehavior.Cascade);
+
             #endregion
 
             #region Delete Behavior Control (避免 Multiple Cascade Path)
@@ -424,5 +430,7 @@ namespace CraftDailyCorner.Models
             #endregion
         }
         public DbSet<CraftDailyCorner.ViewModels.VMRegister> VMRegister { get; set; } = default!;
+        public DbSet<CraftDailyCorner.ViewModels.VMForgetPassword> VMForgetPassword { get; set; } = default!;
+        public DbSet<CraftDailyCorner.ViewModels.VMResetPassword> VMResetPassword { get; set; } = default!;
     }
 }

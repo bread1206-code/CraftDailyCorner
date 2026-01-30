@@ -163,6 +163,7 @@ namespace CraftDailyCorner.Seed
             UploadImages(seedPortfolioItemGuids, "06Portfolio");
             UploadImages(logoGuids, "07Logo");
             UploadImages(homepageBannerGuids, "08HomepageBanner");
+            UploadImages();// 上傳預設會員圖片
             Console.WriteLine("上傳圖片 完成");
             
 
@@ -236,6 +237,18 @@ namespace CraftDailyCorner.Seed
                     sizes: sizes
                 );
             }
+        }
+        private void UploadImages()
+        {
+            var sizes = _folderSizeMapping.ContainsKey("01Member")
+                ? _folderSizeMapping["01Member"]
+                : ImageSizePresets.Member; // 預設使用 Member
+            _imageUploadService.UploadSeedImage(
+                    seedFolder: "01Member",
+                    sourceFile: "Seed/SeedPhotos/01Member/default.png",
+                    fileNameWithoutExt: "default",
+                    sizes: sizes
+                );
         }
 
         private string[] GenerateGuids(int count)

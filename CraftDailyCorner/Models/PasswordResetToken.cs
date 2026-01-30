@@ -4,7 +4,8 @@ namespace CraftDailyCorner.Models
 {
     public class PasswordResetToken
     {
-        public int Id { get; set; }
+        [Key]
+        public long PasswordResetId { get; set; }
 
         [Required]
         public string MemberID { get; set; } = null!;
@@ -15,5 +16,7 @@ namespace CraftDailyCorner.Models
 
         public DateTime ExpiryDate { get; set; }
         public bool Used { get; set; } = false;
+
+        public Member? Member { get; set; }
     }
 }
