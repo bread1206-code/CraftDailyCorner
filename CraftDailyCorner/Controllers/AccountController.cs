@@ -22,38 +22,46 @@ namespace CraftDailyCorner.Controllers
         [HttpPost]
         public async Task<IActionResult> Login(VMLogin login)
         {
-            var user = _context.Privacies.FirstOrDefault(u => u.Email == login.Account || u.Phone == login.Account && u.PasswordHash == login.Password);
-            var roleName = (
-                from p in _context.Privacies
-                join mr in _context.MemberRoles on p.MemberID equals mr.MemberID
-                join r in _context.Roles on mr.RoleID equals r.RoleID
-                where p.Email == login.Account
-                || p.Phone == login.Account
-                && p.PasswordHash == login.Password
-                orderby mr.AssignedAt descending
-                select r.RoleName
-            ).FirstOrDefault() ?? "未知";
-            var DisplayName = (
-                from p in _context.Privacies
-                join mr in _context.MemberRoles on p.MemberID equals mr.MemberID
-                join r in _context.Roles on mr.RoleID equals r.RoleID
-                join m in _context.Members on p.MemberID equals m.MemberID
-                where p.Email == login.Account
-                || p.Phone == login.Account
-                && p.PasswordHash == login.Password
-                orderby mr.AssignedAt descending
-                select m.DisplayName
-            ).FirstOrDefault() ?? "使用者";
-
+            var user = _context.Privacies.FirstOrDefault(u => (u.Email == login.Account || u.Phone == login.Account)&& u.PasswordHash == login.Password);
             if (user != null)
             {
+                var roleName = (
+                    from mr in _context.MemberRoles
+                    join r in _context.Roles on mr.RoleID equals r.RoleID
+                    where mr.MemberID == user.MemberID
+                    orderby mr.AssignedAt descending
+                    select r.RoleName
+                ).FirstOrDefault() ?? "未知";
+
+                var DisplayName = _context.Members
+                    .Where(m => m.MemberID == user.MemberID)
+                    .Select(m => m.DisplayName)
+                    .FirstOrDefault() ?? "使用者";
+
                 var claims = new List<Claim>
                 {
+                    new Claim(ClaimTypes.NameIdentifier, user.MemberID.ToString()),
                     new Claim(ClaimTypes.Name,DisplayName),
                     new Claim(ClaimTypes.Role, roleName)
                 };
                 var claimsIdentity = new ClaimsIdentity(claims, "CraftDailyCornerLogin");
                 var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
+                if (login.RememberAccount)
+                {
+                    Response.Cookies.Append(
+                        "RememberAccount",
+                        login.Account,
+                        new CookieOptions
+                        {
+                            Expires = DateTimeOffset.Now.AddDays(30),
+                            HttpOnly = true
+                        }
+                    );
+                }
+                else
+                {
+                    Response.Cookies.Delete("RememberAccount");
+                }
                 await HttpContext.SignInAsync("CraftDailyCornerLogin", claimsPrincipal);
 
                 return RedirectToAction("Index", "Home");

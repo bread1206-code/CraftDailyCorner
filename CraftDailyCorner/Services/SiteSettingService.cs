@@ -18,7 +18,7 @@ namespace CraftDailyCorner.Services
             public string GetNavbarLogo()
         {
 
-            var logo = _context.PlatformSetting
+            var logo = _context.PlatformSettings
                 .Where(x => x.Category ==(PlatformSettingCategory)1 && x.SettingKey== "platform_LogoURL")
                 .OrderByDescending(x => x.UpdatedAt)
                 .Select(x => x.SettingValue)

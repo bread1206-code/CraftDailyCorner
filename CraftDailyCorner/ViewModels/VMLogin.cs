@@ -17,6 +17,6 @@ namespace CraftDailyCorner.ViewModels
         [MaxLength(20)]
         public string Password { get; set; } = null!;
 
-        public bool RememberMe { get; set; }
+        public bool RememberAccount { get; set; }
     }
 }
