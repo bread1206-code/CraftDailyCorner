@@ -9,8 +9,9 @@ namespace CraftDailyCorner.Models
         [Key]
         [Display(Name = "會員編號")]
         public string MemberID { get; set; } = null!;
+        
         [Required(ErrorMessage = "必填")]
-        [StringLength(40)]
+        [StringLength(200)]
         [EmailAddress(ErrorMessage ="電子郵件格式錯誤")]
         [Display(Name = "電子郵件")]
         public string Email { get; set; } = null!;

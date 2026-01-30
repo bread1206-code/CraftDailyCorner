@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using CraftDailyCorner.ViewModels;
 
 namespace CraftDailyCorner.Models
 {
@@ -44,6 +45,7 @@ namespace CraftDailyCorner.Models
         public DbSet<PortfolioItem> PortfolioItems => Set<PortfolioItem>();
         public DbSet<NotificationPreference> NotificationPreferences => Set<NotificationPreference>();
         public DbSet<NotificationEvent> NotificationEvents => Set<NotificationEvent>();
+        public DbSet<PasswordResetToken> PasswordResetTokens => Set<PasswordResetToken>();
 
         #endregion
 
@@ -406,6 +408,21 @@ namespace CraftDailyCorner.Models
                 .OnDelete(DeleteBehavior.Restrict);
 
             #endregion
+
+            #region Unique
+            // Email 唯一
+            modelBuilder.Entity<Privacy>()
+                .HasIndex(p => p.Email)
+                .IsUnique();
+
+            // Phone 唯一（可選，允許為 null）
+            modelBuilder.Entity<Privacy>()
+                .HasIndex(p => p.Phone)
+                .IsUnique()
+                .HasFilter("[Phone] IS NOT NULL"); // 允許 Phone 空值
+
+            #endregion
         }
+        public DbSet<CraftDailyCorner.ViewModels.VMRegister> VMRegister { get; set; } = default!;
     }
 }

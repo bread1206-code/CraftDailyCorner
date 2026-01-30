@@ -55,6 +55,7 @@ builder.Services.AddAuthentication("CraftDailyCornerLogin").AddCookie("CraftDail
     option.LogoutPath = "/Account/Logout";//設定登出頁面路徑
     option.AccessDeniedPath = "/Home/Index";//設定存取被拒絕頁面路徑(若已登入但角色權限不符,則強制導到此路徑)
 });
+builder.Services.AddScoped<MemberService>();
 
 
 var app = builder.Build();
