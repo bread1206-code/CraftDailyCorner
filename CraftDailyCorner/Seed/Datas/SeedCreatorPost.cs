@@ -23,7 +23,7 @@ namespace CraftDailyCorner.Seed.Datas
                         Content = "今天完成了一個新的榫接盒。",
                         ImageUrl = imageGuids[0] + ".png",
                         Visibility = 0,
-                        Status = (CreatorPostStatus)1,
+                        StatusID = 1,
                         CreatedAt = DateTime.Now,
                         UpdatedAt = DateTime.Now,
                         CreatorID = "C00001"
@@ -35,7 +35,7 @@ namespace CraftDailyCorner.Seed.Datas
                         Content = "今天嘗試了不同角度的榫接方式，手感比之前穩定許多。",
                         ImageUrl = imageGuids[1] + ".png",
                         Visibility = 0,
-                        Status = (CreatorPostStatus)1,
+                        StatusID = 1,
                         CreatedAt = DateTime.Now,
                         UpdatedAt = DateTime.Now,
                         CreatorID = "C00001"
@@ -48,7 +48,7 @@ namespace CraftDailyCorner.Seed.Datas
                         "書寫不只是技巧的堆疊，更是心境的映照。當雜念漸散，字形反而愈發穩定。願這份黑白之間的寧靜，也能在完成的作品中被感受到。",
                         ImageUrl = imageGuids[2] + ".png",
                         Visibility = 0,
-                        Status = (CreatorPostStatus)1,
+                        StatusID = 1,
                         CreatedAt = DateTime.Now,
                         UpdatedAt = DateTime.Now,
                         CreatorID = "C00002"
@@ -60,7 +60,7 @@ namespace CraftDailyCorner.Seed.Datas
                         Content = "最近偏好使用樟木，氣味溫潤，紋理也很適合做小型作品。",
                         ImageUrl = imageGuids[3] + ".png",
                         Visibility = (CreatorPostVisibility)1,
-                        Status = (CreatorPostStatus)1,
+                        StatusID = 1,
                         CreatedAt = DateTime.Now,
                         UpdatedAt = DateTime.Now,
                         CreatorID = "C00001"
@@ -72,7 +72,7 @@ namespace CraftDailyCorner.Seed.Datas
                         Content = "整理了一整天的木料，雖然累，但看到整齊的材料牆很療癒。",
                         ImageUrl = imageGuids[4] + ".png",
                         Visibility = 0,
-                        Status = (CreatorPostStatus)1,
+                        StatusID = 1,
                         CreatedAt = DateTime.Now,
                         UpdatedAt = DateTime.Now,
                         CreatorID = "C00001"
@@ -84,7 +84,7 @@ namespace CraftDailyCorner.Seed.Datas
                         Content = "正在嘗試把榫接結構用在首飾盒上，希望能兼顧美觀與實用。",
                         ImageUrl = imageGuids[5] + ".png",
                         Visibility = 0,
-                        Status = (CreatorPostStatus)1,
+                        StatusID = 1,
                         CreatedAt = DateTime.Now,
                         UpdatedAt = DateTime.Now,
                         CreatorID = "C00001"
@@ -99,7 +99,7 @@ namespace CraftDailyCorner.Seed.Datas
                         "也提醒自己，唯有用心對待工具，作品才能保有溫度與品質。",
                         ImageUrl = imageGuids[6] + ".png",
                         Visibility = 0,
-                        Status = (CreatorPostStatus)1,
+                        StatusID = 1,
                         CreatedAt = DateTime.Now,
                         UpdatedAt = DateTime.Now,
                         CreatorID = "C00001"

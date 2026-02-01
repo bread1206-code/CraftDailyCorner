@@ -30,7 +30,7 @@ namespace CraftDailyCorner.Models
         public DateTime StartDate { get; set; }
 
         [Display(Name = "狀態")]
-        public CreatorApplicationStatus Status { get; set; } 
+        public byte StatusID { get; set; }
 
         [Display(Name = "申請時間")]
         public DateTime AppliedAt { get; set; }
@@ -58,5 +58,6 @@ namespace CraftDailyCorner.Models
 
         [Display(Name = "審核會員")]
         public virtual Member Reviewer { get; set; } = null!;
+        public virtual CreatorApplicationStatus CreatorApplicationStatus { get; set; } = null!;
     }
 }

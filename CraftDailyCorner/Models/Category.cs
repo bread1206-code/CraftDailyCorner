@@ -19,7 +19,7 @@ namespace CraftDailyCorner.Models
         [Display(Name = "建立時間")]
         public DateTime CreatedAt { get; set; }
 
-        public virtual List<ProductCategory>? ProductCategory { get; set; }
+        public virtual List<ProductCategory>? ProductCategories { get; set; }
         public Category? ParentCategory { get; set; }
         public List<Category>? SubCategories { get; set; }
 

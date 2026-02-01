@@ -40,7 +40,7 @@ namespace CraftDailyCorner.Models
         public string? BankAccount { get; set; } 
 
         [Display(Name = "狀態")]
-        public CreatorProfileStatus Status { get; set; }
+        public byte StatusID { get; set; }
 
         [Display(Name = "建立時間")]
         public DateTime CreatedAt { get; set; }
@@ -53,11 +53,12 @@ namespace CraftDailyCorner.Models
         // 導覽屬性
         [Display(Name = "會員")]
         public virtual Member Member { get; set; } = null!;
-        public virtual List<Product>? Product { get; set; }
-        public virtual List<AutoReplyTemplate>? AutoReplyTemplate { get; set; }
-        public virtual List<CreatorPost>? CreatorPost { get; set; }
-        public virtual List<Portfolio>? Portfolio { get; set; }
-        public virtual List<FollowCreator>? FollowCreator { get; set; }
-        public virtual List<MessageThread>? MessageThread { get; set; }
+        public virtual List<Product>? Products { get; set; }
+        public virtual List<AutoReplyTemplate>? AutoReplyTemplates { get; set; }
+        public virtual List<CreatorPost>? CreatorPosts { get; set; }
+        public virtual List<Portfolio>? Portfolios { get; set; }
+        public virtual List<FollowCreator>? FollowCreators { get; set; }
+        public virtual List<MessageThread>? MessageThreads { get; set; }
+        public virtual CreatorProfileStatus? CreatorProfileStatus { get; set; }
     }
 }

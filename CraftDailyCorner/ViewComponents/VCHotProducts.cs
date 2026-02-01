@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using CraftDailyCorner.Models;
-using CraftDailyCorner.ViewModels;
+using CraftDailyCorner.ViewModels.Front;
 namespace CraftDailyCorner.ViewComponents
 {
     public class VCHotProducts : ViewComponent
@@ -17,7 +17,7 @@ namespace CraftDailyCorner.ViewComponents
         {
 
             var HPorducts = await _context.Products
-            .Where(p => p.Status == (ProductStatus)1)
+            .Where(p => p.StatusID == 2)
             .Select(p => new VMHotProductCard
             {
                 ProductID = p.ProductID,
@@ -26,7 +26,7 @@ namespace CraftDailyCorner.ViewComponents
                 FavoriteCount = _context.FavoriteProducts
                                        .Count(f => f.ProductID == p.ProductID),
                 CoverImage = _context.ProductImages
-                .Where(i=>i.ProductID==p.ProductID && i.Status==(ProductImageStatus)1)
+                .Where(i=>i.ProductID==p.ProductID && i.StatusID == 1)
                 .OrderBy(i=>i.SortOrder)
                 .Select(i => i.ImageUrl)
                 .FirstOrDefault(),

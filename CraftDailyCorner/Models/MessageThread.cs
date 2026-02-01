@@ -18,12 +18,13 @@ namespace CraftDailyCorner.Models
         public string MemberID { get; set; } = null!;
 
         [StringLength(8, MinimumLength = 8)]
-        [Column(TypeName = "nchar(8)")]
-        [Display(Name = "會員編號")]
+        [Column(TypeName = "nchar(6)")]
+        [Display(Name = "創作者編號")]
         public string CreatorID { get; set; } = null!;
 
         public virtual Member Member { get; set; } = null!;
         //public virtual CreatorProfile CreatorProfile { get; set; } = null!;
-        public virtual List<Message>? Message { get; set; }
+        public virtual List<Message>? Messages { get; set; }
+        public virtual CreatorProfile CreatorProfile { get; set; } = null!;
     }
 }

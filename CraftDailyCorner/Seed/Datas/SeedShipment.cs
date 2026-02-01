@@ -19,7 +19,7 @@ namespace CraftDailyCorner.Seed.Datas
                     new Shipment
                     {
                         TrackingNo = "EC123456789TW",
-                        Status = (ShipmentStatus)1,
+                        StatusID = 1,
                         OrderID = "202601010001"
                     }
                 };

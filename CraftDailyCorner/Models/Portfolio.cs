@@ -34,6 +34,6 @@ namespace CraftDailyCorner.Models
         public string CreatorID { get; set; } = null!;
 
         public virtual CreatorProfile CreatorProfile { get; set; } = null!;
-        public virtual List<PortfolioItem>? PortfolioItem { get; set; }
+        public virtual List<PortfolioItem>? PortfolioItems { get; set; }
     }
 }

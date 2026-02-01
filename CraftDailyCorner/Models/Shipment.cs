@@ -14,7 +14,7 @@ namespace CraftDailyCorner.Models
         public string TrackingNo { get; set; } = null!;
 
         [Display(Name = "狀態")]
-        public ShipmentStatus Status { get; set; }
+        public byte StatusID { get; set; } = 0;
 
         [StringLength(12, MinimumLength = 12)]
         [Column(TypeName = "nchar(12)")]
@@ -22,5 +22,6 @@ namespace CraftDailyCorner.Models
         public string OrderID { get; set; } = null!;
 
         public virtual Order Order { get; set; } = null!;
+        public virtual ShipmentStatus ShipmentStatus { get; set; } = null!;
     }
 }

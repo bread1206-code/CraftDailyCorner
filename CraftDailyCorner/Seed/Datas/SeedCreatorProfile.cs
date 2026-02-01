@@ -28,7 +28,7 @@ namespace CraftDailyCorner.Seed.Datas
                         StartDate = new DateTime(2020, 01, 01),
                         BankCode = " ",
                         BankAccount = " ",
-                        Status = (CreatorProfileStatus)1,
+                        StatusID = 1,
                         CreatedAt = DateTime.Now,
                         MemberID = "M0000004"
                     }, new CreatorProfile
@@ -42,7 +42,7 @@ namespace CraftDailyCorner.Seed.Datas
                         StartDate = new DateTime(2020, 08, 01),
                         BankCode = " ",
                         BankAccount = " ",
-                        Status = (CreatorProfileStatus)1,
+                        StatusID = 1,
                         CreatedAt = DateTime.Now,
                         MemberID = "M0000005"
                     }

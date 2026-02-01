@@ -1,5 +1,15 @@
+:root {
+    --bs-body-bg: #FCF8F3;
+    --bs-primary: #C08261;
+    --bs-secondary: #E2C799;
+    --bs-body-color: #463333;
+    --bs-btn-bg: #9A4444;
+    --bs-btn-border-color: #9A4444;
+    --bs-btn-hover-bg: #7A3333;
+    --bs-btn-hover-border-color: #7A3333;
+}
 html {
-  font-size: 14px;
+    font-size: 14px;
 }
 
 @media (min-width: 768px) {
@@ -81,4 +91,26 @@ body {
 
 .mega-menu .dropdown-item {
     white-space: normal;
+}
+/*商品輪播 按鈕*/
+.position-relative .carousel-control-prev-icon,
+.position-relative .carousel-control-next-icon {
+    background-color: #dd8a33;
+    padding: 16px;
+    border-radius: 50%;
+    background-size: 50% 50%;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+/*商品輪播 兩側*/
+.position-relative .carousel-control-prev,
+.position-relative .carousel-control-next {
+    background-color: rgba(255, 255, 255, 0.75);
+    padding: 16px;
+    background-size: 50% 50%;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+.position-relative .carousel-control-prev:hover,
+.position-relative .carousel-control-next:hover {
+    background-color: rgba(255, 255, 255, 0.95);
 }

@@ -20,7 +20,7 @@ namespace CraftDailyCorner.Seed.Datas
                     {
                         Title = "平台正式上線",
                         Content = "歡迎加入手作市集平台！",
-                        Status = (PlatformAnnouncementStatus)1,
+                        StatusID = 2,
                         CreatedAt = DateTime.Now,
                         CreatedBy = "M0000001"
                     },
@@ -28,7 +28,7 @@ namespace CraftDailyCorner.Seed.Datas
                     {
                         Title = "春節出貨公告",
                         Content = "春節期間出貨將延後 3–5 日。",
-                        Status = (PlatformAnnouncementStatus)1,
+                        StatusID = 2,
                         CreatedAt = DateTime.Now,
                         CreatedBy = "M0000001"
                     }

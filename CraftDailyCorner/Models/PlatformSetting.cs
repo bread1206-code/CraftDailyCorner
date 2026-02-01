@@ -25,7 +25,7 @@ namespace CraftDailyCorner.Models
         public string DataType { get; set; } = null!;
 
         [Display(Name = "類別")]
-        public PlatformSettingCategory Category { get; set; }
+        public byte CategoryID { get; set; }
 
         [Display(Name = "敘述")]
         public string? Description { get; set; }
@@ -39,5 +39,6 @@ namespace CraftDailyCorner.Models
         public string UpdatedBy { get; set; } = null!;
 
         public virtual Member Member { get; set; } = null!;
+        public virtual PlatformSettingCategory PlatformSettingCategory { get; set; } = null!;
     }
 }

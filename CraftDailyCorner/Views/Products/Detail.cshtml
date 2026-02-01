@@ -1,0 +1,144 @@
+﻿@model CraftDailyCorner.ViewModels.Front.VMProductDetail
+<div class="container my-5">
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+
+            <div class="row">
+                <!-- 左：商品圖片 -->
+                <div class="col-md-6">
+                    <div class="position-relative">
+                        <button class="carousel-control-prev"
+                                type="button"
+                                data-bs-target="#productCarousel"
+                                data-bs-slide="prev">
+                            <span class="carousel-control-prev-icon"></span>
+                        </button>
+                        <div id="productCarousel"
+                             class="carousel slide border rounded">
+                            <!-- 指示點 -->
+                            <div class="carousel-indicators">
+                                @for (int i = 0; i < Model.Images.Count; i++)
+                                {
+                                    <button type="button"
+                                            data-bs-target="#productCarousel"
+                                            data-bs-slide-to="@i"
+                                            class="@(i == 0 ? "active" : "")">
+                                    </button>
+                                }
+                            </div>
+                            <!-- 圖片 -->
+                            <div class="carousel-inner">
+                                @if (Model.Images.Any())
+                                {
+                                    @foreach (var item in Model.Images)
+                                    {
+                                        var active = item == Model.Images.First() ? "active" : "";
+
+                                        <div class="carousel-item @active">
+                                            <img src="/Photos/04ProductImage/Large/@item.ImageUrl"
+                                                 class="d-block w-100"
+                                                 style="height: 420px; object-fit: contain;"
+                                                 alt="@Model.Product.ProductName" />
+                                        </div>
+                                    }
+                                }
+                                else
+                                {
+                                    <div class="carousel-item active">
+                                        <img src="/images/no-image.png"
+                                             class="d-block w-100"
+                                             style="height: 420px; object-fit: contain;" />
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                        <button class="carousel-control-next"
+                                type="button"
+                                data-bs-target="#productCarousel"
+                                data-bs-slide="next">
+                            <span class="carousel-control-next-icon"></span>
+                        </button>
+                    </div>
+                    <!-- 縮圖 -->
+                    <div class="d-flex gap-2 mt-3 justify-content-center">
+                        @foreach (var img in Model.Images)
+                        {
+                            <img src="/Photos/04ProductImage/Large/@img.ImageUrl"
+                                 class="img-thumbnail"
+                                 style="width: 80px; height: 80px; object-fit: cover;" />
+                        }
+                    </div>
+                </div>
+
+                <!-- 右：商品資訊 -->
+                <div class="col-md-6 d-flex flex-column">
+                    <div class="row">
+                        <div class=" col">
+                            <h2 class="fw-bold">@Model.Product.ProductName</h2>
+                        </div>
+                        <div class="col-auto ">
+                            <button class="btn btn-outline-danger fs-5">
+                                @(Model.IsFavorite ? "已收藏 ♥" : "收藏 ♡")
+                            </button>
+                        </div>
+                    </div>
+
+                    <p class="text-muted mb-1">
+                        創作者：
+                        <a href="#" class="text-decoration-none">
+                            @Model.Creator.DisplayName
+                        </a>
+                    </p>
+                    <hr/>
+                    <h5 class="fw-bold mb-3">商品介紹</h5>
+                    <p>
+                        @Model.Product.Description
+                    </p>
+
+                    <div class="mb-3">
+                        @foreach (var tag in Model.Tags)
+                        {
+                            <span class="badge bg-secondary me-1">@tag.TagName</span>
+                        }
+                    </div>
+                    <div class="mt-auto text-end">
+                        <h4 class="text-danger fw-bold my-3">
+                            NT$ @Model.DisplayPrice
+                        </h4>
+                        <div class="">
+                            <a asp-controller="Cart"
+                               asp-action="AddToCart"
+                               asp-route-productID="@Model.Product.ProductID"
+                               class="btn btn-primary">
+                                <i class="bi bi-cart"> </i>加入購物車
+                            </a>
+                            <button class="btn btn-info ms-3 mt-2"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#ProductReviewModal">
+                                <i class="bi bi-star"> </i>商品評價
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="ProductReviewModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">商品評價</h5>
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                @* 尚未製作，顯示評分星等、評價內容 *@
+                @await Component.InvokeAsync("VCProductReview", new { productID = Model.Product.ProductID })
+            </div>
+        </div>
+    </div>
+</div>
+

@@ -18,6 +18,6 @@ namespace CraftDailyCorner.Models
         public string MemberID { get; set; }= null!;
 
         public virtual Member Member { get; set; } = null!;
-        public virtual List<CartItem>? CartItem { get; set; }
+        public virtual List<CartItem>? CartItems { get; set; }
     }
 }

@@ -15,10 +15,10 @@ namespace CraftDailyCorner.Models
         public string ImageUrl { get; set; } = null!;
 
         [Display(Name = "排序")]
-        public byte SortOrder { get; set; } 
+        public byte SortOrder { get; set; }
 
         [Display(Name = "狀態")]
-        public ProductImageStatus Status { get; set; }
+        public byte StatusID { get; set; }
 
         [StringLength(10, MinimumLength = 10)]
         [Column(TypeName = "nchar(10)")]
@@ -26,5 +26,6 @@ namespace CraftDailyCorner.Models
         public string ProductID { get; set; } = null!;
 
         public virtual Product Product { get; set; } = null!;
+        public virtual ProductImageStatus ProductImageStatus { get; set; } = null!;
     }
 }

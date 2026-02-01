@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using CraftDailyCorner.Models;
-using CraftDailyCorner.ViewModels;
+using CraftDailyCorner.ViewModels.Front;
 namespace CraftDailyCorner.ViewComponents
 {
     public class VCCreatorPost : ViewComponent
@@ -17,7 +17,7 @@ namespace CraftDailyCorner.ViewComponents
         {
 
             var HPost = await _context.CreatorPosts
-            .Where(p => p.Status == (CreatorPostStatus)1)
+            .Where(p => p.StatusID == 1)
             .OrderByDescending(p => p.CreatedAt)
             .Take(4)
             .Select(p => new VMHotPostCard

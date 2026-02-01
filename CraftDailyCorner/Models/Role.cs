@@ -21,7 +21,7 @@ namespace CraftDailyCorner.Models
         [Display(Name = "描述")]
         public string? Description { get; set; }
 
-        public virtual List<MemberRole>? MemberRole { get; set; }
-        public virtual List<MemberRoleHistory>? MemberRoleHistory { get; set; }
+        public virtual List<MemberRole>? MemberRoles { get; set; }
+        public virtual List<MemberRoleHistory>? MemberRoleHistories { get; set; }
     }
 }

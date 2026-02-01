@@ -21,7 +21,7 @@ namespace CraftDailyCorner.Seed.Datas
                         SettingKey = "OrderAutoCancelDays",
                         SettingValue = "7",
                         DataType = "int",
-                        Category = (PlatformSettingCategory)1,
+                        CategoryID = 1,
                         Description = "未付款訂單自動取消天數",
                         UpdatedAt = DateTime.Now,
                         UpdatedBy = "M0000001"
@@ -31,7 +31,7 @@ namespace CraftDailyCorner.Seed.Datas
                         SettingKey = "platform_LogoURL",
                         SettingValue = imageGuids[0]+".png",
                         DataType = "string",
-                        Category = (PlatformSettingCategory)1,
+                        CategoryID = 1,
                         Description = "平台 Logo URL",
                         UpdatedAt = DateTime.Now,
                         UpdatedBy = "M0000001"

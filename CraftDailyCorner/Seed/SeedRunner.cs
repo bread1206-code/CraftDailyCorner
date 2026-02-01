@@ -43,6 +43,22 @@ namespace CraftDailyCorner.Seed
         private readonly SeedPortfolioItem _seedPortfolioItem;
         private readonly SeedNotificationPreference _seedNotificationPreference;
         private readonly SeedNotificationEvent _seedNotificationEvent;
+        private readonly SeedMemberStatus _seedMemberStatus;
+        private readonly SeedCreatorApplicationStatus _seedCreatorApplicationStatus;
+        private readonly SeedCreatorProfileStatus _seedCreatorProfileStatus;
+        private readonly SeedProductStatus _seedProductStatus;
+        private readonly SeedProductImageStatus _seedProductImageStatus;
+        private readonly SeedOrderStatus _seedOrderStatus;
+        private readonly SeedPaymentMethod _seedPaymentMethod;
+        private readonly SeedPaymentStatus _seedPaymentStatus;
+        private readonly SeedShipmentStatus _seedShipmentStatus;
+        private readonly SeedCreatorPostStatus _seedCreatorPostStatus;
+        private readonly SeedPlatformAnnouncementStatus _seedPlatformAnnouncementStatus;
+        private readonly SeedHomepageBannerStatus _seedHomepageBannerStatus;
+        private readonly SeedPlatformSettingCategory _seedPlatformSettingCategory;
+        private readonly SeedPostCommentReportStatus _seedPostCommentReportStatus;
+
+
         private readonly Dictionary<string, List<ImageSizeOption>> _folderSizeMapping =
             new()
             {
@@ -95,7 +111,21 @@ namespace CraftDailyCorner.Seed
             SeedPortfolio seedPortfolio,
             SeedPortfolioItem seedPortfolioItem,
             SeedNotificationPreference seedNotificationPreference,
-            SeedNotificationEvent seedNotificationEvent
+            SeedNotificationEvent seedNotificationEvent,
+            SeedMemberStatus seedMemberStatus,
+            SeedCreatorApplicationStatus seedCreatorApplicationStatus,
+            SeedCreatorProfileStatus seedCreatorProfileStatus,
+            SeedProductStatus seedProductStatus,
+            SeedProductImageStatus seedProductImageStatus,
+            SeedOrderStatus seedOrderStatus,
+            SeedPaymentMethod seedPaymentMethod,
+            SeedPaymentStatus seedPaymentStatus,
+            SeedShipmentStatus seedShipmentStatus,
+            SeedCreatorPostStatus seedCreatorPostStatus,
+            SeedPlatformAnnouncementStatus seedPlatformAnnouncementStatus,
+            SeedHomepageBannerStatus seedHomepageBannerStatus,
+            SeedPlatformSettingCategory seedPlatformSettingCategory,
+            SeedPostCommentReportStatus seedPostCommentReportStatus
         )
         {
             _context = context;
@@ -135,6 +165,20 @@ namespace CraftDailyCorner.Seed
             _seedPortfolioItem = seedPortfolioItem;
             _seedNotificationPreference = seedNotificationPreference;
             _seedNotificationEvent = seedNotificationEvent;
+            _seedMemberStatus = seedMemberStatus;
+            _seedCreatorApplicationStatus = seedCreatorApplicationStatus;
+            _seedCreatorProfileStatus = seedCreatorProfileStatus;
+            _seedProductStatus = seedProductStatus;
+            _seedProductImageStatus = seedProductImageStatus;
+            _seedOrderStatus = seedOrderStatus;
+            _seedPaymentMethod = seedPaymentMethod;
+            _seedPaymentStatus = seedPaymentStatus;
+            _seedShipmentStatus = seedShipmentStatus;
+            _seedCreatorPostStatus = seedCreatorPostStatus;
+            _seedPlatformAnnouncementStatus = seedPlatformAnnouncementStatus;
+            _seedHomepageBannerStatus = seedHomepageBannerStatus;
+            _seedPlatformSettingCategory = seedPlatformSettingCategory;
+            _seedPostCommentReportStatus = seedPostCommentReportStatus;
 
         }
 
@@ -165,20 +209,35 @@ namespace CraftDailyCorner.Seed
             UploadImages(homepageBannerGuids, "08HomepageBanner");
             UploadImages();// 上傳預設會員圖片
             Console.WriteLine("上傳圖片 完成");
-            
 
-            // 3 更新Seed資料
+
+                // 3 更新Seed資料
+            _seedMemberStatus.Run();
+            _seedCreatorApplicationStatus.Run();
+            _seedCreatorProfileStatus.Run();
+            _seedProductStatus.Run();
+            _seedProductImageStatus.Run();
+            _seedOrderStatus.Run();
+            _seedPaymentStatus.Run();
+            _seedShipmentStatus.Run();
+            _seedCreatorPostStatus.Run();
+            _seedPlatformAnnouncementStatus.Run();
+            _seedHomepageBannerStatus.Run();
+            _seedPlatformSettingCategory.Run();
+            _seedPostCommentReportStatus.Run();
+            _seedPaymentMethod.Run();
+            _seedRole.Run();
+            _seedTag.Run();
+            _seedCategory.Run();
+
             _seedMember.Run(memberGuids);
             _seedPrivacy.Run();
-            _seedRole.Run();
             _seedMemberRole.Run();
             _seedMemberRoleHistory.Run();
             _seedCreatorApplication.Run(creatorApplicationGuids);
             _seedCreatorProfile.Run(creatorProfileGuids);
             _seedProduct.Run();
             _seedProductImage.Run(productImageGuids);
-            _seedCategory.Run();
-            _seedTag.Run();
             _seedProductRelation.Run();
             _seedCart.Run();
             _seedCartItem.Run();

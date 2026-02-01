@@ -20,42 +20,42 @@ namespace CraftDailyCorner.Seed.Datas
                         {
                             ImageUrl = imageGuids[0] + ".png",
                             SortOrder = 0,
-                            Status = (ProductImageStatus)1,
+                            StatusID = 1,
                             ProductID = "P000000001"
                         },
                         new ProductImage
                         {
                             ImageUrl = imageGuids[1] + ".png",
                             SortOrder = 1,
-                            Status = (ProductImageStatus)1,
+                            StatusID = 1,
                             ProductID = "P000000001"
                         },
                         new ProductImage
                         {
                             ImageUrl = imageGuids[2] + ".png",
                             SortOrder = 0,
-                            Status = (ProductImageStatus)1,
+                            StatusID = 1,
                             ProductID = "P000000002"
                         },
                         new ProductImage
                         {
                             ImageUrl = imageGuids[3] + ".png",
                             SortOrder = 0,
-                            Status = (ProductImageStatus)1,
+                            StatusID = 1,
                             ProductID = "P000000003"
                         },
                         new ProductImage
                         {
                             ImageUrl = imageGuids[4] + ".png",
                             SortOrder = 0,
-                            Status = (ProductImageStatus)1,
+                            StatusID = 1,
                             ProductID = "P000000004"
                         },
                         new ProductImage
                         {
                             ImageUrl = imageGuids[5] + ".png",
                             SortOrder = 0,
-                            Status = (ProductImageStatus)1,
+                            StatusID = 1,
                             ProductID = "P000000005"
                         }
                 };

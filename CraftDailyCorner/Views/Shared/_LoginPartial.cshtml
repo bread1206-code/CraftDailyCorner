@@ -1,4 +1,5 @@
-﻿@model CraftDailyCorner.ViewModels.VMLogin
+﻿@using CraftDailyCorner.ViewModels.Front
+@model VMLogin
 
 @{
     if (Context.Request.Cookies.TryGetValue("RememberAccount", out string account))
@@ -34,7 +35,7 @@
         <label asp-for="Password" class="form-label"></label>
         <input asp-for="Password"
                class="form-control"
-               placeholder="請輸入密碼" />
+               placeholder="請輸入密碼" type="password" />
         <span asp-validation-for="Password"
               class="text-danger"></span>
     </div>

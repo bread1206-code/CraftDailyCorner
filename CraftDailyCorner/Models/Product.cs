@@ -21,9 +21,10 @@ namespace CraftDailyCorner.Models
         [Column(TypeName = "money")]
         [Display(Name = "商品價格")]
         [Required(ErrorMessage = "必填欄位")]
+        [DisplayFormat(DataFormatString = "{0:N0}")]
         public decimal Price { get; set; }
         [Display(Name = "狀態")]
-        public ProductStatus Status { get; set; }
+        public byte StatusID { get; set; }
         [Display(Name = "建立時間")]
         public DateTime CreatedAt { get; set; }
         [Display(Name = "所屬創作者")]
@@ -32,13 +33,15 @@ namespace CraftDailyCorner.Models
 
         // 導覽屬性
         public virtual CreatorProfile CreatorProfile { get; set; } = null!;
-        public virtual List<ProductImage>? ProductImage { get; set; }
-        public virtual List<ProductCategory>? ProductCategory { get; set; }
-        public virtual List<ProductTag>? ProductTag { get; set; }
-        public virtual List<OrderDetail>? OrderDetail { get; set; }
-        public virtual List<CartItem>? CartItem { get; set; }
-        public virtual Inventory? Inventory { get; set; }
-        public virtual List<FavoriteProduct>? FavoriteProduct { get; set; }
-        public virtual List<ProductReview>? ProductReview { get; set; }
+        public virtual List<ProductImage> ProductImages { get; set; }   = new();
+        public virtual List<ProductCategory> ProductCategories { get; set; } = new();
+        public virtual List<ProductTag> ProductTags { get; set; } = new();
+        public virtual List<OrderDetail> OrderDetails { get; set; } = new();
+        public virtual List<CartItem> CartItems { get; set; } = new();
+        public virtual Inventory Inventory { get; set; } = null!;
+        public virtual List<FavoriteProduct> FavoriteProducts { get; set; } = new();
+        public virtual List<ProductReview> ProductReviews { get; set; } = new();
+
+        public virtual ProductStatus ProductStatus { get; set; } = null!;
     }
 }

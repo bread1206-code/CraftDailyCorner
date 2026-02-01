@@ -23,7 +23,7 @@ namespace CraftDailyCorner.Seed.Datas
                         ReceiverPhone = "0912345678",
                         ShippingAddress = "台北市中正區",
                         CreatedAt = DateTime.Now,
-                        Status = 1,
+                        StatusID = 1,
                         TotalAmount = 1200,
                         MemberID = "M0000002"
                     }

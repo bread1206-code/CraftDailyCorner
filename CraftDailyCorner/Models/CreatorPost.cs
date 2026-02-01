@@ -22,7 +22,7 @@ namespace CraftDailyCorner.Models
         [Display(Name = "誰可以看")]
         public CreatorPostVisibility Visibility { get; set; }
         [Display(Name = "狀態")]
-        public CreatorPostStatus Status { get; set; }
+        public byte StatusID { get; set; } = 0;
         [Display(Name = "建立日期")]
         public DateTime CreatedAt { get; set; }
         [Display(Name = "更新日期")]
@@ -35,6 +35,7 @@ namespace CraftDailyCorner.Models
 
         // 導覽屬性
         public virtual CreatorProfile CreatorProfile { get; set; } = null!;
-        public virtual List<PostComment>? PostComment { get; set; }
+        public virtual List<PostComment>? PostComments { get; set; }
+        public virtual CreatorPostStatus CreatorPostStatus { get; set; } = null!;
     }
 }

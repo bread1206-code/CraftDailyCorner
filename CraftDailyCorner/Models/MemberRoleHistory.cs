@@ -35,6 +35,7 @@ namespace CraftDailyCorner.Models
 
         // 導覽屬性
         public virtual Role Role { get; set; } = null!;
-        public virtual Member? Member { get; set; }
+        public virtual Member Member { get; set; } = null!;
+        public virtual Member OperatorMember { get; set; } = null!;
     }
 }

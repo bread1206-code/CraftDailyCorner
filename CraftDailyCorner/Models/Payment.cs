@@ -10,14 +10,14 @@ namespace CraftDailyCorner.Models
         public int PaymentID { get; set; }
 
         [Display(Name = "交易方式")]
-        public PaymentPaymentMethod PaymentMethod { get; set; }
+        public byte MethodID { get; set; }
 
         [Display(Name = "本次付款金額")]
         [Column(TypeName = "money")]
         public decimal Amount { get; set; }
 
         [Display(Name = "狀態")]
-        public PaymentStatus Status { get; set; }
+        public byte StatusID { get; set; }
 
         [StringLength(50)]
         [Display(Name = "金流交易編號")]
@@ -38,5 +38,8 @@ namespace CraftDailyCorner.Models
         public string OrderID { get; set; }= null!;
 
         public virtual Order Order { get; set; }= null!;
+        public virtual PaymentStatus PaymentStatus { get; set; }= null!;
+        public virtual PaymentMethod PaymentMethod { get; set; }= null!;
+
     }
 }

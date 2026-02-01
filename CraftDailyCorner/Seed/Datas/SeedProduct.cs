@@ -22,7 +22,7 @@ namespace CraftDailyCorner.Seed.Datas
                             ProductName = "木牌項鍊",
                             Description = "手工雕刻的溫潤木牌項鍊",
                             Price = 1200,
-                            Status = (ProductStatus)1,
+                            StatusID = 2,
                             CreatedAt = DateTime.Now,
                             CreatorID = "C00001"
                         },
@@ -32,7 +32,7 @@ namespace CraftDailyCorner.Seed.Datas
                             ProductName = "書法摺扇",
                             Description = "以行書書寫的手工摺扇",
                             Price = 1800,
-                            Status = (ProductStatus)1,
+                            StatusID = 2,
                             CreatedAt = DateTime.Now,
                             CreatorID = "C00002"
                         }, new Product
@@ -41,7 +41,7 @@ namespace CraftDailyCorner.Seed.Datas
                             ProductName = "原木書架",
                             Description = "手工打造的原木書架，保留自然木紋紋理，兼具美觀與實用。",
                             Price = 3500,
-                            Status = (ProductStatus)1,
+                            StatusID = 2,
                             CreatedAt = DateTime.Now,
                             CreatorID = "C00001"
                         },
@@ -51,7 +51,7 @@ namespace CraftDailyCorner.Seed.Datas
                             ProductName = "榫接茶几",
                             Description = "採用傳統榫接工法製作的手工茶几，穩固耐用，木紋自然清晰。",
                             Price = 4800,
-                            Status = (ProductStatus)1,
+                            StatusID = 2,
                             CreatedAt = DateTime.Now,
                             CreatorID = "C00001"
                         },
@@ -61,7 +61,7 @@ namespace CraftDailyCorner.Seed.Datas
                             ProductName = "行書字帖",
                             Description = "由書法家手寫的行書練習字帖，包含經典篇章與練習指南。",
                             Price = 8000,
-                            Status = (ProductStatus)1,
+                            StatusID = 2,
                             CreatedAt = DateTime.Now,
                             CreatorID = "C00002"
                         }

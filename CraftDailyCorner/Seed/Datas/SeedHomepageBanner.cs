@@ -21,7 +21,7 @@ namespace CraftDailyCorner.Seed.Datas
                         ImageUrl = imageGuids[0] + ".png",
                         Title = "手作職人市集",
                         Subtitle = "慢活 × 原創 × 溫度",
-                        Status = (HomepageBannerStatus)1,
+                        StatusID = 1,
                         CreatedAt = DateTime.Now,
                         CreatedBy = "M0000001"
                     },new HomepageBanner
@@ -29,7 +29,7 @@ namespace CraftDailyCorner.Seed.Datas
                         ImageUrl = imageGuids[1] + ".png",
                         Title = "手作職人市集",
                         Subtitle = "慢活 × 原創 × 溫度",
-                        Status = (HomepageBannerStatus)1,
+                        StatusID = 1,
                         CreatedAt = DateTime.Now,
                         CreatedBy = "M0000001"
                     },new HomepageBanner
@@ -37,7 +37,7 @@ namespace CraftDailyCorner.Seed.Datas
                         ImageUrl = imageGuids[2] + ".png",
                         Title = "新年快樂",
                         Subtitle = "日作市集祝福您",
-                        Status = (HomepageBannerStatus)1,
+                        StatusID = 1,
                         CreatedAt = DateTime.Now,
                         CreatedBy = "M0000001"
                     }

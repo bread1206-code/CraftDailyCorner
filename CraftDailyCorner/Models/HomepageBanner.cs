@@ -25,7 +25,7 @@ namespace CraftDailyCorner.Models
         public string? Subtitle { get; set; }
 
         [Display(Name = "狀態")]
-        public HomepageBannerStatus Status { get; set; }
+        public byte StatusID { get; set; }=0;
 
         [Display(Name = "建立時間")]
         public DateTime CreatedAt { get; set; }
@@ -36,5 +36,6 @@ namespace CraftDailyCorner.Models
         public string CreatedBy { get; set; }= null!;
 
         public virtual Member Member { get; set; } = null!;
+        public virtual HomepageBannerStatus HomepageBannerStatus { get; set; } = null!;
     }
 }

@@ -32,7 +32,7 @@ namespace CraftDailyCorner.Models
         public DateTime CreatedAt { get; set; }
 
         [Display(Name = "狀態")]
-        public byte Status { get; set; }
+        public byte StatusID { get; set; }
 
         [Display(Name = "總金額")]
         [Column(TypeName = "money")]
@@ -44,8 +44,9 @@ namespace CraftDailyCorner.Models
         public string MemberID { get; set; } = null!;
 
         public virtual Member Member { get; set; } = null!;
-        public virtual List<OrderDetail>? OrderDetail { get; set; }
-        public virtual List<Payment>? Payment { get; set; }
+        public virtual List<OrderDetail>? OrderDetails { get; set; }
+        public virtual List<Payment>? Payments { get; set; }
         public virtual Shipment? Shipment { get; set; }
+        public virtual OrderStatus OrderStatus { get; set; } = null!;
     }
 }

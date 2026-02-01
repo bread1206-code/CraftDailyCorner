@@ -21,6 +21,6 @@ namespace CraftDailyCorner.Models
         public string ProductID { get; set; } = null!;
 
         public virtual Product Product { get; set; } = null!;
-        public virtual List<InventoryAlert>? InventoryAlert { get; set; }
+        public virtual List<InventoryAlert>? InventoryAlerts { get; set; }
     }
 }

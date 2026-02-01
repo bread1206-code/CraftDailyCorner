@@ -1,5 +1,5 @@
 ﻿using CraftDailyCorner.Models;
-using CraftDailyCorner.ViewModels;
+using CraftDailyCorner.ViewModels.Front;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
@@ -40,7 +40,7 @@ namespace CraftDailyCorner.Services
                 MemberID = newMemberId,
                 ImageUrl = "default.png", // 預設頭像
                 DisplayName = vm.DisplayName,
-                Status = MemberStatus.Active,
+                StatusID = 1,
                 CreatedAt = DateTime.Now
             };
             _context.Members.Add(member);

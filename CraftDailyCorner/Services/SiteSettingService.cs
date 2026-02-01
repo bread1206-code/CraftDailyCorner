@@ -19,7 +19,7 @@ namespace CraftDailyCorner.Services
         {
 
             var logo = _context.PlatformSettings
-                .Where(x => x.Category ==(PlatformSettingCategory)1 && x.SettingKey== "platform_LogoURL")
+                .Where(x => x.CategoryID == 1 && x.SettingKey == "platform_LogoURL")
                 .OrderByDescending(x => x.UpdatedAt)
                 .Select(x => x.SettingValue)
                 .FirstOrDefault();

@@ -20,7 +20,7 @@ namespace CraftDailyCorner.Seed.Datas
                     {
                         CreatedAt = DateTime.Now,
                         MemberID = "M0000002",
-                        CreatorID = "M0000004"
+                        CreatorID = "C00001"
                     }
                 };
                 _context.MessageThreads.AddRange(messageThreads);

@@ -24,31 +24,34 @@ namespace CraftDailyCorner.Models
 
         [HiddenInput]
         [Display(Name ="狀態")]
-        public MemberStatus Status { get; set; } = 0;
+        public byte StatusID { get; set; }
 
         [HiddenInput]
         [Display(Name ="建立時間")]
         public DateTime CreatedAt { get; set; }= DateTime.Now;
 
         public virtual Privacy? Privacy { get; set; }
-        public virtual List<MemberRole>? MemberRole { get; set; }
-        public virtual List<MemberRoleHistory>? MemberRoleHistory { get; set; }
-        public virtual List<CreatorApplication>? CreatorApplication { get; set; }
+        public virtual List<MemberRole>? MemberRoles { get; set; }
+        public virtual List<CreatorApplication>? CreatorApplications { get; set; }
+        public virtual List<CreatorApplication>? ReviewedCreatorApplications { get; set; }
         public virtual CreatorProfile? CreatorProfile { get; set; }= null!;
-        public virtual List<Cart>? Cart { get; set; }
-        public virtual List<Order>? Order { get; set; }
-        public virtual List<ProductReview>? ProductReview { get; set; }
-        public virtual List<FavoriteProduct>? FavoriteProduct { get; set; }
-        public virtual List<FollowCreator>? FollowCreator { get; set; }
-        public virtual List<MessageThread> MessageThread { get; set; } = null!;
-        public virtual List<PlatformAnnouncement>? PlatformAnnouncement { get; set; }
-        public virtual List<HomepageBanner>? HomepageBanner { get; set; }
-        public virtual List<PlatformSetting>? PlatformSetting { get; set; }
-        public virtual List<NotificationPreference>? NotificationPreference { get; set; }
-        public virtual List<NotificationEvent>? NotificationEvent { get; set; }
-        public virtual List<PostComment>? PostComment { get; set; }
-        public virtual List<Message>? Message { get; set; }
+        public virtual List<Cart>? Carts { get; set; }
+        public virtual List<Order>? Orders { get; set; }
+        public virtual List<ProductReview>? ProductReviews { get; set; }
+        public virtual List<FavoriteProduct>? FavoriteProducts { get; set; }
+        public virtual List<FollowCreator>? FollowCreators { get; set; }
+        public virtual List<MessageThread>? MessageThreads { get; set; }
+        public virtual List<PlatformAnnouncement>? PlatformAnnouncements { get; set; }
+        public virtual List<HomepageBanner>? HomepageBanners { get; set; }
+        public virtual List<PlatformSetting>? PlatformSettings { get; set; }
+        public virtual List<NotificationPreference>? NotificationPreferences { get; set; }
+        public virtual List<NotificationEvent>? NotificationEvents { get; set; }
+        public virtual List<PostComment>? PostComments { get; set; }
+        public virtual List<Message>? Messages { get; set; }
         public virtual List<PasswordResetToken>? PasswordResetTokens { get; set; }
-
+        public virtual MemberStatus? MemberStatus { get; set; }
+        public virtual List<PostCommentReport>? PostCommentReports { get; set; }
+        public virtual List<MemberRoleHistory> RoleChangeHistories { get; set; } = null!;
+        public virtual List<MemberRoleHistory> OperatedRoleHistories { get; set; } = null!;
     }
 }

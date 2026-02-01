@@ -17,7 +17,7 @@ namespace test.ViewComponents
         {
 
             var HomepageBanner = await _context.HomepageBanners
-            .Where(p => p.Status == (HomepageBannerStatus)1)
+            .Where(p => p.StatusID == 1)
             .OrderByDescending(p => p.CreatedAt)
             .Select(p => new HomepageBanner
             {

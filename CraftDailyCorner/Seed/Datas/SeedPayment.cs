@@ -18,9 +18,9 @@ namespace CraftDailyCorner.Seed.Datas
                 {
                     new Payment
                     {
-                        PaymentMethod = (PaymentPaymentMethod)1,
+                        MethodID = 1,
                         Amount = 1200,
-                        Status = (PaymentStatus)1,
+                        StatusID = 2,
                         GatewayTradeNo = "TEST123456",
                         AttemptNo = 1,
                         PaidAt = DateTime.Now,

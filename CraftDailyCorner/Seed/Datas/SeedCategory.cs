@@ -21,22 +21,22 @@ namespace CraftDailyCorner.Seed.Datas
                         ParentCategoryID= null,
                         CreatedAt = DateTime.Now
                     },
-                    new Category { CategoryName = "手作園藝類",
+                    new Category { CategoryName = "園藝・生活空間",
                         IsActive = true,
                         ParentCategoryID= null,
                         CreatedAt = DateTime.Now
                     },
-                    new Category { CategoryName = "手作藝術類",
+                    new Category { CategoryName = "藝術・視覺創作",
                         IsActive = true,
                         ParentCategoryID= null,
                         CreatedAt = DateTime.Now
                     },
-                    new Category { CategoryName = "手作模型類",
+                    new Category { CategoryName = "玩具・公仔・模型",
                         IsActive = true,
                         ParentCategoryID= null,
                         CreatedAt = DateTime.Now
                     },
-                    new Category { CategoryName = "手作香氛保養類",
+                    new Category { CategoryName = "香氛・保養",
                         IsActive = true,
                         ParentCategoryID= null,
                         CreatedAt = DateTime.Now
