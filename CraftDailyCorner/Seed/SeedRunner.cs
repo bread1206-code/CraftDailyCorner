@@ -194,7 +194,7 @@ namespace CraftDailyCorner.Seed
             var creatorPostGuids = GenerateGuids(7);
             var seedPortfolioItemGuids = GenerateGuids(2);
             var logoGuids = GenerateGuids(1);
-            var homepageBannerGuids = GenerateGuids(3);
+            var homepageBannerGuids = GenerateGuids(6);
             Console.WriteLine("準備 GUID 完成");
 
             
