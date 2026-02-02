@@ -44,7 +44,7 @@ namespace CraftDailyCorner.Seed.Datas
                     {
                         ImageUrl = imageGuids[3] + ".png",
                         Title = "日作市集",
-                        Subtitle = "",
+                        Subtitle = "夏日清涼，祭典手作",
                         StatusID = 1,
                         CreatedAt = DateTime.Now,
                         CreatedBy = "M0000001"
@@ -52,7 +52,7 @@ namespace CraftDailyCorner.Seed.Datas
                     {
                         ImageUrl = imageGuids[4] + ".png",
                         Title = "日作市集",
-                        Subtitle = "",
+                        Subtitle = "秋日暖心，手作美好",
                         StatusID = 1,
                         CreatedAt = DateTime.Now,
                         CreatedBy = "M0000001"
@@ -60,7 +60,15 @@ namespace CraftDailyCorner.Seed.Datas
                     {
                         ImageUrl = imageGuids[5] + ".png",
                         Title = "日作市集",
-                        Subtitle = "",
+                        Subtitle = "冬日暖心，聖誕手作",
+                        StatusID = 1,
+                        CreatedAt = DateTime.Now,
+                        CreatedBy = "M0000001"
+                    },new HomepageBanner
+                    {
+                        ImageUrl = imageGuids[6] + ".png",
+                        Title = "職人溫度",
+                        Subtitle = "每一件作品，都藏著職人的指尖溫度",
                         StatusID = 1,
                         CreatedAt = DateTime.Now,
                         CreatedBy = "M0000001"
