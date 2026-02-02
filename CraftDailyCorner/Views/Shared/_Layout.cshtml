@@ -1,5 +1,6 @@
 ﻿@using CraftDailyCorner.Services.Interface
 @using CraftDailyCorner.ViewModels.Front
+@using System.Security.Claims
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -63,7 +64,7 @@
                         else
                         {
                             <li class="nav-item">
-                                Hi, @User.Identity.Name 
+                                Hi, @User.Identity.Name (@User.FindFirst(ClaimTypes.Role)?.Value)
                                 <a asp-controller="Account" asp-action="Logout">登出</a>
                             </li>
                         }

@@ -2,9 +2,9 @@
 {
     public class VMProductReview
     {
-        public string MemberName { get; set; }
+        public string MemberName { get; set; } = null!;
         public int Rating { get; set; }      // 1~5
-        public string Comment { get; set; }
+        public string Comment { get; set; } = null!;
         public DateTime CreatedAt { get; set; }
     }
 }

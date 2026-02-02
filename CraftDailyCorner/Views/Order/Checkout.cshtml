@@ -1,0 +1,79 @@
+﻿@model CraftDailyCorner.ViewModels.Front.VMCheckout
+
+@{
+    ViewData["Title"] = "確認訂單";
+}
+
+<div class="container my-5">
+
+    <h3 class="mb-4">🧾 確認訂單內容</h3>
+
+    <!-- 商品清單 -->
+    <div class="card mb-4">
+        <div class="card-body">
+
+            <table class="table align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>商品名稱</th>
+                        <th class="text-end">單價</th>
+                        <th class="text-center">數量</th>
+                        <th class="text-end">小計</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.Items)
+                    {
+                        <tr>
+                            <td>@item.ProductName</td>
+                            <td class="text-end">
+                                @item.Price.ToString("N0")
+                            </td>
+                            <td class="text-center">
+                                @item.Quantity
+                            </td>
+                            <td class="text-end">
+                                @( (int)Math.Floor(item.Price * item.Quantity) ).ToString("N0")
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+
+    <!-- 總金額 -->
+    <div class="card mb-4">
+        <div class="card-body d-flex justify-content-between align-items-center">
+            <span class="fs-5 fw-bold">訂單總金額</span>
+            <span class="fs-4 text-danger fw-bold">
+                NT$ @Model.TotalAmount.ToString("N0")
+            </span>
+        </div>
+    </div>
+
+    <!-- 操作按鈕 -->
+    <form asp-action="CheckoutConfirm"
+          asp-controller="Order"
+          method="post">
+
+        @Html.AntiForgeryToken()
+
+        <div class="d-flex justify-content-between">
+            <a asp-controller="Cart"
+               asp-action="Index"
+               class="btn btn-outline-secondary">
+                ← 返回購物車
+            </a>
+
+            <button type="submit"
+                    class="btn btn-primary btn-lg"
+                    onclick="this.disabled=true; this.form.submit();">
+                確認送出訂單
+            </button>
+        </div>
+
+    </form>
+
+</div>

@@ -23,7 +23,7 @@ namespace CraftDailyCorner.ViewComponents
                 {
                     MemberName = r.Member.DisplayName,
                     Rating = r.Rating,
-                    Comment = r.Comment,
+                    Comment = r.Comment ?? "",
                     CreatedAt = r.CreatedAt
                 })
                 .ToListAsync();

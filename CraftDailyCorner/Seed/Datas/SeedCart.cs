@@ -18,8 +18,28 @@ namespace CraftDailyCorner.Seed.Datas
                 {
                     new Cart
                     {
+                        MemberID = "M0000001",
+                        CreatedAt = DateTime.Now
+                    },
+                    new Cart
+                    {
                         MemberID = "M0000002",
-                        UpdatedAt = DateTime.Now
+                        CreatedAt = DateTime.Now
+                    },
+                    new Cart
+                    {
+                        MemberID = "M0000003",
+                        CreatedAt = DateTime.Now
+                    },
+                    new Cart
+                    {
+                        MemberID = "M0000004",
+                        CreatedAt = DateTime.Now
+                    },
+                    new Cart
+                    {
+                        MemberID = "M0000005",
+                        CreatedAt = DateTime.Now
                     }
                 };
                 _context.Carts.AddRange(carts);

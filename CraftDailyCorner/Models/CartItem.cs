@@ -15,6 +15,10 @@ namespace CraftDailyCorner.Models
 
         [Display(Name = "數量")]
         public short Quantity { get; set; }
+        [Display(Name = "建立時間")]
+        public DateTime CreatedAt { get; set; }
+        [Display(Name = "更新時間")]
+        public DateTime UpdatedAt { get; set; }
 
         public virtual Cart Cart { get; set; } = null!;
         public virtual Product Product { get; set; } = null!;

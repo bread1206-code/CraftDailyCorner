@@ -81,6 +81,17 @@ namespace CraftDailyCorner.Services
 
             await _context.SaveChangesAsync();
 
+            //5.建立會員購物車
+
+            var cart = new Cart
+            {
+                MemberID = newMemberId,
+                CreatedAt = DateTime.Now
+            };
+            _context.Carts.Add(cart);
+
+            await _context.SaveChangesAsync();
+
             return newMemberId;
         }
 

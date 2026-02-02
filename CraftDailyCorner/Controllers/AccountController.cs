@@ -14,18 +14,20 @@ namespace CraftDailyCorner.Controllers
     {
         private readonly CraftDailyCornerContext _context;
         private readonly MemberService _memberService;
+        private readonly CartService _cartService;
 
-        public AccountController(CraftDailyCornerContext context, MemberService memberService)
+        public AccountController(CraftDailyCornerContext context, MemberService memberService,CartService cartService)
         {
             _context = context;
             _memberService = memberService;
+            _cartService = cartService;
         }
         public IActionResult Login()
         {
             return View();
         }
         [HttpPost]
-        public async Task<IActionResult> Login(VMLogin login)
+        public async Task<IActionResult> Login(VMLogin login, string? returnUrl)
         {
 
             var user = _context.Privacies.FirstOrDefault(u => u.Email == login.Account || u.Phone == login.Account);
@@ -47,9 +49,9 @@ namespace CraftDailyCorner.Controllers
                     from mr in _context.MemberRoles.AsNoTracking()
                     join r in _context.Roles.AsNoTracking() on mr.RoleID equals r.RoleID
                     where mr.MemberID == user.MemberID
-                    orderby mr.AssignedAt descending
+                    orderby mr.RoleID descending
                     select r.RoleName
-                ).FirstOrDefault() ?? "未知";
+                ).FirstOrDefault() ?? "未知"; //取得最大權限的角色(orderby)
 
                 var DisplayName = _context.Members
                     .Where(m => m.MemberID == user.MemberID)
@@ -59,8 +61,8 @@ namespace CraftDailyCorner.Controllers
                 var claims = new List<Claim>
                 {
                     new Claim(ClaimTypes.NameIdentifier, user.MemberID.ToString()),
-                    new Claim(ClaimTypes.Name,DisplayName),
-                    new Claim(ClaimTypes.Role, roleName)
+                    new Claim(ClaimTypes.Name,DisplayName),//會員暱稱
+                    new Claim(ClaimTypes.Role, roleName)//會員角色
                 };
                 var claimsIdentity = new ClaimsIdentity(claims, "CraftDailyCornerLogin");
                 var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
@@ -82,11 +84,25 @@ namespace CraftDailyCorner.Controllers
                 }
                 await HttpContext.SignInAsync("CraftDailyCornerLogin", claimsPrincipal);
 
-                return RedirectToAction("Index", "Home");
+                // 1. 驗證帳密成功
+                string memberId = user.MemberID;
+
+                // 2. 同步 Session → DB
+                _cartService.SyncCartAfterLogin(memberId);
+
+                // 3. DB → Session（確保乾淨）
+                _cartService.LoadCartFromDb(memberId);
+
+                // 4. 導回原頁
+                if (!string.IsNullOrEmpty(returnUrl))
+                    return Redirect(returnUrl);
+
+            return RedirectToAction("Index", "Home");
         }
         [Authorize]
         public async Task<IActionResult> Logout()
         {
+            _cartService.ClearSessionCart();
             await HttpContext.SignOutAsync("CraftDailyCornerLogin"); //清除 Cookie
             return RedirectToAction("Index", "Home");
         }

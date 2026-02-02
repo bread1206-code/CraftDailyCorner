@@ -48,7 +48,7 @@ namespace CraftDailyCorner.Controllers
 
             if (item != null)
             {
-                item.Qty++;
+                item.Quantity++;
             }
             else
             {
@@ -57,7 +57,7 @@ namespace CraftDailyCorner.Controllers
                     ProductID = product.ProductID,
                     ProductName = product.ProductName,
                     Price = product.Price,
-                    Qty = 1,
+                    Quantity = 1,
                     ImageUrl = product.ImageUrl
                 });
             }
@@ -89,13 +89,20 @@ namespace CraftDailyCorner.Controllers
         }
 
 
-        public IActionResult Checkout()
+        public IActionResult StartCheckout()
         {
-            // 之後這裡會檢查：
-            // - 是否登入
-            // - 購物車是否為空
-            return View();
+            if (!User.Identity!.IsAuthenticated)
+            {
+                return RedirectToAction(
+                    "Login",
+                    "Login",
+                    new { returnUrl = Url.Action("GoCheckout", "Order") }
+                );
+            }
+
+            return RedirectToAction("GoCheckout");
         }
+
 
     }
 }

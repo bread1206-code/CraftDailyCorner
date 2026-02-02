@@ -1,0 +1,37 @@
+﻿@{
+    ViewData["Title"] = "前往結帳";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+
+            <div class="card shadow-sm">
+                <div class="card-body text-center">
+
+                    <h4 class="mb-3">前往結帳</h4>
+
+                    <p class="text-muted">
+                        您即將進入結帳流程，請確認您已登入會員。
+                    </p>
+
+                    <div class="d-grid gap-2 mt-4">
+                        <a asp-controller="Order"
+                           asp-action="Checkout"
+                           class="btn btn-primary btn-lg">
+                            前往結帳
+                        </a>
+
+                        <a asp-controller="Cart"
+                           asp-action="Index"
+                           class="btn btn-outline-secondary">
+                            返回購物車
+                        </a>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
