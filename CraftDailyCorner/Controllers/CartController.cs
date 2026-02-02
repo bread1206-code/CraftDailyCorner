@@ -95,7 +95,7 @@ namespace CraftDailyCorner.Controllers
             {
                 return RedirectToAction(
                     "Login",
-                    "Login",
+                    "Account",
                     new { returnUrl = Url.Action("GoCheckout", "Order") }
                 );
             }

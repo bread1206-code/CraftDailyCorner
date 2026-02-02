@@ -10,7 +10,8 @@ namespace CraftDailyCorner.Services
     {
         private readonly IHttpContextAccessor _http;
         private readonly CraftDailyCornerContext _context;
-
+        //Session 取購物車
+        private const string CART_KEY = "CART";
         public CartService(
             IHttpContextAccessor http,
             CraftDailyCornerContext context)
@@ -19,8 +20,30 @@ namespace CraftDailyCorner.Services
             _context = context;
         }
 
-        //Session 取購物車
-        private const string CART_KEY = "CART";
+        private Cart GetOrCreateCart(string memberId)
+        {
+            memberId = memberId.Trim();
+
+            var cart = _context.Carts
+                .FirstOrDefault(c => c.MemberID == memberId);
+
+            if (cart != null)
+                return cart;
+
+            cart = new Cart
+            {
+                MemberID = memberId,
+                CreatedAt = DateTime.Now
+            };
+
+            _context.Carts.Add(cart);
+            _context.SaveChanges();
+
+            return cart;
+        }
+
+
+        
 
         public List<VMCartItem> GetSessionCart()
         {
@@ -30,6 +53,10 @@ namespace CraftDailyCorner.Services
             return json == null
                 ? new List<VMCartItem>()
                 : JsonSerializer.Deserialize<List<VMCartItem>>(json)!;
+        }
+        public bool HasSessionCart()
+        {
+            return GetSessionCart().Any();
         }
 
         //Session 存購物車
@@ -49,19 +76,23 @@ namespace CraftDailyCorner.Services
         public void SyncCartAfterLogin(string memberId)
         {
             var sessionCart = GetSessionCart();
+            if (!sessionCart.Any())
+                return;
+
+            var cart = GetOrCreateCart(memberId);
 
             foreach (var item in sessionCart)
             {
                 var dbItem = _context.CartItems
-                    .Include(ci => ci.Cart)
                     .FirstOrDefault(ci =>
-                        ci.Cart.MemberID == memberId &&
+                        ci.CartID == cart.CartID &&
                         ci.ProductID == item.ProductID);
 
                 if (dbItem == null)
                 {
                     _context.CartItems.Add(new CartItem
                     {
+                        CartID = cart.CartID,
                         ProductID = item.ProductID,
                         Quantity = item.Quantity,
                         UpdatedAt = DateTime.Now
@@ -81,13 +112,18 @@ namespace CraftDailyCorner.Services
         //登入後從 DB 還原購物車
         public void LoadCartFromDb(string memberId)
         {
+            var cart = GetOrCreateCart(memberId);
+
             var items = _context.CartItems
-                .Include(ci => ci.Cart)
-                .Where(c => c.Cart.MemberID == memberId)
-                .Select(c => new VMCartItem
+                .Include(ci => ci.Product)
+                .Where(ci => ci.CartID == cart.CartID)
+                .Select(ci => new VMCartItem
                 {
-                    ProductID = c.ProductID,
-                    Quantity = c.Quantity
+                    ProductID = ci.ProductID,
+                    ProductName = ci.Product.ProductName,      
+                    Price = ci.Product.Price,       
+                    ImageUrl = ci.Product.ProductImages.FirstOrDefault().ImageUrl,    
+                    Quantity = ci.Quantity
                 })
                 .ToList();
 
