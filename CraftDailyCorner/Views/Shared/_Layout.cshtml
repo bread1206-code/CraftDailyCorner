@@ -16,69 +16,123 @@
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+        <nav class="navbar navbar-expand-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">
-                    <img src="~/Photos/07LOGO/Other/@SiteSetting.GetNavbarLogo()" alt="Logo" class="Logo" />
+
+                <!-- Logo -->
+                <a class="navbar-brand" asp-controller="Home" asp-action="Index">
+                    <img src="~/Photos/07LOGO/Other/@SiteSetting.GetNavbarLogo()"
+                         alt="Logo"
+                         class="Logo" />
                 </a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
+
+                <button class="navbar-toggler"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#mainNavbar">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav ms-auto">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+
+                <div class="collapse navbar-collapse" id="mainNavbar">
+
+                    <!-- 中間：搜尋 -->
+                    <form asp-controller="Products"
+                          asp-action="Index"
+                          method="get"
+                          class="d-flex mx-auto"
+                          style="width: 360px;">
+
+                        <input class="form-control me-2"
+                               type="search"
+                               name="keyword"
+                               placeholder="搜尋商品"
+                               value="@Context.Request.Query["keyword"]" />
+
+                        <button class="btn btn-primary"
+                                type="submit">
+                            <i class="bi bi-search"></i>
+                        </button>
+                    </form>
+
+                    <!-- 右側 -->
+                    <ul class="navbar-nav ms-auto align-items-center gap-2">
+
+                        
+
+                        <!-- 商品分類 -->
+                        <li class="nav-item dropdown position-static">
+                            <a class="nav-link dropdown-toggle"
+                               href="#"
+                               role="button"
+                               data-bs-toggle="dropdown">
+                                商品分類
+                            </a>
+                            @await Component.InvokeAsync("VCCategoryDropdown")
                         </li>
+                        <!-- 購物車 -->
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
-                        <li class="nav-item">
-                            <button class="btn btn-primary mt-2 position-relative"
+                            <button class="btn btn-primary position-relative"
                                     data-bs-toggle="modal"
                                     data-bs-target="#CartModal">
-                                <i class="bi bi-cart" id="cartIcon"></i>
+                                <i class="bi bi-cart"></i>
                                 <span id="cartCountBadge"
                                       class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
                                     0
                                 </span>
                             </button>
-                            
                         </li>
-                        <li class="nav-item dropdown position-static">
-                            <a class="nav-link dropdown-toggle"
-                               href="#"
-                               role="button"
-                               data-bs-toggle="dropdown"
-                               aria-expanded="false">
-                                商品分類
-                            </a>
-                            @await Component.InvokeAsync("VCCategoryDropdown")
-                        </li>
+                        <!-- 登入 / 使用者 -->
                         @if (!User.Identity.IsAuthenticated)
                         {
-                            <li class="nav-item ">
-                            <button class="btn btn-outline-primary"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#loginModal">
-                                登入 / 註冊
-                            </button>
+                            <li class="nav-item">
+                                <button class="btn btn-outline-primary"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#loginModal">
+                                    登入 / 註冊
+                                </button>
                             </li>
                         }
                         else
                         {
-                            <li class="nav-item">
-                                Hi, @User.Identity.Name (@User.FindFirst(ClaimTypes.Role)?.Value)
-                                <a asp-controller="Account" asp-action="Logout">登出</a>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle"
+                                   href="#"
+                                   role="button"
+                                   data-bs-toggle="dropdown">
+                                    Hi, @User.Identity!.Name
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li>
+                                        <a class="dropdown-item"
+                                           asp-controller="Account"
+                                           asp-action="Logout">
+                                           我的訂單
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item"
+                                           asp-controller="Account"
+                                           asp-action="Logout">
+                                            個人資料
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item"
+                                           asp-controller="Account"
+                                           asp-action="Logout">
+                                            登出
+                                        </a>
+                                    </li>
+                                </ul>
                             </li>
                         }
                     </ul>
                 </div>
-                <!--登入-->
+
+                <!-- 登入 Modal -->
                 <div class="modal fade" id="loginModal" tabindex="-1">
                     <div class="modal-dialog">
                         <div class="modal-content">
-
                             <div class="modal-header">
                                 <h5 class="modal-title">會員登入</h5>
                                 <button type="button"
@@ -86,17 +140,18 @@
                                         data-bs-dismiss="modal"></button>
                             </div>
                             <div class="modal-body">
-                                @await Html.PartialAsync("_LoginPartial",new VMLogin())
+                                @await Html.PartialAsync("_LoginPartial", new VMLogin())
                             </div>
                         </div>
                     </div>
                 </div>
-                <!-- 購物車 -->
+
+                <!-- 購物車 Modal -->
                 <div class="modal fade" id="CartModal" tabindex="-1">
                     <div class="modal-dialog modal-lg">
                         <div class="modal-content">
                             <div class="modal-header">
-                                <h5 class="modal-title">@User.Identity.Name 的購物車</h5>
+                                <h5 class="modal-title">@User.Identity?.Name 的購物車</h5>
                                 <button type="button"
                                         class="btn-close"
                                         data-bs-dismiss="modal"></button>
@@ -107,18 +162,10 @@
                         </div>
                     </div>
                 </div>
-                <div class="toast-container position-fixed top-0 end-0 p-3">
-                    <div id="cartToast" class="toast align-items-center text-bg-success border-0" role="alert">
-                        <div class="d-flex">
-                            <div class="toast-body">
-                                <i class="bi bi-check2"> </i>已加入購物車
-                            </div>
-                            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
-                        </div>
-                    </div>
-                </div>
+
             </div>
         </nav>
+
     </header>
     <div class="container">
         <main role="main" class="pb-3">

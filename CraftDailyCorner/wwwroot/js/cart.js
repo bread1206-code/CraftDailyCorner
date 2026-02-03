@@ -1,85 +1,67 @@
-﻿function showCartToast() {
+﻿// Toast
+function showCartToast(message = "已加入購物車") {
     const toastEl = document.getElementById('cartToast');
     if (!toastEl) return;
 
-    const toast = new bootstrap.Toast(toastEl, { delay: 1500 });
+    toastEl.querySelector('.toast-body').innerText = message;
+    const toast = bootstrap.Toast.getOrCreateInstance(toastEl, { delay: 1500 });
     toast.show();
 }
 
+// 加入購物車
 function addToCart(btn) {
 
     const productId = btn.dataset.id;
+    const qtyInput = document.getElementById("qty");
 
-    fetch('/Cart/AddToCart', {
+    if (!productId || !qtyInput) {
+        alert("資料錯誤，請重新整理");
+        return;
+    }
+
+    const qty = parseInt(qtyInput.value, 10);
+
+    if (isNaN(qty) || qty <= 0) {
+        alert("請輸入正確數量");
+        return;
+    }
+
+    fetch('/Cart/Add', {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json',
-            'RequestVerificationToken':
-                document.querySelector('input[name="__RequestVerificationToken"]')?.value
+            'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ productId: productId })
-    })
-        .then(res => res.json())
-        .then(data => {
-            if (data.success) {
-                playFlyAnimation(btn);     // 飛入動畫
-                showCartToast();           // Toast 提示
-                refreshCartModal();        // 更新購物車 Modal
-                refreshCartCount();        // 更新 Badge
-            }
+        body: JSON.stringify({
+            productId: productId,
+            qty: qty
         })
-        .catch(err => console.error("AddToCart error:", err));
-}
+    })
+        .then(async res => {
+            const data = await res.json().catch(() => null);
+            return { ok: res.ok, data };
+        })
+        .then(result => {
 
-// 飛入動畫（圖片飛向購物車）
-function playFlyAnimation(btn) {
+            if (!result.ok || !result.data) {
+                alert("加入購物車失敗");
+                return;
+            }
 
-    const row = btn.closest('.row');
-    if (!row) return;
+            if (!result.data.success) {
+                alert(result.data.message || "加入失敗");
+                return;
+            }
 
-    const img = row.querySelector('.carousel-item.active img');
-    if (!img) return;
-
-    const cartIcon = document.getElementById('cartIcon');
-    if (!cartIcon) return;
-
-    const imgClone = img.cloneNode(true);
-
-    const imgRect = img.getBoundingClientRect();
-    const cartRect = cartIcon.getBoundingClientRect();
-
-    imgClone.classList.remove("w-100");
-    imgClone.style.margin = "0";
-    imgClone.style.maxWidth = "none";
-    imgClone.style.objectFit = "cover";
-
-    imgClone.style.position = "fixed";
-    imgClone.style.left = imgRect.left + "px";
-    imgClone.style.top = imgRect.top + "px";
-    imgClone.style.width = imgRect.width + "px";
-    imgClone.style.height = imgRect.height + "px";
-    imgClone.style.transition = "all 0.8s ease-in-out";
-    imgClone.style.zIndex = 9999;
-    imgClone.style.borderRadius = "8px";
-
-    document.body.appendChild(imgClone);
-
-    const targetX = cartRect.left + cartRect.width / 2;
-    const targetY = cartRect.top + cartRect.height / 2;
-
-    const finalSize = 30;
-
-    setTimeout(() => {
-        imgClone.style.left = (targetX - finalSize / 2) + "px";
-        imgClone.style.top = (targetY - finalSize / 2) + "px";
-        imgClone.style.width = finalSize + "px";
-        imgClone.style.height = finalSize + "px";
-        imgClone.style.opacity = "0.4";
-    }, 50);
-
-    setTimeout(() => {
-        imgClone.remove();
-    }, 900);
+            // 成功
+            refreshCartModal();
+            refreshCartCount(result.data.cartQty);
+            showCartToast(result.data.message);
+            playFlyAnimation(btn);
+        })
+        .catch(err => {
+            console.error("AddToCart error:", err);
+            alert("系統錯誤，請稍後再試");
+        });
 }
 
 // 更新購物車 Modal
@@ -88,53 +70,58 @@ function refreshCartModal() {
         .then(res => res.text())
         .then(html => {
             const modalBody = document.getElementById('cartModalBody');
-            if (!modalBody) return;
-
-            modalBody.innerHTML = html;
+            if (modalBody) modalBody.innerHTML = html;
         });
 }
-// 更新 Badge 數量
-function refreshCartCount() {
-    fetch('/Cart/GetCartCount')
-        .then(res => res.json())
-        .then(data => {
 
-            const badge = document.getElementById('cartCountBadge');
-            if (!badge) return;
 
-            badge.textContent = data.count;
+// 更新 Badge
+function refreshCartCount(countFromServer) {
 
-            // 0 則隱藏
-            if (data.count === 0) {
-                badge.style.display = "none";
-            } else {
-                badge.style.display = "inline-block";
-            }
-        })
-        .catch(err => console.error("refreshCartCount error:", err));
+    const badge = document.getElementById('cartCountBadge');
+    if (!badge) return;
+
+    if (typeof countFromServer === "number") {
+        badge.innerText = countFromServer;
+    } else {
+        // fallback
+        fetch('/Cart/GetCartCount')
+            .then(res => res.json())
+            .then(data => badge.innerText = data.count);
+    }
+
+    badge.style.display =
+        parseInt(badge.innerText, 10) > 0 ? "inline-block" : "none";
 }
-// 頁面載入時初始化 Badge
-document.addEventListener("DOMContentLoaded", () => {
-    refreshCartCount();
-});
 
+
+// 移除商品
 function removeFromCart(productId) {
 
-    fetch('/Cart/RemoveFromModal', {
+    fetch('/Cart/Remove', {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'RequestVerificationToken':
-                document.querySelector('input[name="__RequestVerificationToken"]')?.value
-        },
-        body: JSON.stringify({ productId: productId })
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ productId })
     })
         .then(res => res.json())
         .then(data => {
-            if (data.success) {
-                refreshCartModal();   // 重新載入 Modal
-                refreshCartCount();   // 更新 Badge
+
+            if (!data.success) {
+                alert(data.message || "移除失敗");
+                return;
             }
+
+            refreshCartModal();
+            refreshCartCount(data.cartQty);
         })
-        .catch(err => console.error("removeFromCart error:", err));
+        .catch(err => {
+            console.error("removeFromCart error:", err);
+            alert("系統錯誤");
+        });
 }
+
+
+// 初始載入 Badge
+document.addEventListener("DOMContentLoaded", () => {
+    refreshCartCount();
+});

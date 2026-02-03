@@ -16,8 +16,11 @@ namespace CraftDailyCorner.Seed.Datas
             {
                 var ProductCategory = new List<ProductCategory>
                 {
-                    new ProductCategory { ProductID = "P000000001", CategoryID = 8 },
-                    new ProductCategory { ProductID = "P000000002", CategoryID = 9 }
+                    new ProductCategory { ProductID = "P000000001", CategoryID = 9 },
+                    new ProductCategory { ProductID = "P000000002", CategoryID = 12 },
+                    new ProductCategory { ProductID = "P000000003", CategoryID = 9 },
+                    new ProductCategory { ProductID = "P000000004", CategoryID = 9 },
+                    new ProductCategory { ProductID = "P000000005", CategoryID = 12 }
                 };
                 _context.ProductCategories.AddRange(ProductCategory);
                 _context.SaveChanges();

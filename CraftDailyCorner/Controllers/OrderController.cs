@@ -29,13 +29,15 @@ namespace CraftDailyCorner.Controllers
         [Authorize]
         public IActionResult Checkout()
         {
-            var cart = _cartService.GetSessionCart();
+            string memberId = GetCurrentMemberId();
 
-            // 購物車空的，不能結帳
+            var cart = _cartService.GetCartItemsForCheckout(memberId);
+
             if (cart == null || !cart.Any())
             {
                 return RedirectToAction("Index", "Home");
             }
+
             var vm = new VMCheckout
             {
                 Items = cart,
@@ -59,7 +61,7 @@ namespace CraftDailyCorner.Controllers
 
             string memberId = GetCurrentMemberId();
 
-            var cartItems = _cartService.GetSessionCart();
+            var cartItems = _cartService.GetCartItemsForCheckout(memberId);
 
             string orderId = await _orderService.CreateOrderAsync(
                 memberId,
