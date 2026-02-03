@@ -14,8 +14,8 @@ namespace CraftDailyCorner.ViewModels.Front
         public string DisplayPrice => Math.Floor(Price).ToString("N0");
 
         // 庫存
-        public short StockQty { get; set; }
-        public short AlertQty { get; set; }
+        public int StockQty { get; set; }
+        public int AlertQty { get; set; }
         public bool IsOutOfStock => StockQty <= 0;
         public bool IsLowStock => StockQty > 0 && StockQty <= AlertQty;
 

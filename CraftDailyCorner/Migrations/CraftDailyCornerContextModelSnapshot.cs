@@ -57,7 +57,7 @@ namespace CraftDailyCorner.Migrations
 
                     b.HasIndex("CreatorID");
 
-                    b.ToTable("AutoReplyTemplate");
+                    b.ToTable("AutoReplyTemplates");
                 });
 
             modelBuilder.Entity("CraftDailyCorner.Models.Cart", b =>
@@ -68,19 +68,19 @@ namespace CraftDailyCorner.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CartID"));
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("MemberID")
                         .IsRequired()
                         .HasMaxLength(8)
                         .HasColumnType("nchar(8)");
 
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
                     b.HasKey("CartID");
 
                     b.HasIndex("MemberID");
 
-                    b.ToTable("Cart");
+                    b.ToTable("Carts");
                 });
 
             modelBuilder.Entity("CraftDailyCorner.Models.CartItem", b =>
@@ -92,14 +92,20 @@ namespace CraftDailyCorner.Migrations
                         .HasMaxLength(10)
                         .HasColumnType("nchar(10)");
 
-                    b.Property<short>("Quantity")
-                        .HasColumnType("smallint");
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
 
                     b.HasKey("CartID", "ProductID");
 
                     b.HasIndex("ProductID");
 
-                    b.ToTable("CartItem");
+                    b.ToTable("CartItems");
                 });
 
             modelBuilder.Entity("CraftDailyCorner.Models.Category", b =>
@@ -115,9 +121,20 @@ namespace CraftDailyCorner.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<int?>("ParentCategoryID")
+                        .HasColumnType("int");
+
                     b.HasKey("CategoryID");
 
-                    b.ToTable("Category");
+                    b.HasIndex("ParentCategoryID");
+
+                    b.ToTable("Categories");
                 });
 
             modelBuilder.Entity("CraftDailyCorner.Models.CreatorApplication", b =>
@@ -164,7 +181,7 @@ namespace CraftDailyCorner.Migrations
                     b.Property<DateTime>("StartDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<byte>("Status")
+                    b.Property<byte>("StatusID")
                         .HasColumnType("tinyint");
 
                     b.HasKey("ApplicationID");
@@ -173,7 +190,39 @@ namespace CraftDailyCorner.Migrations
 
                     b.HasIndex("ReviewedBy");
 
-                    b.ToTable("CreatorApplication");
+                    b.HasIndex("StatusID");
+
+                    b.ToTable("CreatorApplications");
+                });
+
+            modelBuilder.Entity("CraftDailyCorner.Models.CreatorApplicationStatus", b =>
+                {
+                    b.Property<byte>("StatusID")
+                        .HasColumnType("tinyint");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("StatusCode")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("StatusName")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.HasKey("StatusID");
+
+                    b.HasIndex("StatusCode")
+                        .IsUnique();
+
+                    b.ToTable("CreatorApplicationStatuses");
                 });
 
             modelBuilder.Entity("CraftDailyCorner.Models.CreatorPost", b =>
@@ -198,7 +247,7 @@ namespace CraftDailyCorner.Migrations
                         .IsRequired()
                         .HasColumnType("nchar(40)");
 
-                    b.Property<byte>("Status")
+                    b.Property<byte>("StatusID")
                         .HasColumnType("tinyint");
 
                     b.Property<string>("Title")
@@ -216,7 +265,39 @@ namespace CraftDailyCorner.Migrations
 
                     b.HasIndex("CreatorID");
 
-                    b.ToTable("CreatorPost");
+                    b.HasIndex("StatusID");
+
+                    b.ToTable("CreatorPosts");
+                });
+
+            modelBuilder.Entity("CraftDailyCorner.Models.CreatorPostStatus", b =>
+                {
+                    b.Property<byte>("StatusID")
+                        .HasColumnType("tinyint");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("StatusCode")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("StatusName")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.HasKey("StatusID");
+
+                    b.HasIndex("StatusCode")
+                        .IsUnique();
+
+                    b.ToTable("CreatorPostStatuses");
                 });
 
             modelBuilder.Entity("CraftDailyCorner.Models.CreatorProfile", b =>
@@ -258,7 +339,7 @@ namespace CraftDailyCorner.Migrations
                     b.Property<DateTime>("StartDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<byte>("Status")
+                    b.Property<byte>("StatusID")
                         .HasColumnType("tinyint");
 
                     b.HasKey("CreatorID");
@@ -266,7 +347,39 @@ namespace CraftDailyCorner.Migrations
                     b.HasIndex("MemberID")
                         .IsUnique();
 
-                    b.ToTable("CreatorProfile");
+                    b.HasIndex("StatusID");
+
+                    b.ToTable("CreatorProfiles");
+                });
+
+            modelBuilder.Entity("CraftDailyCorner.Models.CreatorProfileStatus", b =>
+                {
+                    b.Property<byte>("StatusID")
+                        .HasColumnType("tinyint");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("StatusCode")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("StatusName")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.HasKey("StatusID");
+
+                    b.HasIndex("StatusCode")
+                        .IsUnique();
+
+                    b.ToTable("CreatorProfileStatuses");
                 });
 
             modelBuilder.Entity("CraftDailyCorner.Models.FavoriteProduct", b =>
@@ -286,7 +399,7 @@ namespace CraftDailyCorner.Migrations
 
                     b.HasIndex("ProductID");
 
-                    b.ToTable("FavoriteProduct");
+                    b.ToTable("FavoriteProducts");
                 });
 
             modelBuilder.Entity("CraftDailyCorner.Models.FollowCreator", b =>
@@ -306,7 +419,7 @@ namespace CraftDailyCorner.Migrations
 
                     b.HasIndex("CreatorID");
 
-                    b.ToTable("FollowCreator");
+                    b.ToTable("FollowCreators");
                 });
 
             modelBuilder.Entity("CraftDailyCorner.Models.HomepageBanner", b =>
@@ -330,7 +443,7 @@ namespace CraftDailyCorner.Migrations
                         .HasMaxLength(40)
                         .HasColumnType("nchar(40)");
 
-                    b.Property<byte>("Status")
+                    b.Property<byte>("StatusID")
                         .HasColumnType("tinyint");
 
                     b.Property<string>("Subtitle")
@@ -346,7 +459,39 @@ namespace CraftDailyCorner.Migrations
 
                     b.HasIndex("CreatedBy");
 
-                    b.ToTable("HomepageBanner");
+                    b.HasIndex("StatusID");
+
+                    b.ToTable("HomepageBanners");
+                });
+
+            modelBuilder.Entity("CraftDailyCorner.Models.HomepageBannerStatus", b =>
+                {
+                    b.Property<byte>("StatusID")
+                        .HasColumnType("tinyint");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("StatusCode")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("StatusName")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.HasKey("StatusID");
+
+                    b.HasIndex("StatusCode")
+                        .IsUnique();
+
+                    b.ToTable("HomepageBannerStatuses");
                 });
 
             modelBuilder.Entity("CraftDailyCorner.Models.Inventory", b =>
@@ -357,23 +502,23 @@ namespace CraftDailyCorner.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("InventoryID"));
 
-                    b.Property<short>("AlertQty")
-                        .HasColumnType("smallint");
+                    b.Property<int>("AlertQty")
+                        .HasColumnType("int");
 
                     b.Property<string>("ProductID")
                         .IsRequired()
                         .HasMaxLength(10)
                         .HasColumnType("nchar(10)");
 
-                    b.Property<short>("StockQty")
-                        .HasColumnType("smallint");
+                    b.Property<int>("StockQty")
+                        .HasColumnType("int");
 
                     b.HasKey("InventoryID");
 
                     b.HasIndex("ProductID")
                         .IsUnique();
 
-                    b.ToTable("Inventory");
+                    b.ToTable("Inventories");
                 });
 
             modelBuilder.Entity("CraftDailyCorner.Models.InventoryAlert", b =>
@@ -397,7 +542,7 @@ namespace CraftDailyCorner.Migrations
 
                     b.HasIndex("InventoryID");
 
-                    b.ToTable("InventoryAlert");
+                    b.ToTable("InventoryAlerts");
                 });
 
             modelBuilder.Entity("CraftDailyCorner.Models.Member", b =>
@@ -416,14 +561,17 @@ namespace CraftDailyCorner.Migrations
 
                     b.Property<string>("ImageUrl")
                         .IsRequired()
-                        .HasColumnType("nchar(40)");
+                        .HasMaxLength(40)
+                        .HasColumnType("nvarchar(40)");
 
-                    b.Property<byte>("Status")
+                    b.Property<byte>("StatusID")
                         .HasColumnType("tinyint");
 
                     b.HasKey("MemberID");
 
-                    b.ToTable("Member");
+                    b.HasIndex("StatusID");
+
+                    b.ToTable("Members");
                 });
 
             modelBuilder.Entity("CraftDailyCorner.Models.MemberRole", b =>
@@ -443,7 +591,7 @@ namespace CraftDailyCorner.Migrations
 
                     b.HasIndex("RoleID");
 
-                    b.ToTable("MemberRole");
+                    b.ToTable("MemberRoles");
                 });
 
             modelBuilder.Entity("CraftDailyCorner.Models.MemberRoleHistory", b =>
@@ -479,11 +627,43 @@ namespace CraftDailyCorner.Migrations
 
                     b.HasKey("MemberRoleHistoryID");
 
+                    b.HasIndex("MemberID");
+
                     b.HasIndex("OperatorMemberID");
 
                     b.HasIndex("RoleID");
 
-                    b.ToTable("MemberRoleHistory");
+                    b.ToTable("MemberRoleHistories");
+                });
+
+            modelBuilder.Entity("CraftDailyCorner.Models.MemberStatus", b =>
+                {
+                    b.Property<byte>("StatusID")
+                        .HasColumnType("tinyint");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("StatusCode")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("StatusName")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.HasKey("StatusID");
+
+                    b.HasIndex("StatusCode")
+                        .IsUnique();
+
+                    b.ToTable("MemberStatuses");
                 });
 
             modelBuilder.Entity("CraftDailyCorner.Models.Message", b =>
@@ -515,7 +695,7 @@ namespace CraftDailyCorner.Migrations
 
                     b.HasIndex("ThreadID");
 
-                    b.ToTable("Message");
+                    b.ToTable("Messages");
                 });
 
             modelBuilder.Entity("CraftDailyCorner.Models.MessageThread", b =>
@@ -532,9 +712,6 @@ namespace CraftDailyCorner.Migrations
                     b.Property<string>("CreatorID")
                         .IsRequired()
                         .HasMaxLength(8)
-                        .HasColumnType("nchar(8)");
-
-                    b.Property<string>("CreatorProfileCreatorID")
                         .HasColumnType("nchar(6)");
 
                     b.Property<string>("MemberID")
@@ -546,9 +723,9 @@ namespace CraftDailyCorner.Migrations
 
                     b.HasIndex("CreatorID");
 
-                    b.HasIndex("CreatorProfileCreatorID");
+                    b.HasIndex("MemberID");
 
-                    b.ToTable("MessageThread");
+                    b.ToTable("MessageThreads");
                 });
 
             modelBuilder.Entity("CraftDailyCorner.Models.NotificationEvent", b =>
@@ -578,7 +755,7 @@ namespace CraftDailyCorner.Migrations
 
                     b.HasIndex("MemberID");
 
-                    b.ToTable("NotificationEvent");
+                    b.ToTable("NotificationEvents");
                 });
 
             modelBuilder.Entity("CraftDailyCorner.Models.NotificationPreference", b =>
@@ -610,7 +787,7 @@ namespace CraftDailyCorner.Migrations
 
                     b.HasIndex("MemberID");
 
-                    b.ToTable("NotificationPreference");
+                    b.ToTable("NotificationPreferences");
                 });
 
             modelBuilder.Entity("CraftDailyCorner.Models.Order", b =>
@@ -642,7 +819,7 @@ namespace CraftDailyCorner.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
-                    b.Property<byte>("Status")
+                    b.Property<byte>("StatusID")
                         .HasColumnType("tinyint");
 
                     b.Property<decimal>("TotalAmount")
@@ -652,7 +829,9 @@ namespace CraftDailyCorner.Migrations
 
                     b.HasIndex("MemberID");
 
-                    b.ToTable("Order");
+                    b.HasIndex("StatusID");
+
+                    b.ToTable("Orders");
                 });
 
             modelBuilder.Entity("CraftDailyCorner.Models.OrderDetail", b =>
@@ -673,14 +852,74 @@ namespace CraftDailyCorner.Migrations
                         .HasMaxLength(40)
                         .HasColumnType("nvarchar(40)");
 
-                    b.Property<short>("Quantity")
-                        .HasColumnType("smallint");
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
 
                     b.HasKey("OrderID", "ProductID");
 
                     b.HasIndex("ProductID");
 
-                    b.ToTable("OrderDetail");
+                    b.ToTable("OrderDetails");
+                });
+
+            modelBuilder.Entity("CraftDailyCorner.Models.OrderStatus", b =>
+                {
+                    b.Property<byte>("StatusID")
+                        .HasColumnType("tinyint");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("StatusCode")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("StatusName")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.HasKey("StatusID");
+
+                    b.HasIndex("StatusCode")
+                        .IsUnique();
+
+                    b.ToTable("OrderStatuses");
+                });
+
+            modelBuilder.Entity("CraftDailyCorner.Models.PasswordResetToken", b =>
+                {
+                    b.Property<long>("PasswordResetId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("PasswordResetId"));
+
+                    b.Property<DateTime>("ExpiryDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("MemberID")
+                        .IsRequired()
+                        .HasColumnType("nchar(8)");
+
+                    b.Property<string>("Token")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<bool>("Used")
+                        .HasColumnType("bit");
+
+                    b.HasKey("PasswordResetId");
+
+                    b.HasIndex("MemberID");
+
+                    b.ToTable("PasswordResetTokens");
                 });
 
             modelBuilder.Entity("CraftDailyCorner.Models.Payment", b =>
@@ -705,6 +944,9 @@ namespace CraftDailyCorner.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
+                    b.Property<byte>("MethodID")
+                        .HasColumnType("tinyint");
+
                     b.Property<string>("OrderID")
                         .IsRequired()
                         .HasMaxLength(12)
@@ -713,17 +955,75 @@ namespace CraftDailyCorner.Migrations
                     b.Property<DateTime>("PaidAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<byte>("PaymentMethod")
-                        .HasColumnType("tinyint");
-
-                    b.Property<byte>("Status")
+                    b.Property<byte>("StatusID")
                         .HasColumnType("tinyint");
 
                     b.HasKey("PaymentID");
 
+                    b.HasIndex("MethodID");
+
                     b.HasIndex("OrderID");
 
-                    b.ToTable("Payment");
+                    b.HasIndex("StatusID");
+
+                    b.ToTable("Payments");
+                });
+
+            modelBuilder.Entity("CraftDailyCorner.Models.PaymentMethod", b =>
+                {
+                    b.Property<byte>("MethodID")
+                        .HasColumnType("tinyint");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("MethodCode")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("MethodName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("MethodID");
+
+                    b.HasIndex("MethodCode")
+                        .IsUnique();
+
+                    b.ToTable("PaymentMethods");
+                });
+
+            modelBuilder.Entity("CraftDailyCorner.Models.PaymentStatus", b =>
+                {
+                    b.Property<byte>("StatusID")
+                        .HasColumnType("tinyint");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("StatusCode")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("StatusName")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.HasKey("StatusID");
+
+                    b.HasIndex("StatusCode")
+                        .IsUnique();
+
+                    b.ToTable("PaymentStatuses");
                 });
 
             modelBuilder.Entity("CraftDailyCorner.Models.PlatformAnnouncement", b =>
@@ -745,7 +1045,7 @@ namespace CraftDailyCorner.Migrations
                         .IsRequired()
                         .HasColumnType("nchar(8)");
 
-                    b.Property<byte>("Status")
+                    b.Property<byte>("StatusID")
                         .HasColumnType("tinyint");
 
                     b.Property<string>("Title")
@@ -757,7 +1057,39 @@ namespace CraftDailyCorner.Migrations
 
                     b.HasIndex("CreatedBy");
 
-                    b.ToTable("PlatformAnnouncement");
+                    b.HasIndex("StatusID");
+
+                    b.ToTable("PlatformAnnouncements");
+                });
+
+            modelBuilder.Entity("CraftDailyCorner.Models.PlatformAnnouncementStatus", b =>
+                {
+                    b.Property<byte>("StatusID")
+                        .HasColumnType("tinyint");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("StatusCode")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("StatusName")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.HasKey("StatusID");
+
+                    b.HasIndex("StatusCode")
+                        .IsUnique();
+
+                    b.ToTable("PlatformAnnouncementStatuses");
                 });
 
             modelBuilder.Entity("CraftDailyCorner.Models.PlatformSetting", b =>
@@ -768,7 +1100,7 @@ namespace CraftDailyCorner.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("SettingID"));
 
-                    b.Property<byte>("Category")
+                    b.Property<byte>("CategoryID")
                         .HasColumnType("tinyint");
 
                     b.Property<string>("DataType")
@@ -799,9 +1131,38 @@ namespace CraftDailyCorner.Migrations
 
                     b.HasKey("SettingID");
 
+                    b.HasIndex("CategoryID");
+
                     b.HasIndex("UpdatedBy");
 
-                    b.ToTable("PlatformSetting");
+                    b.ToTable("PlatformSettings");
+                });
+
+            modelBuilder.Entity("CraftDailyCorner.Models.PlatformSettingCategory", b =>
+                {
+                    b.Property<byte>("CategoryID")
+                        .HasColumnType("tinyint");
+
+                    b.Property<string>("CategoryCode")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("CategoryName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.HasKey("CategoryID");
+
+                    b.HasIndex("CategoryCode")
+                        .IsUnique();
+
+                    b.ToTable("PlatformSettingCategories");
                 });
 
             modelBuilder.Entity("CraftDailyCorner.Models.Portfolio", b =>
@@ -834,7 +1195,7 @@ namespace CraftDailyCorner.Migrations
 
                     b.HasIndex("CreatorID");
 
-                    b.ToTable("Portfolio");
+                    b.ToTable("Portfolios");
                 });
 
             modelBuilder.Entity("CraftDailyCorner.Models.PortfolioItem", b =>
@@ -874,7 +1235,7 @@ namespace CraftDailyCorner.Migrations
 
                     b.HasIndex("PortfolioID");
 
-                    b.ToTable("PortfolioItem");
+                    b.ToTable("PortfolioItems");
                 });
 
             modelBuilder.Entity("CraftDailyCorner.Models.PostComment", b =>
@@ -909,7 +1270,77 @@ namespace CraftDailyCorner.Migrations
 
                     b.HasIndex("PostID");
 
-                    b.ToTable("PostComment");
+                    b.ToTable("PostComments");
+                });
+
+            modelBuilder.Entity("CraftDailyCorner.Models.PostCommentReport", b =>
+                {
+                    b.Property<long>("ReportID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("ReportID"));
+
+                    b.Property<string>("CommentID")
+                        .IsRequired()
+                        .HasColumnType("nchar(36)");
+
+                    b.Property<string>("MemberID")
+                        .IsRequired()
+                        .HasColumnType("nchar(8)");
+
+                    b.Property<string>("Reason")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("ReviewedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ReviewedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<byte>("StatusID")
+                        .HasColumnType("tinyint");
+
+                    b.HasKey("ReportID");
+
+                    b.HasIndex("CommentID");
+
+                    b.HasIndex("MemberID");
+
+                    b.HasIndex("StatusID");
+
+                    b.ToTable("PostCommentReports");
+                });
+
+            modelBuilder.Entity("CraftDailyCorner.Models.PostCommentReportStatus", b =>
+                {
+                    b.Property<byte>("StatusID")
+                        .HasColumnType("tinyint");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("StatusCode")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("StatusName")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.HasKey("StatusID");
+
+                    b.HasIndex("StatusCode")
+                        .IsUnique();
+
+                    b.ToTable("PostCommentReportStatuses");
                 });
 
             modelBuilder.Entity("CraftDailyCorner.Models.Privacy", b =>
@@ -922,8 +1353,8 @@ namespace CraftDailyCorner.Migrations
 
                     b.Property<string>("Email")
                         .IsRequired()
-                        .HasMaxLength(40)
-                        .HasColumnType("nvarchar(40)");
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
 
                     b.Property<byte>("Gender")
                         .HasColumnType("tinyint");
@@ -941,7 +1372,11 @@ namespace CraftDailyCorner.Migrations
                     b.HasIndex("Email")
                         .IsUnique();
 
-                    b.ToTable("Privacy");
+                    b.HasIndex("Phone")
+                        .IsUnique()
+                        .HasFilter("[Phone] IS NOT NULL");
+
+                    b.ToTable("Privacies");
                 });
 
             modelBuilder.Entity("CraftDailyCorner.Models.Product", b =>
@@ -970,14 +1405,16 @@ namespace CraftDailyCorner.Migrations
                         .HasMaxLength(40)
                         .HasColumnType("nvarchar(40)");
 
-                    b.Property<byte>("Status")
+                    b.Property<byte>("StatusID")
                         .HasColumnType("tinyint");
 
                     b.HasKey("ProductID");
 
                     b.HasIndex("CreatorID");
 
-                    b.ToTable("Product");
+                    b.HasIndex("StatusID");
+
+                    b.ToTable("Products");
                 });
 
             modelBuilder.Entity("CraftDailyCorner.Models.ProductCategory", b =>
@@ -993,7 +1430,7 @@ namespace CraftDailyCorner.Migrations
 
                     b.HasIndex("CategoryID");
 
-                    b.ToTable("ProductCategory");
+                    b.ToTable("ProductCategories");
                 });
 
             modelBuilder.Entity("CraftDailyCorner.Models.ProductImage", b =>
@@ -1017,14 +1454,46 @@ namespace CraftDailyCorner.Migrations
                     b.Property<byte>("SortOrder")
                         .HasColumnType("tinyint");
 
-                    b.Property<byte>("Status")
+                    b.Property<byte>("StatusID")
                         .HasColumnType("tinyint");
 
                     b.HasKey("ImageID");
 
                     b.HasIndex("ProductID");
 
-                    b.ToTable("ProductImage");
+                    b.HasIndex("StatusID");
+
+                    b.ToTable("ProductImages");
+                });
+
+            modelBuilder.Entity("CraftDailyCorner.Models.ProductImageStatus", b =>
+                {
+                    b.Property<byte>("StatusID")
+                        .HasColumnType("tinyint");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("StatusCode")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("StatusName")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.HasKey("StatusID");
+
+                    b.HasIndex("StatusCode")
+                        .IsUnique();
+
+                    b.ToTable("ProductImageStatuses");
                 });
 
             modelBuilder.Entity("CraftDailyCorner.Models.ProductReview", b =>
@@ -1060,7 +1529,37 @@ namespace CraftDailyCorner.Migrations
 
                     b.HasIndex("ProductID");
 
-                    b.ToTable("ProductReview");
+                    b.ToTable("ProductReviews");
+                });
+
+            modelBuilder.Entity("CraftDailyCorner.Models.ProductStatus", b =>
+                {
+                    b.Property<byte>("StatusID")
+                        .HasColumnType("tinyint");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("StatusCode")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("StatusName")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.HasKey("StatusID");
+
+                    b.HasIndex("StatusCode")
+                        .IsUnique();
+
+                    b.ToTable("ProductStatuses");
                 });
 
             modelBuilder.Entity("CraftDailyCorner.Models.ProductTag", b =>
@@ -1076,7 +1575,7 @@ namespace CraftDailyCorner.Migrations
 
                     b.HasIndex("TagID");
 
-                    b.ToTable("ProductTag");
+                    b.ToTable("ProductTags");
                 });
 
             modelBuilder.Entity("CraftDailyCorner.Models.Role", b =>
@@ -1096,7 +1595,7 @@ namespace CraftDailyCorner.Migrations
 
                     b.HasKey("RoleID");
 
-                    b.ToTable("Role");
+                    b.ToTable("Roles");
                 });
 
             modelBuilder.Entity("CraftDailyCorner.Models.Shipment", b =>
@@ -1112,7 +1611,7 @@ namespace CraftDailyCorner.Migrations
                         .HasMaxLength(12)
                         .HasColumnType("nchar(12)");
 
-                    b.Property<byte>("Status")
+                    b.Property<byte>("StatusID")
                         .HasColumnType("tinyint");
 
                     b.Property<string>("TrackingNo")
@@ -1125,7 +1624,39 @@ namespace CraftDailyCorner.Migrations
                     b.HasIndex("OrderID")
                         .IsUnique();
 
-                    b.ToTable("Shipment");
+                    b.HasIndex("StatusID");
+
+                    b.ToTable("Shipments");
+                });
+
+            modelBuilder.Entity("CraftDailyCorner.Models.ShipmentStatus", b =>
+                {
+                    b.Property<byte>("StatusID")
+                        .HasColumnType("tinyint");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("StatusCode")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("StatusName")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.HasKey("StatusID");
+
+                    b.HasIndex("StatusCode")
+                        .IsUnique();
+
+                    b.ToTable("ShipmentStatuses");
                 });
 
             modelBuilder.Entity("CraftDailyCorner.Models.Tag", b =>
@@ -1136,6 +1667,12 @@ namespace CraftDailyCorner.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("TagID"));
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
                     b.Property<string>("TagName")
                         .IsRequired()
                         .HasMaxLength(20)
@@ -1143,13 +1680,13 @@ namespace CraftDailyCorner.Migrations
 
                     b.HasKey("TagID");
 
-                    b.ToTable("Tag");
+                    b.ToTable("Tags");
                 });
 
             modelBuilder.Entity("CraftDailyCorner.Models.AutoReplyTemplate", b =>
                 {
                     b.HasOne("CraftDailyCorner.Models.CreatorProfile", "CreatorProfile")
-                        .WithMany("AutoReplyTemplate")
+                        .WithMany("AutoReplyTemplates")
                         .HasForeignKey("CreatorID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1160,7 +1697,7 @@ namespace CraftDailyCorner.Migrations
             modelBuilder.Entity("CraftDailyCorner.Models.Cart", b =>
                 {
                     b.HasOne("CraftDailyCorner.Models.Member", "Member")
-                        .WithMany("Cart")
+                        .WithMany("Carts")
                         .HasForeignKey("MemberID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1171,13 +1708,13 @@ namespace CraftDailyCorner.Migrations
             modelBuilder.Entity("CraftDailyCorner.Models.CartItem", b =>
                 {
                     b.HasOne("CraftDailyCorner.Models.Cart", "Cart")
-                        .WithMany("CartItem")
+                        .WithMany("CartItems")
                         .HasForeignKey("CartID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("CraftDailyCorner.Models.Product", "Product")
-                        .WithMany("CartItem")
+                        .WithMany("CartItems")
                         .HasForeignKey("ProductID")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
@@ -1187,19 +1724,37 @@ namespace CraftDailyCorner.Migrations
                     b.Navigation("Product");
                 });
 
+            modelBuilder.Entity("CraftDailyCorner.Models.Category", b =>
+                {
+                    b.HasOne("CraftDailyCorner.Models.Category", "ParentCategory")
+                        .WithMany("SubCategories")
+                        .HasForeignKey("ParentCategoryID")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("ParentCategory");
+                });
+
             modelBuilder.Entity("CraftDailyCorner.Models.CreatorApplication", b =>
                 {
-                    b.HasOne("CraftDailyCorner.Models.Member", "Reviewer")
-                        .WithMany()
+                    b.HasOne("CraftDailyCorner.Models.Member", "Member")
+                        .WithMany("CreatorApplications")
                         .HasForeignKey("MemberID")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("CraftDailyCorner.Models.Member", "Member")
-                        .WithMany("CreatorApplication")
+                    b.HasOne("CraftDailyCorner.Models.Member", "Reviewer")
+                        .WithMany("ReviewedCreatorApplications")
                         .HasForeignKey("ReviewedBy")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.HasOne("CraftDailyCorner.Models.CreatorApplicationStatus", "CreatorApplicationStatus")
+                        .WithMany("CreatorApplications")
+                        .HasForeignKey("StatusID")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("CreatorApplicationStatus");
 
                     b.Navigation("Member");
 
@@ -1209,10 +1764,18 @@ namespace CraftDailyCorner.Migrations
             modelBuilder.Entity("CraftDailyCorner.Models.CreatorPost", b =>
                 {
                     b.HasOne("CraftDailyCorner.Models.CreatorProfile", "CreatorProfile")
-                        .WithMany("CreatorPost")
+                        .WithMany("CreatorPosts")
                         .HasForeignKey("CreatorID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("CraftDailyCorner.Models.CreatorPostStatus", "CreatorPostStatus")
+                        .WithMany("CreatorPosts")
+                        .HasForeignKey("StatusID")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("CreatorPostStatus");
 
                     b.Navigation("CreatorProfile");
                 });
@@ -1225,19 +1788,27 @@ namespace CraftDailyCorner.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("CraftDailyCorner.Models.CreatorProfileStatus", "CreatorProfileStatus")
+                        .WithMany("CreatorProfiles")
+                        .HasForeignKey("StatusID")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("CreatorProfileStatus");
+
                     b.Navigation("Member");
                 });
 
             modelBuilder.Entity("CraftDailyCorner.Models.FavoriteProduct", b =>
                 {
                     b.HasOne("CraftDailyCorner.Models.Member", "Member")
-                        .WithMany("FavoriteProduct")
+                        .WithMany("FavoriteProducts")
                         .HasForeignKey("MemberID")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("CraftDailyCorner.Models.Product", "Product")
-                        .WithMany("FavoriteProduct")
+                        .WithMany("FavoriteProducts")
                         .HasForeignKey("ProductID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1250,15 +1821,15 @@ namespace CraftDailyCorner.Migrations
             modelBuilder.Entity("CraftDailyCorner.Models.FollowCreator", b =>
                 {
                     b.HasOne("CraftDailyCorner.Models.CreatorProfile", "CreatorProfile")
-                        .WithMany("FollowCreator")
+                        .WithMany("FollowCreators")
                         .HasForeignKey("CreatorID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("CraftDailyCorner.Models.Member", "Member")
-                        .WithMany("FollowCreator")
+                        .WithMany("FollowCreators")
                         .HasForeignKey("MemberID")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("CreatorProfile");
@@ -1269,10 +1840,18 @@ namespace CraftDailyCorner.Migrations
             modelBuilder.Entity("CraftDailyCorner.Models.HomepageBanner", b =>
                 {
                     b.HasOne("CraftDailyCorner.Models.Member", "Member")
-                        .WithMany("HomepageBanner")
+                        .WithMany("HomepageBanners")
                         .HasForeignKey("CreatedBy")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.HasOne("CraftDailyCorner.Models.HomepageBannerStatus", "HomepageBannerStatus")
+                        .WithMany("HomepageBanners")
+                        .HasForeignKey("StatusID")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("HomepageBannerStatus");
 
                     b.Navigation("Member");
                 });
@@ -1291,7 +1870,7 @@ namespace CraftDailyCorner.Migrations
             modelBuilder.Entity("CraftDailyCorner.Models.InventoryAlert", b =>
                 {
                     b.HasOne("CraftDailyCorner.Models.Inventory", "Inventory")
-                        .WithMany("InventoryAlert")
+                        .WithMany("InventoryAlerts")
                         .HasForeignKey("InventoryID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1299,16 +1878,27 @@ namespace CraftDailyCorner.Migrations
                     b.Navigation("Inventory");
                 });
 
+            modelBuilder.Entity("CraftDailyCorner.Models.Member", b =>
+                {
+                    b.HasOne("CraftDailyCorner.Models.MemberStatus", "MemberStatus")
+                        .WithMany("Members")
+                        .HasForeignKey("StatusID")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("MemberStatus");
+                });
+
             modelBuilder.Entity("CraftDailyCorner.Models.MemberRole", b =>
                 {
                     b.HasOne("CraftDailyCorner.Models.Member", "Member")
-                        .WithMany("MemberRole")
+                        .WithMany("MemberRoles")
                         .HasForeignKey("MemberID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("CraftDailyCorner.Models.Role", "Role")
-                        .WithMany("MemberRole")
+                        .WithMany("MemberRoles")
                         .HasForeignKey("RoleID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1321,17 +1911,25 @@ namespace CraftDailyCorner.Migrations
             modelBuilder.Entity("CraftDailyCorner.Models.MemberRoleHistory", b =>
                 {
                     b.HasOne("CraftDailyCorner.Models.Member", "Member")
-                        .WithMany("MemberRoleHistory")
+                        .WithMany("RoleChangeHistories")
+                        .HasForeignKey("MemberID")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("CraftDailyCorner.Models.Member", "OperatorMember")
+                        .WithMany("OperatedRoleHistories")
                         .HasForeignKey("OperatorMemberID")
                         .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("CraftDailyCorner.Models.Role", "Role")
-                        .WithMany("MemberRoleHistory")
+                        .WithMany("MemberRoleHistories")
                         .HasForeignKey("RoleID")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Member");
+
+                    b.Navigation("OperatorMember");
 
                     b.Navigation("Role");
                 });
@@ -1339,13 +1937,13 @@ namespace CraftDailyCorner.Migrations
             modelBuilder.Entity("CraftDailyCorner.Models.Message", b =>
                 {
                     b.HasOne("CraftDailyCorner.Models.Member", "Member")
-                        .WithMany("Message")
+                        .WithMany("Messages")
                         .HasForeignKey("SenderID")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("CraftDailyCorner.Models.MessageThread", "MessageThread")
-                        .WithMany("Message")
+                        .WithMany("Messages")
                         .HasForeignKey("ThreadID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1357,15 +1955,19 @@ namespace CraftDailyCorner.Migrations
 
             modelBuilder.Entity("CraftDailyCorner.Models.MessageThread", b =>
                 {
-                    b.HasOne("CraftDailyCorner.Models.Member", "Member")
-                        .WithMany("MessageThread")
+                    b.HasOne("CraftDailyCorner.Models.CreatorProfile", "CreatorProfile")
+                        .WithMany("MessageThreads")
                         .HasForeignKey("CreatorID")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("CraftDailyCorner.Models.CreatorProfile", null)
-                        .WithMany("MessageThread")
-                        .HasForeignKey("CreatorProfileCreatorID");
+                    b.HasOne("CraftDailyCorner.Models.Member", "Member")
+                        .WithMany("MessageThreads")
+                        .HasForeignKey("MemberID")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("CreatorProfile");
 
                     b.Navigation("Member");
                 });
@@ -1373,7 +1975,7 @@ namespace CraftDailyCorner.Migrations
             modelBuilder.Entity("CraftDailyCorner.Models.NotificationEvent", b =>
                 {
                     b.HasOne("CraftDailyCorner.Models.Member", "Member")
-                        .WithMany("NotificationEvent")
+                        .WithMany("NotificationEvents")
                         .HasForeignKey("MemberID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1384,7 +1986,7 @@ namespace CraftDailyCorner.Migrations
             modelBuilder.Entity("CraftDailyCorner.Models.NotificationPreference", b =>
                 {
                     b.HasOne("CraftDailyCorner.Models.Member", "Member")
-                        .WithMany("NotificationPreference")
+                        .WithMany("NotificationPreferences")
                         .HasForeignKey("MemberID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1395,24 +1997,32 @@ namespace CraftDailyCorner.Migrations
             modelBuilder.Entity("CraftDailyCorner.Models.Order", b =>
                 {
                     b.HasOne("CraftDailyCorner.Models.Member", "Member")
-                        .WithMany("Order")
+                        .WithMany("Orders")
                         .HasForeignKey("MemberID")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("CraftDailyCorner.Models.OrderStatus", "OrderStatus")
+                        .WithMany("Orders")
+                        .HasForeignKey("StatusID")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.Navigation("Member");
+
+                    b.Navigation("OrderStatus");
                 });
 
             modelBuilder.Entity("CraftDailyCorner.Models.OrderDetail", b =>
                 {
                     b.HasOne("CraftDailyCorner.Models.Order", "Order")
-                        .WithMany("OrderDetail")
+                        .WithMany("OrderDetails")
                         .HasForeignKey("OrderID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("CraftDailyCorner.Models.Product", "Product")
-                        .WithMany("OrderDetail")
+                        .WithMany("OrderDetails")
                         .HasForeignKey("ProductID")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
@@ -1422,43 +2032,86 @@ namespace CraftDailyCorner.Migrations
                     b.Navigation("Product");
                 });
 
+            modelBuilder.Entity("CraftDailyCorner.Models.PasswordResetToken", b =>
+                {
+                    b.HasOne("CraftDailyCorner.Models.Member", "Member")
+                        .WithMany("PasswordResetTokens")
+                        .HasForeignKey("MemberID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Member");
+                });
+
             modelBuilder.Entity("CraftDailyCorner.Models.Payment", b =>
                 {
+                    b.HasOne("CraftDailyCorner.Models.PaymentMethod", "PaymentMethod")
+                        .WithMany("Payments")
+                        .HasForeignKey("MethodID")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.HasOne("CraftDailyCorner.Models.Order", "Order")
-                        .WithMany("Payment")
+                        .WithMany("Payments")
                         .HasForeignKey("OrderID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("CraftDailyCorner.Models.PaymentStatus", "PaymentStatus")
+                        .WithMany("Payments")
+                        .HasForeignKey("StatusID")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.Navigation("Order");
+
+                    b.Navigation("PaymentMethod");
+
+                    b.Navigation("PaymentStatus");
                 });
 
             modelBuilder.Entity("CraftDailyCorner.Models.PlatformAnnouncement", b =>
                 {
                     b.HasOne("CraftDailyCorner.Models.Member", "Member")
-                        .WithMany("PlatformAnnouncement")
+                        .WithMany("PlatformAnnouncements")
                         .HasForeignKey("CreatedBy")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("CraftDailyCorner.Models.PlatformAnnouncementStatus", "PlatformAnnouncementStatus")
+                        .WithMany("PlatformAnnouncements")
+                        .HasForeignKey("StatusID")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.Navigation("Member");
+
+                    b.Navigation("PlatformAnnouncementStatus");
                 });
 
             modelBuilder.Entity("CraftDailyCorner.Models.PlatformSetting", b =>
                 {
+                    b.HasOne("CraftDailyCorner.Models.PlatformSettingCategory", "PlatformSettingCategory")
+                        .WithMany("PlatformSettings")
+                        .HasForeignKey("CategoryID")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.HasOne("CraftDailyCorner.Models.Member", "Member")
-                        .WithMany("PlatformSetting")
+                        .WithMany("PlatformSettings")
                         .HasForeignKey("UpdatedBy")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Member");
+
+                    b.Navigation("PlatformSettingCategory");
                 });
 
             modelBuilder.Entity("CraftDailyCorner.Models.Portfolio", b =>
                 {
                     b.HasOne("CraftDailyCorner.Models.CreatorProfile", "CreatorProfile")
-                        .WithMany("Portfolio")
+                        .WithMany("Portfolios")
                         .HasForeignKey("CreatorID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1469,7 +2122,7 @@ namespace CraftDailyCorner.Migrations
             modelBuilder.Entity("CraftDailyCorner.Models.PortfolioItem", b =>
                 {
                     b.HasOne("CraftDailyCorner.Models.Portfolio", "Portfolio")
-                        .WithMany("PortfolioItem")
+                        .WithMany("PortfolioItems")
                         .HasForeignKey("PortfolioID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1480,13 +2133,13 @@ namespace CraftDailyCorner.Migrations
             modelBuilder.Entity("CraftDailyCorner.Models.PostComment", b =>
                 {
                     b.HasOne("CraftDailyCorner.Models.Member", "Member")
-                        .WithMany("PostComment")
+                        .WithMany("PostComments")
                         .HasForeignKey("MemberID")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("CraftDailyCorner.Models.CreatorPost", "CreatorPost")
-                        .WithMany("PostComment")
+                        .WithMany("PostComments")
                         .HasForeignKey("PostID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1494,6 +2147,33 @@ namespace CraftDailyCorner.Migrations
                     b.Navigation("CreatorPost");
 
                     b.Navigation("Member");
+                });
+
+            modelBuilder.Entity("CraftDailyCorner.Models.PostCommentReport", b =>
+                {
+                    b.HasOne("CraftDailyCorner.Models.PostComment", "PostComment")
+                        .WithMany("PostCommentReports")
+                        .HasForeignKey("CommentID")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("CraftDailyCorner.Models.Member", "Member")
+                        .WithMany("PostCommentReports")
+                        .HasForeignKey("MemberID")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("CraftDailyCorner.Models.PostCommentReportStatus", "PostCommentReportStatus")
+                        .WithMany("PostCommentReports")
+                        .HasForeignKey("StatusID")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Member");
+
+                    b.Navigation("PostComment");
+
+                    b.Navigation("PostCommentReportStatus");
                 });
 
             modelBuilder.Entity("CraftDailyCorner.Models.Privacy", b =>
@@ -1510,24 +2190,32 @@ namespace CraftDailyCorner.Migrations
             modelBuilder.Entity("CraftDailyCorner.Models.Product", b =>
                 {
                     b.HasOne("CraftDailyCorner.Models.CreatorProfile", "CreatorProfile")
-                        .WithMany("Product")
+                        .WithMany("Products")
                         .HasForeignKey("CreatorID")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("CraftDailyCorner.Models.ProductStatus", "ProductStatus")
+                        .WithMany("Products")
+                        .HasForeignKey("StatusID")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.Navigation("CreatorProfile");
+
+                    b.Navigation("ProductStatus");
                 });
 
             modelBuilder.Entity("CraftDailyCorner.Models.ProductCategory", b =>
                 {
                     b.HasOne("CraftDailyCorner.Models.Category", "Category")
-                        .WithMany("ProductCategory")
+                        .WithMany("ProductCategories")
                         .HasForeignKey("CategoryID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("CraftDailyCorner.Models.Product", "Product")
-                        .WithMany("ProductCategory")
+                        .WithMany("ProductCategories")
                         .HasForeignKey("ProductID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1540,24 +2228,32 @@ namespace CraftDailyCorner.Migrations
             modelBuilder.Entity("CraftDailyCorner.Models.ProductImage", b =>
                 {
                     b.HasOne("CraftDailyCorner.Models.Product", "Product")
-                        .WithMany("ProductImage")
+                        .WithMany("ProductImages")
                         .HasForeignKey("ProductID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("CraftDailyCorner.Models.ProductImageStatus", "ProductImageStatus")
+                        .WithMany("ProductImages")
+                        .HasForeignKey("StatusID")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.Navigation("Product");
+
+                    b.Navigation("ProductImageStatus");
                 });
 
             modelBuilder.Entity("CraftDailyCorner.Models.ProductReview", b =>
                 {
                     b.HasOne("CraftDailyCorner.Models.Member", "Member")
-                        .WithMany("ProductReview")
+                        .WithMany("ProductReviews")
                         .HasForeignKey("MemberID")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("CraftDailyCorner.Models.Product", "Product")
-                        .WithMany("ProductReview")
+                        .WithMany("ProductReviews")
                         .HasForeignKey("ProductID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1570,13 +2266,13 @@ namespace CraftDailyCorner.Migrations
             modelBuilder.Entity("CraftDailyCorner.Models.ProductTag", b =>
                 {
                     b.HasOne("CraftDailyCorner.Models.Product", "Product")
-                        .WithMany("ProductTag")
+                        .WithMany("ProductTags")
                         .HasForeignKey("ProductID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("CraftDailyCorner.Models.Tag", "Tag")
-                        .WithMany("ProductTag")
+                        .WithMany("ProductTags")
                         .HasForeignKey("TagID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1594,131 +2290,225 @@ namespace CraftDailyCorner.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("CraftDailyCorner.Models.ShipmentStatus", "ShipmentStatus")
+                        .WithMany("Shipments")
+                        .HasForeignKey("StatusID")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.Navigation("Order");
+
+                    b.Navigation("ShipmentStatus");
                 });
 
             modelBuilder.Entity("CraftDailyCorner.Models.Cart", b =>
                 {
-                    b.Navigation("CartItem");
+                    b.Navigation("CartItems");
                 });
 
             modelBuilder.Entity("CraftDailyCorner.Models.Category", b =>
                 {
-                    b.Navigation("ProductCategory");
+                    b.Navigation("ProductCategories");
+
+                    b.Navigation("SubCategories");
+                });
+
+            modelBuilder.Entity("CraftDailyCorner.Models.CreatorApplicationStatus", b =>
+                {
+                    b.Navigation("CreatorApplications");
                 });
 
             modelBuilder.Entity("CraftDailyCorner.Models.CreatorPost", b =>
                 {
-                    b.Navigation("PostComment");
+                    b.Navigation("PostComments");
+                });
+
+            modelBuilder.Entity("CraftDailyCorner.Models.CreatorPostStatus", b =>
+                {
+                    b.Navigation("CreatorPosts");
                 });
 
             modelBuilder.Entity("CraftDailyCorner.Models.CreatorProfile", b =>
                 {
-                    b.Navigation("AutoReplyTemplate");
+                    b.Navigation("AutoReplyTemplates");
 
-                    b.Navigation("CreatorPost");
+                    b.Navigation("CreatorPosts");
 
-                    b.Navigation("FollowCreator");
+                    b.Navigation("FollowCreators");
 
-                    b.Navigation("MessageThread");
+                    b.Navigation("MessageThreads");
 
-                    b.Navigation("Portfolio");
+                    b.Navigation("Portfolios");
 
-                    b.Navigation("Product");
+                    b.Navigation("Products");
+                });
+
+            modelBuilder.Entity("CraftDailyCorner.Models.CreatorProfileStatus", b =>
+                {
+                    b.Navigation("CreatorProfiles");
+                });
+
+            modelBuilder.Entity("CraftDailyCorner.Models.HomepageBannerStatus", b =>
+                {
+                    b.Navigation("HomepageBanners");
                 });
 
             modelBuilder.Entity("CraftDailyCorner.Models.Inventory", b =>
                 {
-                    b.Navigation("InventoryAlert");
+                    b.Navigation("InventoryAlerts");
                 });
 
             modelBuilder.Entity("CraftDailyCorner.Models.Member", b =>
                 {
-                    b.Navigation("Cart");
+                    b.Navigation("Carts");
 
-                    b.Navigation("CreatorApplication");
+                    b.Navigation("CreatorApplications");
 
                     b.Navigation("CreatorProfile");
 
-                    b.Navigation("FavoriteProduct");
+                    b.Navigation("FavoriteProducts");
 
-                    b.Navigation("FollowCreator");
+                    b.Navigation("FollowCreators");
 
-                    b.Navigation("HomepageBanner");
+                    b.Navigation("HomepageBanners");
 
-                    b.Navigation("MemberRole");
+                    b.Navigation("MemberRoles");
 
-                    b.Navigation("MemberRoleHistory");
+                    b.Navigation("MessageThreads");
 
-                    b.Navigation("Message");
+                    b.Navigation("Messages");
 
-                    b.Navigation("MessageThread");
+                    b.Navigation("NotificationEvents");
 
-                    b.Navigation("NotificationEvent");
+                    b.Navigation("NotificationPreferences");
 
-                    b.Navigation("NotificationPreference");
+                    b.Navigation("OperatedRoleHistories");
 
-                    b.Navigation("Order");
+                    b.Navigation("Orders");
 
-                    b.Navigation("PlatformAnnouncement");
+                    b.Navigation("PasswordResetTokens");
 
-                    b.Navigation("PlatformSetting");
+                    b.Navigation("PlatformAnnouncements");
 
-                    b.Navigation("PostComment");
+                    b.Navigation("PlatformSettings");
+
+                    b.Navigation("PostCommentReports");
+
+                    b.Navigation("PostComments");
 
                     b.Navigation("Privacy");
 
-                    b.Navigation("ProductReview");
+                    b.Navigation("ProductReviews");
+
+                    b.Navigation("ReviewedCreatorApplications");
+
+                    b.Navigation("RoleChangeHistories");
+                });
+
+            modelBuilder.Entity("CraftDailyCorner.Models.MemberStatus", b =>
+                {
+                    b.Navigation("Members");
                 });
 
             modelBuilder.Entity("CraftDailyCorner.Models.MessageThread", b =>
                 {
-                    b.Navigation("Message");
+                    b.Navigation("Messages");
                 });
 
             modelBuilder.Entity("CraftDailyCorner.Models.Order", b =>
                 {
-                    b.Navigation("OrderDetail");
+                    b.Navigation("OrderDetails");
 
-                    b.Navigation("Payment");
+                    b.Navigation("Payments");
 
                     b.Navigation("Shipment");
                 });
 
+            modelBuilder.Entity("CraftDailyCorner.Models.OrderStatus", b =>
+                {
+                    b.Navigation("Orders");
+                });
+
+            modelBuilder.Entity("CraftDailyCorner.Models.PaymentMethod", b =>
+                {
+                    b.Navigation("Payments");
+                });
+
+            modelBuilder.Entity("CraftDailyCorner.Models.PaymentStatus", b =>
+                {
+                    b.Navigation("Payments");
+                });
+
+            modelBuilder.Entity("CraftDailyCorner.Models.PlatformAnnouncementStatus", b =>
+                {
+                    b.Navigation("PlatformAnnouncements");
+                });
+
+            modelBuilder.Entity("CraftDailyCorner.Models.PlatformSettingCategory", b =>
+                {
+                    b.Navigation("PlatformSettings");
+                });
+
             modelBuilder.Entity("CraftDailyCorner.Models.Portfolio", b =>
                 {
-                    b.Navigation("PortfolioItem");
+                    b.Navigation("PortfolioItems");
+                });
+
+            modelBuilder.Entity("CraftDailyCorner.Models.PostComment", b =>
+                {
+                    b.Navigation("PostCommentReports");
+                });
+
+            modelBuilder.Entity("CraftDailyCorner.Models.PostCommentReportStatus", b =>
+                {
+                    b.Navigation("PostCommentReports");
                 });
 
             modelBuilder.Entity("CraftDailyCorner.Models.Product", b =>
                 {
-                    b.Navigation("CartItem");
+                    b.Navigation("CartItems");
 
-                    b.Navigation("FavoriteProduct");
+                    b.Navigation("FavoriteProducts");
 
-                    b.Navigation("Inventory");
+                    b.Navigation("Inventory")
+                        .IsRequired();
 
-                    b.Navigation("OrderDetail");
+                    b.Navigation("OrderDetails");
 
-                    b.Navigation("ProductCategory");
+                    b.Navigation("ProductCategories");
 
-                    b.Navigation("ProductImage");
+                    b.Navigation("ProductImages");
 
-                    b.Navigation("ProductReview");
+                    b.Navigation("ProductReviews");
 
-                    b.Navigation("ProductTag");
+                    b.Navigation("ProductTags");
+                });
+
+            modelBuilder.Entity("CraftDailyCorner.Models.ProductImageStatus", b =>
+                {
+                    b.Navigation("ProductImages");
+                });
+
+            modelBuilder.Entity("CraftDailyCorner.Models.ProductStatus", b =>
+                {
+                    b.Navigation("Products");
                 });
 
             modelBuilder.Entity("CraftDailyCorner.Models.Role", b =>
                 {
-                    b.Navigation("MemberRole");
+                    b.Navigation("MemberRoleHistories");
 
-                    b.Navigation("MemberRoleHistory");
+                    b.Navigation("MemberRoles");
+                });
+
+            modelBuilder.Entity("CraftDailyCorner.Models.ShipmentStatus", b =>
+                {
+                    b.Navigation("Shipments");
                 });
 
             modelBuilder.Entity("CraftDailyCorner.Models.Tag", b =>
                 {
-                    b.Navigation("ProductTag");
+                    b.Navigation("ProductTags");
                 });
 #pragma warning restore 612, 618
         }

@@ -21,6 +21,26 @@ namespace CraftDailyCorner.Seed.Datas
                         StockQty = 10,
                         AlertQty = 5,
                         ProductID = "P000000001"
+                    },new Inventory
+                    {
+                        StockQty = 10,
+                        AlertQty = 5,
+                        ProductID = "P000000002"
+                    },new Inventory
+                    {
+                        StockQty = 10,
+                        AlertQty = 5,
+                        ProductID = "P000000003"
+                    },new Inventory
+                    {
+                        StockQty = 10,
+                        AlertQty = 5,
+                        ProductID = "P000000004"
+                    },new Inventory
+                    {
+                        StockQty = 10,
+                        AlertQty = 5,
+                        ProductID = "P000000005"
                     }
                 };
                 _context.Inventories.AddRange(inventories);

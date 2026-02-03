@@ -125,3 +125,54 @@ function removeFromCart(productId) {
 document.addEventListener("DOMContentLoaded", () => {
     refreshCartCount();
 });
+
+function playFlyAnimation(btn) {
+
+    const row = btn.closest('.row');
+    if (!row) return;
+
+    const img = document.querySelector('#productCarousel .carousel-item.active img');
+
+    if (!img) return;
+
+    const cartIcon = document.getElementById('cartIcon');
+    if (!cartIcon) return;
+
+    const imgClone = img.cloneNode(true);
+
+    const imgRect = img.getBoundingClientRect();
+    const cartRect = cartIcon.getBoundingClientRect();
+
+    imgClone.classList.remove("w-100");
+    imgClone.style.margin = "0";
+    imgClone.style.maxWidth = "none";
+    imgClone.style.objectFit = "cover";
+
+    imgClone.style.position = "fixed";
+    imgClone.style.left = imgRect.left + "px";
+    imgClone.style.top = imgRect.top + "px";
+    imgClone.style.width = imgRect.width + "px";
+    imgClone.style.height = imgRect.height + "px";
+    imgClone.style.transition = "all 0.8s ease-in-out";
+    imgClone.style.zIndex = 9999;
+    imgClone.style.borderRadius = "8px";
+
+    document.body.appendChild(imgClone);
+
+    const targetX = cartRect.left + cartRect.width / 2;
+    const targetY = cartRect.top + cartRect.height / 2;
+
+    const finalSize = 30;
+
+    requestAnimationFrame(() => {
+        imgClone.style.left = (targetX - finalSize / 2) + "px";
+        imgClone.style.top = (targetY - finalSize / 2) + "px";
+        imgClone.style.width = finalSize + "px";
+        imgClone.style.height = finalSize + "px";
+        imgClone.style.opacity = "0.4";
+    }, 50);
+
+    setTimeout(() => {
+        imgClone.remove();
+    }, 900);
+}

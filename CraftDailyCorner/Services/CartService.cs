@@ -39,7 +39,7 @@ namespace CraftDailyCorner.Services
             if (product == null)
                 return Fail("商品不存在或未上架");
 
-            var stockQty = product.Inventory?.StockQty ?? (short)0;
+            var stockQty = product.Inventory?.StockQty ?? 0;
 
             if (stockQty <= 0)
                 return Fail("商品已缺貨", stockQty);
@@ -67,14 +67,14 @@ namespace CraftDailyCorner.Services
                     {
                         CartID = cart.CartID,
                         ProductID = productId,
-                        Quantity = (short)newQty,
+                        Quantity = newQty,
                         CreatedAt = DateTime.Now,
                         UpdatedAt = DateTime.Now
                     });
                 }
                 else
                 {
-                    cartItem.Quantity = (short)newQty;
+                    cartItem.Quantity = newQty;
                     cartItem.UpdatedAt = DateTime.Now;
                 }
 
@@ -102,7 +102,7 @@ namespace CraftDailyCorner.Services
                     ProductID = product.ProductID,
                     ProductName = product.ProductName,
                     Price = product.Price,
-                    Quantity = (short)newSessionQty,
+                    Quantity = newSessionQty,
                     ImageUrl = product.ProductImages
                         .Where(i => i.StatusID == 1)
                         .Select(i => i.ImageUrl)
@@ -111,7 +111,7 @@ namespace CraftDailyCorner.Services
             }
             else
             {
-                sessionItem.Quantity = (short)newSessionQty;
+                sessionItem.Quantity = newSessionQty;
             }
 
             SetSessionCart(sessionCart);
@@ -166,7 +166,7 @@ namespace CraftDailyCorner.Services
             _http.HttpContext!.Session.SetString(CART_KEY, json);
         }
 
-        private CartResult Fail(string message, short stockQty = 0)
+        private CartResult Fail(string message, int stockQty = 0)
         {
             return new CartResult
             {
@@ -176,7 +176,7 @@ namespace CraftDailyCorner.Services
             };
         }
 
-        private CartResult Success(int cartQty, short stockQty)
+        private CartResult Success(int cartQty, int stockQty)
         {
             return new CartResult
             {
