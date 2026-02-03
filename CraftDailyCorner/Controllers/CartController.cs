@@ -14,78 +14,115 @@ namespace CraftDailyCorner.Controllers
         {
             _context = context;
         }
-       
+
 
         // 加入購物車
-        public IActionResult AddToCart(string productID)
+        [HttpPost]
+        public IActionResult AddToCart([FromBody] AddCartDTO req)
         {
             // 1. 找商品
             var product = _context.Products
-                .Where(p => p.ProductID == productID && p.StatusID == 2)
+                .Where(p => p.ProductID == req.ProductId && p.StatusID == 2)
                 .Select(p => new
                 {
                     p.ProductID,
                     p.ProductName,
                     p.Price,
-
                     ImageUrl = p.ProductImages
-                        .Where(img => img.StatusID==1)
+                        .Where(img => img.StatusID == 1)
                         .Select(img => img.ImageUrl)
                         .FirstOrDefault()
                 })
                 .FirstOrDefault();
 
             if (product == null)
-                return NotFound();
+                return Json(new { success = false });
 
-            // 2. 從 Session 取購物車
-            var cart = HttpContext.Session
-                .GetObjectFromJson<List<VMCartItem>>("CART")
-                ?? new List<VMCartItem>();
-
-            // 3. 判斷是否已存在
-            var item = cart.FirstOrDefault(c => c.ProductID == productID);
-
-            if (item != null)
+            //已登入，存 DB
+            if (User.Identity!.IsAuthenticated)
             {
-                item.Quantity++;
+                string memberId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)!.Value;
+
+                // 找 Cart
+                var cart = _context.Carts.FirstOrDefault(c => c.MemberID == memberId);
+                if (cart == null)
+                {
+                    cart = new Cart
+                    {
+                        MemberID = memberId,
+                        CreatedAt = DateTime.Now
+                    };
+                    _context.Carts.Add(cart);
+                    _context.SaveChanges();
+                }
+
+                // 找 CartItem
+                var cartItem = _context.CartItems
+                    .FirstOrDefault(c => c.CartID == cart.CartID && c.ProductID == product.ProductID);
+
+                if (cartItem != null)
+                {
+                    cartItem.Quantity++;
+                }
+                else
+                {
+                    _context.CartItems.Add(new CartItem
+                    {
+                        CartID = cart.CartID,
+                        ProductID = product.ProductID,
+                        Quantity = 1,
+                    });
+                }
+
+                _context.SaveChanges();
+
+                return Json(new { success = true });
             }
+            // 未登入，存 Session
             else
             {
-                cart.Add(new VMCartItem
-                {
-                    ProductID = product.ProductID,
-                    ProductName = product.ProductName,
-                    Price = product.Price,
-                    Quantity = 1,
-                    ImageUrl = product.ImageUrl
-                });
+                var cart = HttpContext.Session
+                    .GetObjectFromJson<List<VMCartItem>>("CART")
+                    ?? new List<VMCartItem>();
+
+                var item = cart.FirstOrDefault(c => c.ProductID == product.ProductID);
+
+                if (item != null)
+                    item.Quantity++;
+                else
+                    cart.Add(new VMCartItem
+                    {
+                        ProductID = product.ProductID,
+                        ProductName = product.ProductName,
+                        Price = product.Price,
+                        Quantity = 1,
+                        ImageUrl = product.ImageUrl
+                    });
+
+                HttpContext.Session.SetObjectAsJson("CART", cart);
+
+                return Json(new { success = true });
             }
-
-            // 4. 存回 Session
-            HttpContext.Session.SetObjectAsJson("CART", cart);
-
-            // 5. 回到原頁（或購物車頁）
-            return RedirectToAction("Detail", "Products", new { id = productID });
         }
+
 
         // 移除商品
         [HttpPost]
-        public IActionResult RemoveFromModal(string productID)
+        public IActionResult RemoveFromModal([FromBody] AddCartDTO req)
         {
             var cart = HttpContext.Session
-                .GetObjectFromJson<List<VMCartItem>>("CART")
-                ?? new List<VMCartItem>();
+        .GetObjectFromJson<List<VMCartItem>>("CART")
+        ?? new List<VMCartItem>();
 
-            var item = cart.FirstOrDefault(c => c.ProductID == productID);
+            var item = cart.FirstOrDefault(c => c.ProductID == req.ProductId);
+
             if (item != null)
             {
                 cart.Remove(item);
                 HttpContext.Session.SetObjectAsJson("CART", cart);
             }
 
-            // 刪完後回到原頁（Modal 會重新 render）
-            return Redirect(Request.Headers["Referer"].ToString());
+            return Json(new { success = true });
         }
 
 
@@ -101,6 +138,36 @@ namespace CraftDailyCorner.Controllers
             }
 
             return RedirectToAction("GoCheckout");
+        }
+
+        [HttpGet]
+        public IActionResult GetCartModal()
+        {
+            return ViewComponent("VCCartModal");
+        }
+        [HttpGet]
+        public IActionResult GetCartCount()
+        {
+            int count = 0;
+
+            if (User.Identity!.IsAuthenticated)
+            {
+                string memberId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)!.Value;
+
+                count = _context.CartItems
+                    .Where(c => c.Cart.MemberID == memberId)
+                    .Sum(c => c.Quantity);
+            }
+            else
+            {
+                var cart = HttpContext.Session
+                    .GetObjectFromJson<List<VMCartItem>>("CART")
+                    ?? new List<VMCartItem>();
+
+                count = cart.Sum(c => c.Quantity);
+            }
+
+            return Json(new { count });
         }
 
 

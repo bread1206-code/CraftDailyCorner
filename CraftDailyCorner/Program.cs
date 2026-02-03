@@ -72,6 +72,7 @@ builder.Services.AddAuthentication("CraftDailyCornerLogin").AddCookie("CraftDail
 builder.Services.AddScoped<MemberService>();
 builder.Services.AddScoped<CartService>();
 builder.Services.AddScoped<PriceService>();
+builder.Services.AddScoped<OrderService>();
 builder.Services.AddSession();
 builder.Services.AddHttpContextAccessor();
 

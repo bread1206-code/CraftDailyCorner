@@ -107,12 +107,12 @@
                             NT$ @Model.DisplayPrice
                         </h4>
                         <div class="">
-                            <a asp-controller="Cart"
-                               asp-action="AddToCart"
-                               asp-route-productID="@Model.Product.ProductID"
-                               class="btn btn-primary ms-3 mt-2">
+                            <button onclick="addToCart(this)"
+                                    data-id="@Model.Product.ProductID"
+                                    class="btn btn-primary ms-3 mt-2">
                                 <i class="bi bi-cart"> </i>加入購物車
-                            </a>
+                            </button>
+
                             <button class="btn btn-info ms-3 mt-2"
                                     data-bs-toggle="modal"
                                     data-bs-target="#ProductReviewModal">
@@ -135,10 +135,12 @@
                         data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                @* 尚未製作，顯示評分星等、評價內容 *@
                 @await Component.InvokeAsync("VCProductReview", new { productID = Model.Product.ProductID })
             </div>
         </div>
     </div>
 </div>
+
+
+
 

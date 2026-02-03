@@ -14,19 +14,14 @@ namespace CraftDailyCorner.Controllers
         private readonly CraftDailyCornerContext _context;
         private readonly CartService _cartService;
         private readonly PriceService _priceService;
+        private readonly OrderService _orderService;
 
-        public OrderController(CraftDailyCornerContext context, CartService cartService, PriceService priceService)
+        public OrderController(CraftDailyCornerContext context, CartService cartService, PriceService priceService, OrderService orderService)
         {
             _context = context;
             _cartService = cartService;
             _priceService = priceService;
-        }
-
-        // 結帳入口
-
-        public IActionResult GoCheckout()
-        {
-            return View();
+            _orderService = orderService;
         }
 
         // 結帳確認頁（顯示訂單）
@@ -52,57 +47,31 @@ namespace CraftDailyCorner.Controllers
 
         // 3送出訂單（真正寫 DB）
         // POST: /Order/CheckoutConfirm
-        [Authorize]
         [HttpPost]
+        [Authorize]
         [ValidateAntiForgeryToken]
-        public IActionResult CheckoutConfirm()
+        public async Task<IActionResult> CheckoutConfirm(VMCheckout vm)
         {
-            var cart = _cartService.GetSessionCart();
-
-            if (!cart.Any())
+            if (!ModelState.IsValid)
             {
-                return RedirectToAction("Index", "Home");
+                return View("Checkout", vm); // 回到確認頁顯示錯誤
             }
 
-            // ⚠ 一定要後端重算
-            var totalAmount = _priceService.CalculateTotal(cart);
-            var memberId = GetCurrentMemberId().ToString();
+            string memberId = GetCurrentMemberId();
 
-            // 建立 Order
-            var order = new Order
-            {
-                MemberID = memberId,
-                TotalAmount = totalAmount,
-                StatusID = 1, // 待付款
-                CreatedAt = DateTime.Now
-            };
+            var cartItems = _cartService.GetSessionCart();
 
-            _context.Orders.Add(order);
-            _context.SaveChanges(); // 先存，拿 OrderId
+            string orderId = await _orderService.CreateOrderAsync(
+                memberId,
+                cartItems,
+                vm.ReceiverName,
+                vm.ReceiverPhone,
+                vm.ReceiverAddress
+            );
 
-            // 建立 OrderItems
-            foreach (var item in cart)
-            {
-                var orderItem = new OrderDetail
-                {
-                    OrderID = order.OrderID,
-                    ProductID = item.ProductID,
-                    ProductNameSnapshot = item.ProductName,
-                    PriceSnapshot = item.Price,
-                    Quantity = item.Quantity,
-                };
-
-                _context.OrderDetails.Add(orderItem);
-            }
-
-            _context.SaveChanges();
-
-            // 清空購物車（Session + DB）
-            _cartService.ClearSessionCart();
-            ClearCartFromDb(memberId);
-
-            return RedirectToAction("Success", new { id = order.OrderID });
+            return RedirectToAction("Success", new { id = orderId });
         }
+
 
         // 4️結帳完成頁
         // GET: /Order/Success/5
@@ -120,22 +89,10 @@ namespace CraftDailyCorner.Controllers
 
         //  Private Helpers
         // 從 Claims 取得 MemberId
-        private int GetCurrentMemberId()
+        private string GetCurrentMemberId()
         {
-            return int.Parse(
-                User.FindFirstValue(ClaimTypes.NameIdentifier)!
-            );
+            return User.FindFirstValue(ClaimTypes.NameIdentifier)!;
         }
 
-        // 結帳完成後清除 DB 購物車
-        private void ClearCartFromDb(string memberId)
-        {
-            var items = _context.CartItems
-                .Include(c => c.Cart)
-                .Where(c => c.Cart.MemberID == memberId);
-
-            _context.CartItems.RemoveRange(items);
-            _context.SaveChanges();
-        }
     }
 }

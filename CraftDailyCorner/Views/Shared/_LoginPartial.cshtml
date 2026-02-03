@@ -25,7 +25,8 @@
         <label asp-for="Account" class="form-label"></label>
         <input asp-for="Account"
                class="form-control"
-               placeholder="請輸入 Email 或 手機號碼" />
+               placeholder="請輸入 Email 或 手機號碼"
+               autocomplete="username" />
         <span asp-validation-for="Account"
               class="text-danger"></span>
     </div>
@@ -35,7 +36,8 @@
         <label asp-for="Password" class="form-label"></label>
         <input asp-for="Password"
                class="form-control"
-               placeholder="請輸入密碼" type="password" />
+               placeholder="請輸入密碼" type="password"
+               autocomplete="current-password" />
         <span asp-validation-for="Password"
               class="text-danger"></span>
     </div>
