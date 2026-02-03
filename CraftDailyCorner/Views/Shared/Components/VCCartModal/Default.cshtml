@@ -29,18 +29,10 @@
                         NT$ @item.DisplaySubTotal
                     </div>
 
-                    <form asp-controller="Cart"
-                          asp-action="RemoveFromModal"
-                          method="post"
-                          class="d-inline">
-                        <input type="hidden"
-                               name="productID"
-                               value="@item.ProductID" />
-                        <button type="submit"
-                                class="btn btn-sm btn-outline-danger mt-1">
-                            移除
-                        </button>
-                    </form>
+                    <button class="btn btn-sm btn-outline-danger mt-1"
+                            onclick="removeFromCart('@item.ProductID')">
+                        移除
+                    </button>
                 </div>
             </div>
         }
@@ -56,8 +48,8 @@
 </div>
 
 <div class="modal-footer">
-    <a asp-controller="Cart"
-       asp-action="StartCheckout"
+    <a asp-controller="Order"
+       asp-action="Checkout"
        class="btn btn-success @(Model.Items.Any() ? "" : "disabled")">
         前往結帳
     </a>
