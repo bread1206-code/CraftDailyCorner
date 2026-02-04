@@ -163,7 +163,7 @@ function playFlyAnimation(btn) {
     }, 900);
 }
 
-
+// 初始化
 document.addEventListener('DOMContentLoaded', () => {
     initCartBadge();
 
@@ -175,14 +175,4 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// 開啟登入視窗
-let pendingAddToCartProductId = null;
 
-function openLoginModal(productId) {
-    pendingAddToCartProductId = productId;
-
-    const modal = new bootstrap.Modal(
-        document.getElementById('loginModal')
-    );
-    modal.show();
-}

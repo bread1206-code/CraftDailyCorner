@@ -22,12 +22,13 @@ namespace CraftDailyCorner.Controllers
             _memberService = memberService;
             _cartService = cartService;
         }
-        public IActionResult Login()
+        public IActionResult Login(string? returnUrl = null)
         {
+            ViewData["ReturnUrl"] = returnUrl;
             return View();
         }
         [HttpPost]
-        public async Task<IActionResult> Login(VMLogin login, string? returnUrl)
+        public async Task<IActionResult> Login(VMLogin login, string? returnUrl = null)
         {
 
             var user = _context.Privacies.FirstOrDefault(u => u.Email == login.Account || u.Phone == login.Account);
@@ -84,6 +85,10 @@ namespace CraftDailyCorner.Controllers
                 }
                 await HttpContext.SignInAsync("CraftDailyCornerLogin", claimsPrincipal);
 
+            if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+            {
+                return Redirect(returnUrl);
+            }
 
             return RedirectToAction("Index", "Home");
         }

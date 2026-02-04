@@ -13,7 +13,7 @@
 <form asp-controller="Account"
       asp-action="Login"
       method="post">
-
+    <input type="hidden" name="returnUrl" value="" />
     @Html.AntiForgeryToken()
 
     <!-- 驗證摘要 -->
