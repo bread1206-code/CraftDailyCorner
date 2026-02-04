@@ -14,13 +14,12 @@ namespace CraftDailyCorner.Controllers
     {
         private readonly CraftDailyCornerContext _context;
         private readonly MemberService _memberService;
-        private readonly CartService _cartService;
 
-        public AccountController(CraftDailyCornerContext context, MemberService memberService,CartService cartService)
+
+        public AccountController(CraftDailyCornerContext context, MemberService memberService)
         {
             _context = context;
             _memberService = memberService;
-            _cartService = cartService;
         }
         public IActionResult Login()
         {
@@ -84,25 +83,11 @@ namespace CraftDailyCorner.Controllers
                 }
                 await HttpContext.SignInAsync("CraftDailyCornerLogin", claimsPrincipal);
 
-                // 1. 驗證帳密成功
-                string memberId = user.MemberID;
-
-                // 2. 同步 Session → DB
-                _cartService.SyncCartAfterLogin(memberId);
-
-                // 3. DB → Session（確保乾淨）
-                _cartService.LoadCartFromDb(memberId);
-
-                // 4. 導回原頁
-                if (!string.IsNullOrEmpty(returnUrl))
-                    return Redirect(returnUrl);
-
             return RedirectToAction("Index", "Home");
         }
         [Authorize]
         public async Task<IActionResult> Logout()
         {
-            _cartService.ClearSessionCart();
             await HttpContext.SignOutAsync("CraftDailyCornerLogin"); //清除 Cookie
             return RedirectToAction("Index", "Home");
         }

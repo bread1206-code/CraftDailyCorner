@@ -1,134 +1,128 @@
-﻿using CraftDailyCorner.Models;
-using CraftDailyCorner.ViewModels.Front;
-using Microsoft.EntityFrameworkCore;
-using System.Text.Json;
-using static System.Net.WebRequestMethods;
+﻿//using CraftDailyCorner.Models;
+//using CraftDailyCorner.ViewModels.Front;
+//using Microsoft.EntityFrameworkCore;
+//using static System.Net.WebRequestMethods;
 
-namespace CraftDailyCorner.Services
-{
-    public class CartService
-    {
-        private readonly IHttpContextAccessor _http;
-        private readonly CraftDailyCornerContext _context;
-        //Session 取購物車
-        private const string CART_KEY = "CART";
-        public CartService(
-            IHttpContextAccessor http,
-            CraftDailyCornerContext context)
-        {
-            _http = http;
-            _context = context;
-        }
+//namespace CraftDailyCorner.Services
+//{
+//    public class CartService
+//    {
+//        private readonly CraftDailyCornerContext _context;
+//        private readonly IHttpContextAccessor _http;
 
-        private Cart GetOrCreateCart(string memberId)
-        {
-            memberId = memberId.Trim();
-
-            var cart = _context.Carts
-                .FirstOrDefault(c => c.MemberID == memberId);
-
-            if (cart != null)
-                return cart;
-
-            cart = new Cart
-            {
-                MemberID = memberId,
-                CreatedAt = DateTime.Now
-            };
-
-            _context.Carts.Add(cart);
-            _context.SaveChanges();
-
-            return cart;
-        }
+//        private const string CART_KEY = "CART";
 
 
-        
+//        public CartService(CraftDailyCornerContext context, IHttpContextAccessor http)
+//        {
+//            _context = context;
+//            _http = http;
+//        }
 
-        public List<VMCartItem> GetSessionCart()
-        {
-            var session = _http.HttpContext!.Session;
-            var json = session.GetString(CART_KEY);
+//        // 加入購物車（可指定數量）
+//        public void AddItem(string memberId, string productId, int quantity)
+//        {
+//            if (quantity <= 0) quantity = 1;
 
-            return json == null
-                ? new List<VMCartItem>()
-                : JsonSerializer.Deserialize<List<VMCartItem>>(json)!;
-        }
-        public bool HasSessionCart()
-        {
-            return GetSessionCart().Any();
-        }
+//            var cart = _context.Carts
+//                .Include(c => c.CartItems)
+//                .FirstOrDefault(c => c.MemberID == memberId);
 
-        //Session 存購物車
-        public void SetSessionCart(List<VMCartItem> cart)
-            {
-                var json = JsonSerializer.Serialize(cart);
-                _http.HttpContext!.Session.SetString(CART_KEY, json);
-            }
+//            if (cart == null)
+//            {
+//                cart = new Cart
+//                {
+//                    MemberID = memberId,
+//                    CreatedAt = DateTime.Now
+//                };
+//                _context.Carts.Add(cart);
+//            }
 
-        //清空 Session（登出 / 結帳後）
-        public void ClearSessionCart()
-        {
-            _http.HttpContext!.Session.Remove(CART_KEY);
-        }
+//            var item = cart.CartItems
+//                .FirstOrDefault(i => i.ProductID == productId);
 
-        //登入成功後「同步購物車」
-        public void SyncCartAfterLogin(string memberId)
-        {
-            var sessionCart = GetSessionCart();
-            if (!sessionCart.Any())
-                return;
+//            if (item == null)
+//            {
+//                cart.CartItems.Add(new CartItem
+//                {
+//                    ProductID = productId,
+//                    Quantity = quantity
+//                });
+//            }
+//            else
+//            {
+//                item.Quantity += quantity;
+//            }
 
-            var cart = GetOrCreateCart(memberId);
+//            _context.SaveChanges();
+//        }
 
-            foreach (var item in sessionCart)
-            {
-                var dbItem = _context.CartItems
-                    .FirstOrDefault(ci =>
-                        ci.CartID == cart.CartID &&
-                        ci.ProductID == item.ProductID);
+//        // 移除商品
+//        public void RemoveItem(string memberId, string productId)
+//        {
+//            var item = _context.CartItems
+//                .Include(i => i.Cart)
+//                .FirstOrDefault(i =>
+//                    i.ProductID == productId &&
+//                    i.Cart.MemberID == memberId);
 
-                if (dbItem == null)
-                {
-                    _context.CartItems.Add(new CartItem
-                    {
-                        CartID = cart.CartID,
-                        ProductID = item.ProductID,
-                        Quantity = item.Quantity,
-                        UpdatedAt = DateTime.Now
-                    });
-                }
-                else
-                {
-                    dbItem.Quantity += item.Quantity;
-                    dbItem.UpdatedAt = DateTime.Now;
-                }
-            }
+//            if (item == null) return;
 
-            _context.SaveChanges();
-            ClearSessionCart();
-        }
+//            _context.CartItems.Remove(item);
+//            _context.SaveChanges();
+//        }
 
-        //登入後從 DB 還原購物車
-        public void LoadCartFromDb(string memberId)
-        {
-            var cart = GetOrCreateCart(memberId);
+//        // 取得購物車內容（給 ViewComponent / Modal）
+//        public List<VMCartItem> GetCartItem(string memberId)
+//        {
+//            return _context.CartItems
+//                .Where(i => i.Cart.MemberID == memberId)
+//                .Include(i => i.Product)
+//                .Include(i=> i.Product.ProductImages)
+//                .Select(i => new VMCartItem
+//                {
+//                    ProductId = i.ProductID,
+//                    ProductName = i.Product.ProductName,
+//                    ImageUrl = i.Product.ProductImages.FirstOrDefault().ImageUrl,
+//                    Quantity = i.Quantity,
+//                    Price = i.Product.Price,
+//                    CartId = i.CartID
+//                })
+//                .ToList();
+//        }
 
-            var items = _context.CartItems
-                .Include(ci => ci.Product)
-                .Where(ci => ci.CartID == cart.CartID)
-                .Select(ci => new VMCartItem
-                {
-                    ProductID = ci.ProductID,
-                    ProductName = ci.Product.ProductName,      
-                    Price = ci.Product.Price,       
-                    ImageUrl = ci.Product.ProductImages.FirstOrDefault().ImageUrl,    
-                    Quantity = ci.Quantity
-                })
-                .ToList();
+//        // 取得購物車商品總數（Badge 用）
+//        public int GetCartCount(string memberId)
+//        {
+//            return _context.CartItems
+//                .Where(i => i.Cart.MemberID == memberId)
+//                .Sum(i => i.Quantity);
+//        }
+//        //清空 Session（登出 / 結帳後）
+//        public void ClearSessionCart()
+//        {
+//            _http.HttpContext!.Session.Remove(CART_KEY);
+//        }
+//        //登入後從 DB 還原購物車
+//        public void LoadCartFromDb(string memberId)
+//        {
+//            var cart = GetCartItem(memberId);
 
-            SetSessionCart(items);
-        }
+//            var items = _context.CartItems
+//                .Include(ci => ci.Product)
+//                .Where(ci => ci.CartID == cart.CartID)
+//                .Select(ci => new VMCartItem
+//                {
+//                    ProductId = ci.ProductID,
+//                    ProductName = ci.Product.ProductName,
+//                    Price = ci.Product.Price,
+//                    ImageUrl = ci.Product.ProductImages.FirstOrDefault().ImageUrl,
+//                    Quantity = ci.Quantity
+//                })
+//                .ToList();
 
-    }
-}
+//            SetSessionCart(items);
+//        }
+
+//    }
+//}

@@ -10,10 +10,10 @@ namespace CraftDailyCorner.Models
         public int InventoryID { get; set; }
 
         [Display(Name = "庫存數量")]
-        public short StockQty { get; set; }
+        public int StockQty { get; set; }
 
         [Display(Name = "警戒值")]
-        public short AlertQty { get; set; }
+        public int AlertQty { get; set; }
 
         [StringLength(10, MinimumLength = 10)]
         [Column(TypeName = "nchar(10)")]
