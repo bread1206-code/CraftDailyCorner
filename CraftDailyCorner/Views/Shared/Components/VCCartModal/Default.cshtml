@@ -1,0 +1,56 @@
+﻿@using CraftDailyCorner.ViewModels.Front
+@model VMCartPage
+
+<div class="modal-body">
+
+    @if (!Model.Items.Any())
+    {
+        <div class="text-center text-muted py-4">
+            購物車目前是空的
+        </div>
+    }
+    else
+    {
+        @foreach (var item in Model.Items)
+        {
+            <div class="d-flex justify-content-between align-items-center border-bottom py-2">
+                <div accesskey="0">
+                    <img src="/Photos/04ProductImage/Medium/@item.ImageUrl" alt="@item.ProductName" class="img-fluid" />
+                </div>
+                <div>
+                    <strong>@item.ProductName</strong><br />
+                    <small class="text-muted">
+                        NT$ @item.Price.ToString("0") × @item.Quantity
+                    </small>
+                </div>
+
+                <div class="text-end">
+                    <div class="fw-bold">
+                        NT$ @item.DisplaySubTotal
+                    </div>
+
+                    <button class="btn btn-sm btn-outline-danger mt-1"
+                            onclick="removeFromCart('@item.ProductID')">
+                        移除
+                    </button>
+                </div>
+            </div>
+        }
+
+        <hr />
+        <div class="text-end fw-bold fs-5">
+            總金額：
+            <span class="text-danger">
+                NT$ @Model.DisplayTotalAmount
+            </span>
+        </div>
+    }
+</div>
+
+<div class="modal-footer">
+    <a asp-controller="Order"
+       asp-action="Checkout"
+       class="btn btn-success @(Model.Items.Any() ? "" : "disabled")">
+        前往結帳
+    </a>
+</div>

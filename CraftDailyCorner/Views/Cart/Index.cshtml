@@ -1,0 +1,54 @@
+﻿@model CraftDailyCorner.ViewModels.Front.VMCartPage
+
+<div class="container my-5">
+    <h2 class="mb-4">🛒 購物車</h2>
+
+    @if (!Model.Items.Any())
+    {
+        <div class="alert alert-info">
+            購物車目前是空的
+        </div>
+    }
+    else
+    {
+        <table class="table align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th>商品</th>
+                    <th class="text-end">單價</th>
+                    <th class="text-center">數量</th>
+                    <th class="text-end">小計</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.Items)
+                {
+                    <tr>
+                        <td>@item.ProductName</td>
+                        <td class="text-end">NT$ @item.Price</td>
+                        <td class="text-center">@item.Quantity</td>
+                        <td class="text-end">
+                            NT$ @(item.Price* item.Quantity)
+                        </td>
+                        <td class="text-end">
+                            <a asp-controller="Cart"
+                               asp-action="Remove"
+                               asp-route-productID="@item.ProductID"
+                               class="btn btn-sm btn-outline-danger">
+                                移除
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <div class="text-end mt-4">
+            <h4>總金額：<span class="text-danger">NT$ @Model.TotalAmount</span></h4>
+            <a href="#" class="btn btn-success mt-2 disabled">
+                前往結帳（下一步）
+            </a>
+        </div>
+    }
+</div>

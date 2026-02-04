@@ -1,0 +1,79 @@
+﻿@using CraftDailyCorner.ViewModels.Front
+@model VMLogin
+
+@{
+    if (Context.Request.Cookies.TryGetValue("RememberAccount", out string account))
+    {
+        Model.Account = account;
+        Model.RememberAccount = true;
+    }
+}
+
+
+<form asp-controller="Account"
+      asp-action="Login"
+      method="post">
+
+    @Html.AntiForgeryToken()
+
+    <!-- 驗證摘要 -->
+    <div asp-validation-summary="ModelOnly"
+         class="text-danger mb-3"></div>
+
+    <!-- Email -->
+    <div class="mb-3">
+        <label asp-for="Account" class="form-label"></label>
+        <input asp-for="Account"
+               class="form-control"
+               placeholder="請輸入 Email 或 手機號碼"
+               autocomplete="username" />
+        <span asp-validation-for="Account"
+              class="text-danger"></span>
+    </div>
+
+    <!-- Password -->
+    <div class="mb-3">
+        <label asp-for="Password" class="form-label"></label>
+        <input asp-for="Password"
+               class="form-control"
+               placeholder="請輸入密碼" type="password"
+               autocomplete="current-password" />
+        <span asp-validation-for="Password"
+              class="text-danger"></span>
+    </div>
+
+    <!-- Remember Me -->
+    <div class="form-check mb-3">
+        <input asp-for="RememberAccount"
+               class="form-check-input" />
+        <label asp-for="RememberAccount"
+               class="form-check-label">
+            記住帳號
+        </label>
+    </div>
+
+    <!-- Submit -->
+    <div class="d-grid">
+        <button type="submit"
+                class="btn btn-primary">
+            登入
+        </button>
+    </div>
+
+    <!-- Register link -->
+    <div class="text-center mt-3">
+        <span>尚未註冊？</span>
+        <a asp-action="Register"
+           asp-controller="Account">
+            前往註冊
+        </a>
+    </div>
+    <div class="text-center mt-3">
+        <span>忘記密碼？</span>
+        <a asp-action="ForgetPassword"
+           asp-controller="Account">
+            重新設定
+        </a>
+    </div>
+
+</form>

@@ -1,0 +1,190 @@
+﻿@using CraftDailyCorner.Services.Interface
+@using CraftDailyCorner.ViewModels.Front
+@using System.Security.Claims
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"]</title>
+    <link rel="icon" type="image/x-icon" href="~/favicon.ico" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/CraftDailyCorner.styles.css" asp-append-version="true" />
+    @inject ISiteSettingService SiteSetting
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-sm navbar-light bg-white border-bottom box-shadow mb-3">
+            <div class="container">
+
+                <!-- Logo -->
+                <a class="navbar-brand" asp-controller="Home" asp-action="Index">
+                    <img src="~/Photos/07LOGO/Other/@SiteSetting.GetNavbarLogo()"
+                         alt="Logo"
+                         class="Logo" />
+                </a>
+
+                <button class="navbar-toggler"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#mainNavbar">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <div class="collapse navbar-collapse" id="mainNavbar">
+
+                    <!-- 中間：搜尋 -->
+                    <form asp-controller="Products"
+                          asp-action="Index"
+                          method="get"
+                          class="d-flex mx-auto"
+                          style="width: 360px;">
+
+                        <input class="form-control me-2"
+                               type="search"
+                               name="keyword"
+                               placeholder="搜尋商品"
+                               value="@Context.Request.Query["keyword"]" />
+
+                        <button class="btn btn-primary"
+                                type="submit">
+                            <i class="bi bi-search"></i>
+                        </button>
+                    </form>
+
+                    <!-- 右側 -->
+                    <ul class="navbar-nav ms-auto align-items-center gap-2">
+
+                        
+
+                        <!-- 商品分類 -->
+                        <li class="nav-item dropdown position-static">
+                            <a class="nav-link dropdown-toggle"
+                               href="#"
+                               role="button"
+                               data-bs-toggle="dropdown">
+                                商品分類
+                            </a>
+                            @await Component.InvokeAsync("VCCategoryDropdown")
+                        </li>
+                        <!-- 購物車 -->
+                        <li class="nav-item">
+                            <button class="btn btn-primary position-relative"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#CartModal">
+                                <i class="bi bi-cart"></i>
+                                <span id="cartCountBadge"
+                                      class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                    0
+                                </span>
+                            </button>
+                        </li>
+                        <!-- 登入 / 使用者 -->
+                        @if (!User.Identity.IsAuthenticated)
+                        {
+                            <li class="nav-item">
+                                <button class="btn btn-outline-primary"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#loginModal">
+                                    登入 / 註冊
+                                </button>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle"
+                                   href="#"
+                                   role="button"
+                                   data-bs-toggle="dropdown">
+                                    Hi, @User.Identity!.Name
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li>
+                                        <a class="dropdown-item"
+                                           asp-controller="Account"
+                                           asp-action="Logout">
+                                           我的訂單
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item"
+                                           asp-controller="Account"
+                                           asp-action="Logout">
+                                            個人資料
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item"
+                                           asp-controller="Account"
+                                           asp-action="Logout">
+                                            登出
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+                        }
+                    </ul>
+                </div>
+
+                <!-- 登入 Modal -->
+                <div class="modal fade" id="loginModal" tabindex="-1">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">會員登入</h5>
+                                <button type="button"
+                                        class="btn-close"
+                                        data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                @await Html.PartialAsync("_LoginPartial", new VMLogin())
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 購物車 Modal -->
+                <div class="modal fade" id="CartModal" tabindex="-1">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">@User.Identity?.Name 的購物車</h5>
+                                <button type="button"
+                                        class="btn-close"
+                                        data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body" id="cartModalBody">
+                                @await Component.InvokeAsync("VCCartModal")
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </nav>
+
+    </header>
+    <div class="container">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer class="border-top footer text-muted">
+        <div class="container">
+            &copy; 2026 - CraftDailyCorner - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+        </div>
+    </footer>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+    @section Scripts {
+        <partial name="_ValidationScriptsPartial" />
+    }
+    <script src="~/js/cart.js"></script>
+</body>
+</html>
