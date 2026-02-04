@@ -16,31 +16,27 @@ namespace CraftDailyCorner.Seed.Datas
             {
                 var tags = new List<Tag>
                 {
-                    new Tag { TagName = "手工",//1
+                    new Tag { TagName = "手工",
                         IsActive = true,
                         CreatedAt = DateTime.Now 
                     },
-                    new Tag { TagName = "限量" ,//2
+                    new Tag { TagName = "限量" ,
                         IsActive = true,
                         CreatedAt = DateTime.Now
                     },
-                    new Tag { TagName = "原創" ,//3
+                    new Tag { TagName = "原創" ,
                         IsActive = true,
                         CreatedAt = DateTime.Now
                     },
-                    new Tag { TagName = "客製化" ,//4
+                    new Tag { TagName = "客製化" ,
                         IsActive = true,
                         CreatedAt = DateTime.Now
                     },
-                    new Tag { TagName = "手作課程體驗" ,//5
+                    new Tag { TagName = "手作課程體驗" ,
                         IsActive = true,
                         CreatedAt = DateTime.Now
                     },
-                    new Tag { TagName = "親子活動套組" ,//6
-                        IsActive = true,
-                        CreatedAt = DateTime.Now
-                    },
-                    new Tag { TagName = "原木" ,//7
+                    new Tag { TagName = "親子活動套組" ,
                         IsActive = true,
                         CreatedAt = DateTime.Now
                     }

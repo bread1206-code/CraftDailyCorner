@@ -87,14 +87,14 @@ namespace CraftDailyCorner.Controllers
                 // 1. 驗證帳密成功
                 string memberId = user.MemberID;
 
-            // 2. 同步 Session → DB
-            _cartService.SyncCartAfterLogin(memberId);
+                // 2. 同步 Session → DB
+                _cartService.SyncCartAfterLogin(memberId);
 
-            // 3. DB → Session（確保乾淨）
-            _cartService.ClearSessionCart();
+                // 3. DB → Session（確保乾淨）
+                _cartService.LoadCartFromDb(memberId);
 
-            // 4. 導回原頁
-            if (!string.IsNullOrEmpty(returnUrl))
+                // 4. 導回原頁
+                if (!string.IsNullOrEmpty(returnUrl))
                     return Redirect(returnUrl);
 
             return RedirectToAction("Index", "Home");

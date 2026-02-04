@@ -963,7 +963,7 @@ namespace CraftDailyCorner.Migrations
                 {
                     CartID = table.Column<int>(type: "int", nullable: false),
                     ProductID = table.Column<string>(type: "nchar(10)", maxLength: 10, nullable: false),
-                    Quantity = table.Column<int>(type: "int", nullable: false),
+                    Quantity = table.Column<short>(type: "smallint", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
@@ -1015,8 +1015,8 @@ namespace CraftDailyCorner.Migrations
                 {
                     InventoryID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    StockQty = table.Column<int>(type: "int", nullable: false),
-                    AlertQty = table.Column<int>(type: "int", nullable: false),
+                    StockQty = table.Column<short>(type: "smallint", nullable: false),
+                    AlertQty = table.Column<short>(type: "smallint", nullable: false),
                     ProductID = table.Column<string>(type: "nchar(10)", maxLength: 10, nullable: false)
                 },
                 constraints: table =>
@@ -1038,7 +1038,7 @@ namespace CraftDailyCorner.Migrations
                     ProductID = table.Column<string>(type: "nchar(10)", maxLength: 10, nullable: false),
                     ProductNameSnapshot = table.Column<string>(type: "nvarchar(40)", maxLength: 40, nullable: false),
                     PriceSnapshot = table.Column<decimal>(type: "money", nullable: false),
-                    Quantity = table.Column<int>(type: "int", nullable: false)
+                    Quantity = table.Column<short>(type: "smallint", nullable: false)
                 },
                 constraints: table =>
                 {

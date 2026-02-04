@@ -46,142 +46,142 @@ namespace CraftDailyCorner.Seed.Datas
                         ParentCategoryID= null,
                         CreatedAt = DateTime.Now
                     },
-                    new Category { CategoryName = "布作縫紉",//7
+                    new Category { CategoryName = "布作縫紉",
                         IsActive = true,
                         ParentCategoryID = 1,
                         CreatedAt = DateTime.Now 
                     },
-                    new Category { CategoryName = "皮革工藝",//8
+                    new Category { CategoryName = "皮革工藝",
                         IsActive = true,
                         ParentCategoryID= 1,
                         CreatedAt = DateTime.Now 
                     },
-                    new Category { CategoryName = "木工竹藝",//9
+                    new Category { CategoryName = "木工竹藝",
                         IsActive = true,
                         ParentCategoryID= 1,
                         CreatedAt = DateTime.Now
                     },
-                    new Category { CategoryName = "金工飾品",//10
+                    new Category { CategoryName = "金工飾品",
                         IsActive = true,
                         ParentCategoryID= 1,
                         CreatedAt = DateTime.Now
                     },
-                    new Category { CategoryName = "陶藝黏土",//11
+                    new Category { CategoryName = "陶藝黏土",
                         IsActive = true,
                         ParentCategoryID= 1,
                         CreatedAt = DateTime.Now
                     },
-                    new Category { CategoryName = "紙藝印章",//12
+                    new Category { CategoryName = "紙藝印章",
                         IsActive = true,
                         ParentCategoryID= 1,
                         CreatedAt = DateTime.Now
                     },
-                    new Category { CategoryName = "編織纖維",//13
+                    new Category { CategoryName = "編織纖維",
                         IsActive = true,
                         ParentCategoryID= 1,
                         CreatedAt = DateTime.Now
                     },
-                    new Category { CategoryName = "乾燥・永生花",//14
+                    new Category { CategoryName = "乾燥・永生花",
                         IsActive = true,
                         ParentCategoryID= 2,
                         CreatedAt = DateTime.Now
                     },
-                    new Category { CategoryName = "園藝・植栽",//15
+                    new Category { CategoryName = "園藝・植栽",
                         IsActive = true,
                         ParentCategoryID= 2,
                         CreatedAt = DateTime.Now
                     },
-                    new Category { CategoryName = "居家佈置小物",//16
+                    new Category { CategoryName = "居家佈置小物",
                         IsActive = true,
                         ParentCategoryID= 2,
                         CreatedAt = DateTime.Now
                     },
-                    new Category { CategoryName = "環保生活手作",//17
+                    new Category { CategoryName = "環保生活手作",
                         IsActive = true,
                         ParentCategoryID= 2,
                         CreatedAt = DateTime.Now
                     },
-                    new Category { CategoryName = "插畫・畫作",//18
+                    new Category { CategoryName = "插畫・畫作",
                         IsActive = true,
                         ParentCategoryID= 3,
                         CreatedAt = DateTime.Now
                     },
-                    new Category { CategoryName = "手繪商品",//19
+                    new Category { CategoryName = "手繪商品",
                         IsActive = true,
                         ParentCategoryID= 3,
                         CreatedAt = DateTime.Now
                     },
-                    new Category { CategoryName = "版畫・拓印",//20
+                    new Category { CategoryName = "版畫・拓印",
                         IsActive = true,
                         ParentCategoryID= 3,
                         CreatedAt = DateTime.Now
                     },
-                    new Category { CategoryName = "攝影藝術",//21
+                    new Category { CategoryName = "攝影藝術",
                         IsActive = true,
                         ParentCategoryID= 3,
                         CreatedAt = DateTime.Now
                     },
-                    new Category { CategoryName = "拼貼藝術",//22
+                    new Category { CategoryName = "拼貼藝術",
                         IsActive = true,
                         ParentCategoryID= 3,
                         CreatedAt = DateTime.Now
                     },
-                    new Category { CategoryName = "黏土公仔",//23
+                    new Category { CategoryName = "黏土公仔",
                         IsActive = true,
                         ParentCategoryID= 4,
                         CreatedAt = DateTime.Now
                     },
-                    new Category { CategoryName = "布娃娃",//24
+                    new Category { CategoryName = "布娃娃",
                         IsActive = true,
                         ParentCategoryID= 4,
                         CreatedAt = DateTime.Now
                     },
-                    new Category { CategoryName = "樹脂模型",//25
+                    new Category { CategoryName = "樹脂模型",
                         IsActive = true,
                         ParentCategoryID= 4,
                         CreatedAt = DateTime.Now
                     },
-                    new Category { CategoryName = "積木",//26
+                    new Category { CategoryName = "積木",
                         IsActive = true,
                         ParentCategoryID= 4,
                         CreatedAt = DateTime.Now
                     },
-                    new Category { CategoryName = "香氛",//27
+                    new Category { CategoryName = "香氛",
                         IsActive = true,
                         ParentCategoryID= 5,
                         CreatedAt = DateTime.Now
                     },
-                    new Category { CategoryName = "沐浴護理",//28
+                    new Category { CategoryName = "沐浴護理",
                         IsActive = true,
                         ParentCategoryID= 5,
                         CreatedAt = DateTime.Now
                     },
-                    new Category { CategoryName = "保養護膚",//29
+                    new Category { CategoryName = "保養護膚",
                         IsActive = true,
                         ParentCategoryID= 5,
                         CreatedAt = DateTime.Now
                     },
-                    new Category { CategoryName = "甜點與烘焙",//30
+                    new Category { CategoryName = "甜點與烘焙",
                         IsActive = true,
                         ParentCategoryID= 6,
                         CreatedAt = DateTime.Now
                     },
-                    new Category { CategoryName = "果醬與醬料",//31
+                    new Category { CategoryName = "果醬與醬料",
                         IsActive = true,
                         ParentCategoryID= 6,
                         CreatedAt = DateTime.Now
                     },
-                    new Category { CategoryName = "飲品•茶•咖啡",//32
+                    new Category { CategoryName = "飲品•茶•咖啡",
                         IsActive = true,
                         ParentCategoryID= 6,
                         CreatedAt = DateTime.Now
                     },
-                    new Category { CategoryName = "節慶禮盒",//33
+                    new Category { CategoryName = "節慶禮盒",
                         IsActive = true,
                         ParentCategoryID= 6,
                         CreatedAt = DateTime.Now
                     },
-                    new Category { CategoryName = "健康食品",//34
+                    new Category { CategoryName = "健康食品",
                         IsActive = true,
                         ParentCategoryID= 6,
                         CreatedAt = DateTime.Now

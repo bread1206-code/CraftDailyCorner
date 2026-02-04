@@ -14,7 +14,7 @@ namespace CraftDailyCorner.Models
         public string ProductID { get; set; }= null!;
 
         [Display(Name = "數量")]
-        public int Quantity { get; set; }
+        public short Quantity { get; set; }
         [Display(Name = "建立時間")]
         public DateTime CreatedAt { get; set; }
         [Display(Name = "更新時間")]

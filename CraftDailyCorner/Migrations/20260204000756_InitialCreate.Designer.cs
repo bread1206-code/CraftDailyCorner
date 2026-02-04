@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CraftDailyCorner.Migrations
 {
     [DbContext(typeof(CraftDailyCornerContext))]
-    [Migration("20260203143846_InitialCreate")]
+    [Migration("20260204000756_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -98,8 +98,8 @@ namespace CraftDailyCorner.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("Quantity")
-                        .HasColumnType("int");
+                    b.Property<short>("Quantity")
+                        .HasColumnType("smallint");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
@@ -505,16 +505,16 @@ namespace CraftDailyCorner.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("InventoryID"));
 
-                    b.Property<int>("AlertQty")
-                        .HasColumnType("int");
+                    b.Property<short>("AlertQty")
+                        .HasColumnType("smallint");
 
                     b.Property<string>("ProductID")
                         .IsRequired()
                         .HasMaxLength(10)
                         .HasColumnType("nchar(10)");
 
-                    b.Property<int>("StockQty")
-                        .HasColumnType("int");
+                    b.Property<short>("StockQty")
+                        .HasColumnType("smallint");
 
                     b.HasKey("InventoryID");
 
@@ -855,8 +855,8 @@ namespace CraftDailyCorner.Migrations
                         .HasMaxLength(40)
                         .HasColumnType("nvarchar(40)");
 
-                    b.Property<int>("Quantity")
-                        .HasColumnType("int");
+                    b.Property<short>("Quantity")
+                        .HasColumnType("smallint");
 
                     b.HasKey("OrderID", "ProductID");
 
