@@ -3,12 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.14.36811.4
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CraftDailyCorner_Model", "CraftDailyCorner_Model\CraftDailyCorner_Model.csproj", "{A841E408-B65C-4268-B4B0-F3D0C5D55FD6}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CraftDailyCorner_Repository", "CraftDailyCorner_Repository\CraftDailyCorner_Repository.csproj", "{9DA6C697-4D5E-4AD5-AD96-8B12C60BD6E5}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CraftDailyCorner_Web", "CraftDailyCorner_Web\CraftDailyCorner_Web.csproj", "{721B2E73-724B-457B-B303-AB6E214D9B1F}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CraftDailyCorner", "CraftDailyCorner\CraftDailyCorner.csproj", "{381E7E15-F266-4C50-AE1A-29F422C7F30C}"
 EndProject
 Global
@@ -17,18 +11,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{A841E408-B65C-4268-B4B0-F3D0C5D55FD6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A841E408-B65C-4268-B4B0-F3D0C5D55FD6}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A841E408-B65C-4268-B4B0-F3D0C5D55FD6}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A841E408-B65C-4268-B4B0-F3D0C5D55FD6}.Release|Any CPU.Build.0 = Release|Any CPU
-		{9DA6C697-4D5E-4AD5-AD96-8B12C60BD6E5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{9DA6C697-4D5E-4AD5-AD96-8B12C60BD6E5}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{9DA6C697-4D5E-4AD5-AD96-8B12C60BD6E5}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{9DA6C697-4D5E-4AD5-AD96-8B12C60BD6E5}.Release|Any CPU.Build.0 = Release|Any CPU
-		{721B2E73-724B-457B-B303-AB6E214D9B1F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{721B2E73-724B-457B-B303-AB6E214D9B1F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{721B2E73-724B-457B-B303-AB6E214D9B1F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{721B2E73-724B-457B-B303-AB6E214D9B1F}.Release|Any CPU.Build.0 = Release|Any CPU
 		{381E7E15-F266-4C50-AE1A-29F422C7F30C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{381E7E15-F266-4C50-AE1A-29F422C7F30C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{381E7E15-F266-4C50-AE1A-29F422C7F30C}.Release|Any CPU.ActiveCfg = Release|Any CPU
