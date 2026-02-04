@@ -3,6 +3,7 @@ using CraftDailyCorner.Models;
 
 namespace CraftDailyCorner.ViewModels.Front
 {
+    //熱門貼文卡片資料
     public class VMHotPostCard
     {
         public string PostID { get; set; } = null!;

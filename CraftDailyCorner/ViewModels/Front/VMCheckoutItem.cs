@@ -1,10 +1,10 @@
 ﻿namespace CraftDailyCorner.ViewModels.Front
 {
+    //結帳商品
     public class VMCheckoutItem
     {
-        public VMProductSnapshot Product { get; set; } = null!;
         public int Quantity { get; set; }
 
-        public decimal SubTotal => Math.Floor(Product.Price * Quantity);
+        public VMProductSnapshot Product { get; set; } = null!;
     }
 }

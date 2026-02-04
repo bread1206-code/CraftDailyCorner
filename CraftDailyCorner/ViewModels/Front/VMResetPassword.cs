@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace CraftDailyCorner.ViewModels.Front
 {
+    //重設密碼畫面用
     public class VMResetPassword
     {
         [Key]

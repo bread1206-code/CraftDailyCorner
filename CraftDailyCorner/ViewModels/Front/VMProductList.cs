@@ -2,6 +2,7 @@
 
 namespace CraftDailyCorner.ViewModels.Front
 {
+    //商品列表頁使用，每一筆商品卡片需要的資料集合
     public class VMProductList
     {
         public List<Product> Products { get; set; } = new();

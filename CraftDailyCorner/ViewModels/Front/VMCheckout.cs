@@ -6,10 +6,11 @@ namespace CraftDailyCorner.ViewModels.Front
 {
     public class VMCheckout
     {
+        //結帳頁畫面
 
         public List<VMCheckoutItem> Items { get; set; } = new();
-
         public int TotalAmount { get; set; }
+
         [StringLength(20,MinimumLength =2)]
         [Required(ErrorMessage ="請輸入收件人姓名")]
         [Display(Name ="收件人姓名")]

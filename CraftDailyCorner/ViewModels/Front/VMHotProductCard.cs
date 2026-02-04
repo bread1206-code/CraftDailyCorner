@@ -3,6 +3,7 @@ using CraftDailyCorner.Models;
 
 namespace CraftDailyCorner.ViewModels.Front
 {
+    //熱門商品卡片用的精簡版商品 ViewModel
     public class VMHotProductCard
     {
         [Display(Name ="商品編號")]

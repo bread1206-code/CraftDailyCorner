@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CraftDailyCorner.ViewModels.Front
 {
+    //註冊會員用
     public class VMRegister
     {
         [StringLength(20, MinimumLength = 1, ErrorMessage = "暱稱最少1個字，最多20個字")]
@@ -29,7 +30,6 @@ namespace CraftDailyCorner.ViewModels.Front
         [DataType(DataType.Password)]
         public string ConfirmPassword { get; set; } = null!;
 
-        [Key]
         [StringLength(10, MinimumLength = 10, ErrorMessage = "手機號碼為10碼阿拉伯數字")]
         [Display(Name = "手機號碼")]
         [Required(ErrorMessage = "必填")]
