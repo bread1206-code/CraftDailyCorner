@@ -57,9 +57,7 @@ namespace CraftDailyCorner.Controllers
             var memberId = GetMemberId();
 
             var items = _cartService.GetCartItems(memberId);
-            return PartialView("_CartItems", items);
-            // 如果你還沒做 PartialView，也可以先改成：
-            // return Json(items);
+            return PartialView("_CartItemsPartial", items);
         }
 
         // 取得購物車數量（Navbar Badge）

@@ -1,0 +1,88 @@
+﻿@model List<CraftDailyCorner.ViewModels.Front.VMCartItem>
+
+@if (!Model.Any())
+{
+    <div class="text-center text-muted py-4">
+        <i class="bi bi-cart-x fs-1"></i>
+        <p class="mt-2">購物車目前是空的</p>
+    </div>
+}
+else
+{
+    <div class="list-group">
+
+        @foreach (var item in Model)
+        {
+            <div class="list-group-item py-3">
+                <div class="row align-items-center">
+
+                    <!-- 商品圖片 -->
+                    <div class="col-3 col-md-2">
+                        <img src="Photos/04ProductImage/Medium/@item.ImageUrl"
+                             class="img-fluid rounded"
+                             alt="@item.ProductName" />
+                    </div>
+
+                    <!-- 商品資訊 -->
+                    <div class="col-9 col-md-4">
+                        <h6 class="mb-1">@item.ProductName</h6>
+                        <small class="text-muted">
+                            單價：$@item.Price
+                        </small>
+                    </div>
+
+                    <!-- 數量調整 -->
+                    <div class="col-6 col-md-3 mt-2 mt-md-0">
+                        <div class="input-group input-group-sm">
+                            <button class="btn btn-outline-secondary"
+                                    type="button"
+                                    onclick="updateQuantity('@item.ProductId', @(item.Quantity - 1))">
+                                -
+                            </button>
+
+                            <input type="number"
+                                   class="form-control text-center"
+                                   value="@item.Quantity"
+                                   min="1"
+                                   onchange="updateQuantity('@item.ProductId', this.value)" />
+
+                            <button class="btn btn-outline-secondary"
+                                    type="button"
+                                    onclick="updateQuantity('@item.ProductId', @(item.Quantity + 1))">
+                                +
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 小計 -->
+                    <div class="col-3 col-md-2 text-end mt-2 mt-md-0">
+                        <strong>$@item.SubTotal</strong>
+                    </div>
+
+                    <!-- 移除 -->
+                    <div class="col-3 col-md-1 text-end mt-2 mt-md-0">
+                        <button class="btn btn-sm btn-outline-danger"
+                                onclick="removeFromCart('@item.ProductId')">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+        }
+
+    </div>
+
+    <!-- 底部操作 -->
+    <div class="d-flex justify-content-between align-items-center mt-4">
+        <span class="text-muted">
+            共 @Model.Sum(x => x.Quantity) 件商品
+        </span>
+
+        <a asp-controller="Checkout"
+           asp-action="Index"
+           class="btn btn-primary">
+            前往結帳
+        </a>
+    </div>
+}

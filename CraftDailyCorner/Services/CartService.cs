@@ -1,6 +1,7 @@
 ﻿using CraftDailyCorner.Models;
 using CraftDailyCorner.ViewModels.Front;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace CraftDailyCorner.Services
 {
