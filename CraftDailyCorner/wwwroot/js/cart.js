@@ -47,6 +47,12 @@ function addToCart(productId, btn) {
 
 // 更新數量
 function updateQuantity(productId, quantity) {
+    quantity = parseInt(quantity, 10);
+    if (isNaN(quantity) || quantity < 1) {
+        alert('數量必須是大於 0 的整數');
+        return;
+    }
+
     fetch('/Cart/UpdateQuantity', {
         method: 'POST',
         headers: {
@@ -64,7 +70,7 @@ function updateQuantity(productId, quantity) {
                 alert(res.message);
                 return;
             }
-
+            
             updateBadge(res.summary.totalQuantity);
             reloadCartModal();
         });

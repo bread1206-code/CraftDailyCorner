@@ -9,7 +9,7 @@ namespace CraftDailyCorner.ViewModels.Front
         //結帳頁畫面
 
         public List<VMCheckoutItem> Items { get; set; } = new();
-        public int TotalAmount { get; set; }
+        public decimal TotalAmount { get; set; }
 
         [StringLength(20,MinimumLength =2)]
         [Required(ErrorMessage ="請輸入收件人姓名")]

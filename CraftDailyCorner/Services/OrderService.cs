@@ -1,104 +1,107 @@
-﻿//using CraftDailyCorner.Models;
-//using CraftDailyCorner.ViewModels.Front;
-//using Microsoft.EntityFrameworkCore;
+﻿using CraftDailyCorner.Models;
+using CraftDailyCorner.ViewModels.Front;
+using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
+using System.Data;
 
-//namespace CraftDailyCorner.Services
-//{
-//    public class OrderService
-//    {
-//        private readonly CraftDailyCornerContext _context;
+namespace CraftDailyCorner.Services
+{
+    public class OrderService
+    {
+        private readonly CraftDailyCornerContext _context;
+        private readonly CartService _cartService;
 
-//        public OrderService(CraftDailyCornerContext context)
-//        {
-//            _context = context;
-//        }
+        public OrderService(
+            CraftDailyCornerContext context,
+            CartService cartService)
+        {
+            _context = context;
+            _cartService = cartService;
+        }
 
-//        public async Task<string> CreateOrderAsync(
-//            string memberId,
-//            List<VMCartItem> cartItems,
-//            string receiverName,
-//            string receiverPhone,
-//            string receiverAddress)
-//        {
-//            if (cartItems == null || !cartItems.Any())
-//                throw new InvalidOperationException("購物車是空的");
+        // 建立訂單
+        public VMCreateOrderResult CreateOrder(
+            string memberId,
+            VMCreateOrderRequest request)
+        {
+            // 1️ 取得購物車快照
+            var cartItems = _cartService.GetCartItemsForCheckout(memberId);
 
-//            using var tx = await _context.Database.BeginTransactionAsync();
+            if (!cartItems.Any())
+            {
+                return new VMCreateOrderResult
+                {
+                    Success = false,
+                    Message = "購物車是空的，無法建立訂單"
+                };
+            }
 
-//            try
-//            {
-//                // 1️⃣ 建立 Order
-//                var order = new Order
-//                {
-//                    OrderID = GenerateOrderId(),
-//                    MemberID = memberId,
-//                    ReceiverName = receiverName,
-//                    ReceiverPhone = receiverPhone,
-//                    ShippingAddress = receiverAddress,
-//                    StatusID = 1,//待付款
-//                    CreatedAt = DateTime.Now
-//                };
+            // 2️ 計算總金額
+            var totalAmount = cartItems.Sum(i =>
+                i.Product.Price * i.Quantity);
 
-//                _context.Orders.Add(order);
-//                await _context.SaveChangesAsync();
+            // 3️ 建立 Order 主檔
+            var orderId = GetNewOrderID();
+            var order = new Order
+            {
+                OrderID = orderId,
+                MemberID = memberId,
+                CreatedAt = DateTime.Now,
+                ReceiverName = request.ReceiverName,
+                ReceiverPhone = request.ReceiverPhone,
+                ShippingAddress = request.ReceiverAddress,
+                TotalAmount = totalAmount,
+                StatusID = 1 // 未付款
+            };
 
-//                // 2️⃣ 逐項驗證庫存 + 建立 OrderItem
-//                foreach (var item in cartItems)
-//                {
-//                    var inventory = await _context.Inventories
-//                        .FirstOrDefaultAsync(i => i.ProductID == item.ProductID);
+            _context.Orders.Add(order);
+            _context.SaveChanges(); // 先存，取得 OrderID
 
-//                    if (inventory == null)
-//                        throw new InvalidOperationException("找不到商品庫存");
+            // 4️ 建立 OrderItems（商品快照）
+            foreach (var item in cartItems)
+            {
+                var orderItem = new OrderDetail
+                {
+                    OrderID = order.OrderID,
+                    ProductID = item.Product.ProductId,
+                    ProductNameSnapshot = item.Product.ProductName,
+                    PriceSnapshot = item.Product.Price,
+                    Quantity = item.Quantity
+                };
 
-//                    if (inventory.StockQty < item.Quantity)
-//                        throw new InvalidOperationException(
-//                            $"商品 {item.ProductName} 庫存不足");
+                _context.OrderDetails.Add(orderItem);
+            }
 
-//                    // 建立 OrderDetail
-//                    _context.OrderDetails.Add(new OrderDetail
-//                    {
-//                        OrderID = order.OrderID,
-//                        ProductID = item.ProductID,
-//                        Quantity = item.Quantity,
-//                        ProductNameSnapshot = item.ProductName,
-//                        PriceSnapshot = item.Price
-//                    });
+            _context.SaveChanges();
 
-//                    // 扣庫存
-//                    inventory.StockQty -= item.Quantity;
-//                }
+            // 5️ 清空購物車
+            _cartService.ClearCart(memberId);
 
-//                // 3️⃣ 清空購物車（DB）
-//                var cart = await _context.Carts
-//                    .FirstOrDefaultAsync(c => c.MemberID == memberId);
+            return new VMCreateOrderResult
+            {
+                Success = true,
+                Message = "訂單建立成功",
+                OrderID = order.OrderID
+            };
+        }
 
-//                if (cart != null)
-//                {
-//                    var cartItemsDb = _context.CartItems
-//                        .Where(ci => ci.CartID == cart.CartID);
+        // 產生訂單編號
+        private string GetNewOrderID()
+        {
+            var outputParam = new SqlParameter
+            {
+                ParameterName = "@NewOrderID",
+                SqlDbType = SqlDbType.NChar,
+                Size = 12,
+                Direction = ParameterDirection.Output
+            };
 
-//                    _context.CartItems.RemoveRange(cartItemsDb);
-//                }
+            _context.Database.ExecuteSqlRaw(
+                "EXEC getOrderID @NewOrderID OUTPUT",
+                outputParam
+            );
 
-//                // 4️⃣ 一次 SaveChanges
-//                await _context.SaveChangesAsync();
-
-//                // 5️⃣ Commit
-//                await tx.CommitAsync();
-
-//                return order.OrderID;
-//            }
-//            catch
-//            {
-//                await tx.RollbackAsync();
-//                throw; // 交給 Controller 處理錯誤訊息
-//            }
-//        }
-
-//        private string GenerateOrderId()
-//        {
-//            return $"OD{DateTime.Now:yyyyMMddHHmmssfff}";
-//        }
-//    }
-//}
+            return outputParam.Value!.ToString()!;
+        }
+    }
+}

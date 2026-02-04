@@ -44,6 +44,7 @@ else
                         <div class="input-group input-group-sm">
                             <button class="btn btn-outline-secondary"
                                     type="button"
+                                    @(item.Quantity <= 1 ? "disabled" : "")
                                     onclick="updateQuantity('@item.ProductId', @(item.Quantity - 1))">
                                 -
                             </button>
@@ -52,6 +53,9 @@ else
                                    class="form-control text-center"
                                    value="@item.Quantity"
                                    min="1"
+                                   step="1"
+                                   required
+                                   oninput="this.value = this.value.replace(/[^0-9]/g, '')"
                                    onchange="updateQuantity('@item.ProductId', this.value)" />
 
                             <button class="btn btn-outline-secondary"
@@ -87,8 +91,8 @@ else
             共 @Model.Sum(x => x.Quantity) 件商品
         </span>
 
-        <a asp-controller="Checkout"
-           asp-action="Index"
+        <a asp-controller="Orders"
+           asp-action="Checkout"
            class="btn btn-primary">
             前往結帳
         </a>

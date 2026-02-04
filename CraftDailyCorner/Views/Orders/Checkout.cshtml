@@ -1,0 +1,131 @@
+﻿@model CraftDailyCorner.ViewModels.Front.VMCheckout
+
+@{
+    ViewData["Title"] = "結帳";
+}
+
+<h2 class="mb-4">結帳</h2>
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["Error"]
+    </div>
+}
+
+<div class="row">
+    <!-- 左：商品清單 -->
+    <div class="col-md-7">
+        <div class="card mb-4">
+            <div class="card-header fw-semibold">
+                購物清單
+            </div>
+            <div class="card-body p-0">
+                <table class="table mb-0 align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>商品</th>
+                            <th class="text-end">單價</th>
+                            <th class="text-end">數量</th>
+                            <th class="text-end">小計</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.Items)
+                        {
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center gap-2">
+                                        @if (!string.IsNullOrEmpty(item.Product.ImageUrl))
+                                        {
+                                            <img src="/Photos/04ProductImage/Medium/@item.Product.ImageUrl"
+                                                 alt="@item.Product.ProductName"
+                                                 style="width:60px;height:60px;object-fit:cover;"
+                                                 class="rounded" />
+                                        }
+                                        <div>
+                                            <div class="fw-semibold">
+                                                @item.Product.ProductName
+                                            </div>
+                                            @if (!string.IsNullOrEmpty(item.Product.CreatorName))
+                                            {
+                                                <small class="text-muted">
+                                                    創作者：@item.Product.CreatorName
+                                                </small>
+                                            }
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="text-end">
+                                    @item.Product.Price.ToString("N0")
+                                </td>
+                                <td class="text-end">
+                                    @item.Quantity
+                                </td>
+                                <td class="text-end">
+                                    @((item.Product.Price* item.Quantity).ToString("N0"))
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                    <tfoot>
+                        <tr class="table-light">
+                            <th colspan="3" class="text-end">總金額</th>
+                            <th class="text-end text-danger">
+                                @Model.TotalAmount.ToString("N0")
+                            </th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- 右：收件資訊 -->
+    <div class="col-md-5">
+        <form asp-action="Create" method="post">
+            @Html.AntiForgeryToken()
+
+            <div class="card">
+                <div class="card-header fw-semibold">
+                    收件資訊
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label asp-for="ReceiverName" class="form-label"></label>
+                        <input asp-for="ReceiverName" class="form-control" />
+                        <span asp-validation-for="ReceiverName" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="ReceiverPhone" class="form-label"></label>
+                        <input asp-for="ReceiverPhone" class="form-control" />
+                        <span asp-validation-for="ReceiverPhone" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="ReceiverAddress" class="form-label"></label>
+                        <input asp-for="ReceiverAddress" class="form-control" />
+                        <span asp-validation-for="ReceiverAddress" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="card-footer text-end">
+                    <a asp-controller="Products"
+                       asp-action="Index"
+                       class="btn btn-outline-secondary me-2">
+                        繼續購物
+                    </a>
+
+                    <button type="submit" class="btn btn-primary">
+                        確認下單
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
