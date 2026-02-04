@@ -7,7 +7,7 @@ namespace CraftDailyCorner.ViewModels.Front
     public class VMCheckout
     {
 
-        public List<VMCartItem> Items { get; set; } = new();
+        public List<VMCheckoutItem> Items { get; set; } = new();
 
         public int TotalAmount { get; set; }
         [StringLength(20,MinimumLength =2)]
