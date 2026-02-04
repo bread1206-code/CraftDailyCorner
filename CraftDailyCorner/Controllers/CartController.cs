@@ -1,10 +1,12 @@
 ﻿using CraftDailyCorner.Services;
-using CraftDailyCorner.ViewModels.Front.DTOs;
+using CraftDailyCorner.ViewModels.Front;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
 namespace CraftDailyCorner.Controllers
 {
+    [Authorize] //必須登入
     public class CartController : Controller
     {
         private readonly CartService _cartService;
@@ -14,68 +16,72 @@ namespace CraftDailyCorner.Controllers
             _cartService = cartService;
         }
 
-        // 加入購物車（唯一入口）
+
+         // 加入購物車
+
         [HttpPost]
-        public IActionResult Add([FromBody] AddCartDTO req)
+        public IActionResult AddItem(string productId, int quantity)
         {
-            if (req == null)
-                return BadRequest();
+            var memberId = GetMemberId();
 
-            bool isAuth = User.Identity?.IsAuthenticated ?? false;
-            string? memberId = isAuth
-                ? User.FindFirstValue(ClaimTypes.NameIdentifier)
-                : null;
-
-            var result = _cartService.AddToCart(
-                req.ProductId,
-                req.Qty,
-                isAuth,
-                memberId
-            );
-
+            var result = _cartService.AddItem(memberId, productId, quantity);
             return Json(result);
         }
 
+
+         // 更新商品數量
+
+        [HttpPost]
+        public IActionResult UpdateQuantity(string productId, int quantity)
+        {
+            var memberId = GetMemberId();
+
+            var result = _cartService.UpdateQuantity(memberId, productId, quantity);
+            return Json(result);
+        }
 
         // 移除商品
         [HttpPost]
-        public IActionResult Remove([FromBody] AddCartDTO req)
+        public IActionResult RemoveItem(string productId)
         {
-            if (req == null)
-                return BadRequest();
+            var memberId = GetMemberId();
 
-            bool isAuth = User.Identity?.IsAuthenticated ?? false;
-            string? memberId = isAuth
-                ? User.FindFirstValue(ClaimTypes.NameIdentifier)
-                : null;
-
-            var result = _cartService.RemoveFromCart(
-                req.ProductId,
-                isAuth,
-                memberId
-            );
-
+            var result = _cartService.RemoveItem(memberId, productId);
             return Json(result);
         }
 
-        // 重新取得 Cart Modal
+        // 取得購物車清單（Modal / 頁面）
         [HttpGet]
-        public IActionResult GetCartModal()
+        public IActionResult GetCartItems()
         {
-            return ViewComponent("VCCartModal");
+            var memberId = GetMemberId();
+
+            var items = _cartService.GetCartItems(memberId);
+            return PartialView("_CartItems", items);
+            // 如果你還沒做 PartialView，也可以先改成：
+            // return Json(items);
         }
 
-        // 取得購物車數量（Badge）
+        // 取得購物車數量（Navbar Badge）
         [HttpGet]
         public IActionResult GetCartCount()
         {
-            bool isAuth = User.Identity?.IsAuthenticated ?? false;
-            string? memberId = isAuth
-                ? User.FindFirstValue(ClaimTypes.NameIdentifier)
-                : null;
+            var memberId = GetMemberId();
 
-            var count = _cartService.GetCartCount(isAuth, memberId);
-            return Json(new { count });
+            var count = _cartService.GetCartCount(memberId);
+            return Json(count);
+        }
+
+        // Private Helper
+        private string GetMemberId()
+        {
+            var memberId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(memberId))
+            {
+                throw new UnauthorizedAccessException("找不到會員識別資訊");
+            }
+            return memberId;
+
         }
     }
 }
