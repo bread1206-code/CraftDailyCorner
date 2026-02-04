@@ -114,3 +114,53 @@ body {
 .position-relative .carousel-control-next:hover {
     background-color: rgba(255, 255, 255, 0.95);
 }
+/*­q³æ©ú²Ó*/
+.order-progress {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+    .order-progress .step {
+        text-align: center;
+        position: relative;
+        flex: 0 0 auto;
+    }
+
+    .order-progress .circle {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background-color: #dee2e6;
+        color: #6c757d;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        margin: 0 auto;
+    }
+
+    .order-progress .step.active .circle {
+        background-color: #198754; /* Bootstrap success */
+        color: #fff;
+    }
+
+    .order-progress .label {
+        margin-top: 8px;
+        font-size: 0.9rem;
+    }
+
+        .order-progress .label small {
+            color: #6c757d;
+        }
+
+    .order-progress .line {
+        flex: 1;
+        height: 2px;
+        background-color: #dee2e6;
+        margin: 0 8px;
+    }
+
+        .order-progress .line.active {
+            background-color: #198754;
+        }

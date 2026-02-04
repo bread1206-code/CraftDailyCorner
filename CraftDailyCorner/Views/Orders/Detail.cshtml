@@ -1,0 +1,165 @@
+﻿@model CraftDailyCorner.ViewModels.Front.VMMyOrderDetail
+
+
+@{
+    ViewData["Title"] = "訂單明細";
+
+    int step = Model.StatusText switch
+    {
+        "待付款" => 0,
+        "已付款" => 1,
+        "出貨中" => 2,
+        "已完成" => 3,
+        _ => 0
+    };
+}
+
+<div class="container my-5">
+
+    <!-- 標題 -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3>訂單明細</h3>
+
+        <a asp-action="Index"
+           class="btn btn-sm btn-outline-secondary">
+            ← 返回我的訂單
+        </a>
+    </div>
+    <!-- 訂單狀態進度條 -->
+    <div class="card mb-4">
+        <div class="card-body">
+
+            <div class="order-progress">
+                <div class="step @(step >= 0 ? "active" : "")">
+                    <div class="circle">1</div>
+                    <div class="label">已下單<br /><small>建立訂單</small></div>
+                </div>
+
+                <div class="line @(step >= 1 ? "active" : "")"></div>
+
+                <div class="step @(step >= 1 ? "active" : "")">
+                    <div class="circle">2</div>
+                    <div class="label">已付款<br /><small>付款完成</small></div>
+                </div>
+
+                <div class="line @(step >= 2 ? "active" : "")"></div>
+
+                <div class="step @(step >= 2 ? "active" : "")">
+                    <div class="circle">3</div>
+                    <div class="label">配送中<br /><small>商品寄出</small></div>
+                </div>
+
+                <div class="line @(step >= 3 ? "active" : "")"></div>
+
+                <div class="step @(step >= 3 ? "active" : "")">
+                    <div class="circle">4</div>
+                    <div class="label">已完成<br /><small>完成收貨</small></div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+
+    <!-- 訂單基本資訊 -->
+    <div class="card mb-4">
+    <div class="card-body">
+        <div class="row gy-3">
+
+            <div class="col-md-6">
+                <div><strong>訂單編號</strong></div>
+                <div class="text-muted">@Model.OrderID</div>
+
+                <div class="mt-2"><strong>下單時間</strong></div>
+                <div class="text-muted">
+                    @Model.CreatedAt.ToString("yyyy/MM/dd HH:mm")
+                </div>
+
+                <div class="mt-2"><strong>訂單狀態</strong></div>
+                <span class="badge bg-primary">
+                    @Model.StatusText
+                </span>
+            </div>
+
+            <div class="col-md-6">
+                <div><strong>收件人</strong></div>
+                <div class="text-muted">@Model.ReceiverName</div>
+
+                <div class="mt-2"><strong>聯絡電話</strong></div>
+                <div class="text-muted">@Model.ReceiverPhone</div>
+
+                <div class="mt-2"><strong>配送地址</strong></div>
+                <div class="text-muted">@Model.ShippingAddress</div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+    <!-- 商品明細 -->
+    <div class="card">
+        <div class="card-body p-0">
+
+            <table class="table mb-0 align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>商品</th>
+                        <th class="text-end">單價</th>
+                        <th class="text-end">數量</th>
+                        <th class="text-end">小計</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @foreach (var item in Model.Items)
+                    {
+                        <tr>
+                            <td>
+                                <div class="fw-semibold">
+                                    @item.ProductName
+                                </div>
+                                <small class="text-muted">
+                                    創作者：@item.CreatorName
+                                </small>
+                            </td>
+
+                            <td class="text-end">
+                                $@item.Price
+                            </td>
+
+                            <td class="text-end">
+                                @item.Quantity
+                            </td>
+
+                            <td class="text-end fw-semibold">
+                                $@item.SubTotal
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+
+                <tfoot class="table-light">
+                    <tr>
+                        <td colspan="3" class="text-end fw-semibold">
+                            總金額
+                        </td>
+                        <td class="text-end fw-semibold">
+                            $@Model.TotalAmount
+                        </td>
+                    </tr>
+                </tfoot>
+            </table>
+
+        </div>
+    </div>
+    <div class="alert alert-light mt-4">
+        <div class="fw-semibold mb-1">訂單有問題？</div>
+        <small class="text-muted">
+            若您對訂單內容或配送狀態有任何疑問，請聯絡客服：
+            <a href="mailto:support@craftdailycorner.com">
+                support@craftdailycorner.com
+            </a>
+        </small>
+    </div>
+</div>

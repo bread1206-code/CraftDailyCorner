@@ -1,4 +1,5 @@
 ﻿using CraftDailyCorner.Models;
+using CraftDailyCorner.ViewModels;
 using CraftDailyCorner.ViewModels.Front;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
@@ -85,6 +86,62 @@ namespace CraftDailyCorner.Services
             };
         }
 
+        // 我的訂單列表
+        public List<VMMyOrder> GetMyOrders(string memberId)
+        {
+            return _context.Orders
+                .AsNoTracking()
+                .Include(o => o.OrderStatus)
+                .Where(o => o.MemberID == memberId)
+                .OrderByDescending(o => o.CreatedAt)
+                .Select(o => new VMMyOrder
+                {
+                    OrderID = o.OrderID,
+                    CreatedAt = o.CreatedAt,
+                    TotalAmount = (int)Math.Floor(o.TotalAmount),
+                    StatusText = o.OrderStatus.StatusName
+                })
+                .ToList();
+        }
+        // 我的訂單詳細內容
+        public VMMyOrderDetail? GetOrderDetail(string orderId, string memberId)
+        {
+            var order = _context.Orders
+                .AsNoTracking()
+                .Include(o => o.OrderStatus)
+                .Include(o => o.OrderDetails!)
+                    .ThenInclude(od => od.Product)
+                        .ThenInclude(p => p.CreatorProfile)
+                .FirstOrDefault(o =>
+                    o.OrderID == orderId &&
+                    o.MemberID == memberId);
+
+            if (order == null)
+                return null;
+
+            return new VMMyOrderDetail
+            {
+                OrderID = order.OrderID,
+                CreatedAt = order.CreatedAt,
+                TotalAmount = (int)Math.Floor(order.TotalAmount),
+                StatusText = order.OrderStatus.StatusName,
+
+                ReceiverName = order.ReceiverName,
+                ReceiverPhone = order.ReceiverPhone,
+                ShippingAddress = order.ShippingAddress,
+
+                Items = order.OrderDetails!
+                    .Select(od => new VMMyOrderItem
+                    {
+                        ProductID = od.ProductID,
+                        ProductName = od.ProductNameSnapshot,   // 快照
+                        Price = (int)Math.Floor(od.PriceSnapshot),
+                        Quantity = od.Quantity,
+                        CreatorName = od.Product.CreatorProfile!.DisplayName
+                    })
+                    .ToList()
+            };
+        }
         // 產生訂單編號
         private string GetNewOrderID()
         {

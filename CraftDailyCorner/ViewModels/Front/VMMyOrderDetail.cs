@@ -1,6 +1,4 @@
-﻿using CraftDailyCorner.ViewModels.Front;
-
-namespace CraftDailyCorner.ViewModels
+﻿namespace CraftDailyCorner.ViewModels.Front
 {
     //顯示訂單基本資訊
     public class VMMyOrderDetail

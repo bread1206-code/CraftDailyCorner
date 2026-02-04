@@ -16,6 +16,10 @@ function updateBadge(count) {
 
 // 加入購物車
 function addToCart(productId, btn) {
+    if (!window.isAuthenticated) {
+        openLoginModal(productId);
+        return;
+    }
     const qtyInput = document.querySelector('#qty');
     const quantity = qtyInput ? parseInt(qtyInput.value) : 1;
 
@@ -41,7 +45,6 @@ function addToCart(productId, btn) {
             if (btn) {
                 playFlyAnimation(btn);
             }
-            //alert('加入購物車成功');
         });
 }
 
@@ -171,3 +174,15 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
+
+// 開啟登入視窗
+let pendingAddToCartProductId = null;
+
+function openLoginModal(productId) {
+    pendingAddToCartProductId = productId;
+
+    const modal = new bootstrap.Modal(
+        document.getElementById('loginModal')
+    );
+    modal.show();
+}

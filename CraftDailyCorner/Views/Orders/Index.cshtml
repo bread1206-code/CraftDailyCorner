@@ -1,0 +1,68 @@
+﻿@model List<CraftDailyCorner.ViewModels.Front.VMMyOrder>
+
+@{
+    ViewData["Title"] = "我的訂單";
+}
+
+<div class="container my-5">
+    <h3 class="mb-4">我的訂單</h3>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info">
+            目前尚無訂單紀錄
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>訂單編號</th>
+                        <th>下單時間</th>
+                        <th class="text-end">總金額</th>
+                        <th>狀態</th>
+                        <th class="text-end">操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var order in Model)
+                    {
+                        <tr>
+                            <td>
+                                <span class="fw-semibold">
+                                    @order.OrderID
+                                </span>
+                            </td>
+
+                            <td>
+                                @order.CreatedAt.ToString("yyyy/MM/dd HH:mm")
+                            </td>
+
+                            <td class="text-end">
+                                <span class="fw-semibold">
+                                    $@order.TotalAmount
+                                </span>
+                            </td>
+
+                            <td>
+                                <span class="badge bg-secondary">
+                                    @order.StatusText
+                                </span>
+                            </td>
+
+                            <td class="text-end">
+                                <a asp-action="Detail"
+                                   asp-route-orderId="@order.OrderID"
+                                   class="btn btn-sm btn-outline-primary">
+                                    查看明細
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

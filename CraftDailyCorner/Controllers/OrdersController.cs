@@ -19,6 +19,25 @@ namespace CraftDailyCorner.Controllers
             _cartService = cartService;
             _orderService = orderService;
         }
+        //我的訂單列表
+        public IActionResult Index()
+        {
+            var memberId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var orders = _orderService.GetMyOrders(memberId);
+
+            return View(orders);
+        }
+        //訂單詳細內容
+        public IActionResult Detail(string orderId)
+        {
+            var memberId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            var order = _orderService.GetOrderDetail(orderId, memberId);
+            if (order == null)
+                return NotFound();
+
+            return View(order);
+        }
 
         // GET: /Orders/Checkout
         public IActionResult Checkout()

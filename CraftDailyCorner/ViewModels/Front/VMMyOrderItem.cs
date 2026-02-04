@@ -1,4 +1,4 @@
-﻿namespace CraftDailyCorner.ViewModels
+﻿namespace CraftDailyCorner.ViewModels.Front
 {
     //訂單明細頁中的「每一個商品」
     public class VMMyOrderItem
