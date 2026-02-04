@@ -15,7 +15,7 @@ function updateBadge(count) {
 }
 
 // 加入購物車
-function addToCart(productId) {
+function addToCart(productId, btn) {
     const qtyInput = document.querySelector('#qty');
     const quantity = qtyInput ? parseInt(qtyInput.value) : 1;
 
@@ -38,7 +38,10 @@ function addToCart(productId) {
             }
 
             updateBadge(res.summary.totalQuantity);
-            alert('加入購物車成功');
+            if (btn) {
+                playFlyAnimation(btn);
+            }
+            //alert('加入購物車成功');
         });
 }
 
@@ -99,6 +102,7 @@ function getCsrfToken() {
     return document.querySelector('input[name="__RequestVerificationToken"]')?.value;
 }
 
+// 飛入動畫
 function playFlyAnimation(btn) {
 
     const row = btn.closest('.row');

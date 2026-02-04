@@ -18,16 +18,24 @@ else
 
                     <!-- 商品圖片 -->
                     <div class="col-3 col-md-2">
-                        <img src="Photos/04ProductImage/Medium/@item.ImageUrl"
+                        <img src="/Photos/04ProductImage/Medium/@item.ImageUrl"
                              class="img-fluid rounded"
                              alt="@item.ProductName" />
                     </div>
 
                     <!-- 商品資訊 -->
                     <div class="col-9 col-md-4">
-                        <h6 class="mb-1">@item.ProductName</h6>
+                        @* <h6 class="mb-1">@item.ProductName</h6> *@
+                        <div class="fw-semibold">
+                            <a asp-controller="Products"
+                               asp-action="Detail"
+                               asp-route-id="@item.ProductId"
+                               class="text-decoration-none text-dark">
+                                @item.ProductName
+                            </a>
+                        </div>
                         <small class="text-muted">
-                            單價：$@item.Price
+                            單價：$@item.PriceInt
                         </small>
                     </div>
 

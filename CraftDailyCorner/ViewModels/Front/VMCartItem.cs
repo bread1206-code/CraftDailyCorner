@@ -12,7 +12,9 @@ namespace CraftDailyCorner.ViewModels.Front
 
         public string? ImageUrl { get; set; }
 
-        // 統一由 VM 計算，小數無條件捨去
+        // 顯示用單價（無條件捨去）
+        public int PriceInt => (int)Math.Floor(Price);
+
         public decimal SubTotal => Math.Floor(Price * Quantity);
     }
 }

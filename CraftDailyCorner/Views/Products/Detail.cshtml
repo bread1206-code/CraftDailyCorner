@@ -1,5 +1,7 @@
 ﻿@model CraftDailyCorner.ViewModels.Front.VMProductDetail
-
+@{
+    ViewData["Title"] = @Model.ProductName;
+}
 <div class="container my-5">
 
     <div class="card shadow-sm">
@@ -167,7 +169,7 @@
                                    @(Model.IsOutOfStock ? "disabled" : "") />
 
                             <button class="btn btn-primary ms-2 mt-3"
-                                    onclick="addToCart('@Model.ProductId')"
+                                    onclick="addToCart('@Model.ProductId', this)"
                                     data-id="@Model.ProductId"
                                     @(Model.IsOutOfStock ? "disabled" : "")>
                                 <i class="bi bi-cart"> </i> 加入購物車

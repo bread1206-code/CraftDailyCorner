@@ -1,5 +1,6 @@
 ﻿using CraftDailyCorner.Services;
 using CraftDailyCorner.ViewModels.Front;
+using CraftDailyCorner.ViewModels.Front.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -20,11 +21,11 @@ namespace CraftDailyCorner.Controllers
          // 加入購物車
 
         [HttpPost]
-        public IActionResult AddItem(string productId, int quantity)
+        public IActionResult AddItem([FromBody] AddCartDTO request)
         {
             var memberId = GetMemberId();
 
-            var result = _cartService.AddItem(memberId, productId, quantity);
+            var result = _cartService.AddItem(memberId, request.ProductId, request.Quantity);
             return Json(result);
         }
 
@@ -32,21 +33,21 @@ namespace CraftDailyCorner.Controllers
          // 更新商品數量
 
         [HttpPost]
-        public IActionResult UpdateQuantity(string productId, int quantity)
+        public IActionResult UpdateQuantity([FromBody] AddCartDTO request)
         {
             var memberId = GetMemberId();
 
-            var result = _cartService.UpdateQuantity(memberId, productId, quantity);
+            var result = _cartService.UpdateQuantity(memberId, request.ProductId, request.Quantity);
             return Json(result);
         }
 
         // 移除商品
         [HttpPost]
-        public IActionResult RemoveItem(string productId)
+        public IActionResult RemoveItem([FromBody] AddCartDTO request)
         {
             var memberId = GetMemberId();
 
-            var result = _cartService.RemoveItem(memberId, productId);
+            var result = _cartService.RemoveItem(memberId, request.ProductId);
             return Json(result);
         }
 
