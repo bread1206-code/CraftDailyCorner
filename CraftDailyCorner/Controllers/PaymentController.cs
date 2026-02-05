@@ -72,7 +72,7 @@ namespace CraftDailyCorner.Controllers
                 PaymentStatusID = latestPayment.StatusID,
                 PaymentStatusName = latestPayment.StatusName,
                 PaidAt = latestPayment.PaidAt,
-                Message = latestPayment.StatusName == "付款成功"
+                Message = latestPayment.StatusName == "成功"
                     ? "付款完成，感謝您的訂購！"
                     : "付款失敗，請重新嘗試"
             };

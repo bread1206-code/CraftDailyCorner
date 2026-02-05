@@ -60,7 +60,7 @@ namespace CraftDailyCorner.Services
 
                 // 取得狀態
                 var paidStatusId = _context.PaymentStatuses
-                    .Where(s => s.StatusCode == "PAID")
+                    .Where(s => s.StatusCode == "Success")
                     .Select(s => s.StatusID)
                     .First();
 
@@ -68,17 +68,17 @@ namespace CraftDailyCorner.Services
                     throw new Exception("PaymentStatus: PAID 未設定");
 
                 var failedStatusId = _context.PaymentStatuses
-                    .Where(s => s.StatusCode == "FAILED")
+                    .Where(s => s.StatusCode == "Failed")
                     .Select(s => s.StatusID)
                     .First();
 
                 var pendingOrderStatusId = _context.OrderStatuses
-                    .Where(s => s.StatusCode == "PENDING_PAYMENT")
+                    .Where(s => s.StatusCode == "Pending")
                     .Select(s => s.StatusID)
                     .First();
 
                 var paidOrderStatusId = _context.OrderStatuses
-                    .Where(s => s.StatusCode == "PAID")
+                    .Where(s => s.StatusCode == "Paid")
                     .Select(s => s.StatusID)
                     .First();
 
@@ -113,9 +113,7 @@ namespace CraftDailyCorner.Services
                     PaymentStatusID = payment.StatusID,
                     PaymentStatusName = isSuccess ? "付款成功" : "付款失敗",
                     PaidAt = payment.PaidAt,
-                    Message = isSuccess
-                        ? "付款完成，感謝您的訂購！"
-                        : "付款失敗，請重新嘗試"
+                    Message = isSuccess? "付款完成，感謝您的訂購！" : "付款失敗，請重新嘗試"
                 };
             }
             catch

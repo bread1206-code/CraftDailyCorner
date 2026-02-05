@@ -102,11 +102,12 @@ namespace CraftDailyCorner.Controllers
             if (string.IsNullOrWhiteSpace(orderId))
                 return NotFound();
 
-            // 目前先顯示訂單編號即可
-            // 之後可以擴充查詢 OrderDetail
-            ViewBag.OrderID = orderId;
+            var vm = new VMOrderDetail
+            {
+                OrderID = orderId
+            };
 
-            return View();
+            return View(vm);
         }
 
         // Private

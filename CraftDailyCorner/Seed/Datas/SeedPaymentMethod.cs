@@ -20,19 +20,25 @@ namespace CraftDailyCorner.Seed.Datas
                 {
                     MethodID = 1,
                     MethodCode = "CreditCard",
-                    MethodName = "信用卡"
+                    MethodName = "信用卡",
+                    Description = "使用信用卡付款，支持Visa、MasterCard、American Express等主要信用卡品牌。",
+                    IsActive = true
                 },
                 new PaymentMethod
                 {
                     MethodID = 2,
                     MethodCode = "LinePay",
-                    MethodName = "Line Pay"
+                    MethodName = "Line Pay",
+                    Description = "使用Line Pay付款，透過Line帳號進行快速、安全的支付。",
+                    IsActive = true
                 },
                 new PaymentMethod
                 {
                     MethodID = 3,
                     MethodCode = "BankTransfer",
-                    MethodName = "銀行轉帳"
+                    MethodName = "銀行轉帳",
+                    Description = "使用銀行轉帳付款，請按照提供的銀行帳戶資訊進行轉帳。",
+                    IsActive = true
                 }
             );
 

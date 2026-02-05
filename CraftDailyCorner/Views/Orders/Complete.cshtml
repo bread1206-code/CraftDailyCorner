@@ -1,6 +1,6 @@
 ﻿@{
     ViewData["Title"] = "訂單完成";
-    var orderId = ViewBag.OrderID as string;
+
 }
 @model CraftDailyCorner.ViewModels.Front.VMOrderDetail
 
@@ -24,7 +24,7 @@
                     <div class="alert alert-light border">
                         <div class="fw-semibold mb-1">訂單編號</div>
                         <div class="fs-5 text-primary">
-                            @orderId
+                            @Model.OrderID
                         </div>
                     </div>
 
