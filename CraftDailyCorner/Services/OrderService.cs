@@ -154,7 +154,7 @@ namespace CraftDailyCorner.Services
             };
 
             _context.Database.ExecuteSqlRaw(
-                "EXEC getOrderID @NewOrderID OUTPUT",
+                "EXEC getCreatedOrderID @NewOrderID OUTPUT",
                 outputParam
             );
 

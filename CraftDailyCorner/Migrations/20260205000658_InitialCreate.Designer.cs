@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CraftDailyCorner.Migrations
 {
     [DbContext(typeof(CraftDailyCornerContext))]
-    [Migration("20260204092650_InitialCreate")]
+    [Migration("20260205000658_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />

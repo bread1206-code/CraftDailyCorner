@@ -1,0 +1,129 @@
+﻿@using CraftDailyCorner.Services.Interface
+@using CraftDailyCorner.ViewModels.Front
+@using System.Security.Claims
+@inject ISiteSettingService SiteSetting
+
+<nav class="navbar navbar-expand-sm navbar-light bg-white border-bottom box-shadow mb-3">
+    <div class="container">
+
+        <!-- Logo -->
+        <a class="navbar-brand" asp-controller="Home" asp-action="Index">
+            <img src="~/Photos/07LOGO/Other/@SiteSetting.GetNavbarLogo()"
+                 alt="Logo"
+                 class="Logo" />
+        </a>
+
+        <button class="navbar-toggler"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#mainNavbar">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="mainNavbar">
+
+            <!-- 中間：搜尋 -->
+            <form asp-controller="Products"
+                  asp-action="Index"
+                  method="get"
+                  class="d-flex mx-auto"
+                  style="width: 360px;">
+
+                <input class="form-control me-2"
+                       type="search"
+                       name="keyword"
+                       placeholder="搜尋商品"
+                       value="@Context.Request.Query["keyword"]" />
+
+                <button class="btn btn-primary" type="submit">
+                    <i class="bi bi-search"></i>
+                </button>
+            </form>
+
+            <!-- 右側 -->
+            <ul class="navbar-nav ms-auto align-items-center gap-2">
+
+                <!-- 商品分類 -->
+                <li class="nav-item dropdown position-static">
+                    <a class="nav-link dropdown-toggle"
+                       href="#"
+                       role="button"
+                       data-bs-toggle="dropdown">
+                        商品分類
+                    </a>
+                    @await Component.InvokeAsync("VCCategoryDropdown")
+                </li>
+
+                <!-- 購物車 -->
+                <li class="nav-item">
+                    @if (!User.Identity!.IsAuthenticated)
+                    {
+                        <button class="btn btn-primary position-relative"
+                                onclick="prepareLoginModal(); openLoginModal();">
+                            <i class="bi bi-cart"></i>
+                        </button>
+                    }
+                    else
+                    {
+                        <button class="btn btn-primary position-relative"
+                                data-bs-toggle="modal"
+                                data-bs-target="#CartModal">
+                            <i class="bi bi-cart" id="cartIcon"></i>
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger cart-badge"
+                                  style="display:none">
+                                0
+                            </span>
+                        </button>
+                    }
+                </li>
+
+                <!-- 登入 / 使用者 -->
+                @if (!User.Identity.IsAuthenticated)
+                {
+                    <li class="nav-item">
+                        <button class="btn btn-outline-primary"
+                                onclick="prepareLoginModal()"
+                                data-bs-toggle="modal"
+                                data-bs-target="#loginModal">
+                            登入 / 註冊
+                        </button>
+                    </li>
+                }
+                else
+                {
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle"
+                           href="#"
+                           role="button"
+                           data-bs-toggle="dropdown">
+                            Hi, @User.Identity!.Name
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li>
+                                <a class="dropdown-item"
+                                   asp-controller="Orders"
+                                   asp-action="Index">
+                                    我的訂單
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item"
+                                   asp-controller="Account"
+                                   asp-action="Logout">
+                                    個人資料
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item"
+                                   asp-controller="Account"
+                                   asp-action="Logout">
+                                    登出
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                }
+            </ul>
+        </div>
+    </div>
+</nav>

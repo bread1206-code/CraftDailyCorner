@@ -28,6 +28,10 @@ namespace CraftDailyCorner.Controllers
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
+        public IActionResult Navbar()
+        {
+            return PartialView("_NavbarPartial");
+        }
     }
 }
 //在套件管理器主控台(檢視 > 其他視窗 > 套件管理器主控台)下指令

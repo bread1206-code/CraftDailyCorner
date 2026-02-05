@@ -1,4 +1,7 @@
-﻿// 初始化 Badge
+﻿// 登入前暫存「使用者想做的加購行為」
+let pendingAddToCart = null;
+
+// 初始化 Badge
 function initCartBadge() {
     fetch('/Cart/GetCartCount')
         .then(r => r.json())
@@ -16,13 +19,22 @@ function updateBadge(count) {
 
 // 加入購物車
 function addToCart(productId, btn) {
-    if (!window.isAuthenticated) {
-        openLoginModal(productId);
-        return;
-    }
+
     const qtyInput = document.querySelector('#qty');
     const quantity = qtyInput ? parseInt(qtyInput.value) : 1;
+    // 未登入：記住「使用者原本要做的事」
+    if (!window.isAuthenticated) {
+        pendingAddToCart = {
+            productId: productId,
+            quantity: quantity
+        };
 
+        prepareLoginModal(); // 填 returnUrl
+        openLoginModal();    // 開登入 Modal
+        return;
+    }
+
+    // 已登入：正常加入購物車
     fetch('/Cart/AddItem', {
         method: 'POST',
         headers: {
@@ -175,4 +187,41 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
+//為了加購而登入成功後的處理
+function onLoginSuccess() {
+    window.isAuthenticated = true;
 
+    // 關閉登入 Modal
+    const modalEl = document.getElementById('loginModal');
+    const modal = bootstrap.Modal.getInstance(modalEl);
+    if (modal) modal.hide();
+
+    // 如果是「為了加購而登入」，自動完成它
+    if (pendingAddToCart) {
+        addToCart(pendingAddToCart.productId);
+        pendingAddToCart = null;
+    }
+}
+function onLoginSuccess() {
+    window.isAuthenticated = true;
+
+    // 關閉登入 Modal
+    const modalEl = document.getElementById('loginModal');
+    bootstrap.Modal.getInstance(modalEl)?.hide();
+
+    // 刷新 Navbar（核心）
+    fetch('/Home/Navbar')
+        .then(r => r.text())
+        .then(html => {
+            document.getElementById('navbarContainer').innerHTML = html;
+
+            // Navbar 重新渲染後，重新初始化 Badge
+            initCartBadge();
+        });
+
+    // 如果是為了加購而登入，自動完成
+    if (pendingAddToCart) {
+        addToCart(pendingAddToCart.productId);
+        pendingAddToCart = null;
+    }
+}

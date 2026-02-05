@@ -29,7 +29,7 @@ namespace CraftDailyCorner.Services
                 };
 
                 await _context.Database.ExecuteSqlRawAsync(
-                    "EXEC getMemberID @DisplayName, @NewMemberID OUTPUT",
+                    "EXEC getCreatedMemberID @DisplayName, @NewMemberID OUTPUT",
                     new SqlParameter("@DisplayName", vm.DisplayName),
                     newMemberIdParam
                 );

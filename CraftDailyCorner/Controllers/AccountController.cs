@@ -28,70 +28,72 @@ namespace CraftDailyCorner.Controllers
             return View();
         }
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(VMLogin login, string? returnUrl = null)
         {
+            var user = _context.Privacies
+                .FirstOrDefault(u => u.Email == login.Account || u.Phone == login.Account);
 
-            var user = _context.Privacies.FirstOrDefault(u => u.Email == login.Account || u.Phone == login.Account);
             if (user == null)
             {
-                ViewData["ErrorMessage"] = "帳號或密碼錯誤，請重新輸入";
-                return View(login);
+                return Json(new { success = false, message = "帳號或密碼錯誤" });
             }
+
             var hasher = new PasswordHasher<Privacy>();
             var result = hasher.VerifyHashedPassword(user, user.PasswordHash, login.Password);
 
             if (result == PasswordVerificationResult.Failed)
             {
-                ViewData["ErrorMessage"] = "帳號或密碼錯誤，請重新輸入";
-                return View(login);
+                return Json(new { success = false, message = "帳號或密碼錯誤" });
             }
 
-                var roleName = (
-                    from mr in _context.MemberRoles.AsNoTracking()
-                    join r in _context.Roles.AsNoTracking() on mr.RoleID equals r.RoleID
-                    where mr.MemberID == user.MemberID
-                    orderby mr.RoleID descending
-                    select r.RoleName
-                ).FirstOrDefault() ?? "未知"; //取得最大權限的角色(orderby)
+            // 建立 Claims（你原本那段 그대로）
+            var roleName = (
+                from mr in _context.MemberRoles.AsNoTracking()
+                join r in _context.Roles.AsNoTracking()
+                    on mr.RoleID equals r.RoleID
+                where mr.MemberID == user.MemberID
+                orderby mr.RoleID descending
+                select r.RoleName
+            ).FirstOrDefault() ?? "未知";
 
-                var DisplayName = _context.Members
-                    .Where(m => m.MemberID == user.MemberID)
-                    .Select(m => m.DisplayName)
-                    .FirstOrDefault() ?? "使用者";
+            var displayName = _context.Members
+                .Where(m => m.MemberID == user.MemberID)
+                .Select(m => m.DisplayName)
+                .FirstOrDefault() ?? "使用者";
 
-                var claims = new List<Claim>
-                {
-                    new Claim(ClaimTypes.NameIdentifier, user.MemberID.ToString()),
-                    new Claim(ClaimTypes.Name,DisplayName),//會員暱稱
-                    new Claim(ClaimTypes.Role, roleName)//會員角色
-                };
-                var claimsIdentity = new ClaimsIdentity(claims, "CraftDailyCornerLogin");
-                var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
-                if (login.RememberAccount)
-                {
-                    Response.Cookies.Append(
-                        "RememberAccount",
-                        login.Account,
-                        new CookieOptions
-                        {
-                            Expires = DateTimeOffset.Now.AddDays(30),
-                            HttpOnly = true
-                        }
-                    );
-                }
-                else
-                {
-                    Response.Cookies.Delete("RememberAccount");
-                }
-                await HttpContext.SignInAsync("CraftDailyCornerLogin", claimsPrincipal);
+            var claims = new List<Claim>
+    {
+        new Claim(ClaimTypes.NameIdentifier, user.MemberID),
+        new Claim(ClaimTypes.Name, displayName),
+        new Claim(ClaimTypes.Role, roleName)
+    };
 
-            if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+            var identity = new ClaimsIdentity(claims, "CraftDailyCornerLogin");
+            var principal = new ClaimsPrincipal(identity);
+
+            if (login.RememberAccount)
             {
-                return Redirect(returnUrl);
+                Response.Cookies.Append(
+                    "RememberAccount",
+                    login.Account,
+                    new CookieOptions
+                    {
+                        Expires = DateTimeOffset.Now.AddDays(30),
+                        HttpOnly = true
+                    });
+            }
+            else
+            {
+                Response.Cookies.Delete("RememberAccount");
             }
 
-            return RedirectToAction("Index", "Home");
+            await HttpContext.SignInAsync("CraftDailyCornerLogin", principal);
+
+            // ⭐ AJAX 登入 → 回 JSON
+            return Json(new { success = true });
         }
+
         [Authorize]
         public async Task<IActionResult> Logout()
         {
