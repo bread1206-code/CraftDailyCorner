@@ -18,5 +18,7 @@ namespace CraftDailyCorner.ViewModels.Front
 
         // Mock 用
         public bool IsMockPayment { get; set; } = true;
+
+        public bool IsPaid { get; set; }
     }
 }

@@ -125,6 +125,7 @@ namespace CraftDailyCorner.Services
                 CreatedAt = order.CreatedAt,
                 TotalAmount = (int)Math.Floor(order.TotalAmount),
                 StatusText = order.OrderStatus.StatusName,
+                StatusID = order.OrderStatus.StatusID,
 
                 ReceiverName = order.ReceiverName,
                 ReceiverPhone = order.ReceiverPhone,

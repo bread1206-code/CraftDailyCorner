@@ -7,7 +7,7 @@
         public DateTime CreatedAt { get; set; }
         public int TotalAmount { get; set; }
         public string StatusText { get; set; } = null!;
-
+        public byte StatusID { get; set; }
         // 收件資訊
         public string ReceiverName { get; set; } = null!;
         public string ReceiverPhone { get; set; } = null!;

@@ -24,6 +24,10 @@ namespace CraftDailyCorner.Controllers
             if (vm == null)
                 return NotFound();
 
+            if (vm.IsPaid)
+            {
+                return RedirectToAction(nameof(Result), new { orderId });
+            }
             return View(vm);
         }
         // 送出付款（Mock）

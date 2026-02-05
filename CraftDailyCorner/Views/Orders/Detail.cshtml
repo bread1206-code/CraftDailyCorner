@@ -1,6 +1,5 @@
 ﻿@model CraftDailyCorner.ViewModels.Front.VMMyOrderDetail
 
-
 @{
     ViewData["Title"] = "訂單明細";
 
@@ -12,23 +11,40 @@
         "已完成" => 3,
         _ => 0
     };
+
+    bool isPendingPayment = Model.StatusID == 1;
 }
 
 <div class="container my-5">
 
-    <!-- 標題 -->
+    <!-- ===== 標題列 ===== -->
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h3>訂單明細</h3>
+        <h3 class="fw-bold">訂單明細</h3>
 
         <a asp-action="Index"
            class="btn btn-sm btn-outline-secondary">
             ← 返回我的訂單
         </a>
     </div>
-    <!-- 訂單狀態進度條 -->
-    <div class="card mb-4">
-        <div class="card-body">
 
+    <!-- ===== 訂單狀態 Banner ===== -->
+    <div class="alert @(isPendingPayment ? "alert-warning" : "alert-success") d-flex align-items-center mb-4 shadow-sm">
+        <i class="bi @(isPendingPayment ? "bi-exclamation-circle" : "bi-check-circle") fs-4 me-3"></i>
+        <div>
+            <div class="fw-semibold fs-6">
+                @Model.StatusText
+            </div>
+            <small class="text-muted">
+                @(isPendingPayment
+                                ? "此訂單尚未完成付款，請於下方進行付款"
+                                : "此訂單已完成付款，感謝您的購買")
+            </small>
+        </div>
+    </div>
+
+    <!-- ===== 訂單狀態進度條 ===== -->
+    <div class="card mb-4 shadow-sm">
+        <div class="card-body">
             <div class="order-progress">
                 <div class="step @(step >= 0 ? "active" : "")">
                     <div class="circle">1</div>
@@ -56,52 +72,56 @@
                     <div class="label">已完成<br /><small>完成收貨</small></div>
                 </div>
             </div>
-
         </div>
     </div>
 
+    <!-- ===== 訂單基本資訊 ===== -->
+    <div class="card mb-4 shadow-sm">
+        <div class="card-body">
+            <div class="row gy-3">
+                <div class="col-md-6">
+                    <div class="fw-semibold">訂單編號</div>
+                    <div class="text-muted">@Model.OrderID</div>
 
-    <!-- 訂單基本資訊 -->
-    <div class="card mb-4">
-    <div class="card-body">
-        <div class="row gy-3">
+                    <div class="fw-semibold mt-3">下單時間</div>
+                    <div class="text-muted">
+                        @Model.CreatedAt.ToString("yyyy/MM/dd HH:mm")
+                    </div>
 
-            <div class="col-md-6">
-                <div><strong>訂單編號</strong></div>
-                <div class="text-muted">@Model.OrderID</div>
-
-                <div class="mt-2"><strong>下單時間</strong></div>
-                <div class="text-muted">
-                    @Model.CreatedAt.ToString("yyyy/MM/dd HH:mm")
+                    <div class="fw-semibold mt-3">訂單狀態</div>
+                    <span class="badge bg-primary">
+                        @Model.StatusText
+                    </span>
                 </div>
 
-                <div class="mt-2"><strong>訂單狀態</strong></div>
-                <span class="badge bg-primary">
-                    @Model.StatusText
-                </span>
+                <div class="col-md-6">
+                    <div class="fw-semibold">收件人</div>
+                    <div class="text-muted">@Model.ReceiverName</div>
+
+                    <div class="fw-semibold mt-3">聯絡電話</div>
+                    <div class="text-muted">@Model.ReceiverPhone</div>
+
+                    <div class="fw-semibold mt-3">配送地址</div>
+                    <div class="text-muted">@Model.ShippingAddress</div>
+                </div>
             </div>
-
-            <div class="col-md-6">
-                <div><strong>收件人</strong></div>
-                <div class="text-muted">@Model.ReceiverName</div>
-
-                <div class="mt-2"><strong>聯絡電話</strong></div>
-                <div class="text-muted">@Model.ReceiverPhone</div>
-
-                <div class="mt-2"><strong>配送地址</strong></div>
-                <div class="text-muted">@Model.ShippingAddress</div>
-            </div>
-
         </div>
     </div>
-</div>
 
+    <!-- ===== 訂單總金額 ===== -->
+    <div class="card mb-4 border-0 shadow-sm">
+        <div class="card-body text-center">
+            <div class="text-muted mb-1">訂單總金額</div>
+            <div class="fs-2 fw-bold text-danger">
+                NT$ @Model.TotalAmount.ToString("N0")
+            </div>
+        </div>
+    </div>
 
-    <!-- 商品明細 -->
-    <div class="card">
+    <!-- ===== 商品明細 ===== -->
+    <div class="card mb-4 shadow-sm">
         <div class="card-body p-0">
-
-            <table class="table mb-0 align-middle">
+            <table class="table mb-0 align-middle table-hover">
                 <thead class="table-light">
                     <tr>
                         <th>商品</th>
@@ -110,63 +130,57 @@
                         <th class="text-end">小計</th>
                     </tr>
                 </thead>
-
                 <tbody>
                     @foreach (var item in Model.Items)
                     {
                         <tr>
                             <td>
-                                <div class="fw-semibold">
-                                    @item.ProductName
-                                </div>
-                                <small class="text-muted">
-                                    創作者：@item.CreatorName
-                                </small>
+                                <div class="fw-semibold">@item.ProductName</div>
+                                <small class="text-muted">創作者：@item.CreatorName</small>
                             </td>
-
-                            <td class="text-end">
-                                $@item.Price
-                            </td>
-
-                            <td class="text-end">
-                                @item.Quantity
-                            </td>
-
-                            <td class="text-end fw-semibold">
-                                $@item.SubTotal
-                            </td>
+                            <td class="text-end">$@item.Price</td>
+                            <td class="text-end">@item.Quantity</td>
+                            <td class="text-end fw-semibold">$@item.SubTotal</td>
                         </tr>
                     }
                 </tbody>
-
-                <tfoot class="table-light">
-                    <tr>
-                        <td colspan="3" class="text-end fw-semibold">
-                            總金額
-                        </td>
-                        <td class="text-end fw-semibold">
-                            $@Model.TotalAmount
-                        </td>
-                    </tr>
-                </tfoot>
             </table>
-
         </div>
     </div>
-    <!-- 前往付款（主入口） -->
-    <a asp-controller="Payment"
-       asp-action="Create"
-       asp-route-orderId="@Model.OrderID"
-       class="btn btn-primary btn-lg mb-3">
-        前往付款
-    </a>
+
+    <!-- ===== 付款主行動 ===== -->
+    @if (isPendingPayment)
+    {
+        <div class="text-center my-5">
+            <a asp-controller="Payment"
+               asp-action="Create"
+               asp-route-orderId="@Model.OrderID"
+               class="btn btn-primary btn-lg px-5 py-3 shadow">
+                <i class="bi bi-credit-card me-2"></i>
+                前往付款
+            </a>
+            <div class="text-muted small mt-2">
+                支援多種付款方式，安全快速
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-success text-center my-5 shadow-sm">
+            <i class="bi bi-check-circle-fill fs-3 me-2"></i>
+            此訂單已完成付款
+        </div>
+    }
+
+    <!-- ===== 客服資訊 ===== -->
     <div class="alert alert-light mt-4">
         <div class="fw-semibold mb-1">訂單有問題？</div>
         <small class="text-muted">
             若您對訂單內容或配送狀態有任何疑問，請聯絡客服：
-            <a href="mailto:support@craftdailycorner.com">
+            <a href="#">
                 support@craftdailycorner.com
             </a>
         </small>
     </div>
+
 </div>
