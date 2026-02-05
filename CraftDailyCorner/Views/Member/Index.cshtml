@@ -1,0 +1,116 @@
+﻿@model CraftDailyCorner.ViewModels.Front.VMMemberDashboard
+
+@{
+    ViewData["Title"] = "會員中心";
+
+    string avatarUrl = string.IsNullOrEmpty(Model.ImageUrl)
+        ? "/Photos/01Member/Medium//default.png"
+        : $"/Photos/01Member/Medium/{Model.ImageUrl}";
+}
+
+<div class="container my-5">
+
+    <!-- ===== 會員識別區（頭像＋暱稱） ===== -->
+    <div class="card shadow-sm border-0 mb-5">
+        <div class="card-body d-flex align-items-center gap-4">
+
+            <img src="@avatarUrl"
+                 alt="會員頭像"
+                 class="rounded-circle border"
+                 style="width:96px;height:96px;object-fit:cover;" />
+
+            <div>
+                <h4 class="fw-bold mb-1">
+                    @Model.DisplayName
+                </h4>
+
+                <div class="text-muted small">
+                    會員註冊時間：@Model.CreatedAt.ToString("yyyy/MM/dd")
+                </div>
+
+                <a asp-action="Profile"
+                   class="btn btn-sm btn-outline-secondary mt-2">
+                    編輯個人資料
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!--  統計卡片  -->
+    <div class="row g-4 mb-5">
+
+        <!-- 我的訂單 -->
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-body text-center">
+                    <div class="mb-2">
+                        <i class="bi bi-box-seam fs-1 text-primary"></i>
+                    </div>
+                    <div class="fs-4 fw-semibold">
+                        我的訂單
+                    </div>
+                    <div class="fs-2 fw-bold">
+                        @Model.OrderCount
+                    </div>
+                </div>
+                <div class="card-footer bg-transparent border-0 text-center">
+                    <a asp-controller="Orders"
+                       asp-action="Index"
+                       class="btn btn-outline-primary btn-sm fs-5">
+                        查看訂單
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- 待付款 -->
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-body text-center">
+                    <div class="mb-2">
+                        <i class="bi bi-credit-card fs-1 text-warning"></i>
+                    </div>
+                    <div class="fs-4 fw-semibold">
+                        待付款訂單
+                    </div>
+                    <div class="fs-2 fw-bold text-warning">
+                        @Model.PendingPaymentCount
+                    </div>
+                </div>
+                <div class="card-footer bg-transparent border-0 text-center">
+                    <a asp-controller="Orders"
+                       asp-action="Index"
+                       class="btn btn-outline-warning btn-sm fs-5">
+                        前往付款
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- 已完成 -->
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-body text-center">
+                    <div class="mb-2">
+                        <i class="bi bi-check-circle fs-1 text-success"></i>
+                    </div>
+                    <div class="fs-4 fw-semibold">
+                        已完成訂單
+                    </div>
+                    <div class="fs-2 fw-bold text-success">
+                        @Model.CompletedOrderCount
+                    </div>
+                </div>
+                <div class="card-footer bg-transparent border-0 text-center">
+                    <a asp-controller="Orders"
+                       asp-action="Index"
+                       class="btn btn-outline-success btn-sm fs-5">
+                        查看紀錄
+                    </a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>

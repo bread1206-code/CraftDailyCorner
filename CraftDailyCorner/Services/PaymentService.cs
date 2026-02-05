@@ -150,33 +150,34 @@ namespace CraftDailyCorner.Services
             }
         }
 
-        
+
         // 查詢訂單付款紀錄
-        public List<VMPaymentRecord> GetPaymentsByOrder(string orderId)
+        public List<VMPaymentIndexItem> GetMyPayments(string memberId)
         {
-            if (string.IsNullOrEmpty(orderId))
-                return new List<VMPaymentRecord>();
-
+            if (string.IsNullOrEmpty(memberId))
+                return new List<VMPaymentIndexItem>();
             return _context.Payments
-                .Where(p => p.OrderID == orderId)
-                .Include(p => p.PaymentStatus)
+                .Include(p => p.Order)
                 .Include(p => p.PaymentMethod)
-                .OrderBy(p => p.AttemptNo)
-                .Select(p => new VMPaymentRecord
+                .Include(p => p.PaymentStatus)
+                .Where(p => p.Order.MemberID == memberId)
+                .OrderByDescending(p => p.CreatedAt)
+                .Select(p => new VMPaymentIndexItem
                 {
-                    PaymentID = p.PaymentID,
+                    OrderID = p.OrderID,
                     Amount = p.Amount,
-                    AttemptNo = p.AttemptNo,
-
-                    StatusID = p.StatusID,
-                    StatusName = p.PaymentStatus.StatusName,
-
                     MethodName = p.PaymentMethod.MethodName,
-
+                    StatusName = p.PaymentStatus.StatusName,
                     CreatedAt = p.CreatedAt,
                     PaidAt = p.PaidAt
                 })
                 .ToList();
         }
+
+        public List<VMPaymentRecord> GetPaymentsByOrder(string orderId)
+        {
+            throw new NotImplementedException();
+        }
+
     }
 }

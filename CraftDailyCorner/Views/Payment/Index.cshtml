@@ -1,0 +1,100 @@
+﻿@model List<CraftDailyCorner.ViewModels.Front.VMPaymentIndexItem>
+
+@{
+    ViewData["Title"] = "付款紀錄";
+}
+
+<div class="container my-5">
+
+    <!-- 標題 -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="fw-bold">付款紀錄</h3>
+
+        <a asp-controller="Member"
+           asp-action="Index"
+           class="btn btn-sm btn-outline-secondary">
+            ← 返回會員中心
+        </a>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info">
+            目前尚無付款紀錄
+        </div>
+    }
+    else
+    {
+        <div class="card shadow-sm">
+            <div class="card-body p-0">
+
+                <table class="table mb-0 align-middle table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>訂單編號</th>
+                            <th>付款方式</th>
+                            <th class="text-end">金額</th>
+                            <th>狀態</th>
+                            <th>建立時間</th>
+                            <th>付款時間</th>
+                            <th class="text-end">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var p in Model)
+                        {
+                            <tr>
+                                <td class="fw-semibold">
+                                    @p.OrderID
+                                </td>
+
+                                <td>
+                                    @p.MethodName
+                                </td>
+
+                                <td class="text-end">
+                                    NT$ @p.Amount.ToString("N0")
+                                </td>
+
+                                <td>
+                                    @if (p.PaidAt.HasValue)
+                                    {
+                                        <span class="badge bg-success">
+                                            @p.StatusName
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary">
+                                            @p.StatusName
+                                        </span>
+                                    }
+                            </td>
+
+                            <td>
+                                @p.CreatedAt.ToString("yyyy/MM/dd HH:mm")
+                            </td>
+
+                            <td>
+                                @(p.PaidAt.HasValue
+                                                            ? p.PaidAt.Value.ToString("yyyy/MM/dd HH:mm")
+                                                            : "-")
+                                </td>
+
+                                <td class="text-end">
+                                    <a asp-controller="Orders"
+                                       asp-action="Detail"
+                                       asp-route-orderId="@p.OrderID"
+                                       class="btn btn-sm btn-outline-primary">
+                                        查看訂單
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+
+            </div>
+        </div>
+    }
+</div>

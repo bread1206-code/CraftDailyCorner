@@ -1,6 +1,9 @@
-﻿using CraftDailyCorner.Services.Interface;
+﻿using CraftDailyCorner.Services;
+using CraftDailyCorner.Services.Interface;
 using CraftDailyCorner.ViewModels.Front;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace CraftDailyCorner.Controllers
 {
@@ -12,8 +15,23 @@ namespace CraftDailyCorner.Controllers
         {
             _paymentService = paymentService;
         }
-        // 顯示付款頁
-        [HttpGet]
+
+        
+
+    [Authorize]
+    public IActionResult Index()
+    {
+        var memberId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        if (string.IsNullOrEmpty(memberId))
+            return Unauthorized();
+
+        var payments = _paymentService.GetMyPayments(memberId);
+
+        return View(payments);
+    }
+    // 顯示付款頁
+    [HttpGet]
         public IActionResult Create(string orderId)
         {
             if (string.IsNullOrEmpty(orderId))

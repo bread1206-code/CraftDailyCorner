@@ -73,6 +73,7 @@ builder.Services.AddScoped<MemberService>();
 builder.Services.AddScoped<CartService>();
 builder.Services.AddScoped<PriceService>();
 builder.Services.AddScoped<OrderService>();
+builder.Services.AddScoped<MemberCenterService>();
 builder.Services.AddScoped<IPaymentService, PaymentService>();
 builder.Services.AddSession();
 builder.Services.AddHttpContextAccessor();

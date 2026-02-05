@@ -10,5 +10,6 @@ namespace CraftDailyCorner.Services.Interface
         VMPaymentCreate PreparePayment(string orderId);
         //訂單詳情顯示
         List<VMPaymentRecord> GetPaymentsByOrder(string orderId);
+        List<VMPaymentIndexItem> GetMyPayments(string memberId);
     }
 }

@@ -1,0 +1,90 @@
+﻿@model CraftDailyCorner.ViewModels.Front.VMEditProfile
+
+@{
+    ViewData["Title"] = "個人資料";
+
+    string avatarUrl = string.IsNullOrEmpty(Model.ImageUrl)
+        ? "/images/avatar-default.png"
+        : $"/Photos/MemberAvatar/{Model.ImageUrl}";
+}
+
+<div class="container my-5">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="fw-bold">個人資料</h3>
+
+        <a asp-action="Index"
+           class="btn btn-sm btn-outline-secondary">
+            ← 返回會員中心
+        </a>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success">
+            @TempData["Success"]
+        </div>
+    }
+
+    <div class="card shadow-sm border-0">
+        <div class="card-body">
+
+            <form asp-action="Profile"
+                  method="post"
+                  enctype="multipart/form-data">
+
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="MemberID" />
+                <input type="hidden" asp-for="ImageUrl" />
+
+                <!--  頭像  -->
+                <div class="mb-4 text-center">
+                    <img src="@avatarUrl"
+                         class="rounded-circle border mb-3"
+                         style="width:120px;height:120px;object-fit:cover;" />
+
+                    <div>
+                        <input asp-for="AvatarFile"
+                               type="file"
+                               class="form-control"
+                               accept="image/*" />
+                        <small class="text-muted">
+                            建議尺寸 1:1，JPG / PNG
+                        </small>
+                    </div>
+                </div>
+
+                <!--  顯示名稱  -->
+                <div class="mb-3">
+                    <label asp-for="DisplayName" class="form-label"></label>
+                    <input asp-for="DisplayName" class="form-control" />
+                    <span asp-validation-for="DisplayName"
+                          class="text-danger"></span>
+                </div>
+                <div class="mb-3">
+                    <label asp-for="Email" class="form-label"></label>
+                    <input asp-for="Email" class="form-control" />
+                    <span asp-validation-for="Email" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Phone" class="form-label"></label>
+                    <input asp-for="Phone" class="form-control" />
+                    <span asp-validation-for="Phone" class="text-danger"></span>
+                </div>
+                <div class="text-end">
+                    <button type="submit"
+                            class="btn btn-primary px-4">
+                        儲存變更
+                    </button>
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
