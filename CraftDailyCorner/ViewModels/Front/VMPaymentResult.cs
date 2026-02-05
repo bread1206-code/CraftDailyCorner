@@ -4,7 +4,6 @@
     public class VMPaymentResult
     {
         public string OrderID { get; set; }
-        public string OrderNo { get; set; }
 
         public decimal Amount { get; set; }
         public string PaymentMethodName { get; set; }

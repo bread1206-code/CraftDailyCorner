@@ -10,7 +10,6 @@ namespace CraftDailyCorner.ViewModels.Front
         public decimal OrderAmount { get; set; }
 
         // 顯示用
-        public string OrderNo { get; set; }
         public DateTime OrderCreatedAt { get; set; }
 
         // 付款方式

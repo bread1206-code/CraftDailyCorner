@@ -153,6 +153,13 @@
 
         </div>
     </div>
+    <!-- 前往付款（主入口） -->
+    <a asp-controller="Payment"
+       asp-action="Create"
+       asp-route-orderId="@Model.OrderID"
+       class="btn btn-primary btn-lg mb-3">
+        前往付款
+    </a>
     <div class="alert alert-light mt-4">
         <div class="fw-semibold mb-1">訂單有問題？</div>
         <small class="text-muted">

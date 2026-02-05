@@ -27,7 +27,7 @@ namespace CraftDailyCorner.Models
         public byte AttemptNo { get; set; }
 
         [Display(Name = "付款完成時間")]
-        public DateTime PaidAt { get; set; }
+        public DateTime? PaidAt { get; set; }
 
         [Display(Name = "建立時間")]
         public DateTime CreatedAt { get; set; }

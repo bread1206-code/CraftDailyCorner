@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CraftDailyCorner.Migrations
 {
     [DbContext(typeof(CraftDailyCornerContext))]
-    [Migration("20260205000658_InitialCreate")]
+    [Migration("20260205060439_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -955,7 +955,7 @@ namespace CraftDailyCorner.Migrations
                         .HasMaxLength(12)
                         .HasColumnType("nchar(12)");
 
-                    b.Property<DateTime>("PaidAt")
+                    b.Property<DateTime?>("PaidAt")
                         .HasColumnType("datetime2");
 
                     b.Property<byte>("StatusID")

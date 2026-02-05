@@ -1,0 +1,61 @@
+﻿@model CraftDailyCorner.ViewModels.Front.VMPaymentResult
+
+@{
+    ViewData["Title"] = "付款結果";
+    bool isSuccess = Model.PaidAt.HasValue;
+}
+
+<div class="container mt-5 text-center">
+
+    @if (isSuccess)
+    {
+        <div class="mb-4">
+            <i class="bi bi-check-circle-fill text-success fs-1"></i>
+        </div>
+        <h2 class="text-success mb-3">付款成功</h2>
+    }
+    else
+    {
+        <div class="mb-4">
+            <i class="bi bi-x-circle-fill text-danger fs-1"></i>
+        </div>
+        <h2 class="text-danger mb-3">付款失敗</h2>
+    }
+
+    <p class="mb-2">
+        <strong>訂單編號：</strong>@Model.OrderID
+    </p>
+
+    <p class="mb-2">
+        <strong>付款金額：</strong>
+        NT$ @Model.Amount.ToString("N0")
+    </p>
+
+    @if (Model.PaidAt.HasValue)
+    {
+        <p class="mb-4">
+            <strong>付款時間：</strong>
+            @Model.PaidAt.Value.ToString("yyyy/MM/dd HH:mm")
+        </p>
+    }
+
+    <p class="mb-4">@Model.Message</p>
+
+    <div class="d-flex justify-content-center gap-2">
+        <a asp-controller="Order"
+           asp-action="Detail"
+           asp-route-orderId="@Model.OrderID"
+           class="btn btn-outline-primary">
+            查看訂單
+        </a>
+
+        @if (!isSuccess)
+        {
+            <a asp-action="Create"
+               asp-route-orderId="@Model.OrderID"
+               class="btn btn-primary">
+                重新付款
+            </a>
+        }
+    </div>
+</div>

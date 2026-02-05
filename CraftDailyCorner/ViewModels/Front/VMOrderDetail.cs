@@ -3,7 +3,7 @@
     //訂單完成頁 / 訂單查詢頁
     public class VMOrderDetail
     {
-        public string OrderNumber { get; set; } = null!;
+        public string OrderID { get; set; } = null!;
         public DateTime OrderDate { get; set; }
 
         public string ReceiverName { get; set; } = null!;

@@ -823,7 +823,7 @@ namespace CraftDailyCorner.Migrations
                     StatusID = table.Column<byte>(type: "tinyint", nullable: false),
                     GatewayTradeNo = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     AttemptNo = table.Column<byte>(type: "tinyint", nullable: false),
-                    PaidAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    PaidAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     OrderID = table.Column<string>(type: "nchar(12)", maxLength: 12, nullable: false)
                 },

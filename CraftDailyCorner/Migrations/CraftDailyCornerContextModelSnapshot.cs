@@ -952,7 +952,7 @@ namespace CraftDailyCorner.Migrations
                         .HasMaxLength(12)
                         .HasColumnType("nchar(12)");
 
-                    b.Property<DateTime>("PaidAt")
+                    b.Property<DateTime?>("PaidAt")
                         .HasColumnType("datetime2");
 
                     b.Property<byte>("StatusID")
