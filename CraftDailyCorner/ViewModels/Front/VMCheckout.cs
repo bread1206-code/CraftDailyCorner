@@ -15,7 +15,7 @@ namespace CraftDailyCorner.ViewModels.Front
         [Required(ErrorMessage ="請輸入收件人姓名")]
         [Display(Name ="收件人姓名")]
         public string ReceiverName { get; set; } =null!;
-        [StringLength(10, MinimumLength = 10)]
+        [StringLength(10, MinimumLength = 10,ErrorMessage ="手機號碼格式錯誤")]
         [Required(ErrorMessage ="請輸入收件人手機號碼")]
         [Display(Name ="收件人手機號碼")]
         public string ReceiverPhone { get; set; } = null!;

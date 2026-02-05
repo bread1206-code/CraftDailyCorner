@@ -55,7 +55,7 @@ namespace CraftDailyCorner.Services
                     MemberID = newMemberId,
                     Email = vm.Email,
                     Phone = vm.Phone,
-                    Gender = vm.Gender,
+                    Gender = vm.Gender!.Value,
                     PasswordHash = hasher.HashPassword(null!, vm.Password)
                 };
 

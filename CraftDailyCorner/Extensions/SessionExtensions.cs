@@ -3,6 +3,7 @@ using System.Text.Json;
 
 namespace CraftDailyCorner.Extensions
 {
+    //暫時不使用此文件 2026/2/5
     //Session 伺服器幫每個使用者暫時記住資料的小抽屜
     public static class SessionExtensions
     {

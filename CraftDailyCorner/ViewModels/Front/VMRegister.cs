@@ -38,7 +38,7 @@ namespace CraftDailyCorner.ViewModels.Front
 
         [Display(Name = "性別")]
         [Required(ErrorMessage = "請選擇性別")]
-        public PrivacyGender Gender { get; set; }
+        public PrivacyGender? Gender { get; set; }
 
 
     }

@@ -27,6 +27,7 @@ namespace CraftDailyCorner.Controllers
             ViewData["ReturnUrl"] = returnUrl;
             return View();
         }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(VMLogin login, string? returnUrl = null)
@@ -35,43 +36,18 @@ namespace CraftDailyCorner.Controllers
                 .FirstOrDefault(u => u.Email == login.Account || u.Phone == login.Account);
 
             if (user == null)
-            {
                 return Json(new { success = false, message = "帳號或密碼錯誤" });
-            }
 
             var hasher = new PasswordHasher<Privacy>();
             var result = hasher.VerifyHashedPassword(user, user.PasswordHash, login.Password);
 
             if (result == PasswordVerificationResult.Failed)
-            {
                 return Json(new { success = false, message = "帳號或密碼錯誤" });
-            }
 
-            // 建立 Claims（你原本那段 그대로）
-            var roleName = (
-                from mr in _context.MemberRoles.AsNoTracking()
-                join r in _context.Roles.AsNoTracking()
-                    on mr.RoleID equals r.RoleID
-                where mr.MemberID == user.MemberID
-                orderby mr.RoleID descending
-                select r.RoleName
-            ).FirstOrDefault() ?? "未知";
+            // ⭐ 一行搞定登入
+            await SignInMemberAsync(user.MemberID);
 
-            var displayName = _context.Members
-                .Where(m => m.MemberID == user.MemberID)
-                .Select(m => m.DisplayName)
-                .FirstOrDefault() ?? "使用者";
-
-            var claims = new List<Claim>
-    {
-        new Claim(ClaimTypes.NameIdentifier, user.MemberID),
-        new Claim(ClaimTypes.Name, displayName),
-        new Claim(ClaimTypes.Role, roleName)
-    };
-
-            var identity = new ClaimsIdentity(claims, "CraftDailyCornerLogin");
-            var principal = new ClaimsPrincipal(identity);
-
+            // RememberAccount 邏輯保留
             if (login.RememberAccount)
             {
                 Response.Cookies.Append(
@@ -88,9 +64,6 @@ namespace CraftDailyCorner.Controllers
                 Response.Cookies.Delete("RememberAccount");
             }
 
-            await HttpContext.SignInAsync("CraftDailyCornerLogin", principal);
-
-            // ⭐ AJAX 登入 → 回 JSON
             return Json(new { success = true });
         }
 
@@ -109,23 +82,46 @@ namespace CraftDailyCorner.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Register(VMRegister vm)
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Register(VMRegister model)
         {
-            // 1. 伺服器端驗證
             if (!ModelState.IsValid)
-                return View(vm);
-            // 2. 檢查 Email 或 Phone 是否已存在
-            if (_context.Privacies.Any(p => p.Email == vm.Email || p.Phone == vm.Phone))
             {
-                ModelState.AddModelError("", "Email 或手機號碼已註冊");
-                return View(vm);
+                var errors = ModelState
+                    .Where(x => x.Value!.Errors.Any())
+                    .ToDictionary(
+                        k => k.Key,
+                        v => v.Value!.Errors.First().ErrorMessage
+                    );
+
+                return Json(new { success = false, errors });
             }
-            // 3. 呼叫 MemberService 進行註冊
-            string newMemberId = await _memberService.RegisterMemberAsync(vm);
 
-            TempData["SuccessMessage"] = "註冊成功！請登入";
+            if (_context.Privacies.Any(p => p.Email == model.Email))
+            {
+                return Json(new
+                {
+                    success = false,
+                    errors = new { Email = "此 Email 已被註冊" }
+                });
+            }
 
-            return RedirectToAction( "Login","Account");
+            if (_context.Privacies.Any(p => p.Phone == model.Phone))
+            {
+                return Json(new
+                {
+                    success = false,
+                    errors = new { Phone = "此手機號碼已被註冊" }
+                });
+            }
+
+            // 建立會員
+            string newMemberId = await _memberService.RegisterMemberAsync(model);
+
+            // 自動登入
+            await SignInMemberAsync(newMemberId);
+
+            return Json(new { success = true });
         }
 
         //忘記密碼
@@ -217,5 +213,38 @@ namespace CraftDailyCorner.Controllers
             TempData["Message"] = "密碼已重設成功，請重新登入";
             return RedirectToAction("Login");
         }
+        private async Task SignInMemberAsync(string memberId)
+        {
+            // 1️ 取得顯示名稱
+            var displayName = _context.Members
+                .Where(m => m.MemberID == memberId)
+                .Select(m => m.DisplayName)
+                .FirstOrDefault() ?? "使用者";
+
+            // 2️ 取得角色
+            var roleName = (
+                from mr in _context.MemberRoles.AsNoTracking()
+                join r in _context.Roles.AsNoTracking()
+                    on mr.RoleID equals r.RoleID
+                where mr.MemberID == memberId
+                orderby mr.RoleID descending
+                select r.RoleName
+            ).FirstOrDefault() ?? "Member";
+
+            // 3️ 建立 Claims
+            var claims = new List<Claim>
+    {
+        new Claim(ClaimTypes.NameIdentifier, memberId),
+        new Claim(ClaimTypes.Name, displayName),
+        new Claim(ClaimTypes.Role, roleName)
+    };
+
+            // 4️ 登入
+            var identity = new ClaimsIdentity(claims, "CraftDailyCornerLogin");
+            var principal = new ClaimsPrincipal(identity);
+
+            await HttpContext.SignInAsync("CraftDailyCornerLogin", principal);
+        }
+
     }
 }

@@ -88,3 +88,86 @@ function showLoginError(msg) {
     el.textContent = msg;
     el.classList.remove('d-none');
 }
+//註冊Ajax版本
+function ajaxRegister() {
+    const form = document.getElementById('registerForm');
+    const formData = new FormData(form);
+
+    fetch('/Account/Register', {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+        .then(r => r.json())
+        .then(res => {
+            if (!res.success) {
+                showRegisterError(res.message);
+                return;
+            }
+
+            // 註冊成功 = 已登入
+            onLoginSuccess();
+        })
+        .catch(() => {
+            showRegisterError('系統錯誤，請稍後再試');
+        });
+}
+
+function showRegisterError(msg) {
+    const el = document.getElementById('registerError');
+    el.textContent = msg;
+    el.classList.remove('d-none');
+}
+function ajaxRegister() {
+    const form = document.getElementById('registerForm');
+    const formData = new FormData(form);
+
+    fetch('/Account/Register', {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+        .then(r => r.json())
+        .then(res => {
+            clearRegisterErrors();
+
+            if (!res.success) {
+                showRegisterErrors(res.errors);
+                return;
+            }
+
+            // ⭐ 註冊成功 = 已登入
+            onLoginSuccess();
+        });
+}
+
+function showRegisterErrors(errors) {
+    for (const key in errors) {
+        const span = document.querySelector(
+            `#registerForm span[data-valmsg-for="${key}"]`
+        );
+        if (span) {
+            span.textContent = errors[key];
+        }
+    }
+}
+
+function clearRegisterErrors() {
+    document
+        .querySelectorAll('#registerForm span[data-valmsg-for]')
+        .forEach(s => s.textContent = '');
+}
+function switchToRegister() {
+    // Bootstrap Tab 切換
+    const registerTabBtn = document.querySelector(
+        '[data-bs-target="#registerTab"]'
+    );
+
+    if (!registerTabBtn) return;
+
+    bootstrap.Tab.getOrCreateInstance(registerTabBtn).show();
+}

@@ -1,0 +1,75 @@
+﻿@model CraftDailyCorner.ViewModels.Front.VMRegister
+
+<form id="registerForm">
+    @Html.AntiForgeryToken()
+
+    <!-- 顯示整體錯誤（非欄位） -->
+    <div id="registerGlobalError"
+         class="alert alert-danger d-none"></div>
+
+    <!-- 暱稱 -->
+    <div class="mb-3">
+        <label asp-for="DisplayName" class="form-label"></label>
+        <input asp-for="DisplayName" class="form-control" />
+        <span class="text-danger"
+              data-valmsg-for="DisplayName"></span>
+    </div>
+
+    <!-- Email -->
+    <div class="mb-3">
+        <label asp-for="Email" class="form-label"></label>
+        <input asp-for="Email" class="form-control" />
+        <span class="text-danger"
+              data-valmsg-for="Email"></span>
+    </div>
+
+    <!-- 手機 -->
+    <div class="mb-3">
+        <label asp-for="Phone" class="form-label"></label>
+        <input asp-for="Phone" class="form-control" />
+        <span class="text-danger"
+              data-valmsg-for="Phone"></span>
+    </div>
+
+    <!-- 性別 -->
+    <div class="mb-3">
+        <label asp-for="Gender" class="form-label"></label>
+        <select asp-for="Gender" class="form-select">
+            <option value="" selected>-- 請選擇 --</option>
+            <option value="Male">男</option>
+            <option value="Female">女</option>
+            <option value="Other">其他</option>
+        </select>
+        <span class="text-danger"
+              data-valmsg-for="Gender"></span>
+    </div>
+
+    <!-- 密碼 -->
+    <div class="mb-3">
+        <label asp-for="Password" class="form-label"></label>
+        <input asp-for="Password"
+               type="password"
+               class="form-control" />
+        <span class="text-danger"
+              data-valmsg-for="Password"></span>
+    </div>
+
+    <!-- 確認密碼 -->
+    <div class="mb-3">
+        <label asp-for="ConfirmPassword" class="form-label"></label>
+        <input asp-for="ConfirmPassword"
+               type="password"
+               class="form-control" />
+        <span class="text-danger"
+              data-valmsg-for="ConfirmPassword"></span>
+    </div>
+
+    <!-- ⭐ 注意：不是 submit -->
+    <div class="d-grid">
+        <button type="button"
+                class="btn btn-success"
+                onclick="ajaxRegister()">
+            註冊並登入
+        </button>
+    </div>
+</form>

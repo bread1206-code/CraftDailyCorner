@@ -30,7 +30,33 @@
                                 data-bs-dismiss="modal"></button>
                     </div>
                     <div class="modal-body">
-                        @await Html.PartialAsync("_LoginPartial", new VMLogin())
+                        @* @await Html.PartialAsync("_LoginPartial", new VMLogin()) *@
+                        <ul class="nav nav-tabs mb-3">
+                            <li class="nav-item">
+                                <button class="nav-link active"
+                                        data-bs-toggle="tab"
+                                        data-bs-target="#loginTab">
+                                    登入
+                                </button>
+                            </li>
+                            <li class="nav-item">
+                                <button class="nav-link"
+                                        data-bs-toggle="tab"
+                                        data-bs-target="#registerTab">
+                                    註冊
+                                </button>
+                            </li>
+                        </ul>
+
+                        <!-- Tab Content -->
+                        <div class="tab-content">
+                            <div class="tab-pane fade show active" id="loginTab">
+                                @await Html.PartialAsync("_LoginPartial", new VMLogin())
+                            </div>
+                            <div class="tab-pane fade" id="registerTab">
+                                @await Html.PartialAsync("_RegisterPartial", new VMRegister())
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
