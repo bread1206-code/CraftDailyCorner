@@ -176,7 +176,27 @@ namespace CraftDailyCorner.Services
 
         public List<VMPaymentRecord> GetPaymentsByOrder(string orderId)
         {
-            throw new NotImplementedException();
+            if (string.IsNullOrEmpty(orderId))
+                return new List<VMPaymentRecord>();
+
+            return _context.Payments
+                .AsNoTracking()
+                .Include(p => p.PaymentMethod)
+                .Include(p => p.PaymentStatus)
+                .Where(p => p.OrderID == orderId)
+                .OrderByDescending(p => p.CreatedAt)
+                .Select(p => new VMPaymentRecord
+                {
+                    PaymentID = p.PaymentID,
+                    Amount = p.Amount,
+                    AttemptNo = p.AttemptNo,
+                    StatusID = p.StatusID,
+                    StatusName = p.PaymentStatus.StatusName,
+                    MethodName = p.PaymentMethod.MethodName,
+                    CreatedAt = p.CreatedAt,
+                    PaidAt = p.PaidAt
+                })
+                .ToList();
         }
 
     }
