@@ -169,6 +169,7 @@ namespace CraftDailyCorner.Services
                     MethodName = p.PaymentMethod.MethodName,
                     StatusName = p.PaymentStatus.StatusName,
                     CreatedAt = p.CreatedAt,
+
                     PaidAt = p.PaidAt
                 })
                 .ToList();
