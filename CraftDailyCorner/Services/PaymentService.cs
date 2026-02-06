@@ -84,7 +84,7 @@ namespace CraftDailyCorner.Services
                 if (paidOrderStatusId == 0 || pendingOrderStatusId == 0)
                     throw new Exception("OrderStatus 設定不完整");
 
-                // 🚫 已付款訂單禁止再次付款（最重要）
+                // 已付款訂單禁止再次付款（最重要）
                 if (order.StatusID == paidOrderStatusId)
                     throw new Exception("此訂單已完成付款，請勿重複付款");
 
@@ -116,7 +116,7 @@ namespace CraftDailyCorner.Services
                     MethodID = vm.MethodID,
                     AttemptNo = (byte)attemptNo,
                     StatusID = isSuccess ? paidPaymentStatusId : failedPaymentStatusId,
-                    GatewayTradeNo = $"MOCK-{Guid.NewGuid():N}",
+                    GatewayTradeNo = $"MOCK-{Guid.NewGuid():N}",//模擬第三方交易編號
                     CreatedAt = DateTime.Now,
                     PaidAt = isSuccess ? DateTime.Now : null
                 };

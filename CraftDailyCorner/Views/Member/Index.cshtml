@@ -38,8 +38,31 @@
 
     <!--  統計卡片  -->
     <div class="row g-4 mb-5">
-
-        <!-- 我的訂單 -->
+        <!-- 待付款 -->
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-body text-center">
+                    <div class="mb-2">
+                        <i class="bi bi-credit-card fs-1 text-danger"></i>
+                    </div>
+                    <div class="fs-4 fw-semibold">
+                        待付款訂單
+                    </div>
+                    <div class="fs-2 fw-bold text-danger">
+                        @Model.PendingPaymentCount
+                    </div>
+                </div>
+                <div class="card-footer bg-transparent border-0 text-center">
+                    <a asp-controller="Orders"
+                       asp-action="Index"
+                       asp-route-statusCode="padding"
+                       class="btn btn-outline-danger btn-sm fs-5">
+                        前往付款
+                    </a>
+                </div>
+            </div>
+        </div>
+        <!-- 進行中的訂單 -->
         <div class="col-md-4">
             <div class="card h-100 shadow-sm border-0">
                 <div class="card-body text-center">
@@ -47,7 +70,7 @@
                         <i class="bi bi-box-seam fs-1 text-primary"></i>
                     </div>
                     <div class="fs-4 fw-semibold">
-                        我的訂單
+                        進行中的訂單
                     </div>
                     <div class="fs-2 fw-bold">
                         @Model.OrderCount
@@ -56,38 +79,14 @@
                 <div class="card-footer bg-transparent border-0 text-center">
                     <a asp-controller="Orders"
                        asp-action="Index"
+                       asp-route-statusCode="processing"
                        class="btn btn-outline-primary btn-sm fs-5">
                         查看訂單
                     </a>
                 </div>
             </div>
         </div>
-
-        <!-- 待付款 -->
-        <div class="col-md-4">
-            <div class="card h-100 shadow-sm border-0">
-                <div class="card-body text-center">
-                    <div class="mb-2">
-                        <i class="bi bi-credit-card fs-1 text-warning"></i>
-                    </div>
-                    <div class="fs-4 fw-semibold">
-                        待付款訂單
-                    </div>
-                    <div class="fs-2 fw-bold text-warning">
-                        @Model.PendingPaymentCount
-                    </div>
-                </div>
-                <div class="card-footer bg-transparent border-0 text-center">
-                    <a asp-controller="Orders"
-                       asp-action="Index"
-                       class="btn btn-outline-warning btn-sm fs-5">
-                        前往付款
-                    </a>
-                </div>
-            </div>
-        </div>
-
-        <!-- 已完成 -->
+        <!-- 我的訂單紀錄 -->
         <div class="col-md-4">
             <div class="card h-100 shadow-sm border-0">
                 <div class="card-body text-center">
@@ -98,13 +97,83 @@
                         我的訂單紀錄
                     </div>
                     <div class="fs-2 fw-bold text-success">
-                        @Model.CompletedOrderCount
+                        @Model.AllOrderCount
                     </div>
                 </div>
                 <div class="card-footer bg-transparent border-0 text-center">
                     <a asp-controller="Orders"
                        asp-action="Index"
+                       asp-route-statusCode=""
                        class="btn btn-outline-success btn-sm fs-5">
+                        查看紀錄
+                    </a>
+                </div>
+            </div>
+        </div>
+        <!-- 我的追蹤 -->
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-body text-center">
+                    <div class="mb-2">
+                        <i class="bi bi-bookmark-heart fs-1 text-purple"></i>
+                    </div>
+                    <div class="fs-4 fw-semibold">
+                        我追蹤的創作者
+                    </div>
+                    <div class="fs-2 fw-bold text-purple">
+                        @* @Model.FollowingCount *@
+                    </div>
+                </div>
+                <div class="card-footer bg-transparent border-0 text-center">
+                    <a asp-controller="Follows"
+                       asp-action="Index"
+                       class="btn btn-outline-purple btn-sm fs-5">
+                        查看追蹤
+                    </a>
+                </div>
+            </div>
+        </div>
+        <!-- 我的收藏 -->
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-body text-center">
+                    <div class="mb-2">
+                        <i class="bi bi-box2-heart fs-1 text-danger"></i>
+                    </div>
+                    <div class="fs-4 fw-semibold">
+                        我收藏的商品
+                    </div>
+                    <div class="fs-2 fw-bold text-danger">
+                        @* @Model.FavoriteCount *@
+                    </div>
+                </div>
+                <div class="card-footer bg-transparent border-0 text-center">
+                    <a asp-controller="Favorites"
+                       asp-action="Index"
+                       class="btn btn-outline-danger btn-sm fs-5">
+                        查看收藏
+                    </a>
+                </div>
+            </div>
+        </div>
+        <!-- 付款紀錄 -->
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-body text-center">
+                    <div class="mb-2">
+                        <i class="bi bi-clock-history fs-1 text-secondary"></i>
+                    </div>
+                    <div class="fs-4 fw-semibold">
+                        付款紀錄
+                    </div>
+                    <div class="fs-2 fw-bold text-secondary">
+                        @Model.PaymentCount
+                    </div>
+                </div>
+                <div class="card-footer bg-transparent border-0 text-center">
+                    <a asp-controller="Payment"
+                       asp-action="Index"
+                       class="btn btn-outline-secondary btn-sm fs-5">
                         查看紀錄
                     </a>
                 </div>

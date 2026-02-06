@@ -1,15 +1,23 @@
 ﻿namespace CraftDailyCorner.ViewModels.Front
 {
-    //會員中心首頁
+    // 會員中心首頁
     public class VMMemberDashboard
     {
+        // 會員識別 
         public string DisplayName { get; set; } = null!;
-        public string Email { get; set; } = null!;
         public string ImageUrl { get; set; } = null!;
         public DateTime CreatedAt { get; set; }
 
-        public int OrderCount { get; set; }
-        public int PendingPaymentCount { get; set; }
-        public int CompletedOrderCount { get; set; }
+        // 訂單相關
+        public int PendingPaymentCount { get; set; }   // 待付款
+        public int OrderCount { get; set; }            // 進行中
+        public int AllOrderCount { get; set; }   // 所有訂單（包含已完成、已取消）
+
+        // 付款
+        public int PaymentCount { get; set; }          // 付款紀錄數
+
+        // 社交
+        public int FavoriteCount { get; set; }         // 收藏商品
+        public int FollowingCount { get; set; }        // 追蹤創作者
     }
 }

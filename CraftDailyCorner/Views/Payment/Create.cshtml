@@ -28,19 +28,30 @@
         <input type="hidden" name="OrderID" value="@Model.OrderID" />
 
         <!-- 付款方式 -->
-        <div class="mb-3">
-            <label class="form-label">付款方式</label>
-            <select name="MethodID" class="form-select" required>
-                <option value="">請選擇付款方式</option>
-                @foreach (var method in Model.PaymentMethods)
-                {
-                    <option value="@method.MethodID">@method.MethodName</option>
-                }
-            </select>
-        </div>
+        <div class="card mb-4 border-primary shadow-sm">
+            <div class="card-body">
+                <div class="d-flex align-items-center mb-3">
+                    <i class="bi bi-credit-card fs-3 text-primary me-2"></i>
+                    <label class="form-label fs-4 fw-semibold mb-0">
+                        選擇付款方式
+                    </label>
+                </div>
 
+                <select name="MethodID" class="form-select form-select-lg" required>
+                    <option value="">請選擇付款方式</option>
+                    @foreach (var method in Model.PaymentMethods)
+                    {
+                        <option value="@method.MethodID">@method.MethodName</option>
+                    }
+                </select>
+
+                <small class="text-muted mt-2 d-block">
+                    請選擇您要使用的付款方式完成交易
+                </small>
+            </div>
+        </div>
         <!-- Mock Payment -->
-        <div class="mb-4">
+        <div class="mb-4 mt-5">
             <label class="form-label">模擬付款結果</label>
             <div class="form-check">
                 <input class="form-check-input" type="radio" name="SimulateSuccess" value="true" checked />

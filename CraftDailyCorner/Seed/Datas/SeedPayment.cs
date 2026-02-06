@@ -20,7 +20,7 @@ namespace CraftDailyCorner.Seed.Datas
                     {
                         MethodID = 1,
                         Amount = 1200,
-                        StatusID = 1,
+                        StatusID = 2,
                         GatewayTradeNo = "TEST123456",
                         AttemptNo = 1,
                         PaidAt = DateTime.Now,

@@ -15,41 +15,45 @@ namespace CraftDailyCorner.Services
 
         public VMMemberDashboard GetMemberDashboard(string memberId)
         {
-            var member = _context.Members
-                .Include(m => m.Privacy)
-                .FirstOrDefault(m => m.MemberID == memberId);
-
-            if (member == null)
-                throw new Exception("會員不存在");
+            // 取得會員基本資料（包含隱私設定）
+            var member = GetMemberWithPrivacy(memberId);
 
             return new VMMemberDashboard
             {
+                // 會員識別
                 DisplayName = member.DisplayName,
-                Email = member.Privacy?.Email ?? string.Empty,
+                ImageUrl = member.ImageUrl,
                 CreatedAt = member.CreatedAt,
 
-                OrderCount = _context.Orders
-                    .Count(o => o.MemberID == memberId),
-
+                // 訂單相關
                 PendingPaymentCount = _context.Orders
                     .Count(o =>
                         o.MemberID == memberId &&
-                        o.OrderStatus.StatusID == 1),//待付款
+                        o.StatusID == 1), // 待付款
 
-                CompletedOrderCount = _context.Orders
+                OrderCount = _context.Orders
                     .Count(o =>
                         o.MemberID == memberId &&
-                        o.OrderStatus.StatusID == 4)//已完成
+                        o.StatusID != 1 &&
+                        o.StatusID != 4), // 進行中
+
+                AllOrderCount = _context.Orders
+                    .Count(o =>
+                        o.MemberID == memberId), // 所有訂單（包含已完成、已取消）
+
+                // 付款紀錄
+                PaymentCount = _context.Payments
+                    .Count(p => p.Order.MemberID == memberId),
+
+                // 擴充功能（目前未實作）
+                FavoriteCount = 0,
+                FollowingCount = 0
             };
         }
         public VMEditProfile GetProfile(string memberId)
         {
-            var member = _context.Members
-                .Include(m => m.Privacy)
-                .FirstOrDefault(m => m.MemberID == memberId);
-
-            if (member == null)
-                throw new Exception("會員不存在");
+            // 取得會員基本資料（包含隱私設定）
+            var member = GetMemberWithPrivacy(memberId);
 
             return new VMEditProfile
             {
@@ -62,12 +66,8 @@ namespace CraftDailyCorner.Services
 
         public void UpdateProfile(VMEditProfile vm)
         {
-            var member = _context.Members
-                .Include(m => m.Privacy)
-                .FirstOrDefault(m => m.MemberID == vm.MemberID);
-
-            if (member == null)
-                throw new Exception("會員不存在");
+            // 取得會員基本資料（包含隱私設定）
+            var member = GetMemberWithPrivacy(vm.MemberID);
 
             member.DisplayName = vm.DisplayName;
 
@@ -79,6 +79,17 @@ namespace CraftDailyCorner.Services
 
             _context.SaveChanges();
         }
+        private Member GetMemberWithPrivacy(string memberId)
+        {
+            var member = _context.Members
+                .Include(m => m.Privacy)
+                .FirstOrDefault(m => m.MemberID == memberId);
 
+            if (member == null)
+                throw new Exception("會員不存在");
+
+            return member;
+        }
     }
+    
 }

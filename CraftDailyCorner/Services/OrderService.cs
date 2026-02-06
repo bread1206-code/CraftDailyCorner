@@ -87,22 +87,35 @@ namespace CraftDailyCorner.Services
         }
 
         // 我的訂單列表
-        public List<VMMyOrder> GetMyOrders(string memberId)
+        public List<VMMyOrder> GetMyOrders(string memberId, string? statusCode)
         {
-            return _context.Orders
-                .AsNoTracking()
-                .Include(o => o.OrderStatus)
-                .Where(o => o.MemberID == memberId)
-                .OrderByDescending(o => o.CreatedAt)
-                .Select(o => new VMMyOrder
-                {
-                    OrderID = o.OrderID,
-                    CreatedAt = o.CreatedAt,
-                    TotalAmount = (int)Math.Floor(o.TotalAmount),
-                    StatusText = o.OrderStatus.StatusName
-                })
-                .ToList();
+            var query = _context.Orders
+                    .AsNoTracking()
+                    .Include(o => o.OrderStatus)
+                    .Where(o => o.MemberID == memberId);
+            query = statusCode switch
+            {
+                "padding" =>
+                    query.Where(o => o.OrderStatus.StatusID == 1),
+
+                "processing" =>
+                    query.Where(o => o.OrderStatus.StatusID == 2 || o.OrderStatus.StatusID == 3),
+
+                _ => query // All
+            };
+
+            return query
+                   .OrderByDescending(o => o.CreatedAt)
+                   .Select(o => new VMMyOrder
+                   {
+                       OrderID = o.OrderID,
+                       CreatedAt = o.CreatedAt,
+                       TotalAmount = (int)Math.Floor(o.TotalAmount),
+                       StatusText = o.OrderStatus.StatusName
+                   })
+                   .ToList();
         }
+
         // 我的訂單詳細內容
         public VMMyOrderDetail? GetOrderDetail(string orderId, string memberId)
         {

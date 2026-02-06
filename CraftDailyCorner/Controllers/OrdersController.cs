@@ -20,13 +20,20 @@ namespace CraftDailyCorner.Controllers
             _orderService = orderService;
         }
         //我的訂單列表
-        public IActionResult Index()
+        public IActionResult Index(string statusCode)
         {
             var memberId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var orders = _orderService.GetMyOrders(memberId);
+            var orders = _orderService.GetMyOrders(memberId, statusCode);
+
+            //PendingOrder
+
+            //ActionOrder
 
             return View(orders);
         }
+
+        
+        
         //訂單詳細內容
         public IActionResult Detail(string orderId)
         {

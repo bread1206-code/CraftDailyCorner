@@ -121,46 +121,60 @@ body {
     justify-content: space-between;
 }
 
-    .order-progress .step {
-        text-align: center;
-        position: relative;
-        flex: 0 0 auto;
-    }
+.order-progress .step {
+    text-align: center;
+    position: relative;
+    flex: 0 0 auto;
+}
 
-    .order-progress .circle {
-        width: 36px;
-        height: 36px;
-        border-radius: 50%;
-        background-color: #dee2e6;
+.order-progress .circle {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background-color: #dee2e6;
+    color: #6c757d;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    margin: 0 auto;
+}
+
+.order-progress .step.active .circle {
+    background-color: #198754; /* Bootstrap success */
+    color: #fff;
+}
+
+.order-progress .label {
+    margin-top: 8px;
+    font-size: 0.9rem;
+}
+
+    .order-progress .label small {
         color: #6c757d;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: 600;
-        margin: 0 auto;
     }
 
-    .order-progress .step.active .circle {
-        background-color: #198754; /* Bootstrap success */
-        color: #fff;
-    }
+.order-progress .line {
+    flex: 1;
+    height: 2px;
+    background-color: #dee2e6;
+    margin: 0 8px;
+}
 
-    .order-progress .label {
-        margin-top: 8px;
-        font-size: 0.9rem;
-    }
+.order-progress .line.active {
+    background-color: #198754;
+}
 
-        .order-progress .label small {
-            color: #6c757d;
-        }
+/*自訂文字顏色*/
+.text-purple {
+    color: #6f42c1;
+}
 
-    .order-progress .line {
-        flex: 1;
-        height: 2px;
-        background-color: #dee2e6;
-        margin: 0 8px;
-    }
-
-        .order-progress .line.active {
-            background-color: #198754;
-        }
+/*自訂按鈕顏色*/
+.btn-outline-purple {
+    --bs-btn-color: #6f42c1;
+    --bs-btn-border-color: #6f42c1;
+    --bs-btn-hover-color: #fff;
+    --bs-btn-hover-bg: #6f42c1;
+    
+}
