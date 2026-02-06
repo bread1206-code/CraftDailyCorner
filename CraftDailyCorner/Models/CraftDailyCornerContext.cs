@@ -72,12 +72,10 @@ namespace CraftDailyCorner.Models
 
             modelBuilder.Entity<Member>().HasKey(x => x.MemberID);
             modelBuilder.Entity<Privacy>().HasKey(p => p.MemberID);
-            modelBuilder.Entity<Privacy>().HasIndex(x => x.Email).IsUnique();
             modelBuilder.Entity<Role>().HasKey(x => x.RoleID);
             modelBuilder.Entity<MemberRoleHistory>().HasKey(x => x.MemberRoleHistoryID);
             modelBuilder.Entity<CreatorApplication>().HasKey(x => x.ApplicationID);
             modelBuilder.Entity<CreatorProfile>().HasKey(x => x.CreatorID);
-            modelBuilder.Entity<CreatorProfile>().HasIndex(c => c.MemberID).IsUnique();
             modelBuilder.Entity<Product>().HasKey(x => x.ProductID);
             modelBuilder.Entity<ProductImage>().HasKey(x => x.ImageID);
             modelBuilder.Entity<Category>().HasKey(x => x.CategoryID);
@@ -559,6 +557,10 @@ namespace CraftDailyCorner.Models
             modelBuilder.Entity<CreatorProfileStatus>()
                .HasIndex(cps => cps.StatusCode)
                .IsUnique();
+
+            modelBuilder.Entity<CreatorProfile>()
+                .HasIndex(c => c.MemberID)
+                .IsUnique();
 
             modelBuilder.Entity<ProductStatus>()
                 .HasIndex(ps => ps.StatusCode)
