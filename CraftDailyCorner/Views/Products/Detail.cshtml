@@ -3,7 +3,7 @@
     ViewData["Title"] = @Model.ProductName;
 }
 <div class="container my-5">
-
+    @await Html.PartialAsync("_BreadcrumbPartial", Model.Breadcrumb)
     <div class="card shadow-sm">
         <div class="card-body">
 

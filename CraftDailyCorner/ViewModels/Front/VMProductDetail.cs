@@ -37,6 +37,8 @@ namespace CraftDailyCorner.ViewModels.Front
         // UI 行為
         public int MaxPurchaseQty => StockQty;   // 給 input max 用
         public int DefaultQty => IsOutOfStock ? 0 : 1;
+        // 新增：麵包屑導航
+        public VMBreadcrumb Breadcrumb { get; set; } = new();
     }
 
     }
