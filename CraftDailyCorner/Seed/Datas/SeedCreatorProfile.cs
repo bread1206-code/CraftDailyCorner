@@ -19,7 +19,7 @@ namespace CraftDailyCorner.Seed.Datas
                     new CreatorProfile
                     {
                         CreatorID = "C00001",
-                        ImageUrl = imageGuids[0] + ".png",
+                        ImageUrl = imageGuids[0],
                         DisplayName = "木匠大師",
                         Intro = "我是阿拓。這雙手除了與木材對話，別無長處。" +
                         "我專注於打磨帶有溫潤手感的木牌項鍊，也雕琢能盛裝回憶的榫接置物盒。" +
@@ -34,7 +34,7 @@ namespace CraftDailyCorner.Seed.Datas
                     }, new CreatorProfile
                     {
                         CreatorID = "C00002",
-                        ImageUrl = imageGuids[0] + ".png",
+                        ImageUrl = imageGuids[0],
                         DisplayName = "墨尋",
                         Intro = "我是墨尋，一生只在黑白之間修行。" +
                         "除了書寫紅紙黑字的春聯與氣勢磅礴的詩詞掛軸，我也將筆墨染上手工摺扇，捕捉流動的清風。" +

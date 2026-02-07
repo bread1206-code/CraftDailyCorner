@@ -128,4 +128,15 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script>
+            window.addEventListener('cartUpdated', function(e) {
+            const totalQty = e.detail.totalQuantity;
+            if (totalQty === 0) {
+                window.location.href = '/Products/Index';
+            } else {
+                // 在結帳頁面直接執行重新整理
+                window.location.reload();
+            }
+        });
+    </script>
 }

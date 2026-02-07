@@ -24,7 +24,7 @@ namespace CraftDailyCorner.Services
                 .Select(x => x.SettingValue)
                 .FirstOrDefault();
 
-            return logo ?? "/images/default-logo.png";
+            return logo ?? "/images/default-logo";
         }
     }
 

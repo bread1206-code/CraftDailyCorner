@@ -18,7 +18,7 @@ namespace CraftDailyCorner.Seed.Datas
                 {
                     new HomepageBanner
                     {
-                        ImageUrl = imageGuids[0] + ".png",
+                        ImageUrl = imageGuids[0],
                         Title = "日作市集",
                         Subtitle = "探索手工與在地溫暖",
                         StatusID = 1,
@@ -26,7 +26,7 @@ namespace CraftDailyCorner.Seed.Datas
                         CreatedBy = "M0000001"
                     },new HomepageBanner
                     {
-                        ImageUrl = imageGuids[1] + ".png",
+                        ImageUrl = imageGuids[1],
                         Title = "新年快樂",
                         Subtitle = "日作市集祝賀您",
                         StatusID = 1,
@@ -34,7 +34,7 @@ namespace CraftDailyCorner.Seed.Datas
                         CreatedBy = "M0000001"
                     },new HomepageBanner
                     {
-                        ImageUrl = imageGuids[2] + ".png",
+                        ImageUrl = imageGuids[2],
                         Title = "日作市集",
                         Subtitle = "發現手工美好，感受春光溫煦",
                         StatusID = 1,
@@ -42,7 +42,7 @@ namespace CraftDailyCorner.Seed.Datas
                         CreatedBy = "M0000001"
                     },new HomepageBanner
                     {
-                        ImageUrl = imageGuids[3] + ".png",
+                        ImageUrl = imageGuids[3],
                         Title = "日作市集",
                         Subtitle = "",
                         StatusID = 1,
@@ -50,7 +50,7 @@ namespace CraftDailyCorner.Seed.Datas
                         CreatedBy = "M0000001"
                     },new HomepageBanner
                     {
-                        ImageUrl = imageGuids[4] + ".png",
+                        ImageUrl = imageGuids[4],
                         Title = "日作市集",
                         Subtitle = "",
                         StatusID = 1,
@@ -58,7 +58,7 @@ namespace CraftDailyCorner.Seed.Datas
                         CreatedBy = "M0000001"
                     },new HomepageBanner
                     {
-                        ImageUrl = imageGuids[5] + ".png",
+                        ImageUrl = imageGuids[5],
                         Title = "日作市集",
                         Subtitle = "",
                         StatusID = 1,

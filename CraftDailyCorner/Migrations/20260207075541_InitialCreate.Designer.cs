@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CraftDailyCorner.Migrations
 {
     [DbContext(typeof(CraftDailyCornerContext))]
-    [Migration("20260206105827_InitialCreate")]
+    [Migration("20260207075541_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -167,8 +167,8 @@ namespace CraftDailyCorner.Migrations
 
                     b.Property<string>("PortfolioSampleUrl")
                         .IsRequired()
-                        .HasMaxLength(40)
-                        .HasColumnType("nchar(40)");
+                        .HasMaxLength(36)
+                        .HasColumnType("nchar(36)");
 
                     b.Property<string>("ReviewNote")
                         .HasColumnType("nvarchar(max)");
@@ -248,7 +248,7 @@ namespace CraftDailyCorner.Migrations
 
                     b.Property<string>("ImageUrl")
                         .IsRequired()
-                        .HasColumnType("nchar(40)");
+                        .HasColumnType("nchar(36)");
 
                     b.Property<byte>("StatusID")
                         .HasColumnType("tinyint");
@@ -327,8 +327,8 @@ namespace CraftDailyCorner.Migrations
 
                     b.Property<string>("ImageUrl")
                         .IsRequired()
-                        .HasMaxLength(40)
-                        .HasColumnType("nvarchar(40)");
+                        .HasMaxLength(36)
+                        .HasColumnType("nchar(36)");
 
                     b.Property<string>("Intro")
                         .IsRequired()
@@ -402,6 +402,9 @@ namespace CraftDailyCorner.Migrations
 
                     b.HasIndex("ProductID");
 
+                    b.HasIndex("MemberID", "ProductID")
+                        .IsUnique();
+
                     b.ToTable("FavoriteProducts");
                 });
 
@@ -421,6 +424,9 @@ namespace CraftDailyCorner.Migrations
                     b.HasKey("MemberID", "CreatorID");
 
                     b.HasIndex("CreatorID");
+
+                    b.HasIndex("MemberID", "CreatorID")
+                        .IsUnique();
 
                     b.ToTable("FollowCreators");
                 });
@@ -443,8 +449,8 @@ namespace CraftDailyCorner.Migrations
 
                     b.Property<string>("ImageUrl")
                         .IsRequired()
-                        .HasMaxLength(40)
-                        .HasColumnType("nchar(40)");
+                        .HasMaxLength(36)
+                        .HasColumnType("nchar(36)");
 
                     b.Property<byte>("StatusID")
                         .HasColumnType("tinyint");
@@ -563,9 +569,8 @@ namespace CraftDailyCorner.Migrations
                         .HasColumnType("nvarchar(20)");
 
                     b.Property<string>("ImageUrl")
-                        .IsRequired()
-                        .HasMaxLength(40)
-                        .HasColumnType("nvarchar(40)");
+                        .HasMaxLength(36)
+                        .HasColumnType("nvarchar(36)");
 
                     b.Property<byte>("StatusID")
                         .HasColumnType("tinyint");
@@ -1215,8 +1220,8 @@ namespace CraftDailyCorner.Migrations
 
                     b.Property<string>("ImageUrl")
                         .IsRequired()
-                        .HasMaxLength(40)
-                        .HasColumnType("nchar(40)");
+                        .HasMaxLength(36)
+                        .HasColumnType("nchar(36)");
 
                     b.Property<string>("PortfolioID")
                         .IsRequired()
@@ -1446,8 +1451,8 @@ namespace CraftDailyCorner.Migrations
 
                     b.Property<string>("ImageUrl")
                         .IsRequired()
-                        .HasMaxLength(40)
-                        .HasColumnType("nchar(40)");
+                        .HasMaxLength(36)
+                        .HasColumnType("nchar(36)");
 
                     b.Property<string>("ProductID")
                         .IsRequired()

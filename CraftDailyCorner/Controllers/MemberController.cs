@@ -10,10 +10,12 @@ namespace CraftDailyCorner.Controllers
     public class MemberController : Controller
     {
         private readonly MemberCenterService _memberCenterService;
+        private readonly IImageUploadService _imageUploadService;
 
-        public MemberController(MemberCenterService memberCenterService)
+        public MemberController(MemberCenterService memberCenterService, IImageUploadService imageUploadService)
         {
             _memberCenterService = memberCenterService;
+            _imageUploadService = imageUploadService;
         }
 
         //會員中心首頁
@@ -45,16 +47,32 @@ namespace CraftDailyCorner.Controllers
         {
             if (!ModelState.IsValid)
                 return View(vm);
-            if(vm.AvatarFile != null)
+
+            var memberId = GetMemberId();
+
+            if (vm.AvatarFile != null && vm.AvatarFile.Length > 0)
             {
-                //呼叫上傳圖片
+                // 有舊圖就沿用，沒有才產生新的 GUID
+                var fileKey = string.IsNullOrEmpty(vm.ImageUrl)
+                    ? Guid.NewGuid().ToString()
+                    : vm.ImageUrl;
+
+                _imageUploadService.UploadImage(
+                    file: vm.AvatarFile,
+                    seedSourcePath: null,
+                    folderName: "01Member",
+                    sizes: ImageSizePresets.Member,
+                    entityId: fileKey
+                );
+
+                vm.ImageUrl = fileKey;
             }
-            
+
             _memberCenterService.UpdateProfile(vm);
+
             TempData["Success"] = "個人資料已更新";
             return RedirectToAction(nameof(Profile));
         }
-
         //私有方法：取得登入會員 ID
         private string GetMemberId()
         {

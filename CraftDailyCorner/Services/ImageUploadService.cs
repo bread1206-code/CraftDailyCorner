@@ -1,7 +1,8 @@
-﻿using SixLabors.ImageSharp;
+﻿using CraftDailyCorner.Services;
+using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats.Png;
 using SixLabors.ImageSharp.Processing;
-using CraftDailyCorner.Services;
+using System.Diagnostics;
 namespace CraftDailyCorner.Services
 {
     public class ImageUploadService : IImageUploadService
@@ -12,36 +13,82 @@ namespace CraftDailyCorner.Services
         {
             _env = env;
         }
+        public string UploadImage(IFormFile? file,string? seedSourcePath,string folderName,
+            List<ImageSizeOption> sizes,string? entityId = null)
+        {
+            // Seed 圖片
+            if (file == null && !string.IsNullOrEmpty(seedSourcePath))
+            {
+                UploadFromSeed(
+                    seedFolder: folderName,
+                    sourceFile: seedSourcePath,
+                    fileNameWithoutExt: entityId ?? Guid.NewGuid().ToString(),
+                    sizes: sizes
+                );
+                return entityId ?? string.Empty;
+            }
 
-        public void UploadSeedImage(
-            string seedFolder,
-            string sourceFile,
-            string fileNameWithoutExt,
-            List<ImageSizeOption> sizes
+            // 使用者上傳
+            if (file != null)
+            {
+                return UploadFromFormFile(file, folderName, sizes, entityId);
+            }
+
+            throw new InvalidOperationException("無有效圖片來源");
+        }
+
+        //Seed 圖片上傳
+        public void UploadFromSeed(string seedFolder,string sourceFile,
+            string fileNameWithoutExt,List<ImageSizeOption> sizes)
+        {
+            using var image = Image.Load(sourceFile);
+            ProcessAndSaveImage(image, seedFolder, fileNameWithoutExt, sizes);
+        }
+
+        //圖片上傳
+        public string UploadFromFormFile(IFormFile file,string folderName,
+            List<ImageSizeOption> sizes,string? entityId = null)
+        {
+            if (file == null || file.Length == 0)
+                throw new ArgumentException("檔案不存在");
+            // ContentType
+            var allowedTypes = new[] { "image/jpeg", "image/png" };
+
+            if (!allowedTypes.Contains(file.ContentType))
+                throw new InvalidOperationException("只允許上傳 jpg 或 png 圖片");
+
+            //副檔名
+            var ext = Path.GetExtension(file.FileName).ToLowerInvariant();
+            var allowedExts = new[] { ".jpg", ".png" };
+
+            if (!allowedExts.Contains(ext))
+                throw new InvalidOperationException("圖片副檔名不正確");
+
+            //ImageSharp 真正解析（最後防線）
+            string fileName = entityId ?? Guid.NewGuid().ToString();
+            using var stream = file.OpenReadStream();
+            using var image = Image.Load(stream);
+
+            ProcessAndSaveImage(image, folderName, fileName, sizes);
+
+            return fileName; // 存 DB 用
+        }
+
+        //重設尺寸，儲存檔案
+        private void ProcessAndSaveImage(
+        Image image,
+        string folderName,
+        string fileNameWithoutExt,
+        List<ImageSizeOption> sizes
         )
         {
-            // 來源圖片資料夾
-            string seedPhotoPath = Path.Combine(
-                _env.ContentRootPath,   // 專案根目錄
-                "Seed",
-                "SeedPhotos",
-                seedFolder
-            );
-
-            // 目標上傳資料夾
             string basePhotoPath = Path.Combine(
-                _env.WebRootPath,      // wwwroot
-                "Photos",
-                seedFolder
-            );
-
-            using Image image = Image.Load(sourceFile);
+                _env.WebRootPath,"Photos",folderName);
 
             foreach (var size in sizes)
             {
                 string folderPath = Path.Combine(basePhotoPath, size.FolderName);
-                if (!Directory.Exists(folderPath))
-                    Directory.CreateDirectory(folderPath);
+                Directory.CreateDirectory(folderPath);
 
                 var options = new ResizeOptions
                 {
@@ -50,12 +97,9 @@ namespace CraftDailyCorner.Services
                     Position = AnchorPositionMode.Center
                 };
 
-                using Image resized = image.Clone(ctx => ctx.Resize(options));
+                using var resized = image.Clone(ctx => ctx.Resize(options));
 
-                string destFile = Path.Combine(
-                    folderPath,
-                    $"{fileNameWithoutExt}.png"
-                );
+                string destFile = Path.Combine(folderPath,$"{fileNameWithoutExt}.png");
 
                 resized.Save(destFile, new PngEncoder());
             }

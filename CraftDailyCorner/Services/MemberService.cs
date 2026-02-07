@@ -40,7 +40,7 @@ namespace CraftDailyCorner.Services
                 var member = new Member
                 {
                     MemberID = newMemberId,
-                    ImageUrl = "default.png", // 預設頭像
+                    ImageUrl = null,
                     DisplayName = vm.DisplayName,
                     StatusID = 1,
                     CreatedAt = DateTime.Now

@@ -9,7 +9,7 @@
             var a = item == Model.First() ? "active" : "";
 
             <div class="carousel-item @a">
-                <img src="/Photos/08HomepageBanner/Other/@item.ImageUrl" class="d-block w-100">
+                <img src="@($"/Photos/08HomepageBanner/Other/{item.ImageUrl}.png")" class="d-block w-100">
             </div>
         }
     </div>

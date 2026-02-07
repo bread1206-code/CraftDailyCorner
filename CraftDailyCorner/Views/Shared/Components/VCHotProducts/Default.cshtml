@@ -18,7 +18,7 @@
                         <div class="card hover-card">
                             @if (item.CoverImage != null)
                             {
-                                <img src="/Photos/04ProductImage/Medium/@item.CoverImage" alt="Photo" class="img-thumbnail" />
+                                    <img src="@($"/Photos/04ProductImage/Medium/{item.CoverImage}.png")" alt="Photo" class="img-thumbnail" />
                             }
                             <div class="card-body">
                                 <div>@Html.DisplayFor(modelItem => item.CreatorName)</div>

@@ -2,10 +2,24 @@
 
 @{
     ViewData["Title"] = "我的訂單";
+
+    // 訂單狀態 badge 顏色
+    
 }
 
 <div class="container my-5">
-    <h3 class="mb-4">我的訂單</h3>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="mb-0">我的訂單</h3>
+
+        <a asp-controller="Member"
+           asp-action="Index"
+           asp-route-statusCode=""
+           class="btn btn-outline-secondary btn-sm fs-5">
+            <i class="bi bi-arrow-left"> </i>返回會員中心
+        </a>
+    </div>
+    
+
 
     @if (!Model.Any())
     {
@@ -47,7 +61,17 @@
                             </td>
 
                             <td>
-                                <span class="badge bg-secondary">
+                                @{
+                                    string statusBadgeClass = order.StatusText switch
+                                    {
+                                        "待付款" => "bg-danger",   // 紅色
+                                        "已付款" => "bg-success",   // 綠色
+                                        "出貨中" => "bg-warning",   // 黃色
+                                        "已完成" => "bg-primary",   // 藍色
+                                        _ => "bg-secondary"
+                                    };
+                                }
+                                <span class="badge @statusBadgeClass">
                                     @order.StatusText
                                 </span>
                             </td>
@@ -65,4 +89,6 @@
             </table>
         </div>
     }
+
+    
 </div>

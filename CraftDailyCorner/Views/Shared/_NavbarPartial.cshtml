@@ -8,7 +8,7 @@
 
         <!-- Logo -->
         <a class="navbar-brand" asp-controller="Home" asp-action="Index">
-            <img src="~/Photos/07LOGO/Other/@SiteSetting.GetNavbarLogo()"
+            <img src="@($"/Photos/07LOGO/Other/{SiteSetting.GetNavbarLogo()}.png")"
                  alt="Logo"
                  class="Logo" />
         </a>
@@ -56,24 +56,36 @@
 
                 <!-- 購物車 -->
                 <li class="nav-item">
-                    @if (!User.Identity!.IsAuthenticated)
-                    {
-                        <button class="btn btn-primary position-relative"
-                                onclick="prepareLoginModal(); openLoginModal();">
-                            <i class="bi bi-cart"></i>
-                        </button>
+                    @{
+                        // 取得目前的路由資訊
+                        var currentController = ViewContext.RouteData.Values["Controller"]?.ToString();
+                        var currentAction = ViewContext.RouteData.Values["Action"]?.ToString();
+
+                        // 判斷是否為「結帳頁面」 (假設你的 Controller 是 Orders, Action 是 Checkout)
+                        bool isCheckoutPage = currentController == "Orders" && currentAction == "Checkout";
                     }
-                    else
+
+                    @if (!isCheckoutPage)
                     {
-                        <button class="btn btn-primary position-relative"
-                                data-bs-toggle="modal"
-                                data-bs-target="#CartModal">
-                            <i class="bi bi-cart" id="cartIcon"></i>
-                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger cart-badge"
-                                  style="display:none">
-                                0
-                            </span>
-                        </button>
+                        @if (!User.Identity!.IsAuthenticated)
+                        {
+                            <button class="btn btn-primary position-relative"
+                                    onclick="prepareLoginModal(); openLoginModal();">
+                                <i class="bi bi-cart"></i>
+                            </button>
+                        }
+                        else
+                        {
+                            <button class="btn btn-primary position-relative"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#CartModal">
+                                <i class="bi bi-cart" id="cartIcon"></i>
+                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger cart-badge"
+                                      style="display:none">
+                                    0
+                                </span>
+                            </button>
+                        }
                     }
                 </li>
 
@@ -103,28 +115,49 @@
                                 <a class="dropdown-item"
                                    asp-controller="Orders"
                                    asp-action="Index">
-                                    我的訂單
+                                    <i class="bi bi-box-seam text-primary"> </i>我的訂單
                                 </a>
                             </li>
                             <li>
                                 <a class="dropdown-item"
-                                   asp-controller="Payment"
+                                   asp-controller="Orders"
                                    asp-action="Index">
-                                    付款紀錄
+                                    <i class="bi bi-clock-history text-secondary"> </i>付款紀錄
                                 </a>
                             </li>
+                            <li>
+                                <a class="dropdown-item"
+                                   asp-controller="Favorites"
+                                   asp-action="Index">
+                                    <i class="bi bi-box2-heart text-danger"> </i>收藏清單
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item"
+                                   asp-controller="Follows"
+                                   asp-action="Index">
+                                    <i class="bi bi-bookmark-heart text-purple"> </i>追蹤清單
+                                </a>
+                            </li>
+                            <hr />
                             <li>
                                 <a class="dropdown-item"
                                    asp-controller="Member"
                                    asp-action="Index">
-                                    個人資料
+                                    <i class="bi bi-person-circle"> </i>個人中心
+                                </a>
+                                <a class="dropdown-item"
+                                   asp-controller="Settings"
+                                   asp-action="Index">
+                                    <i class="bi bi-gear"> </i>設定
                                 </a>
                             </li>
+                            <hr/>
                             <li>
                                 <a class="dropdown-item"
                                    asp-controller="Account"
                                    asp-action="Logout">
-                                    登出
+                                    <i class="bi bi-door-open"> </i>登出
                                 </a>
                             </li>
                         </ul>

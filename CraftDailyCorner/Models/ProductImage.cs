@@ -10,8 +10,8 @@ namespace CraftDailyCorner.Models
         public long ImageID { get; set; } 
 
         [Display(Name = "圖片URL")]
-        [StringLength(40, MinimumLength = 40)]
-        [Column(TypeName = "nchar(40)")]
+        [StringLength(36, MinimumLength = 36)]
+        [Column(TypeName = "nchar(36)")]
         public string ImageUrl { get; set; } = null!;
 
         [Display(Name = "排序")]

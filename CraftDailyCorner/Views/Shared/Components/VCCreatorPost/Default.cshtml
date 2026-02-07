@@ -15,7 +15,7 @@
                         <div class="card hover-card p-2">
                     @if (item.ImageUrl != null)
                     {
-                        <img src="/Photos/05CreatorPost/Medium/@item.ImageUrl" alt="Photo" class="img-thumbnail rounded-circle m-2" />
+                        <img src="@($"/Photos/05CreatorPost/Medium/{item.ImageUrl}.png")" alt="Photo" class="img-thumbnail rounded-circle m-2" />
                     }
                     <div class="card-body p-0">
                         <div class="fw-bold hotpost-title text-center"><i class="bi bi-filter-right"></i>@Html.DisplayFor(modelItem => item.Title)<i class="bi bi-filter-left"></i></div>

@@ -20,7 +20,7 @@ namespace CraftDailyCorner.Seed.Datas
                 new Member
                 {
                     MemberID = "M0000001",
-                    ImageUrl = imageGuids[0] + ".png",
+                    ImageUrl = imageGuids[0],
                     DisplayName = "一號會員",
                     StatusID = 1,
                     CreatedAt = DateTime.Now
@@ -28,7 +28,7 @@ namespace CraftDailyCorner.Seed.Datas
                 new Member
                 {
                     MemberID = "M0000002",
-                    ImageUrl = imageGuids[1] + ".png",
+                    ImageUrl = imageGuids[1],
                     DisplayName = "二號會員",
                     StatusID = 1,
                     CreatedAt = DateTime.Now
@@ -36,7 +36,7 @@ namespace CraftDailyCorner.Seed.Datas
                 new Member
                 {
                     MemberID = "M0000003",
-                    ImageUrl = imageGuids[2] + ".png",
+                    ImageUrl = imageGuids[2],
                     DisplayName = "三號會員",
                     StatusID = 1,
                     CreatedAt = DateTime.Now
@@ -44,7 +44,7 @@ namespace CraftDailyCorner.Seed.Datas
                 new Member
                 {
                     MemberID = "M0000004",
-                    ImageUrl = imageGuids[3] + ".png",
+                    ImageUrl = imageGuids[3],
                     DisplayName = "四號會員",
                     StatusID = 1,
                     CreatedAt = DateTime.Now
@@ -52,7 +52,7 @@ namespace CraftDailyCorner.Seed.Datas
                 new Member
                 {
                     MemberID = "M0000005",
-                    ImageUrl = imageGuids[4] + ".png",
+                    ImageUrl = imageGuids[4],
                     DisplayName = "五號會員",
                     StatusID = 1,
                     CreatedAt = DateTime.Now

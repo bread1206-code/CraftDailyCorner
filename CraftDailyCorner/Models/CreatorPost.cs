@@ -16,7 +16,7 @@ namespace CraftDailyCorner.Models
         [Column(TypeName = "nvarchar(max)")]
         [Display(Name = "內容")]
         public string Content { get; set; } = null!;
-        [Column(TypeName = "nchar(40)")]
+        [Column(TypeName = "nchar(36)")]
         [Display(Name ="日誌圖片")]
         public string ImageUrl { get; set; } = null!;
         [Display(Name = "誰可以看")]

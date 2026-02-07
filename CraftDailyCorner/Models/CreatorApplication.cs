@@ -20,8 +20,8 @@ namespace CraftDailyCorner.Models
         public string Intro { get; set; } = null!;
 
         [Required]
-        [StringLength(40,MinimumLength =40)]
-        [Column(TypeName ="nchar(40)")]
+        [StringLength(36,MinimumLength =36)]
+        [Column(TypeName ="nchar(36)")]
         [Display(Name = "作品圖片URL")]
         public string PortfolioSampleUrl { get; set; } = null!;
 
