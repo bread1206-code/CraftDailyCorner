@@ -19,7 +19,7 @@ namespace CraftDailyCorner.Seed.Datas
                     new PortfolioItem
                     {
                         ItemID = Guid.NewGuid().ToString(),
-                        ImageUrl = Guid.NewGuid().ToString() + ".png",
+                        ImageUrl = Guid.NewGuid().ToString(),
                         Title = "榫接木盒",
                         Description = "全手工榫接製作",
                         SortOrder = 0,

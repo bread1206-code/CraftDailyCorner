@@ -276,7 +276,7 @@ namespace CraftDailyCorner.Migrations
                 columns: table => new
                 {
                     MemberID = table.Column<string>(type: "nchar(8)", maxLength: 8, nullable: false),
-                    ImageUrl = table.Column<string>(type: "nvarchar(40)", maxLength: 40, nullable: false),
+                    ImageUrl = table.Column<string>(type: "nvarchar(36)", maxLength: 36, nullable: true),
                     DisplayName = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
                     StatusID = table.Column<byte>(type: "tinyint", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
@@ -320,7 +320,7 @@ namespace CraftDailyCorner.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     DisplayName = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
                     Intro = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    PortfolioSampleUrl = table.Column<string>(type: "nchar(40)", maxLength: 40, nullable: false),
+                    PortfolioSampleUrl = table.Column<string>(type: "nchar(36)", maxLength: 36, nullable: false),
                     StartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     StatusID = table.Column<byte>(type: "tinyint", nullable: false),
                     AppliedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -357,7 +357,7 @@ namespace CraftDailyCorner.Migrations
                 columns: table => new
                 {
                     CreatorID = table.Column<string>(type: "nchar(6)", maxLength: 6, nullable: false),
-                    ImageUrl = table.Column<string>(type: "nvarchar(40)", maxLength: 40, nullable: false),
+                    ImageUrl = table.Column<string>(type: "nchar(36)", maxLength: 36, nullable: false),
                     DisplayName = table.Column<string>(type: "nvarchar(40)", maxLength: 40, nullable: false),
                     Intro = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     StartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -390,7 +390,7 @@ namespace CraftDailyCorner.Migrations
                 {
                     BannerID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    ImageUrl = table.Column<string>(type: "nchar(40)", maxLength: 40, nullable: false),
+                    ImageUrl = table.Column<string>(type: "nchar(36)", maxLength: 36, nullable: false),
                     Title = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     Subtitle = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
                     StatusID = table.Column<byte>(type: "tinyint", nullable: false),
@@ -685,7 +685,7 @@ namespace CraftDailyCorner.Migrations
                     PostID = table.Column<string>(type: "nchar(36)", maxLength: 36, nullable: false),
                     Title = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     Content = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    ImageUrl = table.Column<string>(type: "nchar(40)", nullable: false),
+                    ImageUrl = table.Column<string>(type: "nchar(36)", nullable: false),
                     Visibility = table.Column<byte>(type: "tinyint", nullable: false),
                     StatusID = table.Column<byte>(type: "tinyint", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -938,7 +938,7 @@ namespace CraftDailyCorner.Migrations
                 columns: table => new
                 {
                     ItemID = table.Column<string>(type: "nchar(36)", maxLength: 36, nullable: false),
-                    ImageUrl = table.Column<string>(type: "nchar(40)", maxLength: 40, nullable: false),
+                    ImageUrl = table.Column<string>(type: "nchar(36)", maxLength: 36, nullable: false),
                     Title = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     SortOrder = table.Column<byte>(type: "tinyint", nullable: false),
@@ -1087,7 +1087,7 @@ namespace CraftDailyCorner.Migrations
                 {
                     ImageID = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    ImageUrl = table.Column<string>(type: "nchar(40)", maxLength: 40, nullable: false),
+                    ImageUrl = table.Column<string>(type: "nchar(36)", maxLength: 36, nullable: false),
                     SortOrder = table.Column<byte>(type: "tinyint", nullable: false),
                     StatusID = table.Column<byte>(type: "tinyint", nullable: false),
                     ProductID = table.Column<string>(type: "nchar(10)", maxLength: 10, nullable: false)

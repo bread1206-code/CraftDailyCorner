@@ -51,7 +51,7 @@ namespace CraftDailyCorner.Services
         {
             if (file == null || file.Length == 0)
                 throw new ArgumentException("檔案不存在");
-            // ContentType（保留老師教的）
+            // ContentType
             var allowedTypes = new[] { "image/jpeg", "image/png" };
 
             if (!allowedTypes.Contains(file.ContentType))
@@ -65,11 +65,7 @@ namespace CraftDailyCorner.Services
                 throw new InvalidOperationException("圖片副檔名不正確");
 
             //ImageSharp 真正解析（最後防線）
-            
-
-            
             string fileName = entityId ?? Guid.NewGuid().ToString();
-
             using var stream = file.OpenReadStream();
             using var image = Image.Load(stream);
 

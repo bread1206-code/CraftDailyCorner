@@ -18,42 +18,42 @@ namespace CraftDailyCorner.Seed.Datas
                 {
                     new ProductImage
                         {
-                            ImageUrl = imageGuids[0] + ".png",
+                            ImageUrl = imageGuids[0],
                             SortOrder = 0,
                             StatusID = 1,
                             ProductID = "P000000001"
                         },
                         new ProductImage
                         {
-                            ImageUrl = imageGuids[1] + ".png",
+                            ImageUrl = imageGuids[1],
                             SortOrder = 1,
                             StatusID = 1,
                             ProductID = "P000000001"
                         },
                         new ProductImage
                         {
-                            ImageUrl = imageGuids[2] + ".png",
+                            ImageUrl = imageGuids[2],
                             SortOrder = 0,
                             StatusID = 1,
                             ProductID = "P000000002"
                         },
                         new ProductImage
                         {
-                            ImageUrl = imageGuids[3] + ".png",
+                            ImageUrl = imageGuids[3],
                             SortOrder = 0,
                             StatusID = 1,
                             ProductID = "P000000003"
                         },
                         new ProductImage
                         {
-                            ImageUrl = imageGuids[4] + ".png",
+                            ImageUrl = imageGuids[4],
                             SortOrder = 0,
                             StatusID = 1,
                             ProductID = "P000000004"
                         },
                         new ProductImage
                         {
-                            ImageUrl = imageGuids[5] + ".png",
+                            ImageUrl = imageGuids[5],
                             SortOrder = 0,
                             StatusID = 1,
                             ProductID = "P000000005"

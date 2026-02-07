@@ -9,8 +9,8 @@ namespace CraftDailyCorner.Models
         [Display(Name = "橫幅編號")]
         public int BannerID { get; set; }
 
-        [StringLength(40, MinimumLength = 40)]
-        [Column(TypeName = "nchar(40)")]
+        [StringLength(36, MinimumLength = 36)]
+        [Column(TypeName = "nchar(36)")]
         [Required(ErrorMessage = "必填欄位")]
         [Display(Name = "圖片URL")]
         public string ImageUrl { get; set; }= null!;

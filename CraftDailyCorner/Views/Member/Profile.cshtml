@@ -5,7 +5,7 @@
 
     string avatarUrl = string.IsNullOrEmpty(Model.ImageUrl)
         ? "/Photos/01Member/Medium/default.png"
-        : $"/Photos/01Member/Medium/{Model.ImageUrl}";
+        : $"/Photos/01Member/Medium/{Model.ImageUrl}.png";
 }
 
 <div class="container my-5">
@@ -66,7 +66,10 @@
                     <span asp-validation-for="DisplayName"
                           class="text-danger"></span>
                 </div>
-
+                <!--電子郵件不可修改-->
+                <div class="mb-3">
+                    <input asp-for="Email" class="form-control" />
+                </div>
                 <div class="mb-3">
                     <label asp-for="Phone" class="form-label"></label>
                     <input asp-for="Phone" class="form-control" />

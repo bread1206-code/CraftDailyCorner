@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel.DataAnnotations;
 
 namespace CraftDailyCorner.ViewModels.Front
 {
@@ -14,6 +15,7 @@ namespace CraftDailyCorner.ViewModels.Front
 
         [Display(Name = "Email")]
         [EmailAddress(ErrorMessage = "Email 格式不正確")]
+        [HiddenInput]
         public string Email { get; set; } = null!;
 
         [Display(Name = "聯絡電話")]

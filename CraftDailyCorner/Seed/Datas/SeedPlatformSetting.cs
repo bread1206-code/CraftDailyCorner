@@ -29,7 +29,7 @@ namespace CraftDailyCorner.Seed.Datas
                     new PlatformSetting
                     {
                         SettingKey = "platform_LogoURL",
-                        SettingValue = imageGuids[0]+".png",
+                        SettingValue = imageGuids[0],
                         DataType = "string",
                         CategoryID = 1,
                         Description = "平台 Logo URL",

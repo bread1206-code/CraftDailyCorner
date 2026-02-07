@@ -8,7 +8,7 @@
 
         <!-- Logo -->
         <a class="navbar-brand" asp-controller="Home" asp-action="Index">
-            <img src="~/Photos/07LOGO/Other/@SiteSetting.GetNavbarLogo()"
+            <img src="@($"/Photos/07LOGO/Other/{SiteSetting.GetNavbarLogo()}.png")"
                  alt="Logo"
                  class="Logo" />
         </a>

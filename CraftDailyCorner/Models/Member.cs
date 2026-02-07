@@ -13,9 +13,9 @@ namespace CraftDailyCorner.Models
         [HiddenInput]
         public string MemberID { get; set; } = null!;
 
-        [StringLength(40, MinimumLength = 11)]
+        [StringLength(36)]
         [Display(Name ="頭像")]
-        public string ImageUrl { get; set; } = "default.png";
+        public string? ImageUrl { get; set; }
 
         [StringLength(20,MinimumLength =1)]
         [Required]

@@ -41,8 +41,6 @@ namespace CraftDailyCorner.Controllers
 
         // 個人資料送出
         // POST: /Member/Profile
-        // 個人資料送出
-        // POST: /Member/Profile
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Profile(VMEditProfile vm)
@@ -52,28 +50,29 @@ namespace CraftDailyCorner.Controllers
 
             var memberId = GetMemberId();
 
-            // 有上傳頭像才處理
             if (vm.AvatarFile != null && vm.AvatarFile.Length > 0)
             {
-                var fileName = _imageUploadService.UploadImage(
+                // 有舊圖就沿用，沒有才產生新的 GUID
+                var fileKey = string.IsNullOrEmpty(vm.ImageUrl)
+                    ? Guid.NewGuid().ToString()
+                    : vm.ImageUrl;
+
+                _imageUploadService.UploadImage(
                     file: vm.AvatarFile,
                     seedSourcePath: null,
                     folderName: "01Member",
                     sizes: ImageSizePresets.Member,
-                    entityId: memberId // 會員頭像用 MemberID 當檔名
+                    entityId: fileKey
                 );
 
-                //回寫到 ViewModel
-                vm.ImageUrl = fileName;
+                vm.ImageUrl = fileKey;
             }
 
-            //更新會員資料
             _memberCenterService.UpdateProfile(vm);
 
             TempData["Success"] = "個人資料已更新";
             return RedirectToAction(nameof(Profile));
         }
-
         //私有方法：取得登入會員 ID
         private string GetMemberId()
         {

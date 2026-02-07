@@ -11,8 +11,9 @@ namespace CraftDailyCorner.Models
         [Display(Name = "創作者編號")]
         public string CreatorID { get; set; } = null!;
 
-        [StringLength(40,MinimumLength =40)]
-        [Display(Name = "創作者頭像")]
+        [StringLength(36,MinimumLength =36)]
+        [Column(TypeName ="nchar(36)")]
+        [Display(Name = "品牌圖片")]
         public string ImageUrl { get; set; } = null!;
 
         [Required]
