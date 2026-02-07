@@ -1,19 +1,74 @@
-﻿// Please see documentation at https://learn.microsoft.com/aspnet/core/client-side/bundling-and-minification
-// for details on configuring this project to bundle and minify static web assets.
-
-// Write your JavaScript code.
-
+﻿
 // 開啟登入視窗
 let pendingAddToCartProductId = null;
 
-function openLoginModal(productId) {
-    pendingAddToCartProductId = productId;
+// DOMContentLoaded 是為了確保 HTML 元素都載入後才綁定事件
+document.addEventListener("DOMContentLoaded", function () {
 
-    const modal = new bootstrap.Modal(
-        document.getElementById('loginModal')
-    );
-    modal.show();
-}
+    document.querySelectorAll(".favorite-btn").forEach(btn => {
+
+        btn.addEventListener("click", async function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            // 如果正在 loading，直接擋掉
+            if (btn.classList.contains("loading")) return;
+
+            const productId = btn.dataset.productId;
+
+            // 先進入 loading（防連點）
+            btn.classList.add("loading");
+
+            try {
+                const response = await fetch("/api/favorite/toggle", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/x-www-form-urlencoded"
+                    },
+                    body: `productId=${encodeURIComponent(productId)}`
+                });
+
+                if (response.status === 401) {
+                    alert("請先登入會員");
+                    return;
+                }
+
+                if (!response.ok) {
+                    alert("操作失敗，請稍後再試");
+                    return;
+                }
+
+                const result = await response.json();
+
+                // 只在「收藏成功」時，加蓋章動畫
+                if (result.isFavorite) {
+                    btn.classList.add("stamping");
+                    showFavoriteStamp();
+                }
+                if (!result.isFavorite) {
+                    const card = btn.closest(".col-12");
+                    if (card) {
+                        card.remove();
+                    }
+                }
+
+                // 更新 icon / 文字
+                updateFavoriteButton(btn, result.isFavorite);
+
+            } catch (err) {
+                console.error(err);
+                alert("系統錯誤，請稍後再試");
+
+            } finally {
+                // ⭐ 動畫結束後解除狀態
+                setTimeout(() => {
+                    btn.classList.remove("loading", "stamping");
+                }, 1500); // 要跟 CSS animation 時間一致
+            }
+        });
+
+    });
+});
 
 // 登入成功後處理
 function openLoginModal() {
@@ -120,31 +175,6 @@ function showRegisterError(msg) {
     el.textContent = msg;
     el.classList.remove('d-none');
 }
-function ajaxRegister() {
-    const form = document.getElementById('registerForm');
-    const formData = new FormData(form);
-
-    fetch('/Account/Register', {
-        method: 'POST',
-        body: formData,
-        headers: {
-            'X-Requested-With': 'XMLHttpRequest'
-        }
-    })
-        .then(r => r.json())
-        .then(res => {
-            clearRegisterErrors();
-
-            if (!res.success) {
-                showRegisterErrors(res.errors);
-                return;
-            }
-
-            // ⭐ 註冊成功 = 已登入
-            onLoginSuccess();
-        });
-}
-
 function showRegisterErrors(errors) {
     for (const key in errors) {
         const span = document.querySelector(
@@ -170,4 +200,81 @@ function switchToRegister() {
     if (!registerTabBtn) return;
 
     bootstrap.Tab.getOrCreateInstance(registerTabBtn).show();
+}
+
+//收藏商品
+function initFavoriteButton() {
+    const btn = document.getElementById("favoriteBtn");
+    if (!btn) return;
+
+    btn.addEventListener("click", async function () {
+        const productId = btn.dataset.productId;
+
+        try {
+            const response = await fetch("/api/favorite/toggle", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+                body: `productId=${encodeURIComponent(productId)}`
+            });
+
+            if (response.status === 401) {
+                alert("請先登入會員");
+                return;
+            }
+
+            if (!response.ok) {
+                alert("操作失敗，請稍後再試");
+                return;
+            }
+
+            const result = await response.json();
+            updateFavoriteButton(btn, result.isFavorite);
+
+        } catch (err) {
+            console.error(err);
+            alert("系統錯誤，請稍後再試");
+        }
+    });
+}
+// 更新收藏按鈕的外觀
+function updateFavoriteButton(btn, isFavorite) {
+
+    const icon = btn.querySelector("i");
+    const text = btn.querySelector("span"); // 詳情頁才有
+
+    if (isFavorite) {
+        // icon
+        icon.classList.remove("bi-heart", "text-muted");
+        icon.classList.add("bi-heart-fill", "text-danger");
+
+        // text（商品詳情頁）
+        if (text) {
+            text.textContent = "已收藏";
+        }
+
+        btn.dataset.isFavorite = "true";
+    } else {
+        icon.classList.remove("bi-heart-fill", "text-danger");
+        icon.classList.add("bi-heart", "text-muted");
+
+        if (text) {
+            text.textContent = "收藏";
+        }
+
+        btn.dataset.isFavorite = "false";
+    }
+}
+function showFavoriteStamp() {
+    const overlay = document.getElementById("favorite-stamp-overlay");
+    if (!overlay) return;
+
+    overlay.classList.add("show");
+    overlay.style.display = "block";
+
+    setTimeout(() => {
+        overlay.classList.remove("show");
+        overlay.style.display = "none";
+    }, 800); // 跟動畫時間一致
 }

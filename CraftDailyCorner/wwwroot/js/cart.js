@@ -91,7 +91,7 @@ function updateQuantity(productId, quantity) {
         });
 }
 
- 移除商品
+ //移除商品
 function removeFromCart(productId) {
     fetch('/Cart/RemoveItem', {
         method: 'POST',

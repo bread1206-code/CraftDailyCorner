@@ -34,17 +34,12 @@
 
 <div class="container my-5">
 
-    <h3 class="fw-bold mb-4">商品列表</h3>
+    <h3 class="fw-bold mb-4">@Model.PageTitle</h3>
 
     <!-- 商品 Card -->
     <div class="row g-4">
         @foreach (var item in pagedProducts)
         {
-            var coverImg = item.ProductImages
-            .Where(i => i.StatusID == 1)
-            .OrderBy(i => i.SortOrder)
-            .FirstOrDefault()?.ImageUrl ?? "no-image.png";
-
             <div class="col-12 col-sm-6 col-md-3">
                 <div class="card h-100 shadow-sm">
 
@@ -52,39 +47,46 @@
                        asp-route-id="@item.ProductID"
                        class="text-decoration-none text-dark">
 
-                        <img src="/Photos/04ProductImage/Large/@coverImg"
+                        <img src=@($"/Photos/04ProductImage/Large/{item.CoverImageUrl}.png")
                              class="card-img-top"
-                             style="height: 200px; object-fit: cover;" />
-
+                             style="height:200px;object-fit:cover;" />
+                    </a>
                         <div class="card-body">
-                            <h6 class="card-title text-truncate">
-                                @item.ProductName
-                            </h6>
+
+                            <!-- 商品名稱 + 收藏（同一行） -->
+                            <div class="d-flex justify-content-between align-items-start">
+                                <h6 class="card-title text-truncate mb-1 pe-2">
+                                    @item.ProductName
+                                </h6>
+
+                                <button type="button"
+                                        class="btn btn-sm p-0 border-0 bg-transparent favorite-btn"
+                                        data-product-id="@item.ProductID"
+                                        data-is-favorite="@item.IsFavorite.ToString().ToLower()"
+                                        onclick="event.preventDefault(); event.stopPropagation();">
+                                    <i class="bi @(item.IsFavorite ? "bi-heart-fill text-danger" : "bi-heart text-muted") fs-5"></i>
+                                </button>
+                            </div>
 
                             <p class="text-danger fw-bold mb-1">
                                 NT$ @Math.Floor(item.Price)
                             </p>
 
-                            <small class="text-muted">
-                                更新於 @item.CreatedAt.ToString("yyyy/MM/dd")
-                            </small>
                         </div>
-                    </a>
-
-                    @* <!-- Tags -->
-                    <div class="card-footer bg-white border-0 pt-0">
-                        @foreach (var tag in item.ProductTags.Select(pt => pt.Tag))
-                        {
-                            <a asp-controller="Products"
-                                asp-action="Index"
-                               asp-route-tagId="@tag.TagID"
-                               class="badge bg-secondary text-decoration-none me-1">
-                                @tag.TagName
-                            </a>
-                        }
-                    </div> *@
-
+                    
                 </div>
+            @*  <!-- Tags -->
+                <div class="card-footer bg-white border-0 pt-0">
+                    @foreach (var tag in item.ProductTags.Select(pt => pt.Tag))
+                    {
+                        <a asp-controller="Products"
+                            asp-action="Index"
+                            asp-route-tagId="@tag.TagID"
+                            class="badge bg-secondary text-decoration-none me-1">
+                            @tag.TagName
+                        </a>
+                    }
+                </div> *@
             </div>
         }
     </div>

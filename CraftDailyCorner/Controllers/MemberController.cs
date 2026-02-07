@@ -11,11 +11,13 @@ namespace CraftDailyCorner.Controllers
     {
         private readonly MemberCenterService _memberCenterService;
         private readonly IImageUploadService _imageUploadService;
+        private readonly FavoriteService _favoriteService;
 
-        public MemberController(MemberCenterService memberCenterService, IImageUploadService imageUploadService)
+        public MemberController(MemberCenterService memberCenterService, IImageUploadService imageUploadService, FavoriteService favoriteService)
         {
             _memberCenterService = memberCenterService;
             _imageUploadService = imageUploadService;
+            _favoriteService = favoriteService;
         }
 
         //會員中心首頁
@@ -73,6 +75,18 @@ namespace CraftDailyCorner.Controllers
             TempData["Success"] = "個人資料已更新";
             return RedirectToAction(nameof(Profile));
         }
+
+        // 我的收藏頁面
+        [Authorize]
+        public IActionResult Favorites()
+        {
+            var memberId = GetMemberId();
+
+            var favorites = _favoriteService.GetMyFavorites(memberId);
+
+            return View(favorites);
+        }
+
         //私有方法：取得登入會員 ID
         private string GetMemberId()
         {

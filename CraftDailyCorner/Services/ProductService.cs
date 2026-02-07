@@ -1,0 +1,164 @@
+﻿using CraftDailyCorner.Models;
+using CraftDailyCorner.ViewModels;
+using CraftDailyCorner.ViewModels.Front;
+using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
+
+namespace CraftDailyCorner.Services
+{
+    public class ProductService
+    {
+        private readonly CraftDailyCornerContext _context;
+
+        public ProductService(CraftDailyCornerContext context)
+        {
+            _context = context;
+        }
+
+        //商品列表（分類 / 搜尋 / Tag）
+        public VMProductList GetProductList(int? categoryId,string? keyword,int? tagId,string? memberId)
+        {
+            var query = _context.Products
+                .Include(p => p.ProductImages)
+                .Where(p => p.StatusID == 2);
+
+            string pageTitle = "所有商品";
+
+            // 1️⃣ 分類
+            if (categoryId.HasValue)
+            {
+                var categoryName = _context.Categories
+                    .Where(c => c.CategoryID == categoryId)
+                    .Select(c => c.CategoryName)
+                    .FirstOrDefault();
+
+                pageTitle = categoryName != null
+                    ? $"{categoryName} 類商品"
+                    : "分類商品";
+
+                query = query.Where(p =>
+                    p.ProductCategories.Any(pc => pc.CategoryID == categoryId));
+            }
+
+            // 2️⃣ 搜尋（優先於分類）
+            if (!string.IsNullOrWhiteSpace(keyword))
+            {
+                pageTitle = $"搜尋「{keyword}」的結果";
+
+                query = query.Where(p =>
+                    p.ProductName.Contains(keyword) ||
+                    p.Description.Contains(keyword));
+            }
+
+            // 3️⃣ 標籤（最高優先）
+            if (tagId.HasValue)
+            {
+                var tagName = _context.Tags
+                    .Where(t => t.TagID == tagId)
+                    .Select(t => t.TagName)
+                    .FirstOrDefault();
+
+                pageTitle = tagName != null
+                    ? $"#{tagName} 標籤商品"
+                    : "標籤商品";
+
+                query = query.Where(p =>
+                    p.ProductTags.Any(pt => pt.TagID == tagId));
+            }
+
+            var products = query.ToList();
+
+            // ⭐ 一次撈會員收藏
+            var favoriteIds = new HashSet<string>();
+
+            if (!string.IsNullOrEmpty(memberId))
+            {
+                favoriteIds = _context.FavoriteProducts
+                    .Where(f => f.MemberID == memberId)
+                    .Select(f => f.ProductID)
+                    .ToHashSet();
+            }
+
+            var items = products.Select(p =>
+            {
+                var cover = p.ProductImages
+                    .Where(i => i.StatusID == 1)
+                    .OrderBy(i => i.SortOrder)
+                    .Select(i => i.ImageUrl)
+                    .FirstOrDefault() ?? "no-image.png";
+
+                return new VMProductListItem
+                {
+                    ProductID = p.ProductID,
+                    ProductName = p.ProductName,
+                    Price = p.Price,
+                    CoverImageUrl = cover,
+                    IsFavorite = favoriteIds.Contains(p.ProductID)
+                };
+            }).ToList();
+
+            return new VMProductList
+            {
+                Products = items,
+                CategoryId = categoryId,
+                Keyword = keyword,
+                TagId = tagId,
+                PageTitle = pageTitle // ⭐ 關鍵在這
+            };
+        }
+
+        //商品詳細頁
+        public VMProductDetail? GetProductDetail(string productId, string? memberId)
+        {
+            var product = _context.Products
+                .Include(p => p.ProductImages)
+                .Include(p => p.ProductCategories)
+                    .ThenInclude(pc => pc.Category)
+                .Include(p => p.ProductTags)
+                    .ThenInclude(pt => pt.Tag)
+                .Include(p => p.CreatorProfile)
+                .Include(p => p.Inventory)
+                .FirstOrDefault(p => p.ProductID == productId && p.StatusID == 2);
+
+            if (product == null) return null;
+
+            bool isFavorite = false;
+
+            if (!string.IsNullOrEmpty(memberId))
+            {
+                isFavorite = _context.FavoriteProducts
+                    .Any(f => f.MemberID == memberId && f.ProductID == productId);
+            }
+
+            return new VMProductDetail
+            {
+                ProductId = product.ProductID,
+                ProductName = product.ProductName,
+                Description = product.Description,
+                Price = product.Price,
+
+                StockQty = product.Inventory?.StockQty ?? 0,
+                AlertQty = product.Inventory?.AlertQty ?? 0,
+
+                ImageUrls = product.ProductImages
+                    .Where(i => i.StatusID == 1)
+                    .OrderBy(i => i.SortOrder)
+                    .Select(i => i.ImageUrl)
+                    .ToList(),
+
+                CreatorId = product.CreatorProfile?.CreatorID,
+                CreatorName = product.CreatorProfile?.DisplayName,
+
+                Categories = product.ProductCategories
+                    .Select(pc => pc.Category)
+                    .ToList(),
+
+                Tags = product.ProductTags
+                    .Select(pt => pt.Tag)
+                    .ToList(),
+
+                IsFavorite = isFavorite // ⭐ 關鍵
+            };
+        }
+    }
+}

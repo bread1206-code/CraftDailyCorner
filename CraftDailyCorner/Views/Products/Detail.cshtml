@@ -41,7 +41,7 @@
                                     @for (int i = 0; i < Model.ImageUrls.Count; i++)
                                     {
                                         <div class="carousel-item @(i == 0 ? "active" : "")">
-                                            <img src="/Photos/04ProductImage/Large/@Model.ImageUrls[i]"
+                                            <img src=@($"/Photos/04ProductImage/Large/{Model.ImageUrls[i]}.png")
                                                  class="d-block w-100"
                                                  style="height: 420px; object-fit: contain;"
                                                  alt="@Model.ProductName" />
@@ -73,7 +73,7 @@
                         <div class="d-flex gap-2 mt-3 justify-content-center">
                             @foreach (var img in Model.ImageUrls)
                             {
-                                <img src="/Photos/04ProductImage/Large/@img"
+                                <img src=@($"/Photos/04ProductImage/Large/{img}.png")
                                      class="img-thumbnail"
                                      style="width: 80px; height: 80px; object-fit: cover;" />
                             }
@@ -89,8 +89,15 @@
                             <h2 class="fw-bold">@Model.ProductName</h2>
                         </div>
                         <div class="col-auto">
-                            <button class="btn btn-outline-danger fs-5">
-                                @(Model.IsFavorite ? "已收藏 ♥" : "收藏 ♡")
+                            <button id="favoriteBtn"
+                                    class="btn btn-outline-danger fs-5 favorite-btn"
+                                    data-product-id="@Model.ProductId"
+                                    data-is-favorite="@Model.IsFavorite.ToString().ToLower()">
+
+                                <i class="bi @(Model.IsFavorite ? "bi-heart-fill" : "bi-heart")"></i>
+                                <span class="ms-1">
+                                    @(Model.IsFavorite ? "已收藏" : "收藏")
+                                </span>
                             </button>
                         </div>
                     </div>
