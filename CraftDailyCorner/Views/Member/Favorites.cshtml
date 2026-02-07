@@ -1,0 +1,60 @@
+﻿@model List<CraftDailyCorner.ViewModels.Front.VMFavoriteProductItem>
+
+@{
+    ViewData["Title"] = "我的收藏";
+}
+
+<div class="container my-5">
+
+    <h3 class="fw-bold mb-4">我的收藏商品</h3>
+
+    @if (!Model.Any())
+    {
+        <div class="text-center text-muted py-5">
+            <i class="bi bi-heart fs-1"></i>
+            <p class="mt-3">你還沒有收藏任何商品</p>
+        </div>
+    }
+    else
+    {
+        <div class="row g-4">
+            @foreach (var item in Model)
+            {
+                <div class="col-12 col-sm-6 col-md-3">
+                    <div class="card h-100 shadow-sm position-relative">
+
+                        <a asp-action="Detail"
+                           asp-route-id="@item.ProductID"
+                           class="text-decoration-none text-dark">
+
+                            <img src=@($"/Photos/04ProductImage/Large/{item.CoverImageUrl}.png")
+                                 class="card-img-top"
+                                 style="height:200px;object-fit:cover;" />
+                        </a>
+                        <div class="card-body">
+
+                            <!-- 商品名稱 + 收藏（同一行） -->
+                            <div class="d-flex justify-content-between align-items-start">
+                                <h6 class="card-title text-truncate mb-1 pe-2">
+                                    @item.ProductName
+                                </h6>
+
+                                <button type="button"
+                                        class="btn btn-sm p-0 border-0 bg-transparent favorite-btn"
+                                        data-product-id="@item.ProductID"
+                                        data-is-favorite="@item.IsFavorite.ToString().ToLower()"
+                                        onclick="event.preventDefault(); event.stopPropagation();">
+                                    <i class="bi @(item.IsFavorite ? "bi-heart-fill text-danger" : "bi-heart text-muted") fs-5"></i>
+                                </button>
+                            </div>
+
+                            <p class="text-danger fw-bold mb-1">
+                                NT$ @Math.Floor(item.Price)
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
