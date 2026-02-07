@@ -59,8 +59,9 @@ namespace CraftDailyCorner.Services
             {
                 MemberID = member.MemberID,
                 DisplayName = member.DisplayName,
-                Email = member.Privacy?.Email ?? string.Empty,
-                Phone = member.Privacy?.Phone
+                Email = member.Privacy?.Email ?? string.Empty,//若取得null則改用""(空字串)
+                Phone = member.Privacy?.Phone ?? string.Empty,
+                ImageUrl = member.ImageUrl ?? string.Empty,
             };
         }
 

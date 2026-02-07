@@ -289,7 +289,7 @@ namespace CraftDailyCorner.Seed
 
             for (int i = 0; i < guids.Length; i++)
             {
-                _imageUploadService.UploadSeedImage(
+                _imageUploadService.UploadFromSeed(
                     seedFolder: seedFolder,
                     sourceFile: files[i],
                     fileNameWithoutExt: guids[i],
@@ -302,7 +302,7 @@ namespace CraftDailyCorner.Seed
             var sizes = _folderSizeMapping.ContainsKey("01Member")
                 ? _folderSizeMapping["01Member"]
                 : ImageSizePresets.Member; // 預設使用 Member
-            _imageUploadService.UploadSeedImage(
+            _imageUploadService.UploadFromSeed(
                     seedFolder: "01Member",
                     sourceFile: "Seed/SeedPhotos/01Member/default.png",
                     fileNameWithoutExt: "default",

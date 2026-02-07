@@ -399,6 +399,9 @@ namespace CraftDailyCorner.Migrations
 
                     b.HasIndex("ProductID");
 
+                    b.HasIndex("MemberID", "ProductID")
+                        .IsUnique();
+
                     b.ToTable("FavoriteProducts");
                 });
 
@@ -418,6 +421,9 @@ namespace CraftDailyCorner.Migrations
                     b.HasKey("MemberID", "CreatorID");
 
                     b.HasIndex("CreatorID");
+
+                    b.HasIndex("MemberID", "CreatorID")
+                        .IsUnique();
 
                     b.ToTable("FollowCreators");
                 });

@@ -1294,6 +1294,12 @@ namespace CraftDailyCorner.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_FavoriteProducts_MemberID_ProductID",
+                table: "FavoriteProducts",
+                columns: new[] { "MemberID", "ProductID" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_FavoriteProducts_ProductID",
                 table: "FavoriteProducts",
                 column: "ProductID");
@@ -1302,6 +1308,12 @@ namespace CraftDailyCorner.Migrations
                 name: "IX_FollowCreators_CreatorID",
                 table: "FollowCreators",
                 column: "CreatorID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_FollowCreators_MemberID_CreatorID",
+                table: "FollowCreators",
+                columns: new[] { "MemberID", "CreatorID" },
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_HomepageBanners_CreatedBy",

@@ -4,8 +4,8 @@
     ViewData["Title"] = "個人資料";
 
     string avatarUrl = string.IsNullOrEmpty(Model.ImageUrl)
-        ? "/images/avatar-default.png"
-        : $"/Photos/MemberAvatar/{Model.ImageUrl}";
+        ? "/Photos/01Member/Medium/default.png"
+        : $"/Photos/01Member/Medium/{Model.ImageUrl}";
 }
 
 <div class="container my-5">
@@ -37,19 +37,24 @@
                 <input type="hidden" asp-for="MemberID" />
                 <input type="hidden" asp-for="ImageUrl" />
 
-                <!--  頭像  -->
+                <!-- 頭像（可即時預覽） -->
                 <div class="mb-4 text-center">
-                    <img src="@avatarUrl"
-                         class="rounded-circle border mb-3"
-                         style="width:120px;height:120px;object-fit:cover;" />
 
-                    <div>
+                    <img id="avatarPreview"
+                         src="@avatarUrl"
+                         class="rounded-circle border mb-3"
+                         style="width:180px;height:180px;object-fit:cover;" />
+
+                    <div class="d-flex flex-column align-items-center gap-1">
                         <input asp-for="AvatarFile"
                                type="file"
                                class="form-control"
-                               accept="image/*" />
+                               accept="image/png,image/jpeg"
+                               onchange="previewAvatar(this)"
+                               style="max-width:280px;" />
+
                         <small class="text-muted">
-                            建議尺寸 1:1，JPG / PNG
+                            建議比例 1:1，支援 JPG / PNG
                         </small>
                     </div>
                 </div>
@@ -60,11 +65,6 @@
                     <input asp-for="DisplayName" class="form-control" />
                     <span asp-validation-for="DisplayName"
                           class="text-danger"></span>
-                </div>
-                <div class="mb-3">
-                    <label asp-for="Email" class="form-label"></label>
-                    <input asp-for="Email" class="form-control" />
-                    <span asp-validation-for="Email" class="text-danger"></span>
                 </div>
 
                 <div class="mb-3">
@@ -87,4 +87,28 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script>
+        function previewAvatar(input) {
+            if (!input.files || input.files.length === 0) {
+                return;
+            }
+
+            const file = input.files[0];
+
+            // 簡單防呆（前端 UX 用，後端仍會驗）
+            if (!file.type.startsWith("image/")) {
+                alert("請選擇圖片檔案");
+                input.value = "";
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const img = document.getElementById("avatarPreview");
+                img.src = e.target.result;
+            };
+
+            reader.readAsDataURL(file);
+        }
+    </script>
 }

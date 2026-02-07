@@ -606,6 +606,14 @@ namespace CraftDailyCorner.Models
                 .HasIndex(pcrs => pcrs.StatusCode)
                 .IsUnique();
 
+            modelBuilder.Entity<FavoriteProduct>()
+                .HasIndex(e => new { e.MemberID, e.ProductID })
+                .IsUnique();
+
+            modelBuilder.Entity<FollowCreator>()
+                .HasIndex(e => new { e.MemberID, e.CreatorID })
+                .IsUnique();
+
             #endregion
         }
     }

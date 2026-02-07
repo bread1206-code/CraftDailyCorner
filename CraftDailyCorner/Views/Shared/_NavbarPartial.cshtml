@@ -115,28 +115,49 @@
                                 <a class="dropdown-item"
                                    asp-controller="Orders"
                                    asp-action="Index">
-                                    我的訂單
+                                    <i class="bi bi-box-seam text-primary"> </i>我的訂單
                                 </a>
                             </li>
                             <li>
                                 <a class="dropdown-item"
-                                   asp-controller="Payment"
+                                   asp-controller="Orders"
                                    asp-action="Index">
-                                    付款紀錄
+                                    <i class="bi bi-clock-history text-secondary"> </i>付款紀錄
                                 </a>
                             </li>
+                            <li>
+                                <a class="dropdown-item"
+                                   asp-controller="Favorites"
+                                   asp-action="Index">
+                                    <i class="bi bi-box2-heart text-danger"> </i>收藏清單
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item"
+                                   asp-controller="Follows"
+                                   asp-action="Index">
+                                    <i class="bi bi-bookmark-heart text-purple"> </i>追蹤清單
+                                </a>
+                            </li>
+                            <hr />
                             <li>
                                 <a class="dropdown-item"
                                    asp-controller="Member"
                                    asp-action="Index">
-                                    <i class="bi bi-person-circle"> </i>個人資料
+                                    <i class="bi bi-person-circle"> </i>個人中心
+                                </a>
+                                <a class="dropdown-item"
+                                   asp-controller="Settings"
+                                   asp-action="Index">
+                                    <i class="bi bi-gear"> </i>設定
                                 </a>
                             </li>
+                            <hr/>
                             <li>
                                 <a class="dropdown-item"
                                    asp-controller="Account"
                                    asp-action="Logout">
-                                    登出
+                                    <i class="bi bi-door-open"> </i>登出
                                 </a>
                             </li>
                         </ul>

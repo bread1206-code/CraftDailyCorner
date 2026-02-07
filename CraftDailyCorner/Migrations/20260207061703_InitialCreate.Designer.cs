@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CraftDailyCorner.Migrations
 {
     [DbContext(typeof(CraftDailyCornerContext))]
-    [Migration("20260206105827_InitialCreate")]
+    [Migration("20260207061703_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -402,6 +402,9 @@ namespace CraftDailyCorner.Migrations
 
                     b.HasIndex("ProductID");
 
+                    b.HasIndex("MemberID", "ProductID")
+                        .IsUnique();
+
                     b.ToTable("FavoriteProducts");
                 });
 
@@ -421,6 +424,9 @@ namespace CraftDailyCorner.Migrations
                     b.HasKey("MemberID", "CreatorID");
 
                     b.HasIndex("CreatorID");
+
+                    b.HasIndex("MemberID", "CreatorID")
+                        .IsUnique();
 
                     b.ToTable("FollowCreators");
                 });
