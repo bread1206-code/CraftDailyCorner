@@ -1,5 +1,5 @@
 ﻿using CraftDailyCorner.Models;
-using CraftDailyCorner.ViewModels.Front;
+using CraftDailyCorner.ViewModels.Front.Product;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 

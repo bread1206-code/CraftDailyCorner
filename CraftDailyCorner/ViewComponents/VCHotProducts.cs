@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using CraftDailyCorner.Models;
-using CraftDailyCorner.ViewModels.Front;
+using CraftDailyCorner.ViewModels.Front.Homepage;
 namespace CraftDailyCorner.ViewComponents
 {
     public class VCHotProducts : ViewComponent

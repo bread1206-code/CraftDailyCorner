@@ -1,5 +1,5 @@
 ﻿using CraftDailyCorner.Models;
-using CraftDailyCorner.ViewModels.Front;
+using CraftDailyCorner.ViewModels.Front.Cart;
 
 namespace CraftDailyCorner.Services
 {

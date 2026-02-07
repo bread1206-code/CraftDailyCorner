@@ -1,6 +1,8 @@
 ﻿using CraftDailyCorner.Models;
 using CraftDailyCorner.ViewModels;
 using CraftDailyCorner.ViewModels.Front;
+using CraftDailyCorner.ViewModels.Front.Member;
+using CraftDailyCorner.ViewModels.Front.Order;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using System.Data;

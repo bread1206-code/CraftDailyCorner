@@ -1,0 +1,27 @@
+﻿@model CraftDailyCorner.ViewModels.Front.CreatorApplication.VMCreatorApplicationApproved
+
+@{
+    ViewData["Title"] = "你已成為創作者";
+}
+
+<div class="alert alert-success">
+    <h4 class="alert-heading">恭喜你，申請已通過！</h4>
+    <p class="mb-2">
+        你已正式成為創作者，可以開始分享你的創作。
+    </p>
+    <hr />
+    <p class="mb-1">
+        <strong>創作者暱稱：</strong>@Model.DisplayName
+    </p>
+    <p class="mb-0">
+        <strong>審核通過時間：</strong>@Model.ReviewedAt.ToString("yyyy/MM/dd HH:mm")
+    </p>
+</div>
+
+<a href="#" class="btn btn-success mt-3">
+    前往創作者專區
+</a>
+
+<p class="text-muted mt-2">
+    （創作者專區功能即將開放）
+</p>

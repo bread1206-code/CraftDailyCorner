@@ -1,4 +1,4 @@
-﻿using CraftDailyCorner.ViewModels.Front;
+﻿using CraftDailyCorner.ViewModels.Front.Payment;
 
 namespace CraftDailyCorner.Services.Interface
 {

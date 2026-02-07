@@ -1,6 +1,8 @@
 ﻿using CraftDailyCorner.Models;
 using CraftDailyCorner.ViewModels;
 using CraftDailyCorner.ViewModels.Front;
+using CraftDailyCorner.ViewModels.Front.Breadcrumb;
+using CraftDailyCorner.ViewModels.Front.Product;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 

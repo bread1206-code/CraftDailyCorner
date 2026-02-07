@@ -74,7 +74,39 @@ document.addEventListener("DOMContentLoaded", function () {
 
     });
 });
+//圖片預覽功能
+window.previewImage = function (options) {
+    const {
+        input,
+        previewSelector,
+        fallbackSrc = null
+    } = options;
 
+    if (!input.files || input.files.length === 0) {
+        return;
+    }
+
+    const file = input.files[0];
+
+    // 前端 UX 防呆（後端仍需驗）
+    if (!file.type.startsWith("image/")) {
+        alert("請選擇圖片檔案");
+        input.value = "";
+        return;
+    }
+
+    const reader = new FileReader();
+
+    reader.onload = function (e) {
+        const img = document.querySelector(previewSelector);
+        if (!img) return;
+
+        img.src = e.target.result;
+        img.classList.remove("d-none");
+    };
+
+    reader.readAsDataURL(file);
+};
 // 登入成功後處理
 function openLoginModal() {
     const modalEl = document.getElementById('loginModal');

@@ -18,7 +18,7 @@ namespace CraftDailyCorner.Models
 
         [Required]
         [StringLength(40, MinimumLength = 1)]
-        [Display(Name = "創作者暱稱")]
+        [Display(Name = "品牌名稱")]
         public string DisplayName { get; set; } = null!;
 
         [Required]

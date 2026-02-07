@@ -1,0 +1,65 @@
+﻿@model CraftDailyCorner.ViewModels.Front.CreatorApplication.VMCreatorApplicationApply
+
+@{
+    ViewData["Title"] = "申請成為創作者";
+}
+
+<h2 class="mb-4">申請成為創作者</h2>
+
+<p class="text-muted mb-4">
+    成為創作者後，你可以上架作品、分享創作故事，讓更多人看見你的創作。
+</p>
+
+<form asp-action="Apply" method="post" enctype="multipart/form-data">
+    @Html.AntiForgeryToken()
+
+    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+    <div class="mb-3">
+        <label asp-for="DisplayName" class="form-label"></label>
+        <input asp-for="DisplayName" class="form-control" />
+        <span asp-validation-for="DisplayName" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Intro" class="form-label"></label>
+        <textarea asp-for="Intro" class="form-control" rows="5"
+                  placeholder="請簡單介紹你的創作風格、擅長的題材或創作理念"></textarea>
+        <span asp-validation-for="Intro" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="PortfolioSample" class="form-label"></label>
+        <input asp-for="PortfolioSample"
+               type="file"
+               class="form-control"
+               accept="image/png,image/jpeg"
+               onchange="previewImage({input: this,previewSelector: '#portfolioPreview'})" />
+
+        <span asp-validation-for="PortfolioSample" class="text-danger"></span>
+
+        <div class="form-text">
+            支援 JPG / PNG，建議上傳能代表你風格的作品圖片。
+        </div>
+    </div>
+    <!-- 圖片預覽 -->
+    <div class="mt-3">
+        <img id="portfolioPreview"
+             src="#"
+             alt="作品預覽"
+             class="img-thumbnail d-none"
+             style="max-width: 300px;" />
+    </div>
+    <div class="mb-4">
+        <label asp-for="StartDate" class="form-label"></label>
+        <input asp-for="StartDate" class="form-control" />
+        <span asp-validation-for="StartDate" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">
+        送出申請
+    </button>
+</form>
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

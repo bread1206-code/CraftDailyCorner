@@ -76,6 +76,8 @@ builder.Services.AddScoped<OrderService>();
 builder.Services.AddScoped<FavoriteService>();
 builder.Services.AddScoped<MemberCenterService>();
 builder.Services.AddScoped<ProductService>();
+builder.Services.AddScoped<CreatorApplicationService>();
+
 builder.Services.AddScoped<IPaymentService, PaymentService>();
 builder.Services.AddSession();
 builder.Services.AddHttpContextAccessor();

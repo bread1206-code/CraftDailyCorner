@@ -1,5 +1,6 @@
 ﻿using CraftDailyCorner.Services;
 using CraftDailyCorner.ViewModels.Front;
+using CraftDailyCorner.ViewModels.Front.Order;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;

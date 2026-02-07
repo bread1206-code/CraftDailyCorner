@@ -1,4 +1,5 @@
-﻿@model CraftDailyCorner.ViewModels.Front.VMMemberDashboard
+﻿@using CraftDailyCorner.ViewModels.Front.Member
+@model VMMemberDashboard
 
 @{
     ViewData["Title"] = "會員中心";
@@ -10,30 +11,110 @@
 
 <div class="container my-5">
 
-    <!-- ===== 會員識別區（頭像＋暱稱） ===== -->
-    <div class="card shadow-sm border-0 mb-5">
-        <div class="card-body d-flex align-items-center gap-4">
+    <!-- ===== 會員識別區（左：會員資訊｜右：創作者申請） ===== -->
+    <div class="row g-4 mb-5">
 
-            <img src="@avatarUrl"
-                 alt="會員頭像"
-                 class="rounded-circle border"
-                 style="width:96px;height:96px;object-fit:cover;" />
+        <!-- 左側：會員識別（col-8） -->
+        <div class="col-md-8">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body d-flex align-items-center gap-4">
 
-            <div>
-                <h4 class="fw-bold mb-1">
-                    @Model.DisplayName
-                </h4>
+                    <img src="@avatarUrl"
+                         alt="會員頭像"
+                         class="rounded-circle border"
+                         style="width:96px;height:96px;object-fit:cover;" />
 
-                <div class="text-muted small">
-                    會員註冊時間：@Model.CreatedAt.ToString("yyyy/MM/dd")
+                    <div>
+                        <h4 class="fw-bold mb-1">
+                            @Model.DisplayName
+                        </h4>
+
+                        <div class="text-muted small">
+                            會員註冊時間：@Model.CreatedAt.ToString("yyyy/MM/dd")
+                        </div>
+
+                        <a asp-action="Profile"
+                           class="btn btn-sm btn-outline-secondary mt-2">
+                            編輯個人資料
+                        </a>
+                    </div>
+
                 </div>
-
-                <a asp-action="Profile"
-                   class="btn btn-sm btn-outline-secondary mt-2">
-                    編輯個人資料
-                </a>
             </div>
         </div>
+
+        <!-- 右側：申請成為創作者（col-4） -->
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm border-0">
+    <div class="card-body text-center d-flex flex-column justify-content-center">
+
+        @* ===== 已是創作者 ===== *@
+        @if (Model.IsCreator)
+        {
+            <div class="mb-2">
+                <i class="bi bi-check-circle fs-1 text-success"></i>
+            </div>
+
+            <div class="fs-4 fw-semibold mb-1">
+                你已是創作者
+            </div>
+
+            <p class="text-muted small mb-3">
+                可以開始上架作品，分享你的創作
+            </p>
+
+            <a asp-controller="Creator"
+               asp-action="Dashboard"
+               class="btn btn-success btn-sm fs-5">
+                前往創作者專區
+            </a>
+        }
+        @* ===== 申請審核中 ===== *@
+        else if (Model.CreatorApplicationStatusCode == "Pending")
+        {
+            <div class="mb-2">
+                <i class="bi bi-hourglass-split fs-1 text-warning"></i>
+            </div>
+
+            <div class="fs-4 fw-semibold mb-1">
+                申請審核中
+            </div>
+
+            <p class="text-muted small mb-3">
+                我們正在審核你的申請，請耐心等候
+            </p>
+
+            <button class="btn btn-outline-secondary btn-sm fs-5" disabled>
+                審核中
+            </button>
+        }
+        @* ===== 尚未申請 ===== *@
+        else
+        {
+            <div class="mb-2">
+                <i class="bi bi-palette fs-1 text-primary"></i>
+            </div>
+
+            <div class="fs-4 fw-semibold mb-1">
+                成為創作者
+            </div>
+
+            <p class="text-muted small mb-3">
+                上架作品、分享創作，讓更多人看見你的創意
+            </p>
+
+            <a asp-controller="Creator"
+               asp-action="Apply"
+               class="btn btn-outline-primary btn-sm fs-5">
+                申請成為創作者
+            </a>
+        }
+
+    </div>
+</div>
+            </div>
+        </div>
+
     </div>
 
     <!--  統計卡片  -->
