@@ -13,5 +13,7 @@ namespace CraftDailyCorner.ViewModels.Front
         public int? TagId { get; set; }
         // 新增：頁面標題
         public string PageTitle { get; set; } = "所有商品";
+        // 新增：麵包屑導航
+        public VMBreadcrumb Breadcrumb { get; set; } = new();
     }
 }

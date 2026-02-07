@@ -46,9 +46,14 @@ document.addEventListener("DOMContentLoaded", function () {
                     showFavoriteStamp();
                 }
                 if (!result.isFavorite) {
-                    const card = btn.closest(".col-12");
-                    if (card) {
-                        card.remove();
+                    // ⭐ 只有在「我的收藏頁」才移除商品卡片
+                    const isFavoritePage = document.getElementById("favorite-page") !== null;
+
+                    if (isFavoritePage) {
+                        const card = btn.closest(".col-12");
+                        if (card) {
+                            card.remove();
+                        }
                     }
                 }
 

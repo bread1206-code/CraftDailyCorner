@@ -24,7 +24,7 @@ namespace CraftDailyCorner.Services
 
             string pageTitle = "所有商品";
 
-            // 1️⃣ 分類
+            // 分類
             if (categoryId.HasValue)
             {
                 var categoryName = _context.Categories
@@ -40,7 +40,7 @@ namespace CraftDailyCorner.Services
                     p.ProductCategories.Any(pc => pc.CategoryID == categoryId));
             }
 
-            // 2️⃣ 搜尋（優先於分類）
+            // 搜尋（優先於分類）
             if (!string.IsNullOrWhiteSpace(keyword))
             {
                 pageTitle = $"搜尋「{keyword}」的結果";
@@ -50,7 +50,7 @@ namespace CraftDailyCorner.Services
                     p.Description.Contains(keyword));
             }
 
-            // 3️⃣ 標籤（最高優先）
+            // 標籤（最高優先）
             if (tagId.HasValue)
             {
                 var tagName = _context.Tags
@@ -68,7 +68,7 @@ namespace CraftDailyCorner.Services
 
             var products = query.ToList();
 
-            // ⭐ 一次撈會員收藏
+            // 一次撈會員收藏
             var favoriteIds = new HashSet<string>();
 
             if (!string.IsNullOrEmpty(memberId))
@@ -103,7 +103,13 @@ namespace CraftDailyCorner.Services
                 CategoryId = categoryId,
                 Keyword = keyword,
                 TagId = tagId,
-                PageTitle = pageTitle // ⭐ 關鍵在這
+                PageTitle = pageTitle,
+
+                Breadcrumb = BuildProductBreadcrumb(
+                    categoryId,
+                    keyword,
+                    tagId
+                )
             };
         }
 
@@ -157,8 +163,116 @@ namespace CraftDailyCorner.Services
                     .Select(pt => pt.Tag)
                     .ToList(),
 
-                IsFavorite = isFavorite // ⭐ 關鍵
+                IsFavorite = isFavorite,
+                Breadcrumb = BuildProductDetailBreadcrumb(product)
             };
+        }
+        // 建立商品列表頁的麵包屑導航
+        private VMBreadcrumb BuildProductBreadcrumb(int? categoryId,string? keyword,int? tagId)
+        {
+            var breadcrumb = new VMBreadcrumb();
+
+            // 首頁
+            breadcrumb.Items.Add(new VMBreadcrumbItem
+            {
+                Text = "首頁",
+                Url = "/"
+            });
+
+            // 商品列表
+            breadcrumb.Items.Add(new VMBreadcrumbItem
+            {
+                Text = "商品",
+                Url = "/Products"
+            });
+
+            // 搜尋（優先）
+            if (!string.IsNullOrWhiteSpace(keyword))
+            {
+                breadcrumb.Items.Add(new VMBreadcrumbItem
+                {
+                    Text = $"搜尋「{keyword}」",
+                    Url = null
+                });
+
+                return breadcrumb;
+            }
+
+            // 標籤
+            if (tagId.HasValue)
+            {
+                var tagName = _context.Tags
+                    .Where(t => t.TagID == tagId)
+                    .Select(t => t.TagName)
+                    .FirstOrDefault();
+
+                breadcrumb.Items.Add(new VMBreadcrumbItem
+                {
+                    Text = tagName != null ? $"#{tagName}" : "標籤",
+                    Url = null
+                });
+
+                return breadcrumb;
+            }
+
+            // 分類
+            if (categoryId.HasValue)
+            {
+                var categoryName = _context.Categories
+                    .Where(c => c.CategoryID == categoryId)
+                    .Select(c => c.CategoryName)
+                    .FirstOrDefault();
+
+                breadcrumb.Items.Add(new VMBreadcrumbItem
+                {
+                    Text = categoryName ?? "分類商品",
+                    Url = null
+                });
+            }
+
+            return breadcrumb;
+        }
+        // 建立商品詳細頁的麵包屑導航
+        private VMBreadcrumb BuildProductDetailBreadcrumb(Product product)
+        {
+            var breadcrumb = new VMBreadcrumb();
+
+            // 首頁
+            breadcrumb.Items.Add(new VMBreadcrumbItem
+            {
+                Text = "首頁",
+                Url = "/"
+            });
+
+            // 商品列表
+            breadcrumb.Items.Add(new VMBreadcrumbItem
+            {
+                Text = "商品",
+                Url = "/Products"
+            });
+
+            // 分類（取第一個）
+            var category = product.ProductCategories
+                .Select(pc => pc.Category)
+                .FirstOrDefault();
+
+            if (category != null)
+            {
+                breadcrumb.Items.Add(new VMBreadcrumbItem
+                {
+                    Text = category.CategoryName,
+                    Url = $"/Products?categoryId={category.CategoryID}"
+                });
+            }
+
+            // 商品名稱（目前頁）
+            breadcrumb.Items.Add(new VMBreadcrumbItem
+            {
+                Text = product.ProductName,
+                Url = null
+            });
+
+            return breadcrumb;
         }
     }
 }

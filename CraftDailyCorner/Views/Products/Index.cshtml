@@ -33,7 +33,8 @@
 }
 
 <div class="container my-5">
-
+    <!--麵包屑-->
+    @await Html.PartialAsync("_BreadcrumbPartial", Model.Breadcrumb)
     <h3 class="fw-bold mb-4">@Model.PageTitle</h3>
 
     <!-- 商品 Card -->

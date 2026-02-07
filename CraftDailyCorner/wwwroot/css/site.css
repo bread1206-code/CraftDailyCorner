@@ -235,62 +235,7 @@ body {
     pointer-events: none;
     opacity: 0.6;
 }
-.favorite-btn::after {
-    content: "";
-    position: absolute;
-    inset: 50%;
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    border: 3px solid rgba(220, 53, 69, 0.8); /* bootstrap danger */
-    transform: translate(-50%, -50%) scale(0.4);
-    opacity: 0;
-    pointer-events: none;
-}
 
-@keyframes stamp-ring {
-    0% {
-        opacity: 0;
-        transform: translate(-50%, -50%) scale(0.4);
-    }
-
-    30% {
-        opacity: 1;
-    }
-
-    100% {
-        opacity: 0;
-        transform: translate(-50%, -50%) scale(2.2);
-    }
-}
-
-.favorite-btn.stamping::after {
-    animation: stamp-ring 0.6s ease-out;
-}
-.favorite-btn::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: radial-gradient(circle, rgba(220,53,69,.8) 0 40%, transparent 41%) 20% 30% / 6px 6px no-repeat, radial-gradient(circle, rgba(220,53,69,.7) 0 40%, transparent 41%) 80% 20% / 5px 5px no-repeat, radial-gradient(circle, rgba(220,53,69,.6) 0 40%, transparent 41%) 70% 80% / 4px 4px no-repeat, radial-gradient(circle, rgba(220,53,69,.6) 0 40%, transparent 41%) 30% 75% / 5px 5px no-repeat;
-    opacity: 0;
-    pointer-events: none;
-}
-
-@keyframes particle-burst {
-    0% {
-        opacity: 1;
-        transform: scale(0.5);
-    }
-
-    100% {
-        opacity: 0;
-        transform: scale(1.6);
-    }
-}
-
-.favorite-btn.stamping::before {
-    animation: particle-burst 0.5s ease-out;
-}
 /*手機板*/
 @media (max-width: 768px) {
     @keyframes stamp {
@@ -365,4 +310,24 @@ body {
 
 #favorite-stamp-overlay.show::before {
     animation: giant-stamp 1.5s cubic-bezier(.2,1.4,.3,1);
+}
+
+/* 麵包屑導航 */
+.breadcrumb {
+    --bs-breadcrumb-divider: "›";
+}
+.breadcrumb a {
+    text-decoration: none;
+    color: inherit;
+}
+
+.breadcrumb a:hover {
+    color: blue;
+    font-weight: 600;
+    opacity: 0.85;
+}
+
+.breadcrumb-item.active {
+    color: #463333;
+    font-weight: 600;
 }
