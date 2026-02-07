@@ -56,9 +56,6 @@ namespace CraftDailyCorner.Services
 
             if (!allowedTypes.Contains(file.ContentType))
                 throw new InvalidOperationException("只允許上傳 jpg 或 png 圖片");
-
-            if (file.Length > 2 * 1024 * 1024)
-                throw new InvalidOperationException("圖片大小不可超過 2MB");
             //副檔名
             var ext = Path.GetExtension(file.FileName).ToLowerInvariant();
             var allowedExts = new[] { ".jpg", ".png" };
