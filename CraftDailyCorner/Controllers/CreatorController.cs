@@ -1,9 +1,12 @@
-﻿using CraftDailyCorner.Services;
+﻿using CraftDailyCorner.Extensions;
+using CraftDailyCorner.Models;
+using CraftDailyCorner.Services;
+using CraftDailyCorner.ViewModels.Front.Creator;
 using CraftDailyCorner.ViewModels.Front.CreatorApplication;
 using CraftDailyCorner.ViewModels.Front.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using CraftDailyCorner.Extensions;
+using Microsoft.EntityFrameworkCore;
 
 namespace CraftDailyCorner.Controllers.Front
 {
@@ -12,13 +15,16 @@ namespace CraftDailyCorner.Controllers.Front
     {
         private readonly CreatorApplicationService _creatorApplicationService;
         private readonly IImageUploadService _imageUploadService;
+        private readonly CraftDailyCornerContext _context;
 
         public CreatorController(
             CreatorApplicationService creatorApplicationService,
-            IImageUploadService imageUploadService)
+            IImageUploadService imageUploadService,
+            CraftDailyCornerContext context)
         {
             _creatorApplicationService = creatorApplicationService;
             _imageUploadService = imageUploadService;
+            _context = context;
         }
 
         // GET: /Creator/Apply
@@ -106,7 +112,8 @@ namespace CraftDailyCorner.Controllers.Front
                 DisplayName = vm.DisplayName,
                 Intro = vm.Intro,
                 PortfolioSampleUrl = imageKey,
-                StartDate = vm.StartDate
+                StartDate = vm.StartDate,
+
             });
 
             return RedirectToAction(nameof(ApplySuccess));
@@ -119,6 +126,46 @@ namespace CraftDailyCorner.Controllers.Front
             {
                 AppliedAt = DateTime.Now
             });
+        }
+        //創作者中心首頁
+        public async Task<IActionResult> Dashboard()
+        {
+            var memberId = User.GetMemberId();
+
+            // 確認會員角色
+            bool isCreator = await _context.MemberRoles
+                .AnyAsync(r => r.MemberID == memberId && r.RoleID == "02");
+
+            if (!isCreator)
+            {
+                return RedirectToAction("Index", "Member");
+            }
+
+            // 撈取 CreatorProfile
+            var vm = await _context.CreatorProfiles
+                .Where(c => c.MemberID == memberId)
+                .Select(c => new VMCreatorDashboard
+                {
+                    CreatorID = c.CreatorID,
+                    DisplayName = c.DisplayName,
+                    ImageUrl = c.ImageUrl,
+                    Intro = c.Intro,
+                    StartDate = c.StartDate,
+                    CreatedAt = c.CreatedAt,
+
+                    // 統計（目前先用 Count，之後可優化）
+                    ProductCount = c.Products != null ? c.Products.Count : 0,
+                    PortfolioCount = c.Portfolios != null ? c.Portfolios.Count : 0
+                })
+                .FirstOrDefaultAsync();
+
+            if (vm == null)
+            {
+                // 理論上不該發生，防呆
+                return RedirectToAction("Index", "Member");
+            }
+
+            return View(vm);
         }
     }
 }

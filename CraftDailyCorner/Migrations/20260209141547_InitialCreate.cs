@@ -327,7 +327,7 @@ namespace CraftDailyCorner.Migrations
                     ReviewedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     ReviewNote = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     MemberID = table.Column<string>(type: "nchar(8)", maxLength: 8, nullable: false),
-                    ReviewedBy = table.Column<string>(type: "nchar(8)", maxLength: 8, nullable: false)
+                    ReviewedBy = table.Column<string>(type: "nchar(8)", maxLength: 8, nullable: true)
                 },
                 constraints: table =>
                 {

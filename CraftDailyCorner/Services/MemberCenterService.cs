@@ -45,9 +45,12 @@ namespace CraftDailyCorner.Services
                 PaymentCount = _context.Payments
                     .Count(p => p.Order.MemberID == memberId),
 
-                // 擴充功能（目前未實作）
-                FavoriteCount = 0,
-                FollowingCount = 0
+                // 收藏商品數量
+                FavoriteCount = _context.FavoriteProducts
+                    .Count(fp => fp.MemberID == memberId),
+                //追蹤創作者數量
+                FollowingCount = _context.FollowCreators
+                    .Count(f => f.MemberID == memberId)
             };
         }
         public VMEditProfile GetProfile(string memberId)

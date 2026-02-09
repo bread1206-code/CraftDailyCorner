@@ -36,8 +36,8 @@
         public static List<ImageSizeOption> Portfolio =>
             new ()
             {
-            new ImageSizeOption { FolderName = "Medium", Width = 300, Height = 300 },
-            new ImageSizeOption { FolderName = "Large", Width = 800, Height = 800 }
+            new ImageSizeOption { FolderName = "Medium", Width = 400, Height = 200 },
+            new ImageSizeOption { FolderName = "Large", Width = 800, Height = 400 }
             };
         public static List<ImageSizeOption> Logo =>
             new()

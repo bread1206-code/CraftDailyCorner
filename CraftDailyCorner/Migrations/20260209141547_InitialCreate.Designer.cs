@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CraftDailyCorner.Migrations
 {
     [DbContext(typeof(CraftDailyCornerContext))]
-    [Migration("20260207075541_InitialCreate")]
+    [Migration("20260209141547_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -177,7 +177,6 @@ namespace CraftDailyCorner.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("ReviewedBy")
-                        .IsRequired()
                         .HasMaxLength(8)
                         .HasColumnType("nchar(8)");
 
@@ -1753,8 +1752,7 @@ namespace CraftDailyCorner.Migrations
                     b.HasOne("CraftDailyCorner.Models.Member", "Reviewer")
                         .WithMany("ReviewedCreatorApplications")
                         .HasForeignKey("ReviewedBy")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("CraftDailyCorner.Models.CreatorApplicationStatus", "CreatorApplicationStatus")
                         .WithMany("CreatorApplications")

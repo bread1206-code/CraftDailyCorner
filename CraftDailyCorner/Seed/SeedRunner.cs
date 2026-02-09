@@ -64,7 +64,7 @@ namespace CraftDailyCorner.Seed
             {
                 { "01Member", ImageSizePresets.Member },
                 { "02CreatorApplication", ImageSizePresets.CreatorApplication },
-                { "03CreatorProfile", ImageSizePresets.Creator },
+                { "03CreatorBrand", ImageSizePresets.Creator },
                 { "04ProductImage", ImageSizePresets.Product },
                 { "05CreatorPost", ImageSizePresets.Post },
                 { "06Portfolio", ImageSizePresets.Portfolio },
@@ -189,7 +189,7 @@ namespace CraftDailyCorner.Seed
                 // 1️ 準備 GUID
             var memberGuids = GenerateGuids(5);
             var creatorApplicationGuids = GenerateGuids(3);
-            var creatorProfileGuids = GenerateGuids(1);
+            var creatorBrandGuids = GenerateGuids(2);
             var productImageGuids = GenerateGuids(6);
             var creatorPostGuids = GenerateGuids(7);
             var seedPortfolioItemGuids = GenerateGuids(2);
@@ -201,7 +201,7 @@ namespace CraftDailyCorner.Seed
             // 2 上傳圖片
             UploadImages(memberGuids, "01Member");
             UploadImages(creatorApplicationGuids, "02CreatorApplication");
-            UploadImages(creatorProfileGuids, "03CreatorProfile");
+            UploadImages(creatorBrandGuids, "03CreatorBrand");
             UploadImages(productImageGuids, "04ProductImage");
             UploadImages(creatorPostGuids, "05CreatorPost");
             UploadImages(seedPortfolioItemGuids, "06Portfolio");
@@ -235,7 +235,7 @@ namespace CraftDailyCorner.Seed
             _seedMemberRole.Run();
             _seedMemberRoleHistory.Run();
             _seedCreatorApplication.Run(creatorApplicationGuids);
-            _seedCreatorProfile.Run(creatorProfileGuids);
+            _seedCreatorProfile.Run(creatorBrandGuids);
             _seedProduct.Run();
             _seedProductImage.Run(productImageGuids);
             _seedProductRelation.Run();
