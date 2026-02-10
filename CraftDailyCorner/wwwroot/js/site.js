@@ -29,12 +29,13 @@ document.addEventListener("DOMContentLoaded", function () {
                 });
 
                 if (response.status === 401) {
-                    alert("請先登入會員");
+                    btn.classList.remove("loading");
+                    openLoginModal();
                     return;
                 }
 
                 if (!response.ok) {
-                    alert("操作失敗，請稍後再試");
+                    alert("操作失敗，請稍後再試1");
                     return;
                 }
 
@@ -61,8 +62,8 @@ document.addEventListener("DOMContentLoaded", function () {
                 updateFavoriteButton(btn, result.isFavorite);
 
             } catch (err) {
-                console.error(err);
-                alert("系統錯誤，請稍後再試");
+                console.error("fetch error:", err);
+                alert("系統錯誤，請稍後再試2");
 
             } finally {
                 // ⭐ 動畫結束後解除狀態
@@ -76,28 +77,6 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 
-        // 圖片上傳預覽邏輯
-    const fileInput = document.getElementById('fileInput');
-    const previewBg = document.getElementById('preview-image-bg');
-    const uploadZone = document.getElementById('dropZone');
-
-    fileInput.addEventListener('change', function(e) {
-            const file = e.target.files[0];
-    if (file) {
-                const reader = new FileReader();
-
-    reader.onload = function(e) {
-        previewBg.src = e.target.result;
-    previewBg.style.display = 'block'; // 顯示圖片
-    uploadZone.classList.add('has-image'); // 標記已有圖片
-                }
-
-    reader.readAsDataURL(file);
-            } else {
-        previewBg.style.display = 'none';
-    uploadZone.classList.remove('has-image');
-            }
-        });
 
 //圖片預覽功能
 window.previewImage = function (options) {
