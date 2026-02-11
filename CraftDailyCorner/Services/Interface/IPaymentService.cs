@@ -1,4 +1,4 @@
-﻿using CraftDailyCorner.ViewModels.Front;
+﻿using CraftDailyCorner.ViewModels.Front.Payment;
 
 namespace CraftDailyCorner.Services.Interface
 {
@@ -7,7 +7,7 @@ namespace CraftDailyCorner.Services.Interface
         //模擬付款 POST
         VMPaymentResult CreateMockPayment(VMPaymentSubmit vm);
         //付款頁 GET
-        VMPaymentCreate PreparePayment(string orderId);
+        VMPaymentCreate? PreparePayment(string orderId);
         //訂單詳情顯示
         List<VMPaymentRecord> GetPaymentsByOrder(string orderId);
         List<VMPaymentIndexItem> GetMyPayments(string memberId);

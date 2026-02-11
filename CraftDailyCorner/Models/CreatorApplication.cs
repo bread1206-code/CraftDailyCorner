@@ -50,7 +50,7 @@ namespace CraftDailyCorner.Models
         [StringLength(8,MinimumLength =8)]
         [Column(TypeName = "nchar(8)")]
         [Display(Name = "審核者")]
-        public string ReviewedBy { get; set; } = null!; 
+        public string? ReviewedBy { get; set; }
 
         // 導覽屬性
         [Display(Name = "申請會員")]

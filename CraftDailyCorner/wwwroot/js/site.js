@@ -29,12 +29,13 @@ document.addEventListener("DOMContentLoaded", function () {
                 });
 
                 if (response.status === 401) {
-                    alert("請先登入會員");
+                    btn.classList.remove("loading");
+                    openLoginModal();
                     return;
                 }
 
                 if (!response.ok) {
-                    alert("操作失敗，請稍後再試");
+                    alert("操作失敗，請稍後再試1");
                     return;
                 }
 
@@ -61,8 +62,8 @@ document.addEventListener("DOMContentLoaded", function () {
                 updateFavoriteButton(btn, result.isFavorite);
 
             } catch (err) {
-                console.error(err);
-                alert("系統錯誤，請稍後再試");
+                console.error("fetch error:", err);
+                alert("系統錯誤，請稍後再試2");
 
             } finally {
                 // ⭐ 動畫結束後解除狀態
@@ -75,6 +76,41 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 });
 
+
+
+//圖片預覽功能
+window.previewImage = function (options) {
+    const {
+        input,
+        previewSelector,
+        fallbackSrc = null
+    } = options;
+
+    if (!input.files || input.files.length === 0) {
+        return;
+    }
+
+    const file = input.files[0];
+
+    // 前端 UX 防呆（後端仍需驗）
+    if (!file.type.startsWith("image/")) {
+        alert("請選擇圖片檔案");
+        input.value = "";
+        return;
+    }
+
+    const reader = new FileReader();
+
+    reader.onload = function (e) {
+        const img = document.querySelector(previewSelector);
+        if (!img) return;
+
+        img.src = e.target.result;
+        img.classList.remove("d-none");
+    };
+
+    reader.readAsDataURL(file);
+};
 // 登入成功後處理
 function openLoginModal() {
     const modalEl = document.getElementById('loginModal');

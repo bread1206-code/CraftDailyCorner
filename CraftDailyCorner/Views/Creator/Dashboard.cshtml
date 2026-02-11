@@ -1,0 +1,167 @@
+﻿@model CraftDailyCorner.ViewModels.Front.Creator.VMCreatorDashboard
+
+@{
+    ViewData["Title"] = "創作者專區";
+
+    string brandImageUrl = string.IsNullOrEmpty(Model.ImageUrl)
+        ? "/Photos/Creator/Brand/default.png"
+        : $"/Photos/03CreatorBrand/Medium/{Model.ImageUrl}.png";
+}
+
+<div class="container my-5">
+
+    <!-- ===== 歡迎區塊 ===== -->
+    <div class="card shadow-sm border-0 mb-5">
+        <div class="card-body d-flex flex-column flex-md-row align-items-center gap-4">
+
+            <!-- 品牌圖片 -->
+            <img src="@brandImageUrl"
+                 alt="品牌圖片"
+                 class="rounded border"
+                 style="width:200px;height:100px;object-fit:cover;" />
+
+            <!-- 品牌資訊 -->
+            <div class="flex-grow-1 text-center text-md-start">
+                <h3 class="fw-bold mb-1">
+                    歡迎回來，@Model.DisplayName
+                </h3>
+
+                <p class="text-muted mb-2">
+                    感謝你持續在這裡分享你的創作。
+                </p>
+
+                <div class="small text-muted">
+                    創作起始日：@Model.StartDate.ToString("yyyy/MM/dd")
+                    <span class="mx-2">｜</span>
+                    成為創作者於：@Model.CreatedAt.ToString("yyyy/MM/dd")
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ===== 簡介區 ===== -->
+    <div class="card shadow-sm border-0 mb-5">
+        <div class="card-body">
+            <h5 class="fw-semibold mb-3">
+                關於你的品牌
+            </h5>
+
+            <p class="mb-0 text-muted">
+                @Model.Intro
+            </p>
+        </div>
+    </div>
+
+    <!-- ===== 管理卡片 ===== -->
+    <div class="row g-4 mb-5">
+
+        <!-- 商品管理 -->
+        <div class="col-md-4">
+            <div class="card hover-card h-100 shadow-sm">
+                <div class="card-body text-center d-flex flex-column">
+                    <div class="stat-icon-wrapper mb-2">
+                        <i class="bi bi-box-seam fs-1 text-primary"></i>
+                    </div>
+
+                    <div class="fs-5 fw-semibold">
+                        已上架商品
+                    </div>
+                    @if (Model.ProductCount == 0)
+                    {
+                        <div class="text-muted small mb-2">
+                            尚未建立任何商品
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="fs-2 fw-bold text-primary mb-3">
+                            @Model.ProductCount
+                        </div>
+                    }
+                    <div class="mt-auto">
+                        <a asp-controller="Creator"
+                           asp-action="Products"
+                           class="btn btn-outline-primary btn-sm w-100">
+                            商品管理
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 作品集管理 -->
+        <div class="col-md-4">
+            <div class="card hover-card h-100 shadow-sm">
+                <div class="card-body text-center d-flex flex-column">
+                    <div class="stat-icon-wrapper mb-2">
+                        <i class="bi bi-images fs-1 text-success"></i>
+                    </div>
+
+                    <div class="fs-5 fw-semibold">
+                        作品集
+                    </div>
+                    @if (Model.PortfolioCount == 0)
+                    {
+                        <div class="text-muted small mb-2">
+                            尚未分享您的作品集
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="fs-2 fw-bold text-success mb-3">
+                            @Model.PortfolioCount
+                        </div>
+                    }
+     
+
+                    <div class="mt-auto">
+                        <a asp-controller="Creator"
+                           asp-action="Products"
+                           class="btn btn-outline-success btn-sm w-100">
+                            作品集管理
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 創作日誌管理 -->
+        <div class="col-md-4">
+            <div class="card hover-card h-100 shadow-sm">
+                <div class="card-body text-center d-flex flex-column">
+                    <div class="stat-icon-wrapper mb-2">
+                        <i class="bi bi-journal-text fs-1 text-purple"></i>
+                    </div>
+
+                    <div class="fs-5 fw-semibold">
+                        創作日誌
+                    </div>
+                    @if (Model.CreatorPostCount == 0)
+                    {
+                        <div class="text-muted small mb-2">
+                            尚未撰寫創作日誌
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="fs-2 fw-bold text-purple mb-3">
+                            @Model.CreatorPostCount
+                        </div>
+                    }
+                    
+
+                    <div class="mt-auto">
+                        <a asp-controller="Creator"
+                           asp-action="Products"
+                           class="btn btn-outline-purple btn-sm w-100">
+                            日誌管理
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>

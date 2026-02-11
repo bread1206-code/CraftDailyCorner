@@ -1,5 +1,5 @@
 ﻿using CraftDailyCorner.Models;
-using CraftDailyCorner.ViewModels.Front;
+using CraftDailyCorner.ViewModels.Front.Member;
 using Microsoft.EntityFrameworkCore;
 
 namespace CraftDailyCorner.Services
@@ -15,39 +15,59 @@ namespace CraftDailyCorner.Services
 
         public VMMemberDashboard GetMemberDashboard(string memberId)
         {
-            // 取得會員基本資料（包含隱私設定）
+            memberId = memberId.Trim();
+
             var member = GetMemberWithPrivacy(memberId);
+
+            // ===== 最新申請 =====
+            var latestApplication = _context.CreatorApplications
+                .Include(a => a.CreatorApplicationStatus)
+                .Where(a => a.MemberID == memberId)
+                .OrderByDescending(a => a.AppliedAt)
+                .FirstOrDefault();
+
+            string applicationStatusCode =
+                latestApplication?.CreatorApplicationStatus?.StatusCode
+                ?? "None";
+
+            bool isCreator = _context.MemberRoles
+                .Any(r => r.MemberID == memberId && r.RoleID == "02");
 
             return new VMMemberDashboard
             {
                 // 會員識別
                 DisplayName = member.DisplayName,
-                ImageUrl = member.ImageUrl,
+                ImageUrl = member.ImageUrl ?? string.Empty,
                 CreatedAt = member.CreatedAt,
+                IsCreator = isCreator,
+                CreatorApplicationStatusCode = applicationStatusCode,
 
-                // 訂單相關
+                // 訂單
                 PendingPaymentCount = _context.Orders
                     .Count(o =>
                         o.MemberID == memberId &&
-                        o.StatusID == 1), // 待付款
+                        o.StatusID == 1),
 
                 OrderCount = _context.Orders
                     .Count(o =>
                         o.MemberID == memberId &&
                         o.StatusID != 1 &&
-                        o.StatusID != 4), // 進行中
+                        o.StatusID != 4),
 
                 AllOrderCount = _context.Orders
-                    .Count(o =>
-                        o.MemberID == memberId), // 所有訂單（包含已完成、已取消）
+                    .Count(o => o.MemberID == memberId),
 
-                // 付款紀錄
+                // 付款
                 PaymentCount = _context.Payments
                     .Count(p => p.Order.MemberID == memberId),
 
-                // 擴充功能（目前未實作）
-                FavoriteCount = 0,
-                FollowingCount = 0
+                // 收藏
+                FavoriteCount = _context.FavoriteProducts
+                    .Count(fp => fp.MemberID == memberId),
+
+                // 追蹤
+                FollowingCount = _context.FollowCreators
+                    .Count(f => f.MemberID == memberId)
             };
         }
         public VMEditProfile GetProfile(string memberId)

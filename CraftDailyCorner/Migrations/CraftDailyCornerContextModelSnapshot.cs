@@ -174,7 +174,6 @@ namespace CraftDailyCorner.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("ReviewedBy")
-                        .IsRequired()
                         .HasMaxLength(8)
                         .HasColumnType("nchar(8)");
 
@@ -1750,8 +1749,7 @@ namespace CraftDailyCorner.Migrations
                     b.HasOne("CraftDailyCorner.Models.Member", "Reviewer")
                         .WithMany("ReviewedCreatorApplications")
                         .HasForeignKey("ReviewedBy")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("CraftDailyCorner.Models.CreatorApplicationStatus", "CreatorApplicationStatus")
                         .WithMany("CreatorApplications")

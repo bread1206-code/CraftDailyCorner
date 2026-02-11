@@ -1,5 +1,6 @@
 ﻿using CraftDailyCorner.Services;
 using CraftDailyCorner.ViewModels.Front;
+using CraftDailyCorner.ViewModels.Front.Order;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -23,11 +24,7 @@ namespace CraftDailyCorner.Controllers
         public IActionResult Index(string statusCode)
         {
             var memberId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var orders = _orderService.GetMyOrders(memberId, statusCode);
-
-            //PendingOrder
-
-            //ActionOrder
+            var orders = _orderService.GetMyOrders(memberId!, statusCode);
 
             return View(orders);
         }
@@ -39,7 +36,7 @@ namespace CraftDailyCorner.Controllers
         {
             var memberId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            var order = _orderService.GetOrderDetail(orderId, memberId);
+            var order = _orderService.GetOrderDetail(orderId, memberId!);
             if (order == null)
                 return NotFound();
 

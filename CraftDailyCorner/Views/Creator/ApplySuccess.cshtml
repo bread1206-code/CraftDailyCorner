@@ -1,0 +1,62 @@
+﻿@model CraftDailyCorner.ViewModels.Front.CreatorApplication.VMCreatorApplicationSuccess
+
+@{
+    ViewData["Title"] = "申請已送出";
+}
+
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+
+            <div class="card shadow-sm border-0">
+                <div class="card-body text-center p-5">
+
+                    <!-- 成功圖示 -->
+                    <div class="mb-4">
+                        <i class="bi bi-check-circle-fill text-success"
+                           style="font-size:4rem;"></i>
+                    </div>
+
+                    <!-- 標題 -->
+                    <h3 class="fw-bold mb-3">
+                        申請已成功送出
+                    </h3>
+
+                    <!-- 說明文字 -->
+                    <p class="text-muted mb-4">
+                        感謝你的申請，我們已收到你的創作者申請資料。<br />
+                        審核通常需要 <strong>3～5 個工作天</strong>，<br />
+                        完成後系統將自動更新你的申請狀態。
+                    </p>
+
+                    <!-- 申請時間 -->
+                    <div class="bg-light rounded py-3 mb-4">
+                        <div class="text-muted small">
+                            申請送出時間
+                        </div>
+                        <div class="fw-semibold">
+                            @Model.AppliedAt.ToString("yyyy/MM/dd HH:mm")
+                        </div>
+                    </div>
+
+                    <!-- 行動按鈕 -->
+                    <div class="d-grid gap-2">
+                        <a asp-controller="Member"
+                           asp-action="Index"
+                           class="btn btn-primary btn-lg">
+                            返回會員中心
+                        </a>
+
+                        <a asp-controller="Creator"
+                           asp-action="Apply"
+                           class="btn btn-outline-secondary">
+                            查看申請狀態
+                        </a>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>

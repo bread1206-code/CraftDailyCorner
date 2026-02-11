@@ -1,5 +1,5 @@
 ﻿using CraftDailyCorner.Services;
-using CraftDailyCorner.ViewModels.Front;
+using CraftDailyCorner.ViewModels.Front.Member;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -12,12 +12,15 @@ namespace CraftDailyCorner.Controllers
         private readonly MemberCenterService _memberCenterService;
         private readonly IImageUploadService _imageUploadService;
         private readonly FavoriteService _favoriteService;
+        private readonly CreatorApplicationService _creatorApplicationService;
 
-        public MemberController(MemberCenterService memberCenterService, IImageUploadService imageUploadService, FavoriteService favoriteService)
+        public MemberController(MemberCenterService memberCenterService, IImageUploadService imageUploadService, 
+            FavoriteService favoriteService, CreatorApplicationService creatorApplicationService)
         {
             _memberCenterService = memberCenterService;
             _imageUploadService = imageUploadService;
             _favoriteService = favoriteService;
+            _creatorApplicationService = creatorApplicationService;
         }
 
         //會員中心首頁

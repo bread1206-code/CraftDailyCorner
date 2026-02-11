@@ -1,5 +1,7 @@
 ﻿using CraftDailyCorner.Models;
 using CraftDailyCorner.ViewModels.Front;
+using CraftDailyCorner.ViewModels.Front.Cart;
+using CraftDailyCorner.ViewModels.Front.Order;
 using Microsoft.EntityFrameworkCore;
 
 namespace CraftDailyCorner.Services
@@ -206,7 +208,7 @@ namespace CraftDailyCorner.Services
         private Cart GetCart(string memberId)
         {
             return _context.Carts
-                .SingleOrDefault(c => c.MemberID == memberId);
+                .SingleOrDefault(c => c.MemberID == memberId)!;
         }
 
         private Cart GetOrCreateCart(string memberId)

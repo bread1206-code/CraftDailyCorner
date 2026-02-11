@@ -56,7 +56,6 @@ namespace CraftDailyCorner.Services
 
             if (!allowedTypes.Contains(file.ContentType))
                 throw new InvalidOperationException("只允許上傳 jpg 或 png 圖片");
-
             //副檔名
             var ext = Path.GetExtension(file.FileName).ToLowerInvariant();
             var allowedExts = new[] { ".jpg", ".png" };

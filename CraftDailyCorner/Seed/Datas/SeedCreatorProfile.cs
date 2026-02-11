@@ -34,7 +34,7 @@ namespace CraftDailyCorner.Seed.Datas
                     }, new CreatorProfile
                     {
                         CreatorID = "C00002",
-                        ImageUrl = imageGuids[0],
+                        ImageUrl = imageGuids[1],
                         DisplayName = "墨尋",
                         Intro = "我是墨尋，一生只在黑白之間修行。" +
                         "除了書寫紅紙黑字的春聯與氣勢磅礴的詩詞掛軸，我也將筆墨染上手工摺扇，捕捉流動的清風。" +

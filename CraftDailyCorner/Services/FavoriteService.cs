@@ -1,5 +1,6 @@
 ﻿using CraftDailyCorner.Models;
-using CraftDailyCorner.ViewModels.Front;
+using CraftDailyCorner.ViewModels.Front.Member;
+using CraftDailyCorner.ViewModels.Front.Product;
 using Microsoft.EntityFrameworkCore;
 
 namespace CraftDailyCorner.Services

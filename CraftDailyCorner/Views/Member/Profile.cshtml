@@ -1,4 +1,5 @@
-﻿@model CraftDailyCorner.ViewModels.Front.VMEditProfile
+﻿@using CraftDailyCorner.ViewModels.Front.Member
+@model VMEditProfile
 
 @{
     ViewData["Title"] = "個人資料";
@@ -50,7 +51,7 @@
                                type="file"
                                class="form-control"
                                accept="image/png,image/jpeg"
-                               onchange="previewAvatar(this)"
+                               onchange="previewImage({input: this,previewSelector: '#avatarPreview'})"
                                style="max-width:280px;" />
 
                         <small class="text-muted">
@@ -90,28 +91,4 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
-    <script>
-        function previewAvatar(input) {
-            if (!input.files || input.files.length === 0) {
-                return;
-            }
-
-            const file = input.files[0];
-
-            // 簡單防呆（前端 UX 用，後端仍會驗）
-            if (!file.type.startsWith("image/")) {
-                alert("請選擇圖片檔案");
-                input.value = "";
-                return;
-            }
-
-            const reader = new FileReader();
-            reader.onload = function (e) {
-                const img = document.getElementById("avatarPreview");
-                img.src = e.target.result;
-            };
-
-            reader.readAsDataURL(file);
-        }
-    </script>
 }
