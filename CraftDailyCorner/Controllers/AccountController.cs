@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Data;
 using System.Security.Claims;
 
 namespace CraftDailyCorner.Controllers
@@ -44,7 +45,7 @@ namespace CraftDailyCorner.Controllers
             if (result == PasswordVerificationResult.Failed)
                 return Json(new { success = false, message = "帳號或密碼錯誤" });
 
-            // ⭐ 一行搞定登入
+            
             await SignInMemberAsync(user.MemberID);
 
             // RememberAccount 邏輯保留
@@ -222,22 +223,31 @@ namespace CraftDailyCorner.Controllers
                 .FirstOrDefault() ?? "使用者";
 
             // 2️ 取得角色
-            var roleName = (
+
+            var roles = (
                 from mr in _context.MemberRoles.AsNoTracking()
                 join r in _context.Roles.AsNoTracking()
                     on mr.RoleID equals r.RoleID
                 where mr.MemberID == memberId
-                orderby mr.RoleID descending
-                select r.RoleName
-            ).FirstOrDefault() ?? "Member";
+                select r.RoleID
+            ).Distinct().ToList();//RoleID "01"一般會員     "02"創作者     "03"管理者
+
+            if (!roles.Any())
+            {
+                roles.Add("01"); // 預設為一般會員
+            }
 
             // 3️ 建立 Claims
             var claims = new List<Claim>
-    {
-        new Claim(ClaimTypes.NameIdentifier, memberId),
-        new Claim(ClaimTypes.Name, displayName),
-        new Claim(ClaimTypes.Role, roleName)
-    };
+            {
+                new Claim(ClaimTypes.NameIdentifier, memberId),
+                new Claim(ClaimTypes.Name, displayName)
+                
+            };
+            foreach (var role in roles)
+            {
+                claims.Add(new Claim(ClaimTypes.Role, role));
+            }
 
             // 4️ 登入
             var identity = new ClaimsIdentity(claims, "CraftDailyCornerLogin");
