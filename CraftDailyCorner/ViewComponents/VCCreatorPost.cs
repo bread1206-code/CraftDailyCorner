@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using CraftDailyCorner.Models;
-using CraftDailyCorner.ViewModels.Front.Homepage;
+using CraftDailyCorner.ViewModels.Homepage;
 namespace CraftDailyCorner.ViewComponents
 {
     public class VCCreatorPost : ViewComponent

@@ -21,7 +21,10 @@ namespace CraftDailyCorner.Models
         [Column(TypeName = "nvarchar(max)")]
         [Display(Name = "簡介")]
         public string? Description { get; set; }
-
+        [Display(Name = "誰可以看")]
+        public CreatorPostVisibility Visibility { get; set; }
+        [Display(Name = "狀態")]
+        public byte StatusID { get; set; } = 0;
         [Display(Name = "建立時間")]
         public DateTime CreatedAt { get; set; }
 

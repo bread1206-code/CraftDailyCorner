@@ -1,9 +1,10 @@
-using Microsoft.EntityFrameworkCore;
 using CraftDailyCorner.Models;
 using CraftDailyCorner.Seed;
 using CraftDailyCorner.Seed.Datas;
 using CraftDailyCorner.Services;
+using CraftDailyCorner.Services.Creator;
 using CraftDailyCorner.Services.Interface;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,6 +14,11 @@ builder.Services.AddDbContext<CraftDailyCornerContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("CraftDailyCornerConnection")));
 builder.Services.AddScoped <IImageUploadService, ImageUploadService>();
 builder.Services.AddScoped <ISiteSettingService, SiteSettingService>();
+builder.Services.AddScoped<ICreatorApplicationService, CreatorApplicationService>();
+builder.Services.AddScoped<ICreatorPortfolioService, CreatorPortfolioService>();
+builder.Services.AddScoped<ICreatorPostService, CreatorPostService>();
+builder.Services.AddScoped<IPaymentService, PaymentService>();
+builder.Services.AddScoped<ICreatorDashboardService, CreatorDashboardService>();
 builder.Services.AddScoped <SeedRunner>();
 builder.Services.AddScoped <SeedMember>();
 builder.Services.AddScoped <SeedPrivacy>();
@@ -78,7 +84,6 @@ builder.Services.AddScoped<MemberCenterService>();
 builder.Services.AddScoped<ProductService>();
 builder.Services.AddScoped<CreatorApplicationService>();
 
-builder.Services.AddScoped<IPaymentService, PaymentService>();
 builder.Services.AddSession();
 builder.Services.AddHttpContextAccessor();
 

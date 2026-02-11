@@ -1,4 +1,5 @@
-﻿@model CraftDailyCorner.ViewModels.Front.Creator.VMCreatorDashboard
+﻿@using CraftDailyCorner.ViewModels.Creator
+@model VMCreatorDashboard
 
 @{
     ViewData["Title"] = "創作者專區";
@@ -11,14 +12,14 @@
 <div class="container my-5">
 
     <!-- ===== 歡迎區塊 ===== -->
-    <div class="card shadow-sm border-0 mb-5">
+    <div class="card shadow-sm border-0 mb-3">
         <div class="card-body d-flex flex-column flex-md-row align-items-center gap-4">
 
             <!-- 品牌圖片 -->
             <img src="@brandImageUrl"
                  alt="品牌圖片"
                  class="rounded border"
-                 style="width:200px;height:100px;object-fit:cover;" />
+                 style="width:400px;height:200px;object-fit:cover;" />
 
             <!-- 品牌資訊 -->
             <div class="flex-grow-1 text-center text-md-start">
@@ -41,7 +42,7 @@
     </div>
 
     <!-- ===== 簡介區 ===== -->
-    <div class="card shadow-sm border-0 mb-5">
+    <div class="card shadow-sm border-0 mb-3">
         <div class="card-body">
             <h5 class="fw-semibold mb-3">
                 關於你的品牌
@@ -54,7 +55,7 @@
     </div>
 
     <!-- ===== 管理卡片 ===== -->
-    <div class="row g-4 mb-5">
+    <div class="row g-4 mb-3">
 
         <!-- 商品管理 -->
         <div class="col-md-4">
@@ -116,8 +117,8 @@
      
 
                     <div class="mt-auto">
-                        <a asp-controller="Creator"
-                           asp-action="Products"
+                        <a asp-controller="Portfolio"
+                           asp-action="List"
                            class="btn btn-outline-success btn-sm w-100">
                             作品集管理
                         </a>
@@ -137,7 +138,7 @@
                     <div class="fs-5 fw-semibold">
                         創作日誌
                     </div>
-                    @if (Model.CreatorPostCount == 0)
+                    @if (Model.PostCount == 0)
                     {
                         <div class="text-muted small mb-2">
                             尚未撰寫創作日誌
@@ -146,14 +147,14 @@
                     else
                     {
                         <div class="fs-2 fw-bold text-purple mb-3">
-                            @Model.CreatorPostCount
+                            @Model.PostCount
                         </div>
                     }
                     
 
                     <div class="mt-auto">
-                        <a asp-controller="Creator"
-                           asp-action="Products"
+                        <a asp-controller="Post"
+                           asp-action="List"
                            class="btn btn-outline-purple btn-sm w-100">
                             日誌管理
                         </a>

@@ -1,6 +1,6 @@
 ﻿using CraftDailyCorner.Models;
 using CraftDailyCorner.Services.Interface;
-using CraftDailyCorner.ViewModels.Front.Creator;
+using CraftDailyCorner.ViewModels.Creator;
 using Microsoft.EntityFrameworkCore;
 
 namespace CraftDailyCorner.Services.Creator
@@ -16,14 +16,14 @@ namespace CraftDailyCorner.Services.Creator
 
         public async Task<VMCreatorDashboard?> GetDashboardAsync(string memberId)
         {
-            // 1️ 確認是否為創作者角色
-            bool isCreator = await _context.MemberRoles
+            //確認是否為創作者角色
+            var isCreator = await _context.MemberRoles
                 .AnyAsync(r => r.MemberID == memberId && r.RoleID == "02");
 
             if (!isCreator)
                 return null;
 
-            // 2️ 取得 CreatorProfile
+            //取得 CreatorProfile
             var creator = await _context.CreatorProfiles
                 .Where(c => c.MemberID == memberId)
                 .Select(c => new
@@ -40,19 +40,24 @@ namespace CraftDailyCorner.Services.Creator
             if (creator == null)
                 return null;
 
-            // 3️ 統計資料
+            //統計資料（只計算正常狀態）
             var productCount = await _context.Products
-                .CountAsync(p => p.CreatorID == creator.CreatorID && p.StatusID == 0);
-
-            var portfolioCount = await _context.Portfolios
-                .CountAsync(p => p.CreatorID == creator.CreatorID && p.StatusID == 0);
+                .CountAsync(p =>
+                    p.CreatorID == creator.CreatorID &&
+                    p.StatusID == 0);
 
             var postCount = await _context.CreatorPosts
-                .CountAsync(p => p.CreatorID == creator.CreatorID && p.StatusID == 0);
+                .CountAsync(p =>
+                    p.CreatorID == creator.CreatorID &&
+                    p.StatusID == 0);
 
-            
+            var portfolioCount = await _context.Portfolios
+                .CountAsync(p =>
+                    p.CreatorID == creator.CreatorID &&
+                    p.StatusID == 0);
 
-            // 4️ 回傳 VM
+
+            // 回傳 Dashboard VM
             return new VMCreatorDashboard
             {
                 CreatorID = creator.CreatorID,
@@ -63,8 +68,8 @@ namespace CraftDailyCorner.Services.Creator
                 CreatedAt = creator.CreatedAt,
 
                 ProductCount = productCount,
-                PortfolioCount = portfolioCount,
-                PostCount = postCount
+                PostCount = postCount,
+                PortfolioCount = portfolioCount
             };
         }
     }

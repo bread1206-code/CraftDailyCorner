@@ -1,0 +1,99 @@
+﻿@model CraftDailyCorner.ViewModels.CreatorPost.VMCreatorPostEdit
+
+@{
+    ViewData["Title"] = "編輯日誌";
+}
+
+<div class="container py-5" style="max-width:900px;">
+
+    <!-- 標題 -->
+    <div class="page-header mb-4">
+        <h2 class="fw-bold">編輯創作日誌</h2>
+        <p class="text-muted">
+            最後更新：@Model.UpdatedAt.ToString("yyyy/MM/dd HH:mm")
+        </p>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-4">
+
+            <form asp-action="Edit"
+                  method="post"
+                  enctype="multipart/form-data">
+
+                <input type="hidden" asp-for="PostID" />
+                <input type="hidden" asp-for="CurrentImageUrl" />
+
+                <!-- 目前封面 -->
+                <div class="mb-4">
+                    <label class="form-label">目前封面</label>
+                    <div>
+                        <img src=@($"/Photos/05CreatorPost/Medium/{Model.CurrentImageUrl}.png")
+                             class="rounded"
+                             style="width:150px; height:150px; object-fit:cover;" />
+                    </div>
+                </div>
+
+                <!-- 更換圖片 -->
+                <div class="mb-3">
+                    <label asp-for="NewImageFile"
+                           class="form-label"></label>
+                    <input asp-for="NewImageFile"
+                           type="file"
+                           class="form-control"
+                           accept="image/png,image/jpeg" />
+                    <span asp-validation-for="NewImageFile"
+                          class="text-danger"></span>
+                </div>
+
+                <!-- 標題 -->
+                <div class="mb-3">
+                    <label asp-for="Title" class="form-label"></label>
+                    <input asp-for="Title" class="form-control" />
+                    <span asp-validation-for="Title"
+                          class="text-danger"></span>
+                </div>
+
+                <!-- 內容 -->
+                <div class="mb-3">
+                    <label asp-for="Content" class="form-label"></label>
+                    <textarea asp-for="Content"
+                              class="form-control"
+                              rows="6"></textarea>
+                    <span asp-validation-for="Content"
+                          class="text-danger"></span>
+                </div>
+
+                <!-- 可見性 -->
+                <div class="mb-4">
+                    <label asp-for="Visibility"
+                           class="form-label"></label>
+
+                    <select asp-for="Visibility"
+                            class="form-select"
+                            asp-items="Html.GetEnumSelectList<CreatorPostVisibility>()">
+                    </select>
+
+                    <span asp-validation-for="Visibility"
+                          class="text-danger"></span>
+                </div>
+
+                <!-- 按鈕 -->
+                <div class="d-flex justify-content-between">
+                    <a asp-action="List"
+                       class="btn btn-outline-secondary">
+                        返回
+                    </a>
+
+                    <button type="submit"
+                            class="btn btn-dark px-4">
+                        更新日誌
+                    </button>
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+
+</div>

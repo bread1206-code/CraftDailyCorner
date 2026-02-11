@@ -1187,6 +1187,9 @@ namespace CraftDailyCorner.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<byte>("StatusID")
+                        .HasColumnType("tinyint");
+
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -1194,6 +1197,9 @@ namespace CraftDailyCorner.Migrations
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
+
+                    b.Property<byte>("Visibility")
+                        .HasColumnType("tinyint");
 
                     b.HasKey("PortfolioID");
 

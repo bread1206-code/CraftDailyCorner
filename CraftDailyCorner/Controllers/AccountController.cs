@@ -1,6 +1,6 @@
 ﻿using CraftDailyCorner.Models;
 using CraftDailyCorner.Services;
-using CraftDailyCorner.ViewModels.Front.Member;
+using CraftDailyCorner.ViewModels.Member;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -248,8 +248,20 @@ namespace CraftDailyCorner.Controllers
             {
                 claims.Add(new Claim(ClaimTypes.Role, role));
             }
+            // 4如果是創作者，加入 CreatorID Claim
+            if (roles.Contains("02"))
+            {
+                var creatorId = _context.CreatorProfiles
+                    .Where(c => c.MemberID == memberId)
+                    .Select(c => c.CreatorID)
+                    .FirstOrDefault();
 
-            // 4️ 登入
+                if (!string.IsNullOrEmpty(creatorId))
+                {
+                    claims.Add(new Claim("CreatorID", creatorId));
+                }
+            }
+            // 5 登入
             var identity = new ClaimsIdentity(claims, "CraftDailyCornerLogin");
             var principal = new ClaimsPrincipal(identity);
 

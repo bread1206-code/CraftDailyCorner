@@ -244,7 +244,7 @@ namespace CraftDailyCorner.Seed
             //_seedOrder.Run();
             //_seedOrderDetail.Run();
             //_seedPayment.Run();
-            _seedShipment.Run();
+            //_seedShipment.Run();
             _seedFavoriteProduct.Run();
             _seedFollowCreator.Run();
             _seedProductReview.Run();

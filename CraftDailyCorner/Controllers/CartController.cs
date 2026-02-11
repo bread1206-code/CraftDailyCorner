@@ -1,6 +1,6 @@
-﻿using CraftDailyCorner.Services;
-using CraftDailyCorner.ViewModels.Front;
-using CraftDailyCorner.ViewModels.Front.DTOs;
+﻿using CraftDailyCorner.DTOs;
+using CraftDailyCorner.Services;
+using CraftDailyCorner.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
