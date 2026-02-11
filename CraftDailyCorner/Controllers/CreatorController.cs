@@ -2,9 +2,13 @@
 using CraftDailyCorner.Extensions;
 using CraftDailyCorner.Services;
 using CraftDailyCorner.Services.Interface;
+using CraftDailyCorner.ViewModels.Creator;
 using CraftDailyCorner.ViewModels.CreatorApplication;
+using CraftDailyCorner.ViewModels.CreatorPortfolio.Front;
+using CraftDailyCorner.ViewModels.CreatorPost.Front;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace CraftDailyCorner.Controllers.Front
 {
@@ -89,5 +93,54 @@ namespace CraftDailyCorner.Controllers.Front
 
             return View(vm);
         }
+        //創作者公開頁--需抽Service
+        //[AllowAnonymous]
+        //public async Task<IActionResult> Profile(string id)
+        //{
+        //    var creator = await _context.CreatorProfiles
+        //        .Where(c => c.CreatorID == id)
+        //        .Select(c => new VMCreatorPublicProfile
+        //        {
+        //            CreatorID = c.CreatorID,
+        //            DisplayName = c.DisplayName,
+        //            ImageUrl = c.ImageUrl,
+        //            Intro = c.Intro,
+        //            StartDate = c.StartDate,
+
+        //            LatestPosts = c.CreatorPosts
+        //                .Where(p => p.StatusID == 0 &&
+        //                            p.Visibility == CreatorPostVisibility.Public)
+        //                .OrderByDescending(p => p.CreatedAt)
+        //                .Take(6)
+        //                .Select(p => new VMCreatorPostPublicListItem
+        //                {
+        //                    PostID = p.PostID,
+        //                    Title = p.Title,
+        //                    ImageUrl = p.ImageUrl,
+        //                    CreatedAt = p.CreatedAt,
+        //                    CreatorName = c.DisplayName
+        //                }).ToList(),
+
+        //            LatestPortfolios = c.Portfolios
+        //                .Where(p => p.StatusID == 0 &&
+        //                            p.Visibility == CreatorPostVisibility.Public)
+        //                .OrderByDescending(p => p.CreatedAt)
+        //                .Take(6)
+        //                .Select(p => new VMCreatorPortfolioPublicListItem
+        //                {
+        //                    PortfolioID = p.PortfolioID,
+        //                    Title = p.Title,
+        //                    CreatedAt = p.CreatedAt,
+        //                    CreatorName = c.DisplayName,
+        //                    ItemCount = p.PortfolioItems.Count()
+        //                }).ToList()
+        //        })
+        //        .FirstOrDefaultAsync();
+
+        //    if (creator == null)
+        //        return NotFound();
+
+        //    return View(creator);
+        //}
     }
 }

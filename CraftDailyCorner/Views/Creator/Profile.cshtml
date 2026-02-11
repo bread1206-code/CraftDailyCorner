@@ -1,0 +1,86 @@
+﻿@model CraftDailyCorner.ViewModels.Creator.VMCreatorPublicProfile
+
+@{
+    ViewData["Title"] = Model.DisplayName;
+}
+
+<div class="container py-5" style="max-width:1100px;">
+
+    <!-- 創作者資訊 -->
+    <div class="card shadow-sm border-0 mb-5">
+        <div class="card-body p-4 d-flex align-items-center">
+
+            <img src=@($"/Photos/03CreatorBrand/Medium/{Model.ImageUrl}.png")
+                 class="rounded-circle me-4"
+                 style="width:120px;height:120px;object-fit:cover;" />
+
+            <div>
+                <h3 class="fw-bold">@Model.DisplayName</h3>
+                <p class="text-muted mb-2">
+                    創作起始：@Model.StartDate.ToString("yyyy/MM/dd")
+                </p>
+                <p class="mb-0">@Model.Intro</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 最新日誌 -->
+    <div class="mb-5">
+        <h4 class="fw-bold mb-3">最新日誌</h4>
+
+        <div class="row g-4">
+            @foreach (var post in Model.LatestPosts)
+            {
+                <div class="col-md-4">
+                    <div class="card shadow-sm border-0 h-100">
+
+                        <img src=@($"/Photos/05CreatorPost/Medium/{post.ImageUrl}.png")
+                             class="card-img-top"
+                             style="height:180px;object-fit:cover;" />
+
+                        <div class="card-body">
+                            <h6 class="fw-semibold">@post.Title</h6>
+                            <p class="text-muted small">
+                                @post.CreatedAt.ToString("yyyy/MM/dd")
+                            </p>
+                            <a asp-controller="Post"
+                               asp-action="Detail"
+                               asp-route-id="@post.PostID"
+                               class="stretched-link"></a>
+                        </div>
+
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- 最新作品集 -->
+    <div>
+        <h4 class="fw-bold mb-3">作品集</h4>
+
+        <div class="row g-4">
+            @foreach (var portfolio in Model.LatestPortfolios)
+            {
+                <div class="col-md-4">
+                    <div class="card shadow-sm border-0 h-100">
+                        <div class="card-body">
+                            <h6 class="fw-semibold">@portfolio.Title</h6>
+                            <p class="text-muted small">
+                                作品數量：@portfolio.ItemCount
+                            </p>
+
+                            <a asp-controller="Portfolio"
+                               asp-action="Detail"
+                               asp-route-id="@portfolio.PortfolioID"
+                               class="btn btn-sm btn-outline-dark">
+                                查看作品
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+
+</div>
