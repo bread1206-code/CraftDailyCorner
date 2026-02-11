@@ -240,10 +240,10 @@ namespace CraftDailyCorner.Seed
             _seedProductImage.Run(productImageGuids);
             _seedProductRelation.Run();
             _seedCart.Run();
-            _seedCartItem.Run();
-            _seedOrder.Run();
-            _seedOrderDetail.Run();
-            _seedPayment.Run();
+            //_seedCartItem.Run();
+            //_seedOrder.Run();
+            //_seedOrderDetail.Run();
+            //_seedPayment.Run();
             _seedShipment.Run();
             _seedFavoriteProduct.Run();
             _seedFollowCreator.Run();

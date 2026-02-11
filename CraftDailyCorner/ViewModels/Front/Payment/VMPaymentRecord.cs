@@ -9,9 +9,9 @@
         public byte AttemptNo { get; set; }
 
         public byte StatusID { get; set; }
-        public string StatusName { get; set; }
+        public string StatusName { get; set; } = string.Empty;
 
-        public string MethodName { get; set; }
+        public string MethodName { get; set; } = string.Empty;
 
         public DateTime CreatedAt { get; set; }
         public DateTime? PaidAt { get; set; }

@@ -4,7 +4,7 @@
 
 @{
     if (Model != null &&
-        Context.Request.Cookies.TryGetValue("RememberAccount", out string account))
+        Context.Request.Cookies.TryGetValue("RememberAccount", out string? account))
     {
         Model.Account = account;
         Model.RememberAccount = true;

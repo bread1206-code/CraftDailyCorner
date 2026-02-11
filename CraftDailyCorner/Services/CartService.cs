@@ -208,7 +208,7 @@ namespace CraftDailyCorner.Services
         private Cart GetCart(string memberId)
         {
             return _context.Carts
-                .SingleOrDefault(c => c.MemberID == memberId);
+                .SingleOrDefault(c => c.MemberID == memberId)!;
         }
 
         private Cart GetOrCreateCart(string memberId)

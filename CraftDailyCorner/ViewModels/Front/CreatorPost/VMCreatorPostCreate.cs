@@ -18,7 +18,7 @@ namespace CraftDailyCorner.ViewModels.Front.CreatorPost
         [Display(Name = "封面圖片")]
         public IFormFile ImageFile { get; set; } = null!;
 
-        [Display(Name = "誰可以看")]
+        [Display(Name = "觀看權限")]
         public CreatorPostVisibility Visibility { get; set; } = CreatorPostVisibility.Public;
     }
 }

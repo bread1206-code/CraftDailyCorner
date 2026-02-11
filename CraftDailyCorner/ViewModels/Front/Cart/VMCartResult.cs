@@ -4,7 +4,7 @@
     public class VMCartResult
     {
         public bool Success { get; set; }
-        public string Message { get; set; }
+        public string Message { get; set; } = string.Empty;
 
         // 庫存相關提示（可選）
         public int? StockQty { get; set; }

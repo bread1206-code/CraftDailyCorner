@@ -3,6 +3,7 @@ using CraftDailyCorner.ViewModels;
 using CraftDailyCorner.ViewModels.Front;
 using CraftDailyCorner.ViewModels.Front.Member;
 using CraftDailyCorner.ViewModels.Front.Order;
+using CraftDailyCorner.ViewModels.Front.Payment;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using System.Data;
@@ -134,6 +135,20 @@ namespace CraftDailyCorner.Services
             if (order == null)
                 return null;
 
+            // ⭐ 付款紀錄
+            var payments = _context.Payments
+                .Where(p => p.OrderID == orderId)
+                .OrderBy(p => p.CreatedAt)
+                .Select(p => new VMOrderPaymentItem
+                {
+                    Amount = p.Amount,
+                    MethodName = p.PaymentMethod.MethodName,
+                    StatusName = p.PaymentStatus.StatusName,
+                    CreatedAt = p.CreatedAt,
+                    PaidAt = p.PaidAt
+                })
+                .ToList();
+
             return new VMMyOrderDetail
             {
                 OrderID = order.OrderID,
@@ -155,9 +170,15 @@ namespace CraftDailyCorner.Services
                         Quantity = od.Quantity,
                         CreatorName = od.Product.CreatorProfile!.DisplayName
                     })
-                    .ToList()
+                    .ToList(),
+                OrderPayments = new VMOrderPaymentList
+                {
+                    OrderID = order.OrderID,
+                    Payments = payments
+                }
             };
         }
+
         // 產生訂單編號
         private string GetNewOrderID()
         {

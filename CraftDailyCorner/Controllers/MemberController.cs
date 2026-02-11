@@ -30,13 +30,7 @@ namespace CraftDailyCorner.Controllers
             var memberId = GetMemberId();
 
             var vm = _memberCenterService.GetMemberDashboard(memberId);
-            var latestApplication =
-                _creatorApplicationService.GetLatestByMember(memberId);
 
-            vm.CreatorApplicationStatusCode =
-                latestApplication?.CreatorApplicationStatus.StatusCode;
-
-            vm.IsCreator = vm.CreatorApplicationStatusCode == "Approved";
             return View(vm);
         }
 

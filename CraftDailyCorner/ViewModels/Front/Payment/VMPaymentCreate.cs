@@ -6,7 +6,7 @@ namespace CraftDailyCorner.ViewModels.Front.Payment
     public class VMPaymentCreate
     {
         // 訂單資訊
-        public string OrderID { get; set; }
+        public string OrderID { get; set; } = string.Empty;
         public decimal OrderAmount { get; set; }
 
         // 顯示用

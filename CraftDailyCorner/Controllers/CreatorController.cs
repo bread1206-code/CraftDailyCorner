@@ -1,6 +1,7 @@
 ﻿using CraftDailyCorner.Extensions;
 using CraftDailyCorner.Models;
 using CraftDailyCorner.Services;
+using CraftDailyCorner.Services.Interface;
 using CraftDailyCorner.ViewModels.Front.Creator;
 using CraftDailyCorner.ViewModels.Front.CreatorApplication;
 using CraftDailyCorner.ViewModels.Front.DTOs;
@@ -16,6 +17,11 @@ namespace CraftDailyCorner.Controllers.Front
         private readonly CreatorApplicationService _creatorApplicationService;
         private readonly IImageUploadService _imageUploadService;
         private readonly CraftDailyCornerContext _context;
+
+        private readonly ICreatorPostService _postService;
+
+        private readonly ICreatorDashboardService _dashboardService;
+        private readonly ICreatorApplicationService _applicationService;
 
         public CreatorController(
             CreatorApplicationService creatorApplicationService,
@@ -128,6 +134,7 @@ namespace CraftDailyCorner.Controllers.Front
             });
         }
         //創作者中心首頁
+        [Authorize(Roles = "02")]
         public async Task<IActionResult> Dashboard()
         {
             var memberId = User.GetMemberId();

@@ -5,7 +5,7 @@
     {
         // 會員識別 
         public string DisplayName { get; set; } = null!;
-        public string ImageUrl { get; set; } = null!;
+        public string? ImageUrl { get; set; }
         public DateTime CreatedAt { get; set; }
 
         // 訂單相關
