@@ -42,7 +42,18 @@ namespace CraftDailyCorner.Controllers.Front
 
         public async Task<IActionResult> Detail(string id)
         {
-            var post = await _postService.GetPublicPostDetailAsync(id);
+            var memberId = User.Identity?.IsAuthenticated == true
+                ? User.GetMemberId()
+                : null;
+
+            var canView = await _postService
+                .CanViewPostAsync(id, memberId);
+
+            if (!canView)
+                return Forbid();
+
+            var post = await _postService
+                .GetPostDetailAsync(id); // 不再限制 Public
 
             if (post == null)
                 return NotFound();

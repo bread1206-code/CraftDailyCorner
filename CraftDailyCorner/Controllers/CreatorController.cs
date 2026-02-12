@@ -1,6 +1,8 @@
 ﻿using CraftDailyCorner.DTOs;
 using CraftDailyCorner.Extensions;
+using CraftDailyCorner.Models;
 using CraftDailyCorner.Services;
+using CraftDailyCorner.Services.Creator;
 using CraftDailyCorner.Services.Interface;
 using CraftDailyCorner.ViewModels.Creator;
 using CraftDailyCorner.ViewModels.CreatorApplication;
@@ -18,15 +20,18 @@ namespace CraftDailyCorner.Controllers.Front
         private readonly ICreatorApplicationService _applicationService;
         private readonly ICreatorDashboardService _dashboardService;
         private readonly IImageUploadService _imageUploadService;
+        private readonly ICreatorPublicService _creatorPublicService;
 
         public CreatorController(
             ICreatorApplicationService applicationService,
             ICreatorDashboardService dashboardService,
-            IImageUploadService imageUploadService)
+            IImageUploadService imageUploadService,
+            ICreatorPublicService creatorPublicService)
         {
             _applicationService = applicationService;
             _dashboardService = dashboardService;
             _imageUploadService = imageUploadService;
+            _creatorPublicService = creatorPublicService;
         }
 
         //創作者申請
@@ -93,54 +98,30 @@ namespace CraftDailyCorner.Controllers.Front
 
             return View(vm);
         }
-        //創作者公開頁--需抽Service
-        //[AllowAnonymous]
-        //public async Task<IActionResult> Profile(string id)
-        //{
-        //    var creator = await _context.CreatorProfiles
-        //        .Where(c => c.CreatorID == id)
-        //        .Select(c => new VMCreatorPublicProfile
-        //        {
-        //            CreatorID = c.CreatorID,
-        //            DisplayName = c.DisplayName,
-        //            ImageUrl = c.ImageUrl,
-        //            Intro = c.Intro,
-        //            StartDate = c.StartDate,
+        //創作者公開頁
+        [AllowAnonymous]
+        public async Task<IActionResult> Profile(string id)
+        {
+            var memberId = User.Identity?.IsAuthenticated == true
+                ? User.GetMemberId()
+                : null;
 
-        //            LatestPosts = c.CreatorPosts
-        //                .Where(p => p.StatusID == 0 &&
-        //                            p.Visibility == CreatorPostVisibility.Public)
-        //                .OrderByDescending(p => p.CreatedAt)
-        //                .Take(6)
-        //                .Select(p => new VMCreatorPostPublicListItem
-        //                {
-        //                    PostID = p.PostID,
-        //                    Title = p.Title,
-        //                    ImageUrl = p.ImageUrl,
-        //                    CreatedAt = p.CreatedAt,
-        //                    CreatorName = c.DisplayName
-        //                }).ToList(),
+            var creator = await _creatorPublicService
+                .GetProfileAsync(id, memberId);
 
-        //            LatestPortfolios = c.Portfolios
-        //                .Where(p => p.StatusID == 0 &&
-        //                            p.Visibility == CreatorPostVisibility.Public)
-        //                .OrderByDescending(p => p.CreatedAt)
-        //                .Take(6)
-        //                .Select(p => new VMCreatorPortfolioPublicListItem
-        //                {
-        //                    PortfolioID = p.PortfolioID,
-        //                    Title = p.Title,
-        //                    CreatedAt = p.CreatedAt,
-        //                    CreatorName = c.DisplayName,
-        //                    ItemCount = p.PortfolioItems.Count()
-        //                }).ToList()
-        //        })
-        //        .FirstOrDefaultAsync();
+            if (creator == null)
+                return NotFound();
 
-        //    if (creator == null)
-        //        return NotFound();
+            return View(creator);
+        }
+        [AllowAnonymous]
+        //創作者列表首頁
+        public async Task<IActionResult> Index()
+        {
+            var vm = await _creatorPublicService
+                .GetCreatorIndexAsync();
 
-        //    return View(creator);
-        //}
+            return View(vm);
+        }
     }
 }

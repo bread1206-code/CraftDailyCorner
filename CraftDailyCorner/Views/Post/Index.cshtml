@@ -1,0 +1,47 @@
+﻿@model CraftDailyCorner.ViewModels.CreatorPost.Front.VMPostIndex
+
+@{
+    ViewData["Title"] = "創作日誌";
+}
+
+<div class="container py-5" style="max-width:1100px;">
+
+    <div class="page-header mb-4">
+        <h2 class="fw-bold">創作日誌</h2>
+        <p class="text-muted">探索最新創作內容</p>
+    </div>
+
+    <div class="row g-4">
+        @foreach (var post in Model.Posts)
+        {
+            <div class="col-md-4">
+                <div class="card shadow-sm border-0 h-100">
+
+                    <img src=@($"/Photos/05CreatorPost/Medium/{post.ImageUrl}.png")
+                         class="card-img-top"
+                         style="height:200px;object-fit:cover;" />
+
+                    <div class="card-body">
+                        <h6 class="fw-semibold">
+                            @post.Title
+                        </h6>
+
+                        <p class="text-muted small">
+                            @post.CreatedAt.ToString("yyyy/MM/dd")
+                        </p>
+
+                        <p class="small">
+                            作者：@post.CreatorName
+                        </p>
+
+                        <a asp-action="Detail"
+                           asp-route-id="@post.PostID"
+                           class="stretched-link"></a>
+                    </div>
+
+                </div>
+            </div>
+        }
+    </div>
+
+</div>

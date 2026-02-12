@@ -171,5 +171,61 @@ namespace CraftDailyCorner.Services.Creator
                 })
                 .FirstOrDefaultAsync();
         }
+        public async Task<bool> CanViewPostAsync(string postId, string? memberId)
+        {
+            var post = await _context.CreatorPosts
+                .Select(p => new
+                {
+                    p.PostID,
+                    p.CreatorID,
+                    p.Visibility,
+                    p.StatusID
+                })
+                .FirstOrDefaultAsync(p => p.PostID == postId);
+
+            if (post == null || post.StatusID != 1)
+                return false;
+
+            // 公開
+            if (post.Visibility == CreatorPostVisibility.Public)
+                return true;
+
+            // 未登入不能看 Followers / Private
+            if (string.IsNullOrEmpty(memberId))
+                return false;
+
+            // 追蹤者可看
+            if (post.Visibility == CreatorPostVisibility.Followers)
+            {
+                return await _context.FollowCreators
+                    .AnyAsync(f =>
+                        f.CreatorID == post.CreatorID &&
+                        f.MemberID == memberId);
+            }
+
+            // Private：只有創作者本人
+            var creatorId = await _context.CreatorProfiles
+                .Where(c => c.MemberID == memberId)
+                .Select(c => c.CreatorID)
+                .FirstOrDefaultAsync();
+
+            return creatorId == post.CreatorID;
+        }
+
+        public async Task<VMPostDetail?> GetPostDetailAsync(string id)
+        {
+            return await _context.CreatorPosts
+                .Where(p => p.PostID == id && p.StatusID == 1)
+                .Select(p => new VMPostDetail
+                {
+                    PostID = p.PostID,
+                    Title = p.Title,
+                    Content = p.Content,
+                    ImageUrl = p.ImageUrl,
+                    CreatedAt = p.CreatedAt,
+                    CreatorName = p.CreatorProfile.DisplayName
+                })
+                .FirstOrDefaultAsync();
+        }
     }
 }

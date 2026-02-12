@@ -23,5 +23,8 @@ namespace CraftDailyCorner.Services.Interface
 
         Task<VMPostIndex> GetPostIndexAsync(VMPostIndexQuery query);
         Task<VMPostDetail?> GetPublicPostDetailAsync(string postId);
+        // 判斷是否可以觀看日誌
+        Task<bool> CanViewPostAsync(string postId, string? memberId);
+        Task<VMPostDetail?> GetPostDetailAsync(string postId); 
     }
 }

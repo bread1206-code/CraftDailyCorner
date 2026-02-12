@@ -19,6 +19,8 @@ builder.Services.AddScoped<ICreatorPortfolioService, CreatorPortfolioService>();
 builder.Services.AddScoped<ICreatorPostService, CreatorPostService>();
 builder.Services.AddScoped<IPaymentService, PaymentService>();
 builder.Services.AddScoped<ICreatorDashboardService, CreatorDashboardService>();
+builder.Services.AddScoped<ICreatorPublicService, CreatorPublicService>();
+builder.Services.AddScoped<IFollowService, FollowService>();
 builder.Services.AddScoped <SeedRunner>();
 builder.Services.AddScoped <SeedMember>();
 builder.Services.AddScoped <SeedPrivacy>();

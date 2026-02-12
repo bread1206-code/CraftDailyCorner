@@ -1,0 +1,16 @@
+﻿@using CraftDailyCorner.ViewModels.FollowCreator
+@model VMFollowButton
+
+<form asp-controller="Follow"
+      asp-action="Toggle"
+      method="post">
+
+    <input type="hidden" name="creatorId"
+           value="@Model.CreatorID" />
+
+    <button type="submit"
+            class="btn @(Model.IsFollowing ? "btn-outline-dark" : "btn-dark")">
+        @(Model.IsFollowing ? "已追蹤" : "追蹤")
+        (@Model.FollowerCount)
+    </button>
+</form>

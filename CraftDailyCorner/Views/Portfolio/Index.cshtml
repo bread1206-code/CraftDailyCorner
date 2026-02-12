@@ -1,0 +1,45 @@
+﻿@model CraftDailyCorner.ViewModels.CreatorPortfolio.Front.VMPortfolioIndex
+
+@{
+    ViewData["Title"] = "作品集";
+}
+
+<div class="container py-5" style="max-width:1100px;">
+
+    <div class="page-header mb-4">
+        <h2 class="fw-bold">作品集</h2>
+        <p class="text-muted">探索最新作品分類</p>
+    </div>
+
+    <div class="row g-4">
+        @foreach (var portfolio in Model.Portfolios)
+        {
+            <div class="col-md-4">
+                <div class="card shadow-sm border-0 h-100">
+
+                    <div class="card-body">
+                        <h6 class="fw-semibold">
+                            @portfolio.Title
+                        </h6>
+
+                        <p class="text-muted small">
+                            @portfolio.CreatedAt.ToString("yyyy/MM/dd")
+                        </p>
+
+                        <p class="small">
+                            作者：@portfolio.CreatorName
+                        </p>
+
+                        <a asp-action="Detail"
+                           asp-route-id="@portfolio.PortfolioID"
+                           class="btn btn-outline-dark btn-sm">
+                            查看作品
+                        </a>
+                    </div>
+
+                </div>
+            </div>
+        }
+    </div>
+
+</div>

@@ -1,5 +1,6 @@
 ﻿using CraftDailyCorner.ViewModels.CreatorPortfolio.Front;
 using CraftDailyCorner.ViewModels.CreatorPost.Front;
+using CraftDailyCorner.ViewModels.FollowCreator;
 
 namespace CraftDailyCorner.ViewModels.Creator
 {
@@ -18,5 +19,6 @@ namespace CraftDailyCorner.ViewModels.Creator
         public List<VMCreatorPostPublicListItem> LatestPosts { get; set; } = new();
 
         public List<VMCreatorPortfolioPublicListItem> LatestPortfolios { get; set; } = new();
+        public VMFollowButton FollowInfo { get; set; } = null!;
     }
 }

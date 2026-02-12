@@ -53,7 +53,46 @@
                     </a>
                     @await Component.InvokeAsync("VCCategoryDropdown")
                 </li>
+                <!-- 探索創作 -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle"
+                       href="#"
+                       role="button"
+                       data-bs-toggle="dropdown">
+                        探索創作
+                    </a>
 
+                    <ul class="dropdown-menu">
+
+                        <li>
+                            <a class="dropdown-item"
+                               asp-controller="Post"
+                               asp-action="Index">
+                                <i class="bi bi-journal-text text-primary"></i>
+                                創作日誌
+                            </a>
+                        </li>
+
+                        <li>
+                            <a class="dropdown-item"
+                               asp-controller="Portfolio"
+                               asp-action="Index">
+                                <i class="bi bi-grid-3x3-gap text-success"></i>
+                                作品集
+                            </a>
+                        </li>
+
+                        <li>
+                            <a class="dropdown-item"
+                               asp-controller="Creator"
+                               asp-action="Index">
+                                <i class="bi bi-people text-secondary"></i>
+                                創作者
+                            </a>
+                        </li>
+
+                    </ul>
+                </li>
                 <!-- 購物車 -->
                 <li class="nav-item">
                     @{
