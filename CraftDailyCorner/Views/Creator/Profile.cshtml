@@ -23,6 +23,7 @@
             </div>
         </div>
     </div>
+    @await Html.PartialAsync("_FollowButton", Model.FollowInfo)
 
     <!-- 最新日誌 -->
     <div class="mb-5">
@@ -82,5 +83,38 @@
             }
         </div>
     </div>
+    <!--近期上架-->
+    <div class="mt-5">
+        <h4 class="fw-bold mb-3">近期上架</h4>
 
+        <div class="row g-4">
+            @foreach (var product in Model.LatestProducts)
+            {
+                <div class="col-md-4">
+                    <div class="card shadow-sm border-0 h-100">
+
+                        <img src="@($"/Photos/Product/Medium/{product.ImageUrl}.png")"
+                             class="card-img-top"
+                             style="height:180px;object-fit:cover;" />
+
+                        <div class="card-body">
+                            <h6 class="fw-semibold">
+                                @product.ProductName
+                            </h6>
+
+                            <p class="fw-bold text-primary">
+                                NT$ @product.Price
+                            </p>
+
+                            <a asp-controller="Products"
+                               asp-action="Detail"
+                               asp-route-id="@product.ProductID"
+                               class="stretched-link"></a>
+                        </div>
+
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
 </div>

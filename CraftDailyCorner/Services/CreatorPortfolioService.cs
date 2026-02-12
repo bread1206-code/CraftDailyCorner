@@ -80,8 +80,6 @@ namespace CraftDailyCorner.Services.Creator
                         .Select(i => new VMPortfolioDetailItem
                         {
                             ItemID = i.ItemID,
-                            Title = i.Title,
-                            Description = i.Description,
                             ImageUrl = i.ImageUrl
                         }).ToList()
                 })

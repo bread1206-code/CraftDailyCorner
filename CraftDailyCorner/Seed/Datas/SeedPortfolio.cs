@@ -23,7 +23,7 @@ namespace CraftDailyCorner.Seed.Datas
                         Description = "近年代表作品",
                         CreatedAt = DateTime.Now,
                         Visibility = 0,
-                        StatusID =1,
+                        StatusID = 1,
                         UpdatedAt = DateTime.Now,
                         CreatorID = "C00001"
                     }

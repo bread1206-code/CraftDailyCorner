@@ -4,8 +4,6 @@
     {
         public string ItemID { get; set; } = null!;
 
-        public string Title { get; set; } = null!;
-
         public string ImageUrl { get; set; } = null!;
 
         public byte SortOrder { get; set; }

@@ -20,8 +20,6 @@ namespace CraftDailyCorner.Seed.Datas
                     {
                         ItemID = Guid.NewGuid().ToString(),
                         ImageUrl = Guid.NewGuid().ToString(),
-                        Title = "榫接木盒",
-                        Description = "全手工榫接製作",
                         SortOrder = 0,
                         CreatedAt = DateTime.Now,
                         UpdatedAt = DateTime.Now,

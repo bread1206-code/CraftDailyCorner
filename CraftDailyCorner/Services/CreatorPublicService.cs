@@ -4,6 +4,7 @@ using CraftDailyCorner.ViewModels.Creator;
 using CraftDailyCorner.ViewModels.CreatorPortfolio.Front;
 using CraftDailyCorner.ViewModels.CreatorPost.Front;
 using CraftDailyCorner.ViewModels.FollowCreator;
+using CraftDailyCorner.ViewModels.Product;
 using Microsoft.EntityFrameworkCore;
 
 namespace CraftDailyCorner.Services.Creator
@@ -61,8 +62,20 @@ namespace CraftDailyCorner.Services.Creator
                             CreatedAt = p.CreatedAt,
                             CreatorName = c.DisplayName,
                             ItemCount = p.PortfolioItems.Count()
+                        }).ToList(),
+                    LatestProducts = c.Products
+                        .Where(p => p.StatusID == 1)// 上架中
+                        .OrderByDescending(p => p.CreatedAt)
+                        .Take(6)
+                        .Select(p => new VMCreatorProductPublicListItem
+                        {
+                            ProductID = p.ProductID,
+                            ProductName = p.ProductName,
+                            ImageUrl = p.ProductImages.OrderBy(i => i.SortOrder).Select(i => i.ImageUrl).FirstOrDefault(),
+                            Price = p.Price,
+                            CreatedAt = p.CreatedAt
                         }).ToList()
-                })
+                                    })
                 .FirstOrDefaultAsync();
 
             if (creator == null)
@@ -89,6 +102,7 @@ namespace CraftDailyCorner.Services.Creator
                 StartDate = creator.StartDate,
                 LatestPosts = creator.LatestPosts,
                 LatestPortfolios = creator.LatestPortfolios,
+                LatestProducts = creator.LatestProducts,
                 FollowInfo = new VMFollowButton
                 {
                     CreatorID = creatorId,

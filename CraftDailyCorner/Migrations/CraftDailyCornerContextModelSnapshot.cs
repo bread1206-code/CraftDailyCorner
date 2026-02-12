@@ -1205,6 +1205,8 @@ namespace CraftDailyCorner.Migrations
 
                     b.HasIndex("CreatorID");
 
+                    b.HasIndex("StatusID");
+
                     b.ToTable("Portfolios");
                 });
 
@@ -1246,6 +1248,36 @@ namespace CraftDailyCorner.Migrations
                     b.HasIndex("PortfolioID");
 
                     b.ToTable("PortfolioItems");
+                });
+
+            modelBuilder.Entity("CraftDailyCorner.Models.PortfolioStatus", b =>
+                {
+                    b.Property<byte>("StatusID")
+                        .HasColumnType("tinyint");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("StatusCode")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("StatusName")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.HasKey("StatusID");
+
+                    b.HasIndex("StatusCode")
+                        .IsUnique();
+
+                    b.ToTable("PortfolioStatuses");
                 });
 
             modelBuilder.Entity("CraftDailyCorner.Models.PostComment", b =>
@@ -2125,7 +2157,15 @@ namespace CraftDailyCorner.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("CraftDailyCorner.Models.PortfolioStatus", "PortfolioStatus")
+                        .WithMany("Portfolio")
+                        .HasForeignKey("StatusID")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.Navigation("CreatorProfile");
+
+                    b.Navigation("PortfolioStatus");
                 });
 
             modelBuilder.Entity("CraftDailyCorner.Models.PortfolioItem", b =>
@@ -2461,6 +2501,11 @@ namespace CraftDailyCorner.Migrations
             modelBuilder.Entity("CraftDailyCorner.Models.Portfolio", b =>
                 {
                     b.Navigation("PortfolioItems");
+                });
+
+            modelBuilder.Entity("CraftDailyCorner.Models.PortfolioStatus", b =>
+                {
+                    b.Navigation("Portfolio");
                 });
 
             modelBuilder.Entity("CraftDailyCorner.Models.PostComment", b =>

@@ -45,7 +45,6 @@ namespace CraftDailyCorner.Controllers.Front
                 .Select(i => new VMCreatorPortfolioItemListItem
                 {
                     ItemID = i.ItemID,
-                    Title = i.Title,
                     ImageUrl = i.ImageUrl,
                     SortOrder = i.SortOrder,
                     CreatedAt = i.CreatedAt,
@@ -95,8 +94,6 @@ namespace CraftDailyCorner.Controllers.Front
             {
                 ItemID = Guid.NewGuid().ToString(),
                 PortfolioID = vm.PortfolioID,
-                Title = vm.Title,
-                Description = vm.Description,
                 ImageUrl = imageKey,
                 SortOrder = vm.SortOrder,
                 CreatedAt = DateTime.Now,
@@ -129,8 +126,6 @@ namespace CraftDailyCorner.Controllers.Front
             {
                 ItemID = item.ItemID,
                 PortfolioID = item.PortfolioID,
-                Title = item.Title,
-                Description = item.Description,
                 CurrentImageUrl = item.ImageUrl,
                 SortOrder = item.SortOrder,
                 UpdatedAt = item.UpdatedAt
@@ -168,8 +163,6 @@ namespace CraftDailyCorner.Controllers.Front
                 );
             }
 
-            item.Title = vm.Title;
-            item.Description = vm.Description;
             item.ImageUrl = imageKey;
             item.SortOrder = vm.SortOrder;
             item.UpdatedAt = DateTime.Now;

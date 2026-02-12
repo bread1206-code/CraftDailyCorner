@@ -43,6 +43,7 @@ namespace CraftDailyCorner.Models
         public DbSet<PlatformSetting> PlatformSettings => Set<PlatformSetting>();
         public DbSet<Portfolio> Portfolios => Set<Portfolio>();
         public DbSet<PortfolioItem> PortfolioItems => Set<PortfolioItem>();
+        public DbSet<PortfolioStatus> PortfolioStatuses => Set<PortfolioStatus>();
         public DbSet<NotificationPreference> NotificationPreferences => Set<NotificationPreference>();
         public DbSet<NotificationEvent> NotificationEvents => Set<NotificationEvent>();
         public DbSet<PasswordResetToken> PasswordResetTokens => Set<PasswordResetToken>();
@@ -97,6 +98,7 @@ namespace CraftDailyCorner.Models
             modelBuilder.Entity<PlatformSetting>().HasKey(x => x.SettingID);
             modelBuilder.Entity<Portfolio>().HasKey(x => x.PortfolioID);
             modelBuilder.Entity<PortfolioItem>().HasKey(x => x.ItemID);
+            modelBuilder.Entity<PortfolioStatus>().HasKey(x => x.StatusID);
             modelBuilder.Entity<NotificationPreference>().HasKey(x => x.PreferenceID);
             modelBuilder.Entity<NotificationEvent>().HasKey(x => x.EventID);
             modelBuilder.Entity<PasswordResetToken>().HasKey(x => x.PasswordResetId);
@@ -414,6 +416,12 @@ namespace CraftDailyCorner.Models
                 .HasForeignKey(pi => pi.PortfolioID)
                 .OnDelete(DeleteBehavior.Cascade);
 
+            modelBuilder.Entity<PortfolioStatus>()
+                .HasMany(cps => cps.Portfolio)
+                .WithOne(cp => cp.PortfolioStatus)
+                .HasForeignKey(cp => cp.StatusID)
+                .OnDelete(DeleteBehavior.Restrict);
+
             modelBuilder.Entity<NotificationPreference>()
                 .HasOne(np => np.Member)
                 .WithMany(m => m.NotificationPreferences)
@@ -587,6 +595,10 @@ namespace CraftDailyCorner.Models
                 .IsUnique();
 
             modelBuilder.Entity<CreatorPostStatus>()
+                .HasIndex(cps => cps.StatusCode)
+                .IsUnique();
+
+            modelBuilder.Entity<PortfolioStatus>()
                 .HasIndex(cps => cps.StatusCode)
                 .IsUnique();
 

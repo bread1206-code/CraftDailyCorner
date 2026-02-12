@@ -184,6 +184,21 @@ namespace CraftDailyCorner.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "PortfolioStatuses",
+                columns: table => new
+                {
+                    StatusID = table.Column<byte>(type: "tinyint", nullable: false),
+                    StatusCode = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    StatusName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PortfolioStatuses", x => x.StatusID);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "PostCommentReportStatuses",
                 columns: table => new
                 {
@@ -783,6 +798,12 @@ namespace CraftDailyCorner.Migrations
                         principalTable: "CreatorProfiles",
                         principalColumn: "CreatorID",
                         onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Portfolios_PortfolioStatuses_StatusID",
+                        column: x => x.StatusID,
+                        principalTable: "PortfolioStatuses",
+                        principalColumn: "StatusID",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -1501,6 +1522,17 @@ namespace CraftDailyCorner.Migrations
                 column: "CreatorID");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Portfolios_StatusID",
+                table: "Portfolios",
+                column: "StatusID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PortfolioStatuses_StatusCode",
+                table: "PortfolioStatuses",
+                column: "StatusCode",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_PostCommentReports_CommentID",
                 table: "PostCommentReports",
                 column: "CommentID");
@@ -1748,6 +1780,9 @@ namespace CraftDailyCorner.Migrations
 
             migrationBuilder.DropTable(
                 name: "Products");
+
+            migrationBuilder.DropTable(
+                name: "PortfolioStatuses");
 
             migrationBuilder.DropTable(
                 name: "CreatorPosts");

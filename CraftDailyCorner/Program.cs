@@ -55,6 +55,7 @@ builder.Services.AddScoped <SeedHomepageBanner>();
 builder.Services.AddScoped <SeedPlatformSetting>();
 builder.Services.AddScoped <SeedPortfolio>();
 builder.Services.AddScoped <SeedPortfolioItem>();
+builder.Services.AddScoped <SeedPortfolioStatus>();
 builder.Services.AddScoped <SeedNotificationPreference>();
 builder.Services.AddScoped <SeedNotificationEvent>();
 builder.Services.AddScoped <SeedMemberStatus>();
