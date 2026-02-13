@@ -1,6 +1,5 @@
 ﻿using CraftDailyCorner.DTOs;
 using CraftDailyCorner.Extensions;
-using CraftDailyCorner.Services.Creator;
 using CraftDailyCorner.Services.Interface;
 using CraftDailyCorner.ViewModels.CreatorPortfolio;
 using CraftDailyCorner.ViewModels.CreatorPortfolio.Front;
@@ -83,7 +82,8 @@ namespace CraftDailyCorner.Controllers.Front
                     Description = vm.Description,
                     Visibility = vm.Visibility
                 },
-                User.GetCreatorId()
+                User.GetCreatorId(),
+                vm.Files
             );
 
             return RedirectToAction(nameof(List));
@@ -98,7 +98,7 @@ namespace CraftDailyCorner.Controllers.Front
                 .GetEditDataAsync(id, User.GetCreatorId());
 
             if (vm == null)
-                return NotFound();
+                return NotFound("123");
 
             return View(vm);
         }

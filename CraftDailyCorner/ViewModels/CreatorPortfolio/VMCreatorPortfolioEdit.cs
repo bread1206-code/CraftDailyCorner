@@ -14,7 +14,7 @@ namespace CraftDailyCorner.ViewModels.CreatorPortfolio
 
         [Display(Name = "簡介")]
         [Required]
-        public string Description { get; set; } = null!;
+        public string? Description { get; set; }
 
         [Display(Name = "觀看權限")]
         [Required]
@@ -22,5 +22,6 @@ namespace CraftDailyCorner.ViewModels.CreatorPortfolio
 
         [Display(Name = "最後更新時間")]
         public DateTime UpdatedAt { get; set; }
+        public List<VMCreatorPortfolioItemEdit> Items { get; set; } = new();
     }
 }

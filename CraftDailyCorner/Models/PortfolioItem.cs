@@ -6,10 +6,8 @@ namespace CraftDailyCorner.Models
     public class PortfolioItem
     {
         [Key]
-        [StringLength(36, MinimumLength = 36)]
-        [Column(TypeName = "nchar(36)")]
         [Display(Name = "作品編號")]
-        public string ItemID { get; set; } = null!;
+        public int ItemID { get; set; } 
 
         [StringLength(36, MinimumLength = 36)]
         [Column(TypeName = "nchar(36)")]

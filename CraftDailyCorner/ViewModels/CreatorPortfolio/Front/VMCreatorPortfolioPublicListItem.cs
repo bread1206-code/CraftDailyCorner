@@ -17,6 +17,13 @@ namespace CraftDailyCorner.ViewModels.CreatorPortfolio.Front
 
         public int ItemCount { get; set; }
 
+        public string? CoverImageUrl { get; set; }
+
+        public string CoverImagePath =>
+            string.IsNullOrEmpty(CoverImageUrl)
+                ? "/images/default-cover.jpg"
+                : $"/Photos/06Portfolio/Medium/{CoverImageUrl}.png";
+
         public string Url =>
             $"/Portfolio/Detail/{PortfolioID}";
     }

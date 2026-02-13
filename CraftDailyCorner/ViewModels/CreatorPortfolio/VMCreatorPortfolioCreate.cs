@@ -11,10 +11,14 @@ namespace CraftDailyCorner.ViewModels.CreatorPortfolio
 
         [Display(Name = "簡介")]
         [Required]
-        public string Description { get; set; } = null!;
+        public string? Description { get; set; }
 
         [Display(Name = "觀看權限")]
         [Required]
         public CreatorPostVisibility Visibility { get; set; }
+
+        [Display(Name = "作品圖片")]
+        [Required(ErrorMessage = "請至少上傳一張圖片")]
+        public List<IFormFile> Files { get; set; } = new();
     }
 }

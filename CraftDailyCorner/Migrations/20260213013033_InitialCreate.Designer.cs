@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CraftDailyCorner.Migrations
 {
     [DbContext(typeof(CraftDailyCornerContext))]
-    [Migration("20260212071930_InitialCreate")]
+    [Migration("20260213013033_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -1215,15 +1215,14 @@ namespace CraftDailyCorner.Migrations
 
             modelBuilder.Entity("CraftDailyCorner.Models.PortfolioItem", b =>
                 {
-                    b.Property<string>("ItemID")
-                        .HasMaxLength(36)
-                        .HasColumnType("nchar(36)");
+                    b.Property<int>("ItemID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ItemID"));
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ImageUrl")
                         .IsRequired()
@@ -1237,11 +1236,6 @@ namespace CraftDailyCorner.Migrations
 
                     b.Property<byte>("SortOrder")
                         .HasColumnType("tinyint");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");

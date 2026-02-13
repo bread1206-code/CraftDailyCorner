@@ -1,0 +1,36 @@
+﻿@using CraftDailyCorner.ViewModels.CreatorPortfolio
+@model VMCreatorPortfolioEdit
+
+@if (Model.Items.Any())
+{
+    <div class="row g-4">
+
+        @foreach (var item in Model.Items.OrderBy(i => i.SortOrder))
+        {
+            <div class="col-md-3">
+                <div class="position-relative gallery-card">
+
+                    <img src="@item.ImagePath"
+                         class="img-fluid rounded shadow-sm" />
+
+                    <button type="button"
+                            class="btn btn-sm btn-danger btn-delete position-absolute top-0 end-0 m-2"
+                            data-itemid="@item.ItemID">
+                        ✕
+                    </button>
+
+                    <div class="position-absolute bottom-0 start-0
+                                        bg-dark text-white px-2 py-1 small rounded-end">
+                        排序：@item.SortOrder
+                    </div>
+
+                </div>
+            </div>
+        }
+
+    </div>
+}
+else
+{
+    <p class="text-muted">尚未上傳圖片。</p>
+}

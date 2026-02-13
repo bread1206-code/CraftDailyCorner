@@ -14,7 +14,7 @@ namespace CraftDailyCorner.Services.Interface
         Task<List<VMCreatorPortfolioListItem>> GetCreatorPortfoliosAsync(string creatorId);
         Task<VMCreatorPortfolioEdit?> GetEditDataAsync(string portfolioId, string creatorId);
 
-        Task CreateAsync(CreateCreatorPortfolioDTO dto, string creatorId);
+        Task CreateAsync(CreateCreatorPortfolioDTO dto,string creatorId,List<IFormFile> files);
         Task UpdateAsync(UpdateCreatorPortfolioDTO dto, string creatorId);
         Task SoftDeleteAsync(string portfolioId, string creatorId);
     }

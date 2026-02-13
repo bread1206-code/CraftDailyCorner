@@ -11,31 +11,42 @@
 <div class="container py-5" style="max-width:1100px;">
 
     <!-- 標題區 -->
-    <div class="mb-5 text-center">
-        <h2 class="fw-bold">@Model.Title</h2>
-        <p class="text-muted">@Model.Description</p>
-        <p class="small text-secondary">
-            by @Model.CreatorName · @Model.CreatedAt.ToString("yyyy/MM/dd")
-        </p>
+    <div class="mb-5">
+        <div class="fw-bold h2">@Model.Title</div>
+        <div class="row">
+            <div class="col-2 text-muted">@Model.Description</div>
+            <div class="col-2 small text-secondary ">
+                @Model.CreatorName · @Model.CreatedAt.ToString("yyyy/MM/dd")
+            </div>
+        </div>
+        
     </div>
 
     <!-- 畫廊區 -->
-    <div class="gallery-grid">
-        @foreach (var item in Model.Items)
-        {
-            <div class="gallery-item">
-                <img src="@($"/Photos/06Portfolio/Large/{item.ImageUrl}.png")"
-                     class="gallery-img"
-                     onclick="openLightbox(this.src)" />
-            </div>
-        }
+    <div id="Portfoliocarousel" class="carousel slide carousel-fade" data-bs-ride="carousel">
+        <div class="carousel-inner">
+            @foreach (var item in Model.Items)
+            {
+                var a = item == Model.Items.First() ? "active" : "";
+
+                <div class="carousel-item @a">
+                    <img src="@($"/Photos/06Portfolio/Large/{item.ImageUrl}.png")"
+                         class="d-block w-100" />
+                </div>
+            }
+            
+
+        </div>
+        <button class="carousel-control-prev" type="button" data-bs-target="#Portfoliocarousel" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Previous</span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#Portfoliocarousel" data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Next</span>
+        </button>
     </div>
 
-</div>
-
-<!-- Lightbox -->
-<div id="lightbox" class="lightbox" onclick="closeLightbox()">
-    <img id="lightbox-img" />
 </div>
 
 @section Scripts {

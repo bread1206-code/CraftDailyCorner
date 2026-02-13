@@ -15,52 +15,43 @@
     <div class="card shadow-sm border-0">
         <div class="card-body p-4">
 
-            <form asp-action="Create" method="post">
+            <form asp-action="Create"
+                  method="post"
+                  enctype="multipart/form-data">
 
-                <!-- 標題 -->
+                @Html.AntiForgeryToken()
+
                 <div class="mb-3">
-                    <label asp-for="Title" class="form-label"></label>
+                    <label asp-for="Title"></label>
                     <input asp-for="Title" class="form-control" />
-                    <span asp-validation-for="Title" class="text-danger"></span>
                 </div>
 
-                <!-- 簡介 -->
                 <div class="mb-3">
-                    <label asp-for="Description" class="form-label"></label>
+                    <label asp-for="Description"></label>
                     <textarea asp-for="Description"
-                              class="form-control"
-                              rows="4"></textarea>
-                    <span asp-validation-for="Description"
-                          class="text-danger"></span>
+                              class="form-control"></textarea>
                 </div>
 
-                <!-- 可見性 -->
-                <div class="mb-4">
-                    <label asp-for="Visibility"
-                           class="form-label"></label>
-
+                <div class="mb-3">
+                    <label asp-for="Visibility"></label>
                     <select asp-for="Visibility"
-                            class="form-select"
-                            asp-items="Html.GetEnumSelectList<CreatorPostVisibility>()">
+                            asp-items="Html.GetEnumSelectList<CreatorPostVisibility>()"
+                            class="form-select">
                     </select>
-
-                    <span asp-validation-for="Visibility"
-                          class="text-danger"></span>
                 </div>
 
-                <!-- 按鈕 -->
-                <div class="d-flex justify-content-between">
-                    <a asp-action="List"
-                       class="btn btn-outline-secondary">
-                        返回
-                    </a>
-
-                    <button type="submit"
-                            class="btn btn-dark px-4">
-                        建立作品集
-                    </button>
+                <div class="mb-4">
+                    <label asp-for="Files"></label>
+                    <input type="file"
+                           asp-for="Files"
+                           multiple
+                           class="form-control" />
                 </div>
 
+                <button type="submit"
+                        class="btn btn-dark">
+                    建立作品集
+                </button>
             </form>
 
         </div>

@@ -10,10 +10,12 @@ namespace CraftDailyCorner.Services.Creator
     public class CreatorPortfolioService : ICreatorPortfolioService
     {
         private readonly CraftDailyCornerContext _context;
+        private readonly IImageUploadService _imageUploadService;
 
-        public CreatorPortfolioService(CraftDailyCornerContext context)
+        public CreatorPortfolioService(CraftDailyCornerContext context, IImageUploadService imageUploadService)
         {
             _context = context;
+            _imageUploadService = imageUploadService;
         }
 
         //前台 Index（搜尋 + 分頁）
@@ -46,7 +48,12 @@ namespace CraftDailyCorner.Services.Creator
                     Title = p.Title,
                     CreatedAt = p.CreatedAt,
                     CreatorName = p.CreatorProfile.DisplayName,
-                    ItemCount = p.PortfolioItems.Count()
+                    ItemCount = p.PortfolioItems.Count(),
+
+                    CoverImageUrl = p.PortfolioItems
+                        .OrderBy(i => i.SortOrder)
+                        .Select(i => i.ImageUrl)
+                        .FirstOrDefault()
                 })
                 .ToListAsync();
 
@@ -109,33 +116,50 @@ namespace CraftDailyCorner.Services.Creator
         //編輯頁資料
 
         public async Task<VMCreatorPortfolioEdit?>
-            GetEditDataAsync(string portfolioId, string creatorId)
+    GetEditDataAsync(string portfolioId, string creatorId)
         {
-            return await _context.Portfolios
+            var portfolio = await _context.Portfolios
+                .Include(p => p.PortfolioItems)
                 .Where(p =>
                     p.PortfolioID == portfolioId &&
                     p.CreatorID == creatorId &&
                     p.StatusID == 1)
-                .Select(p => new VMCreatorPortfolioEdit
-                {
-                    PortfolioID = p.PortfolioID,
-                    Title = p.Title,
-                    Description = p.Description!,
-                    Visibility = p.Visibility,
-                    UpdatedAt = p.UpdatedAt
-                })
                 .FirstOrDefaultAsync();
+
+            if (portfolio == null)
+                return null;
+
+            return new VMCreatorPortfolioEdit
+            {
+                PortfolioID = portfolio.PortfolioID,
+                Title = portfolio.Title,
+                Description = portfolio.Description ?? string.Empty,
+                Visibility = portfolio.Visibility,
+                UpdatedAt = portfolio.UpdatedAt,
+
+                Items = portfolio.PortfolioItems
+                    .OrderBy(i => i.SortOrder)
+                    .Select(i => new VMCreatorPortfolioItemEdit
+                    {
+                        ItemID = i.ItemID,
+                        ImageUrl = i.ImageUrl,
+                        SortOrder = i.SortOrder,
+                        CreatedAt = i.CreatedAt,
+                        UpdatedAt = i.UpdatedAt
+                    })
+                    .ToList()
+            };
         }
 
         //建立
 
-        public async Task CreateAsync(
-            CreateCreatorPortfolioDTO dto,
-            string creatorId)
+        public async Task CreateAsync(CreateCreatorPortfolioDTO dto,string creatorId,List<IFormFile> files)
         {
-            var entity = new Portfolio
+            var portfolioId = Guid.NewGuid().ToString();
+
+            var portfolio = new Portfolio
             {
-                PortfolioID = Guid.NewGuid().ToString(),
+                PortfolioID = portfolioId,
                 Title = dto.Title,
                 Description = dto.Description,
                 Visibility = dto.Visibility,
@@ -145,7 +169,29 @@ namespace CraftDailyCorner.Services.Creator
                 UpdatedAt = DateTime.Now
             };
 
-            _context.Portfolios.Add(entity);
+            _context.Portfolios.Add(portfolio);
+
+            byte sort = 0;
+
+            foreach (var file in files)
+            {
+                var imageKey = _imageUploadService.UploadImage(
+                    file,
+                    null,
+                    "06Portfolio",
+                    ImageSizePresets.Portfolio
+                );
+
+                _context.PortfolioItems.Add(new PortfolioItem
+                {
+                    PortfolioID = portfolioId,
+                    ImageUrl = imageKey,
+                    SortOrder = sort++,
+                    CreatedAt = DateTime.Now,
+                    UpdatedAt = DateTime.Now
+                });
+            }
+
             await _context.SaveChangesAsync();
         }
 
@@ -169,6 +215,7 @@ namespace CraftDailyCorner.Services.Creator
             portfolio.Visibility = dto.Visibility;
             portfolio.UpdatedAt = DateTime.Now;
 
+            await ReorderPortfolioItems(dto.PortfolioID);
             await _context.SaveChangesAsync();
         }
 
@@ -191,6 +238,20 @@ namespace CraftDailyCorner.Services.Creator
             portfolio.UpdatedAt = DateTime.Now;
 
             await _context.SaveChangesAsync();
+        }
+        private async Task ReorderPortfolioItems(string portfolioId)
+        {
+            var items = await _context.PortfolioItems
+                .Where(i => i.PortfolioID == portfolioId)
+                .OrderBy(i => i.SortOrder)
+                .ToListAsync();
+
+            byte order = 0;
+
+            foreach (var item in items)
+            {
+                item.SortOrder = order++;
+            }
         }
     }
 }

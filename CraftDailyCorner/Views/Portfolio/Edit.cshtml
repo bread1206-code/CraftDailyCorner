@@ -1,73 +1,164 @@
 ﻿@model CraftDailyCorner.ViewModels.CreatorPortfolio.VMCreatorPortfolioEdit
-
+@Html.AntiForgeryToken()
 @{
     ViewData["Title"] = "編輯作品集";
 }
 
-<div class="container py-5" style="max-width:900px;">
+<div class="container py-5" style="max-width:1000px;">
 
-    <!-- 標題 -->
-    <div class="page-header mb-4">
-        <h2 class="fw-bold">編輯作品集</h2>
-        <p class="text-muted">
-            最後更新：@Model.UpdatedAt.ToString("yyyy/MM/dd HH:mm")
-        </p>
-    </div>
-
-    <div class="card shadow-sm border-0">
+    <!-- 🔹 作品集基本資料 -->
+    <div class="card shadow-sm border-0 mb-5">
         <div class="card-body p-4">
 
-            <form asp-action="Edit" method="post">
+            <h4 class="fw-bold mb-4">作品集資訊</h4>
 
+            <form asp-action="Edit" method="post">
+                @Html.AntiForgeryToken()
                 <input type="hidden" asp-for="PortfolioID" />
 
-                <!-- 標題 -->
                 <div class="mb-3">
-                    <label asp-for="Title" class="form-label"></label>
+                    <label asp-for="Title" class="form-label fw-semibold"></label>
                     <input asp-for="Title" class="form-control" />
-                    <span asp-validation-for="Title" class="text-danger"></span>
+                    <span asp-validation-for="Title" class="text-danger small"></span>
                 </div>
 
-                <!-- 簡介 -->
                 <div class="mb-3">
-                    <label asp-for="Description" class="form-label"></label>
+                    <label asp-for="Description" class="form-label fw-semibold"></label>
                     <textarea asp-for="Description"
                               class="form-control"
-                              rows="4"></textarea>
-                    <span asp-validation-for="Description"
-                          class="text-danger"></span>
+                              rows="3"></textarea>
+                    <span asp-validation-for="Description" class="text-danger small"></span>
                 </div>
 
-                <!-- 可見性 -->
                 <div class="mb-4">
-                    <label asp-for="Visibility"
-                           class="form-label"></label>
-
+                    <label asp-for="Visibility" class="form-label fw-semibold"></label>
                     <select asp-for="Visibility"
-                            class="form-select"
-                            asp-items="Html.GetEnumSelectList<CreatorPostVisibility>()">
+                            asp-items="Html.GetEnumSelectList<CreatorPostVisibility>()"
+                            class="form-select">
                     </select>
-
-                    <span asp-validation-for="Visibility"
-                          class="text-danger"></span>
                 </div>
 
-                <!-- 按鈕 -->
-                <div class="d-flex justify-content-between">
-                    <a asp-action="List"
-                       class="btn btn-outline-secondary">
-                        返回
-                    </a>
+                <button type="submit" class="btn btn-dark">
+                    儲存修改
+                </button>
 
-                    <button type="submit"
-                            class="btn btn-dark px-4">
-                        更新作品集
-                    </button>
-                </div>
-
+                <a asp-action="List"
+                   class="btn btn-outline-secondary ms-2">
+                    返回列表
+                </a>
             </form>
 
         </div>
     </div>
 
+    <!-- 🔹 圖片管理區 -->
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-4">
+
+            <h4 class="fw-bold mb-4">圖片管理</h4>
+
+            <!-- 上傳多張圖片 -->
+            <form asp-controller="PortfolioItem"
+                  asp-action="Upload"
+                  method="post"
+                  enctype="multipart/form-data"
+                  class="mb-4">
+
+                @Html.AntiForgeryToken()
+                <input type="hidden"
+                       name="portfolioId"
+                       value="@Model.PortfolioID" />
+
+                <div class="mb-3">
+                    <input type="file"
+                           name="files"
+                           multiple
+                           class="form-control" />
+                </div>
+
+                <button type="submit"
+                        class="btn btn-primary">
+                    上傳圖片
+                </button>
+            </form>
+
+            <hr />
+
+            <!-- 已上傳圖片 -->
+            @if (Model.Items != null && Model.Items.Any())
+            {
+                <div class="row g-4 mt-3">
+                    @foreach (var item in Model.Items.OrderBy(i => i.SortOrder))
+                    {
+                        <div class="col-md-3">
+                            <div class="position-relative">
+
+                                <img src="@($"/Photos/06Portfolio/Medium/{item.ImageUrl}.png")"
+                                     class="img-fluid rounded shadow-sm" />
+
+                                <!-- 刪除按鈕 -->
+                                <form asp-controller="PortfolioItem"
+                                      asp-action="Delete"
+                                      method="post"
+                                      class="position-absolute top-0 end-0 m-2">
+
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden"
+                                           name="itemId"
+                                           value="@item.ItemID" />
+
+                                    <button type="button"
+                                            class="btn btn-sm btn-danger btn-delete"
+                                            data-itemid="@item.ItemID">
+                                        ✕
+                                    </button>
+                                </form>
+
+                                <!-- 排序顯示 -->
+                                <div class="position-absolute bottom-0 start-0 bg-dark text-white px-2 py-1 small rounded-end">
+                                    排序：@item.SortOrder
+                                </div>
+
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <p class="text-muted">尚未上傳任何圖片。</p>
+            }
+
+        </div>
+    </div>
+
 </div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.addEventListener("click", async function (e) {
+
+            if (!e.target.classList.contains("btn-delete"))
+                return;
+
+            if (!confirm("確定刪除圖片？")) return;
+
+            const itemId = e.target.dataset.itemid;
+
+            const response = await fetch("/PortfolioItem/Delete", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "RequestVerificationToken":
+                        document.querySelector('input[name="__RequestVerificationToken"]').value
+                },
+                body: JSON.stringify({ itemId: parseInt(itemId) })
+            });
+
+            const html = await response.text();
+
+            document.getElementById("portfolio-items-container").innerHTML = html;
+        });
+    </script>
+}

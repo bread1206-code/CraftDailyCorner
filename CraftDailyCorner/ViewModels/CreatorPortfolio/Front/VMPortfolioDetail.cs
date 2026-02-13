@@ -4,7 +4,7 @@
     {
         public string PortfolioID { get; set; } = null!;
         public string Title { get; set; } = null!;
-        public string Description { get; set; } = null!;
+        public string? Description { get; set; }
         public string CreatorName { get; set; } = null!;
         public DateTime CreatedAt { get; set; }
 

@@ -2,7 +2,7 @@
 {
     public class VMPortfolioDetailItem
     {
-        public string ItemID { get; set; } = null!;
+        public int ItemID { get; set; }
         public string ImageUrl { get; set; } = null!;
     }
 }

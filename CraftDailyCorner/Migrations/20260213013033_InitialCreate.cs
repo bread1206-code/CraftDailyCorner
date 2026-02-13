@@ -960,10 +960,9 @@ namespace CraftDailyCorner.Migrations
                 name: "PortfolioItems",
                 columns: table => new
                 {
-                    ItemID = table.Column<string>(type: "nchar(36)", maxLength: 36, nullable: false),
+                    ItemID = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
                     ImageUrl = table.Column<string>(type: "nchar(36)", maxLength: 36, nullable: false),
-                    Title = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     SortOrder = table.Column<byte>(type: "tinyint", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
