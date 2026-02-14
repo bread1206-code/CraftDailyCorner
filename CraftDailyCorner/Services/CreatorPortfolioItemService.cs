@@ -1,26 +1,32 @@
-﻿using CraftDailyCorner.Models;
+﻿using CraftDailyCorner.DTOs;
+using CraftDailyCorner.Models;
 using CraftDailyCorner.Services;
 using CraftDailyCorner.Services.Interface;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Hosting;
+using System.IO;
 
 public class CreatorPortfolioItemService
     : ICreatorPortfolioItemService
 {
     private readonly CraftDailyCornerContext _context;
     private readonly IImageUploadService _imageUploadService;
+    private readonly IWebHostEnvironment _env;
 
     public CreatorPortfolioItemService(
         CraftDailyCornerContext context,
-        IImageUploadService imageUploadService)
+        IImageUploadService imageUploadService,
+        IWebHostEnvironment env)
     {
         _context = context;
         _imageUploadService = imageUploadService;
+        _env = env;
     }
-
+    private const int MaxImageCount = 50;//上限50張圖片
     public async Task UploadAsync(
-        string portfolioId,
-        string creatorId,
-        List<IFormFile> files)
+    string portfolioId,
+    string creatorId,
+    List<IFormFile> files)
     {
         var portfolio = await _context.Portfolios
             .FirstOrDefaultAsync(p =>
@@ -30,6 +36,14 @@ public class CreatorPortfolioItemService
 
         if (portfolio == null)
             throw new Exception("找不到作品集或無權限");
+
+        // 目前已有圖片數量
+        var currentCount = await _context.PortfolioItems
+            .CountAsync(i => i.PortfolioID == portfolioId);
+
+        // 檢查是否超過上限
+        if (currentCount + files.Count > MaxImageCount)
+            throw new Exception($"作品集最多只能上傳 {MaxImageCount} 張圖片");
 
         var maxSort = await _context.PortfolioItems
             .Where(i => i.PortfolioID == portfolioId)
@@ -59,8 +73,8 @@ public class CreatorPortfolioItemService
     }
 
     public async Task<string> DeleteAsync(
-        int itemId,
-        string creatorId)
+    int itemId,
+    string creatorId)
     {
         var item = await _context.PortfolioItems
             .Include(i => i.Portfolio)
@@ -72,8 +86,17 @@ public class CreatorPortfolioItemService
 
         var portfolioId = item.PortfolioID;
 
+        // 先記錄圖片名稱（GUID）
+        var imageName = item.ImageUrl;
+
         _context.PortfolioItems.Remove(item);
-        await _context.SaveChangesAsync();
+
+        await ReorderAsync(portfolioId);
+
+        await _context.SaveChangesAsync();   // 先確保 DB 成功
+
+        //再刪除實體檔案
+        DeleteImageFiles(imageName);
 
         return portfolioId;
     }
@@ -95,5 +118,76 @@ public class CreatorPortfolioItemService
         item.UpdatedAt = DateTime.Now;
 
         await _context.SaveChangesAsync();
+    }
+    //批次更新排序
+    public async Task UpdateSortBatchAsync(
+    List<SortUpdateDTO> items,
+    string creatorId)
+    {
+        var itemIds = items.Select(x => x.ItemId).ToList();
+
+        var dbItems = await _context.PortfolioItems
+            .Include(i => i.Portfolio)
+            .Where(i => itemIds.Contains(i.ItemID)
+                        && i.Portfolio.CreatorID == creatorId)
+            .ToListAsync();
+
+        var sortDict = items.ToDictionary(x => x.ItemId, x => x.SortOrder);
+
+        foreach (var dbItem in dbItems)
+        {
+            if (sortDict.TryGetValue(dbItem.ItemID, out var newSort))
+            {
+                dbItem.SortOrder = newSort;
+                dbItem.UpdatedAt = DateTime.Now;
+            }
+        }
+
+        await _context.SaveChangesAsync();
+    }
+
+    //重新排序，確保 SortOrder 連續且從1開始
+    private async Task ReorderAsync(string portfolioId)
+    {
+        var items = await _context.PortfolioItems
+            .Where(i => i.PortfolioID == portfolioId)
+            .OrderBy(i => i.SortOrder)
+            .ToListAsync();
+
+        int order = 1;
+
+        foreach (var item in items)
+        {
+            item.SortOrder = (byte)order++;
+        }
+    }
+
+    //刪除圖片檔案（大圖和中圖）
+    private void DeleteImageFiles(string imageName)
+    {
+        try
+        {
+            var largePath = Path.Combine(
+                _env.WebRootPath,
+                "06Portfolio",
+                "Large",
+                imageName + ".png");
+
+            var mediumPath = Path.Combine(
+                _env.WebRootPath,
+                "06Portfolio",
+                "Medium",
+                imageName + ".png");
+
+            if (File.Exists(largePath))
+                File.Delete(largePath);
+
+            if (File.Exists(mediumPath))
+                File.Delete(mediumPath);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("刪除圖片檔案失敗: " + ex.Message);
+        }
     }
 }

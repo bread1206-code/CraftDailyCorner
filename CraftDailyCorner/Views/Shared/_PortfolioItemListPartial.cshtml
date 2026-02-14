@@ -3,11 +3,13 @@
 
 @if (Model.Items.Any())
 {
-    <div class="row g-4">
+    <div class="row g-4" id="sortable-list">
 
         @foreach (var item in Model.Items.OrderBy(i => i.SortOrder))
         {
-            <div class="col-md-3">
+            <div class="col-md-3 sortable-item"
+                 data-itemid="@item.ItemID">
+
                 <div class="position-relative gallery-card">
 
                     <img src="@item.ImagePath"

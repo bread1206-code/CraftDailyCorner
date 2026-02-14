@@ -90,7 +90,10 @@ builder.Services.AddScoped<CreatorApplicationService>();
 
 builder.Services.AddSession();
 builder.Services.AddHttpContextAccessor();
-
+builder.Services.AddAntiforgery(options =>
+{
+    options.HeaderName = "RequestVerificationToken";
+});
 
 
 

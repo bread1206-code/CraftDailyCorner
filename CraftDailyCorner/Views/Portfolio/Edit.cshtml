@@ -66,8 +66,28 @@
                 </div>
 
             </div>
-            <h4 class="fw-bold mb-4">圖片管理</h4>
+            <div class="d-flex">
+                <h4 class="fw-bold mb-3 me-5">圖片管理</h4>
+                <div class="form-check mb-3">
+                    <input class="form-check-input"
+                           type="checkbox"
+                           id="quick-delete-toggle">
 
+                    <label class="form-check-label text-danger fw-semibold"
+                           for="quick-delete-toggle">
+                        快速刪除模式
+                    </label>
+                </div>
+            </div>
+            
+            <div id="quick-delete-alert"
+                 class="alert alert-warning d-none py-2">
+                <i class="bi bi-exclamation-triangle me-1"> </i>您已開啟快速刪除模式，點擊即會刪除圖片
+            </div>
+            <div class="mb-3 text-muted">
+                已上傳 @Model.Items.Count 張圖片
+                （最多 50 張）
+            </div>
             <!-- 上傳 -->
             <form id="upload-form"
                   enctype="multipart/form-data"
@@ -102,57 +122,107 @@
             </div>
 
         </div>
+        
     </div>
 
 </div>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
 
     <script>
-            document.addEventListener("DOMContentLoaded", function () {
+        document.addEventListener("DOMContentLoaded", function () {
 
+            //DOM 參照
             const uploadForm = document.getElementById("upload-form");
             const fileInput = document.getElementById("upload-files");
             const uploadBtn = document.getElementById("upload-btn");
             const overlay = document.getElementById("upload-overlay");
             const container = document.getElementById("portfolio-items-container");
+            const quickToggle = document.getElementById("quick-delete-toggle");
+            const quickAlert = document.getElementById("quick-delete-alert");
 
-            // ===== 刪除 =====
-            document.addEventListener("click", async function (e) {
+            quickToggle.addEventListener("change", function () {
 
-                if (!e.target.classList.contains("btn-delete"))
-                    return;
+            if (this.checked) {
+                quickAlert.classList.remove("d-none");
+            } else {
+                quickAlert.classList.add("d-none");
+            }
+        });
 
-                if (!confirm("確定刪除圖片？")) return;
+            //共用工具
 
-                const itemId = e.target.dataset.itemid;
+            function getToken() {
+                return document.querySelector('input[name="__RequestVerificationToken"]').value;
+            }
 
-                const formData = new FormData();
-                formData.append("itemId", itemId);
-                formData.append("__RequestVerificationToken",
-                    document.querySelector('input[name="__RequestVerificationToken"]').value);
-
+            function showOverlay() {
                 overlay.classList.remove("d-none");
+            }
+
+            function hideOverlay() {
+                overlay.classList.add("d-none");
+            }
+
+            async function handleResponse(response) {
+                if (!response.ok) {
+                    const message = await response.text();
+                    alert(message);
+                    throw new Error(message);
+                }
+                return await response.text();
+            }
+
+            function refreshPartial(html) {
+                container.innerHTML = html;
+                initSortable();
+            }
+
+        // 刪除圖片（支援快速模式）
+        document.addEventListener("click", async function (e) {
+
+            if (!e.target.classList.contains("btn-delete"))
+                return;
+
+            const quickMode = document.getElementById("quick-delete-toggle").checked;
+
+            //  非快速模式才顯示 confirm
+            if (!quickMode) {
+                if (!confirm("確定刪除圖片？")) return;
+            }
+
+            const itemId = e.target.dataset.itemid;
+
+            const formData = new FormData();
+            formData.append("itemId", itemId);
+            formData.append("__RequestVerificationToken", getToken());
+
+            try {
+                showOverlay();
 
                 const response = await fetch("/PortfolioItem/Delete", {
                     method: "POST",
                     body: formData
                 });
 
-                const html = await response.text();
+                const html = await handleResponse(response);
+                refreshPartial(html);
 
-                container.innerHTML = html;
+            } catch (err) {
+                console.error(err);
+            } finally {
+                hideOverlay();
+            }
+        });
 
-                overlay.classList.add("d-none");
-            });
-
-            // ===== 控制按鈕啟用 =====
+            //控制上傳按鈕啟用
             fileInput.addEventListener("change", function () {
                 uploadBtn.disabled = this.files.length === 0;
             });
 
-            // ===== AJAX 上傳 =====
+            //上傳圖片
             uploadForm.addEventListener("submit", async function (e) {
 
                 e.preventDefault();
@@ -160,33 +230,72 @@
                 if (fileInput.files.length === 0)
                     return;
 
-                overlay.classList.remove("d-none");
-                uploadBtn.disabled = true;
-
                 const formData = new FormData(uploadForm);
 
                 try {
+                    showOverlay();
+                    uploadBtn.disabled = true;
 
                     const response = await fetch("/PortfolioItem/Upload", {
                         method: "POST",
                         body: formData
                     });
 
-                    const html = await response.text();
-
-                    container.innerHTML = html;
+                    const html = await handleResponse(response);
+                    refreshPartial(html);
 
                     fileInput.value = "";
                     uploadBtn.disabled = true;
 
-                } catch {
-                    alert("上傳失敗");
+                } catch (err) {
+                    console.error(err);
                 } finally {
-                    overlay.classList.add("d-none");
+                    hideOverlay();
                 }
-
             });
 
+            // 初始化拖曳
+            initSortable();
         });
+
+
+        //拖曳排序
+        function initSortable() {
+
+            const el = document.getElementById("sortable-list");
+            if (!el) return;
+
+            new Sortable(el, {
+                animation: 150,
+                ghostClass: 'bg-light',
+
+                onEnd: async function () {
+
+                    const items = el.querySelectorAll(".sortable-item");
+
+                    const data = [];
+                    let order = 1;
+
+                    items.forEach(item => {
+                        data.push({
+                            itemId: parseInt(item.dataset.itemid),
+                            sortOrder: order++
+                        });
+                    });
+
+                    await fetch("/PortfolioItem/UpdateSort", {
+                        method: "POST",
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'RequestVerificationToken':
+                                document.querySelector('input[name="__RequestVerificationToken"]').value
+                        },
+                        body: JSON.stringify(data)
+                    });
+
+                    console.log("排序更新完成");
+                }
+            });
+        }
     </script>
 }

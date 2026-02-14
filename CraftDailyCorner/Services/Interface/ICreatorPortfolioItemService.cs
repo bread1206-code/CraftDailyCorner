@@ -1,4 +1,6 @@
-﻿namespace CraftDailyCorner.Services.Interface
+﻿using CraftDailyCorner.DTOs;
+
+namespace CraftDailyCorner.Services.Interface
 {
     public interface ICreatorPortfolioItemService
     {
@@ -7,5 +9,7 @@
         Task<string> DeleteAsync(int itemId,string creatorId);
 
         Task UpdateSortAsync(int itemId,byte sortOrder,string creatorId);
+
+        Task UpdateSortBatchAsync(List<SortUpdateDTO> items,string creatorId);
     }
 }

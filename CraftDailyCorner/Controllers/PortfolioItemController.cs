@@ -1,4 +1,5 @@
-﻿using CraftDailyCorner.Extensions;
+﻿using CraftDailyCorner.DTOs;
+using CraftDailyCorner.Extensions;
 using CraftDailyCorner.Services.Creator;
 using CraftDailyCorner.Services.Interface;
 using Microsoft.AspNetCore.Authorization;
@@ -22,18 +23,25 @@ public class PortfolioItemController : Controller
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Upload(
-     string portfolioId,
-     List<IFormFile> files)
+    string portfolioId,
+    List<IFormFile> files)
     {
-        await _service.UploadAsync(
-            portfolioId,
-            User.GetCreatorId(),
-            files);
+        try
+        {
+            await _service.UploadAsync(
+                portfolioId,
+                User.GetCreatorId(),
+                files);
 
-        var vm = await _creatorPortfolioService
-            .GetEditDataAsync(portfolioId, User.GetCreatorId());
+            var vm = await _creatorPortfolioService
+                .GetEditDataAsync(portfolioId, User.GetCreatorId());
 
-        return PartialView("_PortfolioItemListPartial", vm);
+            return PartialView("_PortfolioItemListPartial", vm);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex.Message);
+        }
     }
 
     [HttpPost]
@@ -51,12 +59,15 @@ public class PortfolioItemController : Controller
         return PartialView("_PortfolioItemListPartial", vm);
     }
 
+
     [HttpPost]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> UpdateSort(
-        int itemId,
-        byte sortOrder)
+    [FromBody] List<SortUpdateDTO> items)
     {
-        await _service.UpdateSortAsync(itemId,sortOrder,User.GetCreatorId());
+        await _service.UpdateSortBatchAsync(
+            items,
+            User.GetCreatorId());
 
         return Ok();
     }
