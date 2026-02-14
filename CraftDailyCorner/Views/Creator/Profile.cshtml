@@ -66,6 +66,9 @@
                 <div class="col-md-4">
                     <div class="card shadow-sm border-0 h-100">
                         <div class="card-body">
+                            <img src=@($"/Photos/06Portfolio/Medium/{portfolio.CoverImageUrl}.png")
+                                 class="card-img-top mb-3"
+                                 style="height:180px;object-fit:cover;" />
                             <h6 class="fw-semibold">@portfolio.Title</h6>
                             <p class="text-muted small">
                                 作品數量：@portfolio.ItemCount
@@ -93,7 +96,7 @@
                 <div class="col-md-4">
                     <div class="card shadow-sm border-0 h-100">
 
-                        <img src="@($"/Photos/Product/Medium/{product.ImageUrl}.png")"
+                        <img src="@($"/Photos/04ProductImage/Medium/{product.ImageUrl}.png")"
                              class="card-img-top"
                              style="height:180px;object-fit:cover;" />
 
@@ -103,7 +106,7 @@
                             </h6>
 
                             <p class="fw-bold text-primary">
-                                NT$ @product.Price
+                                NT$ @product.PriceInt
                             </p>
 
                             <a asp-controller="Products"

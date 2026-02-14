@@ -10,6 +10,7 @@ public class PortfolioItemController : Controller
     private readonly ICreatorPortfolioItemService _service;
     private readonly ICreatorPortfolioService _creatorPortfolioService;
 
+
     public PortfolioItemController(
         ICreatorPortfolioItemService service,
         ICreatorPortfolioService creatorPortfolioService)
@@ -21,12 +22,18 @@ public class PortfolioItemController : Controller
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Upload(
-        string portfolioId,
-        List<IFormFile> files)
+     string portfolioId,
+     List<IFormFile> files)
     {
-        await _service.UploadAsync(portfolioId,User.GetCreatorId(),files);
+        await _service.UploadAsync(
+            portfolioId,
+            User.GetCreatorId(),
+            files);
 
-        return RedirectToAction("Edit", "Portfolio", new { id = portfolioId });
+        var vm = await _creatorPortfolioService
+            .GetEditDataAsync(portfolioId, User.GetCreatorId());
+
+        return PartialView("_PortfolioItemListPartial", vm);
     }
 
     [HttpPost]
@@ -38,9 +45,10 @@ public class PortfolioItemController : Controller
             User.GetCreatorId());
 
         var vm = await _creatorPortfolioService
-            .GetEditDataAsync(portfolioId, User.GetCreatorId());
+            .GetEditDataAsync(portfolioId,
+                User.GetCreatorId());
 
-        return PartialView("_PortfolioItemList", vm);
+        return PartialView("_PortfolioItemListPartial", vm);
     }
 
     [HttpPost]

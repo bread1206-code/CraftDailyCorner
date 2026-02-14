@@ -40,7 +40,7 @@ namespace CraftDailyCorner.Services.Creator
                         .Where(p => p.StatusID == 1 &&
                                     p.Visibility == CreatorPostVisibility.Public)
                         .OrderByDescending(p => p.CreatedAt)
-                        .Take(6)
+                        .Take(3)
                         .Select(p => new VMCreatorPostPublicListItem
                         {
                             PostID = p.PostID,
@@ -54,19 +54,23 @@ namespace CraftDailyCorner.Services.Creator
                         .Where(p => p.StatusID == 1 &&
                                     p.Visibility == CreatorPostVisibility.Public)
                         .OrderByDescending(p => p.CreatedAt)
-                        .Take(6)
+                        .Take(3)
                         .Select(p => new VMCreatorPortfolioPublicListItem
                         {
                             PortfolioID = p.PortfolioID,
                             Title = p.Title,
                             CreatedAt = p.CreatedAt,
                             CreatorName = c.DisplayName,
-                            ItemCount = p.PortfolioItems.Count()
+                            ItemCount = p.PortfolioItems.Count(),
+                            CoverImageUrl = p.PortfolioItems
+                                .OrderBy(i => i.SortOrder)
+                                .Select(i => i.ImageUrl)
+                                .FirstOrDefault()
                         }).ToList(),
                     LatestProducts = c.Products
-                        .Where(p => p.StatusID == 1)// 上架中
+                        .Where(p => p.StatusID == 2)// 1草稿 2上架中 2下架
                         .OrderByDescending(p => p.CreatedAt)
-                        .Take(6)
+                        .Take(3)
                         .Select(p => new VMCreatorProductPublicListItem
                         {
                             ProductID = p.ProductID,

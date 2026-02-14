@@ -1,12 +1,13 @@
-﻿@model CraftDailyCorner.ViewModels.CreatorPortfolio.VMCreatorPortfolioEdit
-@Html.AntiForgeryToken()
+﻿@using CraftDailyCorner.ViewModels.CreatorPortfolio
+@model VMCreatorPortfolioEdit
+
 @{
     ViewData["Title"] = "編輯作品集";
 }
 
 <div class="container py-5" style="max-width:1000px;">
 
-    <!-- 🔹 作品集基本資料 -->
+    <!-- 作品集基本資料 -->
     <div class="card shadow-sm border-0 mb-5">
         <div class="card-body p-4">
 
@@ -19,7 +20,6 @@
                 <div class="mb-3">
                     <label asp-for="Title" class="form-label fw-semibold"></label>
                     <input asp-for="Title" class="form-control" />
-                    <span asp-validation-for="Title" class="text-danger small"></span>
                 </div>
 
                 <div class="mb-3">
@@ -27,7 +27,6 @@
                     <textarea asp-for="Description"
                               class="form-control"
                               rows="3"></textarea>
-                    <span asp-validation-for="Description" class="text-danger small"></span>
                 </div>
 
                 <div class="mb-4">
@@ -51,83 +50,56 @@
         </div>
     </div>
 
-    <!-- 🔹 圖片管理區 -->
-    <div class="card shadow-sm border-0">
-        <div class="card-body p-4">
+    <!-- 圖片管理 -->
+    <div class="card shadow-sm border-0 position-relative" id="portfolio-card">
 
+        <div class="card-body p-4">
+            <div id="upload-overlay"
+                 class="position-absolute top-0 start-0 w-100 h-100
+            d-flex align-items-center justify-content-center
+            bg-white bg-opacity-75 d-none"
+                 style="z-index:10;">
+
+                <div class="text-center">
+                    <div class="spinner-border text-dark mb-3" role="status"></div>
+                    <div class="fw-semibold">圖片上傳中...</div>
+                </div>
+
+            </div>
             <h4 class="fw-bold mb-4">圖片管理</h4>
 
-            <!-- 上傳多張圖片 -->
-            <form asp-controller="PortfolioItem"
-                  asp-action="Upload"
-                  method="post"
+            <!-- 上傳 -->
+            <form id="upload-form"
                   enctype="multipart/form-data"
-                  class="mb-4">
+                  class="mb-3">
 
                 @Html.AntiForgeryToken()
+
                 <input type="hidden"
                        name="portfolioId"
                        value="@Model.PortfolioID" />
 
-                <div class="mb-3">
-                    <input type="file"
-                           name="files"
-                           multiple
-                           class="form-control" />
-                </div>
+                <input type="file"
+                       name="files"
+                       id="upload-files"
+                       multiple
+                       class="form-control mb-3" />
 
                 <button type="submit"
-                        class="btn btn-primary">
+                        id="upload-btn"
+                        class="btn btn-primary"
+                        disabled>
                     上傳圖片
                 </button>
+
             </form>
 
             <hr />
 
-            <!-- 已上傳圖片 -->
-            @if (Model.Items != null && Model.Items.Any())
-            {
-                <div class="row g-4 mt-3">
-                    @foreach (var item in Model.Items.OrderBy(i => i.SortOrder))
-                    {
-                        <div class="col-md-3">
-                            <div class="position-relative">
-
-                                <img src="@($"/Photos/06Portfolio/Medium/{item.ImageUrl}.png")"
-                                     class="img-fluid rounded shadow-sm" />
-
-                                <!-- 刪除按鈕 -->
-                                <form asp-controller="PortfolioItem"
-                                      asp-action="Delete"
-                                      method="post"
-                                      class="position-absolute top-0 end-0 m-2">
-
-                                    @Html.AntiForgeryToken()
-                                    <input type="hidden"
-                                           name="itemId"
-                                           value="@item.ItemID" />
-
-                                    <button type="button"
-                                            class="btn btn-sm btn-danger btn-delete"
-                                            data-itemid="@item.ItemID">
-                                        ✕
-                                    </button>
-                                </form>
-
-                                <!-- 排序顯示 -->
-                                <div class="position-absolute bottom-0 start-0 bg-dark text-white px-2 py-1 small rounded-end">
-                                    排序：@item.SortOrder
-                                </div>
-
-                            </div>
-                        </div>
-                    }
-                </div>
-            }
-            else
-            {
-                <p class="text-muted">尚未上傳任何圖片。</p>
-            }
+            <!-- ⭐ 只呼叫 Partial -->
+            <div id="portfolio-items-container">
+                @await Html.PartialAsync("_PortfolioItemListPartial", Model)
+            </div>
 
         </div>
     </div>
@@ -136,29 +108,85 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+
     <script>
-        document.addEventListener("click", async function (e) {
+            document.addEventListener("DOMContentLoaded", function () {
 
-            if (!e.target.classList.contains("btn-delete"))
-                return;
+            const uploadForm = document.getElementById("upload-form");
+            const fileInput = document.getElementById("upload-files");
+            const uploadBtn = document.getElementById("upload-btn");
+            const overlay = document.getElementById("upload-overlay");
+            const container = document.getElementById("portfolio-items-container");
 
-            if (!confirm("確定刪除圖片？")) return;
+            // ===== 刪除 =====
+            document.addEventListener("click", async function (e) {
 
-            const itemId = e.target.dataset.itemid;
+                if (!e.target.classList.contains("btn-delete"))
+                    return;
 
-            const response = await fetch("/PortfolioItem/Delete", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "RequestVerificationToken":
-                        document.querySelector('input[name="__RequestVerificationToken"]').value
-                },
-                body: JSON.stringify({ itemId: parseInt(itemId) })
+                if (!confirm("確定刪除圖片？")) return;
+
+                const itemId = e.target.dataset.itemid;
+
+                const formData = new FormData();
+                formData.append("itemId", itemId);
+                formData.append("__RequestVerificationToken",
+                    document.querySelector('input[name="__RequestVerificationToken"]').value);
+
+                overlay.classList.remove("d-none");
+
+                const response = await fetch("/PortfolioItem/Delete", {
+                    method: "POST",
+                    body: formData
+                });
+
+                const html = await response.text();
+
+                container.innerHTML = html;
+
+                overlay.classList.add("d-none");
             });
 
-            const html = await response.text();
+            // ===== 控制按鈕啟用 =====
+            fileInput.addEventListener("change", function () {
+                uploadBtn.disabled = this.files.length === 0;
+            });
 
-            document.getElementById("portfolio-items-container").innerHTML = html;
+            // ===== AJAX 上傳 =====
+            uploadForm.addEventListener("submit", async function (e) {
+
+                e.preventDefault();
+
+                if (fileInput.files.length === 0)
+                    return;
+
+                overlay.classList.remove("d-none");
+                uploadBtn.disabled = true;
+
+                const formData = new FormData(uploadForm);
+
+                try {
+
+                    const response = await fetch("/PortfolioItem/Upload", {
+                        method: "POST",
+                        body: formData
+                    });
+
+                    const html = await response.text();
+
+                    container.innerHTML = html;
+
+                    fileInput.value = "";
+                    uploadBtn.disabled = true;
+
+                } catch {
+                    alert("上傳失敗");
+                } finally {
+                    overlay.classList.add("d-none");
+                }
+
+            });
+
         });
     </script>
 }
