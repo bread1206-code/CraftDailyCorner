@@ -27,6 +27,9 @@ namespace CraftDailyCorner.Models
         [Column(TypeName = "nchar(36)")]
         [Display(Name = "作品集編號")]
         public string PortfolioID { get; set; } = null!;
+        public bool IsDeleted { get; set; } = false;
+
+        public DateTime? DeletedAt { get; set; }
 
         public virtual Portfolio Portfolio { get; set; } = null!;
     }

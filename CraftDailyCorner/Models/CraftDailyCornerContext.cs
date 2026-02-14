@@ -627,6 +627,9 @@ namespace CraftDailyCorner.Models
                 .IsUnique();
 
             #endregion
+
+            modelBuilder.Entity<PortfolioItem>()
+                .HasQueryFilter(i => !i.IsDeleted);
         }
     }
 }

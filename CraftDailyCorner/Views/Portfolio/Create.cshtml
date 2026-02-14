@@ -9,13 +9,28 @@
     <!-- 標題 -->
     <div class="page-header mb-4">
         <h2 class="fw-bold">新增作品集</h2>
-        <p class="text-muted">建立新的作品集分類</p>
+        <p class="text-muted">建立新的作品集</p>
     </div>
 
     <div class="card shadow-sm border-0">
-        <div class="card-body p-4">
+        <div class="card-body p-4 position-relative">
 
-            <form asp-action="Create"
+        <div id="create-overlay"
+             class="position-absolute top-0 start-0 w-100 h-100
+         d-flex align-items-center justify-content-center
+         bg-white bg-opacity-75 d-none"
+             style="z-index:10;">
+
+            <div class="text-center">
+                <div class="spinner-border text-dark mb-3"></div>
+                <div class="fw-semibold">作品集與圖片上傳中...</div>
+            </div>
+        </div>
+
+
+
+            <form id="create-form" 
+                  asp-action="Create"
                   method="post"
                   enctype="multipart/form-data">
 
@@ -49,7 +64,9 @@
                 </div>
 
                 <button type="submit"
+                        id="create-btn"
                         class="btn btn-dark">
+
                     建立作品集
                 </button>
             </form>
@@ -58,3 +75,31 @@
     </div>
 
 </div>
+@section Scripts{
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const form = document.getElementById("create-form");
+    const overlay = document.getElementById("create-overlay");
+    const btn = document.getElementById("create-btn");
+    const fileInput = form.querySelector('input[type="file"]');
+
+    form.addEventListener("submit", function (e) {
+
+        if (btn.disabled) {
+            e.preventDefault();
+            return;
+        }
+
+        if (fileInput.files.length > 0) {
+            overlay.classList.remove("d-none");
+        }
+
+        btn.disabled = true;
+        console.log("submit triggered");
+    });
+
+});
+</script>
+
+}

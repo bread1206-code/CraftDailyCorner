@@ -115,8 +115,7 @@ namespace CraftDailyCorner.Services.Creator
 
         //編輯頁資料
 
-        public async Task<VMCreatorPortfolioEdit?>
-    GetEditDataAsync(string portfolioId, string creatorId)
+        public async Task<VMCreatorPortfolioEdit?> GetEditDataAsync(string portfolioId, string creatorId)
         {
             var portfolio = await _context.Portfolios
                 .Include(p => p.PortfolioItems)
@@ -138,6 +137,7 @@ namespace CraftDailyCorner.Services.Creator
                 UpdatedAt = portfolio.UpdatedAt,
 
                 Items = portfolio.PortfolioItems
+                    .Where(i => !i.IsDeleted)
                     .OrderBy(i => i.SortOrder)
                     .Select(i => new VMCreatorPortfolioItemEdit
                     {
@@ -220,12 +220,12 @@ namespace CraftDailyCorner.Services.Creator
         }
 
         //軟刪除
-
         public async Task SoftDeleteAsync(
             string portfolioId,
             string creatorId)
         {
             var portfolio = await _context.Portfolios
+                .Include(p => p.PortfolioItems)
                 .FirstOrDefaultAsync(p =>
                     p.PortfolioID == portfolioId &&
                     p.CreatorID == creatorId &&
@@ -234,8 +234,21 @@ namespace CraftDailyCorner.Services.Creator
             if (portfolio == null)
                 throw new Exception("找不到作品或無權限");
 
-            portfolio.StatusID = 2;
-            portfolio.UpdatedAt = DateTime.Now;
+            var now = DateTime.UtcNow;
+
+            //軟刪作品集
+            portfolio.StatusID = 3; // Deleted
+            portfolio.UpdatedAt = now;
+
+            //軟刪所有圖片
+            foreach (var item in portfolio.PortfolioItems)
+            {
+                if (!item.IsDeleted)
+                {
+                    item.IsDeleted = true;
+                    item.DeletedAt = now;
+                }
+            }
 
             await _context.SaveChangesAsync();
         }

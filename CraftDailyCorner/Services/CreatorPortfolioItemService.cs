@@ -11,16 +11,16 @@ public class CreatorPortfolioItemService
 {
     private readonly CraftDailyCornerContext _context;
     private readonly IImageUploadService _imageUploadService;
-    private readonly IWebHostEnvironment _env;
+    private readonly IImageFileService _imageFileService;
 
     public CreatorPortfolioItemService(
-        CraftDailyCornerContext context,
-        IImageUploadService imageUploadService,
-        IWebHostEnvironment env)
+    CraftDailyCornerContext context,
+    IImageUploadService imageUploadService,
+    IImageFileService imageFileService)
     {
         _context = context;
         _imageUploadService = imageUploadService;
-        _env = env;
+        _imageFileService = imageFileService;
     }
     private const int MaxImageCount = 50;//上限50張圖片
     public async Task UploadAsync(
@@ -85,18 +85,17 @@ public class CreatorPortfolioItemService
             throw new Exception("找不到圖片或無權限");
 
         var portfolioId = item.PortfolioID;
-
-        // 先記錄圖片名稱（GUID）
         var imageName = item.ImageUrl;
 
-        _context.PortfolioItems.Remove(item);
+        // 先標記為刪除，待時間到就真正刪除
+        item.IsDeleted = true;
+        item.DeletedAt = DateTime.UtcNow;
+        item.UpdatedAt = DateTime.UtcNow;
 
         await ReorderAsync(portfolioId);
 
-        await _context.SaveChangesAsync();   // 先確保 DB 成功
+        await _context.SaveChangesAsync(); 
 
-        //再刪除實體檔案
-        DeleteImageFiles(imageName);
 
         return portfolioId;
     }
@@ -159,35 +158,8 @@ public class CreatorPortfolioItemService
         foreach (var item in items)
         {
             item.SortOrder = (byte)order++;
+            Console.WriteLine($"Item {item.ItemID} -> {item.SortOrder}");
         }
-    }
 
-    //刪除圖片檔案（大圖和中圖）
-    private void DeleteImageFiles(string imageName)
-    {
-        try
-        {
-            var largePath = Path.Combine(
-                _env.WebRootPath,
-                "06Portfolio",
-                "Large",
-                imageName + ".png");
-
-            var mediumPath = Path.Combine(
-                _env.WebRootPath,
-                "06Portfolio",
-                "Medium",
-                imageName + ".png");
-
-            if (File.Exists(largePath))
-                File.Delete(largePath);
-
-            if (File.Exists(mediumPath))
-                File.Delete(mediumPath);
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine("刪除圖片檔案失敗: " + ex.Message);
-        }
     }
 }

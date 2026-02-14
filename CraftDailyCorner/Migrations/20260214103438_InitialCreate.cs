@@ -966,7 +966,9 @@ namespace CraftDailyCorner.Migrations
                     SortOrder = table.Column<byte>(type: "tinyint", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    PortfolioID = table.Column<string>(type: "nchar(36)", maxLength: 36, nullable: false)
+                    PortfolioID = table.Column<string>(type: "nchar(36)", maxLength: 36, nullable: false),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
+                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
                 constraints: table =>
                 {
