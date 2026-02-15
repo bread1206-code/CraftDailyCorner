@@ -1,4 +1,5 @@
 ﻿using CraftDailyCorner.DTOs;
+using CraftDailyCorner.Services.ReportCommentRe;
 using CraftDailyCorner.ViewModels.CreatorPost;
 
 namespace CraftDailyCorner.Services.Interface
@@ -9,7 +10,7 @@ namespace CraftDailyCorner.Services.Interface
 
         Task<List<VMPostCommentItem>> GetPostCommentsAsync( string postId,string? currentMemberId,string? currentCreatorId);
 
-        Task ReportAsync(ReportPostCommentDTO dto,string reporterId);
+        Task<ReportCommentResponse> ReportAsync(ReportPostCommentDTO dto,string reporterId);
 
         Task<VMPostCommentItem> BuildCommentViewModelAsync(string commentId,string? currentMemberId,string? currentCreatorId);
     }

@@ -1,13 +1,13 @@
 ﻿using CraftDailyCorner.DTOs;
 using CraftDailyCorner.Extensions;
 using CraftDailyCorner.Services;
-using CraftDailyCorner.Services.CraftDailyCorner.Services.PostCommentReport;
+using CraftDailyCorner.Services.ReportCommentRe;
 using CraftDailyCorner.Services.Interface;
 using CraftDailyCorner.ViewModels.CreatorPost;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace CraftDailyCorner.Controllers.Front
+namespace CraftDailyCorner.Controllers
 {
     public class PostController : Controller
     {
@@ -19,7 +19,10 @@ namespace CraftDailyCorner.Controllers.Front
             _postService = postService;
             _postCommentReportService = postCommentReportService;
         }
-
+        public IActionResult Test()
+        {
+            return Content("OK");
+        }
         // 前台列表
         public async Task<IActionResult> Index(string? keyword, int page = 1)
         {
@@ -157,33 +160,6 @@ namespace CraftDailyCorner.Controllers.Front
 
             return RedirectToAction(nameof(List));
         }
-        //檢舉
-        [HttpPost]
-        [Authorize(Roles = "02")] // 創作者
-        [ValidateAntiForgeryToken]
-        public IActionResult ReportComment(string commentId, string reason)
-        {
-            var memberId = User.GetMemberId();
 
-            var response = _postCommentReportService
-                .CreateReport(commentId, memberId, reason);
-
-            return response.Result switch
-            {
-                ReportCommentResult.Success =>
-                    RedirectToAction("Detail", new { id = response.PostId }),
-
-                ReportCommentResult.NotFound =>
-                    NotFound(),
-
-                ReportCommentResult.Forbidden =>
-                    Forbid(),
-
-                ReportCommentResult.AlreadyReported =>
-                    RedirectToAction("Detail", new { id = response.PostId }),
-
-                _ => BadRequest()
-            };
-        }
     }
 }

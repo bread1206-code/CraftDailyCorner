@@ -1,5 +1,6 @@
 ﻿using CraftDailyCorner.Models;
-using CraftDailyCorner.Services.CraftDailyCorner.Services.PostCommentReport;
+using CraftDailyCorner.Models.Enums;
+using CraftDailyCorner.Services.ReportCommentRe;
 using CraftDailyCorner.Services.Interface;
 using Microsoft.EntityFrameworkCore;
 
@@ -14,14 +15,11 @@ namespace CraftDailyCorner.Services
             _context = context;
         }
 
-        public ReportCommentResponse CreateReport(
-    string commentId,
-    string memberId,
-    string reason)
+        public ReportCommentResponse CreateReport(string commentId,string memberId,CommentReportReason reasonCode,string? description)
         {
             var comment = _context.PostComments
-                .Include(c => c.CreatorPost)
-                .FirstOrDefault(c => c.CommentID == commentId);
+        .Include(c => c.CreatorPost)
+        .FirstOrDefault(c => c.CommentID == commentId);
 
             if (comment == null)
                 return new ReportCommentResponse
@@ -29,7 +27,7 @@ namespace CraftDailyCorner.Services
                     Result = ReportCommentResult.NotFound
                 };
 
-            // 🔹 先找目前登入者的 CreatorProfile
+            // 🔹 找目前登入者的 CreatorProfile
             var creatorProfile = _context.CreatorProfiles
                 .FirstOrDefault(c => c.MemberID == memberId);
 
@@ -39,18 +37,35 @@ namespace CraftDailyCorner.Services
                     Result = ReportCommentResult.Forbidden
                 };
 
-            // 🔹 比對 CreatorID
+            // 🔹 驗證是否為該文章作者
             if (comment.CreatorPost.CreatorID != creatorProfile.CreatorID)
                 return new ReportCommentResponse
                 {
                     Result = ReportCommentResult.Forbidden
                 };
 
+            // 🔹 防止重複檢舉
+            var exists = _context.PostCommentReports
+                .Any(r =>
+                    r.CommentID == commentId &&
+                    r.MemberID == memberId);
+
+            if (exists)
+                return new ReportCommentResponse
+                {
+                    Result = ReportCommentResult.AlreadyReported,
+                    PostId = comment.PostID
+                };
+
             var report = new PostCommentReport
             {
                 CommentID = commentId,
                 MemberID = memberId,
-                Reason = reason,
+                ReasonCode = reasonCode,
+                Description =
+                    reasonCode == CommentReportReason.Other
+                        ? description?.Trim()
+                        : null,
                 StatusID = 1
             };
 

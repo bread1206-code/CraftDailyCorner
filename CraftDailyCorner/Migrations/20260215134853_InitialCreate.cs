@@ -1192,7 +1192,8 @@ namespace CraftDailyCorner.Migrations
                 {
                     ReportID = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Reason = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ReasonCode = table.Column<int>(type: "int", maxLength: 20, nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: true),
                     ReviewedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     ReviewedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     CommentID = table.Column<string>(type: "nchar(36)", nullable: false),

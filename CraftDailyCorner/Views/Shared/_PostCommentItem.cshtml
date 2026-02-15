@@ -26,7 +26,8 @@
             @if (Model.CanReport)
             {
                 <div class="mt-2 small">
-                    <a href="#" class="text-warning btn-report"
+                    <a href="#"
+                       class="text-warning btn-report"
                        data-id="@Model.CommentID"
                        data-bs-toggle="modal"
                        data-bs-target="#reportModal">
@@ -34,53 +35,7 @@
                     </a>
                 </div>
             }
-        </div>
-    </div>
-</div>
-<div class="modal fade" id="reportModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-
-            <form asp-action="ReportComment" method="post">
-
-                <div class="modal-header">
-                    <h5 class="modal-title">檢舉留言</h5>
-                    <button type="button" class="btn-close"
-                            data-bs-dismiss="modal"></button>
-                </div>
-
-                <div class="modal-body">
-
-                    <input type="hidden" name="CommentID"
-                           id="reportCommentId" />
-
-                    <div class="mb-3">
-                        <label class="form-label">檢舉原因</label>
-                        <textarea name="Reason"
-                                  class="form-control"
-                                  required></textarea>
-                    </div>
-
-                </div>
-
-                <div class="modal-footer">
-                    <button type="submit"
-                            class="btn btn-danger">
-                        送出檢舉
-                    </button>
-                </div>
-
-            </form>
 
         </div>
     </div>
 </div>
-<script>
-    document.querySelectorAll(".btn-report")
-    .forEach(btn => {
-        btn.addEventListener("click", function () {
-            const id = this.dataset.id;
-            document.getElementById("reportCommentId").value = id;
-        });
-    });
-</script>

@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CraftDailyCorner.Migrations
 {
     [DbContext(typeof(CraftDailyCornerContext))]
-    [Migration("20260214103438_InitialCreate")]
+    [Migration("20260215134853_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -1330,13 +1330,17 @@ namespace CraftDailyCorner.Migrations
                         .IsRequired()
                         .HasColumnType("nchar(36)");
 
+                    b.Property<string>("Description")
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
                     b.Property<string>("MemberID")
                         .IsRequired()
                         .HasColumnType("nchar(8)");
 
-                    b.Property<string>("Reason")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("ReasonCode")
+                        .HasMaxLength(20)
+                        .HasColumnType("int");
 
                     b.Property<DateTime?>("ReviewedAt")
                         .HasColumnType("datetime2");

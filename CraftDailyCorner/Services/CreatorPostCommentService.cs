@@ -1,8 +1,10 @@
 ﻿using CraftDailyCorner.DTOs;
 using CraftDailyCorner.Models;
+using CraftDailyCorner.Models.Enums;
 using CraftDailyCorner.Services.Interface;
 using CraftDailyCorner.ViewModels.CreatorPost;
 using Microsoft.EntityFrameworkCore;
+using CraftDailyCorner.Services.ReportCommentRe;
 
 namespace CraftDailyCorner.Services.Creator
 {
@@ -81,43 +83,62 @@ namespace CraftDailyCorner.Services.Creator
 
 
         //檢舉留言
-        public async Task ReportAsync(
-            ReportPostCommentDTO dto,
-            string reporterId)
+        public async Task<ReportCommentResponse> ReportAsync(ReportPostCommentDTO dto,string reporterId)
         {
             var comment = await _context.PostComments
                 .Include(c => c.CreatorPost)
                 .FirstOrDefaultAsync(c => c.CommentID == dto.CommentID);
 
             if (comment == null)
-                throw new Exception("留言不存在");
+                return new ReportCommentResponse
+                {
+                    Result = ReportCommentResult.NotFound
+                };
 
-            // 驗證是否為該文章作者
             var creatorProfile = await _context.CreatorProfiles
                 .FirstOrDefaultAsync(c => c.MemberID == reporterId);
 
             if (creatorProfile == null ||
                 comment.CreatorPost.CreatorID != creatorProfile.CreatorID)
             {
-                throw new Exception("無檢舉權限");
+                return new ReportCommentResponse
+                {
+                    Result = ReportCommentResult.Forbidden
+                };
             }
+
             var exists = await _context.PostCommentReports
                 .AnyAsync(r =>
                     r.CommentID == dto.CommentID &&
                     r.MemberID == reporterId);
+
             if (exists)
-                throw new Exception("已檢舉過此留言");
+                return new ReportCommentResponse
+                {
+                    Result = ReportCommentResult.AlreadyReported,
+                    PostId = comment.PostID
+                };
 
             var report = new PostCommentReport
             {
                 CommentID = dto.CommentID,
                 MemberID = reporterId,
-                Reason = dto.Reason.Trim(),
+                ReasonCode = dto.ReasonCode,
+                Description =
+                    dto.ReasonCode == CommentReportReason.Other
+                        ? dto.Description?.Trim()
+                        : null,
                 StatusID = 1
             };
 
             _context.PostCommentReports.Add(report);
             await _context.SaveChangesAsync();
+
+            return new ReportCommentResponse
+            {
+                Result = ReportCommentResult.Success,
+                PostId = comment.PostID
+            };
         }
 
         //建構留言
