@@ -9,12 +9,12 @@ namespace CraftDailyCorner.Controllers
     [Authorize]
     public class PostCommentController : Controller
     {
-        private readonly ICreatorPostCommentService _service;
+        private readonly ICreatorPostCommentService _creatorPostCommentService;
 
         public PostCommentController(
-            ICreatorPostCommentService service)
+            ICreatorPostCommentService creatorPostCommentService)
         {
-            _service = service;
+            _creatorPostCommentService = creatorPostCommentService;
         }
 
         [HttpPost]
@@ -24,7 +24,7 @@ namespace CraftDailyCorner.Controllers
             if (!ModelState.IsValid)
                 return BadRequest("留言資料錯誤");
 
-            var vm = await _service.CreateAsync(
+            var vm = await _creatorPostCommentService.CreateAsync(
                 dto,
                 User.GetMemberId(),
                 User.IsInRole("02") ? User.GetCreatorId() : null);
@@ -35,25 +35,26 @@ namespace CraftDailyCorner.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Delete(string id)
-        {
-            await _service.DeleteAsync(
-                id,
-                User.GetMemberId(),
-                User.IsInRole("02") ? User.GetCreatorId() : null);
-
-            return Ok();
-        }
-
-        [HttpPost]
         public async Task<IActionResult> Report(
             [FromBody] ReportPostCommentDTO dto)
         {
             if (!ModelState.IsValid)
                 return BadRequest("檢舉資料錯誤");
 
-            await _service.ReportAsync(dto, User.GetMemberId());
+            await _creatorPostCommentService.ReportAsync(dto, User.GetMemberId());
             return Ok();
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "02")]
+        public async Task<IActionResult> ReportComment(ReportPostCommentDTO dto)
+        {
+            var memberId = User.GetMemberId();
+
+            await _creatorPostCommentService
+                .ReportAsync(dto, memberId);
+
+            return RedirectToAction("Detail", new { id = dto.CommentID });
         }
     }
 }

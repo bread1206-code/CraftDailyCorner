@@ -14,7 +14,7 @@ namespace CraftDailyCorner.Models
         public string? ReviewedBy { get; set; }
         [Display(Name = "檢舉時間")]
         public DateTime? ReviewedAt { get; set; }
-        [Display(Name = "留言者ID")]
+        [Display(Name = "留言ID")]
         public string CommentID { get; set; } = null!;
         [Display(Name = "檢舉者ID")]
         public string MemberID { get; set; } = null!;

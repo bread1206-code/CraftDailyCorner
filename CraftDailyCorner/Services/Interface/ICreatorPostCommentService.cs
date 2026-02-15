@@ -9,8 +9,6 @@ namespace CraftDailyCorner.Services.Interface
 
         Task<List<VMPostCommentItem>> GetPostCommentsAsync( string postId,string? currentMemberId,string? currentCreatorId);
 
-        Task DeleteAsync( string commentId,string memberId,string? creatorId = null);
-
         Task ReportAsync(ReportPostCommentDTO dto,string reporterId);
 
         Task<VMPostCommentItem> BuildCommentViewModelAsync(string commentId,string? currentMemberId,string? currentCreatorId);

@@ -52,11 +52,7 @@ namespace CraftDailyCorner.Services.Creator
         }
 
         //取得留言列表
-        public async Task<List<VMPostCommentItem>>
-            GetPostCommentsAsync(
-                string postId,
-                string? currentMemberId,
-                string? currentCreatorId)
+        public async Task<List<VMPostCommentItem>> GetPostCommentsAsync(string postId,string? currentMemberId,string? currentCreatorId)
         {
             return await _context.PostComments
                 .Include(c => c.Member)
@@ -76,53 +72,39 @@ namespace CraftDailyCorner.Services.Creator
                     CreatedAt = c.CreatedAt,
                     Status = c.Status,
 
-                    CanDelete =
-                        c.MemberID == currentMemberId ||
-                        c.CreatorPost.CreatorID == currentCreatorId,
-
                     CanReport =
-                        currentMemberId != null &&
+                        currentCreatorId != null &&
+                        c.CreatorPost.CreatorID == currentCreatorId &&
                         c.MemberID != currentMemberId
-                })
-                .ToListAsync();
+            }).ToListAsync();
         }
 
-        //刪除留言（狀態改為違規）
-        public async Task DeleteAsync(
-            string commentId,
-            string memberId,
-            string? creatorId = null)
-        {
-            var comment = await _context.PostComments
-                .Include(c => c.CreatorPost)
-                .FirstOrDefaultAsync(c => c.CommentID == commentId);
-
-            if (comment == null)
-                throw new Exception("留言不存在");
-
-            var isOwner = comment.MemberID == memberId;
-            var isPostOwner =
-                creatorId != null &&
-                comment.CreatorPost.CreatorID == creatorId;
-
-            if (!isOwner && !isPostOwner)
-                throw new Exception("無權限刪除");
-
-            comment.Status = PostCommentStatus.Violation;
-
-            await _context.SaveChangesAsync();
-        }
 
         //檢舉留言
         public async Task ReportAsync(
             ReportPostCommentDTO dto,
             string reporterId)
         {
+            var comment = await _context.PostComments
+                .Include(c => c.CreatorPost)
+                .FirstOrDefaultAsync(c => c.CommentID == dto.CommentID);
+
+            if (comment == null)
+                throw new Exception("留言不存在");
+
+            // 驗證是否為該文章作者
+            var creatorProfile = await _context.CreatorProfiles
+                .FirstOrDefaultAsync(c => c.MemberID == reporterId);
+
+            if (creatorProfile == null ||
+                comment.CreatorPost.CreatorID != creatorProfile.CreatorID)
+            {
+                throw new Exception("無檢舉權限");
+            }
             var exists = await _context.PostCommentReports
                 .AnyAsync(r =>
                     r.CommentID == dto.CommentID &&
                     r.MemberID == reporterId);
-
             if (exists)
                 throw new Exception("已檢舉過此留言");
 
@@ -160,12 +142,9 @@ namespace CraftDailyCorner.Services.Creator
                     CreatedAt = c.CreatedAt,
                     Status = c.Status,
 
-                    CanDelete =
-                        c.MemberID == currentMemberId ||
-                        c.CreatorPost.CreatorID == currentCreatorId,
-
                     CanReport =
-                        currentMemberId != null &&
+                        currentCreatorId != null &&
+                        c.CreatorPost.CreatorID == currentCreatorId &&
                         c.MemberID != currentMemberId
                 })
                 .FirstAsync();

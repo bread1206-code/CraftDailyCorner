@@ -24,6 +24,7 @@ builder.Services.AddScoped<IFollowService, FollowService>();
 builder.Services.AddScoped<ICreatorPortfolioItemService, CreatorPortfolioItemService>();
 builder.Services.AddScoped<IImageFileService, ImageFileService>();
 builder.Services.AddScoped<ICreatorPostCommentService, CreatorPostCommentService>();
+builder.Services.AddScoped<IPostCommentReportService, PostCommentReportService>();
 builder.Services.AddScoped <SeedRunner>();
 builder.Services.AddScoped <SeedMember>();
 builder.Services.AddScoped <SeedPrivacy>();

@@ -36,9 +36,6 @@ namespace CraftDailyCorner.ViewModels.CreatorPost
         public string CreatedTimeText =>
             CreatedAt.ToLocalTime().ToString("yyyy/MM/dd HH:mm");
 
-        //是否可顯示刪除按鈕
-        public bool CanDelete { get; set; }
-
         //是否可顯示檢舉按鈕
         public bool CanReport { get; set; }
 
