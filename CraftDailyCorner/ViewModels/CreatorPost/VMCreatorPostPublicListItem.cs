@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace CraftDailyCorner.ViewModels.CreatorPost.Front
+namespace CraftDailyCorner.ViewModels.CreatorPost
 {
     public class VMCreatorPostPublicListItem
     {

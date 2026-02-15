@@ -7,7 +7,7 @@
 
 <div class="container py-5" style="max-width:1000px;">
 
-    <!-- 作品集基本資料 -->
+    <!-- 基本資料 -->
     <div class="card shadow-sm border-0 mb-5">
         <div class="card-body p-4">
 
@@ -17,58 +17,59 @@
                 @Html.AntiForgeryToken()
                 <input type="hidden" asp-for="PortfolioID" />
 
+                <div asp-validation-summary="ModelOnly"
+                     class="text-danger mb-3"></div>
+
                 <div class="mb-3">
-                    <label asp-for="Title" class="form-label fw-semibold"></label>
-                    <input asp-for="Title" class="form-control" />
+                    <label asp-for="Title"
+                           class="form-label fw-semibold"></label>
+                    <input asp-for="Title"
+                           class="form-control" />
+                    <span asp-validation-for="Title"
+                          class="text-danger small"></span>
                 </div>
 
                 <div class="mb-3">
-                    <label asp-for="Description" class="form-label fw-semibold"></label>
+                    <label asp-for="Description"
+                           class="form-label fw-semibold"></label>
                     <textarea asp-for="Description"
                               class="form-control"
                               rows="3"></textarea>
                 </div>
 
                 <div class="mb-4">
-                    <label asp-for="Visibility" class="form-label fw-semibold"></label>
+                    <label asp-for="Visibility"
+                           class="form-label fw-semibold"></label>
                     <select asp-for="Visibility"
                             asp-items="Html.GetEnumSelectList<CreatorPostVisibility>()"
                             class="form-select">
                     </select>
                 </div>
 
-                <button type="submit" class="btn btn-dark">
-                    儲存修改
-                </button>
+                <div class="d-flex gap-2">
+                    <button type="submit"
+                            class="btn btn-dark">
+                        儲存修改
+                    </button>
 
-                <a asp-action="List"
-                   class="btn btn-outline-secondary ms-2">
-                    返回列表
-                </a>
+                    <a asp-action="List"
+                       class="btn btn-outline-secondary">
+                        返回列表
+                    </a>
+                </div>
             </form>
 
         </div>
     </div>
 
     <!-- 圖片管理 -->
-    <div class="card shadow-sm border-0 position-relative" id="portfolio-card">
-
+    <div class="card shadow-sm border-0">
         <div class="card-body p-4">
-            <div id="upload-overlay"
-                 class="position-absolute top-0 start-0 w-100 h-100
-            d-flex align-items-center justify-content-center
-            bg-white bg-opacity-75 d-none"
-                 style="z-index:10;">
 
-                <div class="text-center">
-                    <div class="spinner-border text-dark mb-3" role="status"></div>
-                    <div class="fw-semibold">圖片上傳中...</div>
-                </div>
+            <div class="d-flex align-items-center justify-content-between mb-3">
+                <h4 class="fw-bold mb-0">圖片管理</h4>
 
-            </div>
-            <div class="d-flex">
-                <h4 class="fw-bold mb-3 me-5">圖片管理</h4>
-                <div class="form-check mb-3">
+                <div class="form-check">
                     <input class="form-check-input"
                            type="checkbox"
                            id="quick-delete-toggle">
@@ -79,16 +80,17 @@
                     </label>
                 </div>
             </div>
-            
+
             <div id="quick-delete-alert"
                  class="alert alert-warning d-none py-2">
-                <i class="bi bi-exclamation-triangle me-1"> </i>您已開啟快速刪除模式，點擊即會刪除圖片
+                <i class="bi bi-exclamation-triangle me-1"></i>
+                您已開啟快速刪除模式，點擊即會刪除圖片
             </div>
-            
-            <!-- 上傳 -->
+
+            <!-- 上傳區 -->
             <form id="upload-form"
                   enctype="multipart/form-data"
-                  class="mb-3">
+                  class="mb-4">
 
                 @Html.AntiForgeryToken()
 
@@ -96,167 +98,132 @@
                        name="portfolioId"
                        value="@Model.PortfolioID" />
 
-                <input type="file"
-                       name="files"
-                       id="upload-files"
-                       multiple
-                       class="form-control mb-3" />
+                <div class="d-flex gap-2">
+                    <input type="file"
+                           name="files"
+                           id="upload-files"
+                           multiple
+                           class="form-control" />
 
-                <button type="submit"
-                        id="upload-btn"
-                        class="btn btn-primary"
-                        disabled>
-                    上傳圖片
-                </button>
-
+                    <button type="submit"
+                            id="upload-btn"
+                            class="btn btn-primary"
+                            disabled>
+                        上傳
+                    </button>
+                </div>
             </form>
 
             <hr />
 
-            <!-- ⭐ 只呼叫 Partial -->
             <div id="portfolio-items-container">
                 @await Html.PartialAsync("_PortfolioItemListPartial", Model)
             </div>
 
         </div>
-        
     </div>
 
 </div>
-
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
 
     <script>
-        document.addEventListener("DOMContentLoaded", function () {
+        document.addEventListener("DOMContentLoaded", () => {
 
-            //DOM 參照
+            const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
             const uploadForm = document.getElementById("upload-form");
             const fileInput = document.getElementById("upload-files");
             const uploadBtn = document.getElementById("upload-btn");
-            const overlay = document.getElementById("upload-overlay");
             const container = document.getElementById("portfolio-items-container");
             const quickToggle = document.getElementById("quick-delete-toggle");
             const quickAlert = document.getElementById("quick-delete-alert");
 
-            quickToggle.addEventListener("change", function () {
+            // 快速刪除
 
-            if (this.checked) {
-                quickAlert.classList.remove("d-none");
-            } else {
-                quickAlert.classList.add("d-none");
-            }
-        });
+            quickToggle.addEventListener("change", () => {
+                quickAlert.classList.toggle("d-none", !quickToggle.checked);
+            });
 
-            //共用工具
+            //上傳按鈕啟用
 
-            function getToken() {
-                return document.querySelector('input[name="__RequestVerificationToken"]').value;
-            }
+            fileInput.addEventListener("change", () => {
+                uploadBtn.disabled = fileInput.files.length === 0;
+            });
 
-            function showOverlay() {
-                overlay.classList.remove("d-none");
-            }
+            // 刪除圖片
 
-            function hideOverlay() {
-                overlay.classList.add("d-none");
-            }
+            document.addEventListener("click", async (e) => {
 
-            async function handleResponse(response) {
-                if (!response.ok) {
-                    const message = await response.text();
-                    alert(message);
-                    throw new Error(message);
+                if (!e.target.classList.contains("btn-delete"))
+                    return;
+
+                if (!quickToggle.checked) {
+                    if (!confirm("確定刪除圖片？")) return;
                 }
-                return await response.text();
-            }
 
-            function refreshPartial(html) {
-                container.innerHTML = html;
-                initSortable();
-            }
+                const itemId = e.target.dataset.itemid;
 
-        // 刪除圖片（支援快速模式）
-        document.addEventListener("click", async function (e) {
+                const formData = new FormData();
+                formData.append("itemId", itemId);
+                formData.append("__RequestVerificationToken", token);
 
-            if (!e.target.classList.contains("btn-delete"))
-                return;
+                LoadingOverlay.show("刪除圖片中...");
 
-            const quickMode = document.getElementById("quick-delete-toggle").checked;
+                try {
+                    const response = await fetch("/PortfolioItem/Delete", {
+                        method: "POST",
+                        body: formData
+                    });
 
-            //  非快速模式才顯示 confirm
-            if (!quickMode) {
-                if (!confirm("確定刪除圖片？")) return;
-            }
+                    const html = await response.text();
+                    container.innerHTML = html;
+                    initSortable();
 
-            const itemId = e.target.dataset.itemid;
-
-            const formData = new FormData();
-            formData.append("itemId", itemId);
-            formData.append("__RequestVerificationToken", getToken());
-
-            try {
-                showOverlay();
-
-                const response = await fetch("/PortfolioItem/Delete", {
-                    method: "POST",
-                    body: formData
-                });
-
-                const html = await handleResponse(response);
-                refreshPartial(html);
-
-            } catch (err) {
-                console.error(err);
-            } finally {
-                hideOverlay();
-            }
-        });
-
-            //控制上傳按鈕啟用
-            fileInput.addEventListener("change", function () {
-                uploadBtn.disabled = this.files.length === 0;
+                } catch (err) {
+                    console.error(err);
+                } finally {
+                    LoadingOverlay.hide();
+                }
             });
 
             //上傳圖片
-            uploadForm.addEventListener("submit", async function (e) {
+
+            uploadForm.addEventListener("submit", async (e) => {
 
                 e.preventDefault();
-
-                if (fileInput.files.length === 0)
-                    return;
+                if (fileInput.files.length === 0) return;
 
                 const formData = new FormData(uploadForm);
 
-                try {
-                    showOverlay();
-                    uploadBtn.disabled = true;
+                LoadingOverlay.show("圖片上傳中...");
 
+                try {
                     const response = await fetch("/PortfolioItem/Upload", {
                         method: "POST",
                         body: formData
                     });
 
-                    const html = await handleResponse(response);
-                    refreshPartial(html);
+                    const html = await response.text();
+                    container.innerHTML = html;
 
                     fileInput.value = "";
                     uploadBtn.disabled = true;
 
+                    initSortable();
+
                 } catch (err) {
                     console.error(err);
                 } finally {
-                    hideOverlay();
+                    LoadingOverlay.hide();
                 }
             });
 
-            // 初始化拖曳
             initSortable();
         });
 
+        // 拖曳排序
 
-        //拖曳排序
         function initSortable() {
 
             const el = document.getElementById("sortable-list");
@@ -289,8 +256,6 @@
                         },
                         body: JSON.stringify(data)
                     });
-
-                    console.log("排序更新完成");
                 }
             });
         }

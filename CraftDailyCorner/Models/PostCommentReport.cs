@@ -6,12 +6,19 @@ namespace CraftDailyCorner.Models
     public class PostCommentReport
     {
         [Key]
+        [Display(Name = "檢舉ID")]
         public long ReportID { get; set; }
+        [Display(Name = "檢舉原因")]
         public string Reason { get; set; } = null!;
+        [Display(Name = "處理者")]
         public string? ReviewedBy { get; set; }
+        [Display(Name = "檢舉時間")]
         public DateTime? ReviewedAt { get; set; }
+        [Display(Name = "留言者ID")]
         public string CommentID { get; set; } = null!;
+        [Display(Name = "檢舉者ID")]
         public string MemberID { get; set; } = null!;
+        [Display(Name = "檢舉狀態ID")]
         public byte StatusID { get; set; }
 
         public virtual PostCommentReportStatus? PostCommentReportStatus { get; set; }

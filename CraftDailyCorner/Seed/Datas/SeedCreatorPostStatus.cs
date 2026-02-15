@@ -19,17 +19,25 @@ namespace CraftDailyCorner.Seed.Datas
                 new CreatorPostStatus
                 {
                     StatusID = 1,
-                    StatusCode = "Visible",
-                    StatusName = "顯示",
-                    Description = "貼文可見",
+                    StatusCode = "Active",
+                    StatusName = "啟用",
+                    Description = "日誌正常啟用",
                     IsActive = true
                 },
                 new CreatorPostStatus
                 {
                     StatusID = 2,
-                    StatusCode = "Hidden",
-                    StatusName = "隱藏",
-                    Description = "貼文被隱藏",
+                    StatusCode = "Suspended",
+                    StatusName = "停權",
+                    Description = "日誌停權",
+                    IsActive = false
+                },
+                new CreatorPostStatus
+                {
+                    StatusID = 3,
+                    StatusCode = "Deleted",
+                    StatusName = "已刪除",
+                    Description = "日誌已刪除",
                     IsActive = false
                 }
             );

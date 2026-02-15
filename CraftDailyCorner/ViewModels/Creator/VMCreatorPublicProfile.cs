@@ -1,5 +1,5 @@
 ﻿using CraftDailyCorner.ViewModels.CreatorPortfolio.Front;
-using CraftDailyCorner.ViewModels.CreatorPost.Front;
+using CraftDailyCorner.ViewModels.CreatorPost;
 using CraftDailyCorner.ViewModels.FollowCreator;
 using CraftDailyCorner.ViewModels.Product;
 

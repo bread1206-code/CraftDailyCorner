@@ -1,4 +1,4 @@
-﻿namespace CraftDailyCorner.ViewModels.CreatorPost.Front
+﻿namespace CraftDailyCorner.ViewModels.CreatorPost
 {
     public class VMPostIndex
     {

@@ -7,99 +7,93 @@
 <div class="container py-5" style="max-width:900px;">
 
     <!-- 標題 -->
-    <div class="page-header mb-4">
+    <div class="mb-4">
         <h2 class="fw-bold">新增作品集</h2>
-        <p class="text-muted">建立新的作品集</p>
+        <p class="text-muted mb-0">建立新的作品集</p>
     </div>
 
     <div class="card shadow-sm border-0">
-        <div class="card-body p-4 position-relative">
+        <div class="card-body p-4">
 
-        <div id="create-overlay"
-             class="position-absolute top-0 start-0 w-100 h-100
-         d-flex align-items-center justify-content-center
-         bg-white bg-opacity-75 d-none"
-             style="z-index:10;">
-
-            <div class="text-center">
-                <div class="spinner-border text-dark mb-3"></div>
-                <div class="fw-semibold">作品集與圖片上傳中...</div>
-            </div>
-        </div>
-
-
-
-            <form id="create-form" 
-                  asp-action="Create"
+            <form asp-action="Create"
                   method="post"
-                  enctype="multipart/form-data">
+                  enctype="multipart/form-data"
+                  class="needs-validation"
+                  novalidate>
 
                 @Html.AntiForgeryToken()
 
+                <!-- Validation Summary -->
+                <div asp-validation-summary="ModelOnly"
+                     class="text-danger mb-3"></div>
+
+                <!-- 標題 -->
                 <div class="mb-3">
-                    <label asp-for="Title"></label>
-                    <input asp-for="Title" class="form-control" />
+                    <label asp-for="Title"
+                           class="form-label fw-semibold"></label>
+                    <input asp-for="Title"
+                           class="form-control" />
+                    <span asp-validation-for="Title"
+                          class="text-danger small"></span>
                 </div>
 
+                <!-- 描述 -->
                 <div class="mb-3">
-                    <label asp-for="Description"></label>
+                    <label asp-for="Description"
+                           class="form-label fw-semibold"></label>
                     <textarea asp-for="Description"
-                              class="form-control"></textarea>
+                              class="form-control"
+                              rows="4"></textarea>
+                    <span asp-validation-for="Description"
+                          class="text-danger small"></span>
                 </div>
 
+                <!-- 可見性 -->
                 <div class="mb-3">
-                    <label asp-for="Visibility"></label>
+                    <label asp-for="Visibility"
+                           class="form-label fw-semibold"></label>
                     <select asp-for="Visibility"
                             asp-items="Html.GetEnumSelectList<CreatorPostVisibility>()"
                             class="form-select">
                     </select>
                 </div>
 
+                <!-- 圖片上傳 -->
                 <div class="mb-4">
-                    <label asp-for="Files"></label>
+                    <label asp-for="Files"
+                           class="form-label fw-semibold"></label>
+
                     <input type="file"
                            asp-for="Files"
                            multiple
                            class="form-control" />
+
+                    <div class="form-text">
+                        可選擇多張圖片（最多 50 張）
+                    </div>
                 </div>
 
-                <button type="submit"
-                        id="create-btn"
-                        class="btn btn-dark">
+                <!-- 按鈕 -->
+                <div class="d-flex gap-2">
+                    <button type="submit"
+                            class="btn btn-dark">
+                        <i class="bi bi-plus-lg me-1"></i>
+                        建立作品集
+                    </button>
 
-                    建立作品集
-                </button>
+                    <a asp-action="List"
+                       class="btn btn-outline-secondary">
+                        返回列表
+                    </a>
+                </div>
+
             </form>
 
         </div>
     </div>
 
 </div>
-@section Scripts{
-<script>
-document.addEventListener("DOMContentLoaded", function () {
 
-    const form = document.getElementById("create-form");
-    const overlay = document.getElementById("create-overlay");
-    const btn = document.getElementById("create-btn");
-    const fileInput = form.querySelector('input[type="file"]');
-
-    form.addEventListener("submit", function (e) {
-
-        if (btn.disabled) {
-            e.preventDefault();
-            return;
-        }
-
-        if (fileInput.files.length > 0) {
-            overlay.classList.remove("d-none");
-        }
-
-        btn.disabled = true;
-        console.log("submit triggered");
-    });
-
-});
-</script>
-
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
 }

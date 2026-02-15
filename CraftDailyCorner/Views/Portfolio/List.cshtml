@@ -6,18 +6,30 @@
 
 <div class="container py-5" style="max-width:1000px;">
 
-    <!-- 標題區 -->
+    <!-- ================= 標題區 ================= -->
     <div class="d-flex justify-content-between align-items-center mb-4">
+
         <div>
             <h2 class="fw-bold mb-1">作品集管理</h2>
             <p class="text-muted mb-0">管理您的作品集</p>
         </div>
 
-        <a asp-action="Create" class="btn btn-dark">
-            新增作品集
-        </a>
+        <div class="d-flex gap-2">
+            <a asp-controller="Creator"
+               asp-action="Dashboard"
+               class="btn btn-outline-secondary">
+                ← 回創作者中心
+            </a>
+
+            <a asp-action="Create"
+               class="btn btn-dark">
+                新增作品集
+            </a>
+        </div>
+
     </div>
 
+    <!-- ================= 內容 ================= -->
     <div class="card shadow-sm border-0">
         <div class="card-body p-0">
 
@@ -40,6 +52,7 @@
                                 <th style="width:180px;">操作</th>
                             </tr>
                         </thead>
+
                         <tbody>
                             @foreach (var item in Model)
                             {
@@ -54,7 +67,7 @@
                                     </td>
 
                                     <td>
-                                        @item.Visibility.ToString()
+                                        @item.Visibility.GetDisplayName()
                                     </td>
 
                                     <td>
@@ -66,21 +79,16 @@
                                     </td>
 
                                     <td>
-                                        <div class="d-flex gap-2 flex-wrap">
+                                        <div class="d-flex gap-2">
 
+                                            <!-- 只保留管理作品 -->
                                             <a asp-action="Edit"
-                                               asp-route-id="@item.PortfolioID"
-                                               class="btn btn-sm btn-outline-secondary">
-                                                編輯
-                                            </a>
-
-                                            <a asp-controller="Portfolio"
-                                               asp-action="Edit"
                                                asp-route-id="@item.PortfolioID"
                                                class="btn btn-sm btn-outline-dark">
                                                 管理作品
                                             </a>
 
+                                            <!-- 刪除 -->
                                             <form asp-action="Delete"
                                                   asp-route-id="@item.PortfolioID"
                                                   method="post"
@@ -94,10 +102,10 @@
 
                                         </div>
                                     </td>
-
                                 </tr>
                             }
                         </tbody>
+
                     </table>
                 </div>
             }

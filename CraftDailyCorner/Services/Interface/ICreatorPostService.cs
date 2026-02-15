@@ -1,6 +1,5 @@
 ﻿using CraftDailyCorner.DTOs;
 using CraftDailyCorner.ViewModels.CreatorPost;
-using CraftDailyCorner.ViewModels.CreatorPost.Front;
 
 namespace CraftDailyCorner.Services.Interface
 {
