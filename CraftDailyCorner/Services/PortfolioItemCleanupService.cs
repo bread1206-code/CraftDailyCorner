@@ -35,7 +35,7 @@ namespace CraftDailyCorner.Services
             var fileService = scope.ServiceProvider
                 .GetRequiredService<IImageFileService>();
 
-            var threshold = DateTime.UtcNow.AddDays(-7);
+            var threshold = DateTime.Now.AddDays(-7);
 
             // 注意：要忽略 QueryFilter 才撈得到 IsDeleted 資料
             var expiredItems = await context.PortfolioItems

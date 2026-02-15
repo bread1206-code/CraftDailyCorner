@@ -17,7 +17,7 @@ namespace CraftDailyCorner.ViewModels.Creator
 
         public DateTime StartDate { get; set; }
 
-        public List<VMCreatorPostPublicListItem> LatestPosts { get; set; } = new();
+        public List<VMPostListItem> LatestPosts { get; set; } = new();
 
         public List<VMCreatorPortfolioPublicListItem> LatestPortfolios { get; set; } = new();
         public List<VMCreatorProductPublicListItem> LatestProducts { get; set; } = new();

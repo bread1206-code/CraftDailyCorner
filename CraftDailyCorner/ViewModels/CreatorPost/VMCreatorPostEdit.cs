@@ -17,7 +17,7 @@ namespace CraftDailyCorner.ViewModels.CreatorPost
         public string Content { get; set; } = null!;
 
         [Display(Name = "目前封面")]
-        public string CurrentImageUrl { get; set; } = null!;
+        public string? CurrentImageUrl { get; set; } = null!;
 
         [Display(Name = "更換封面圖片")]
         public IFormFile? NewImageFile { get; set; }
@@ -29,7 +29,7 @@ namespace CraftDailyCorner.ViewModels.CreatorPost
         [Display(Name = "最後更新時間")]
         public DateTime UpdatedAt { get; set; }
 
-        // UI 用
+        // UI 屬性
         public string CoverImagePath =>
             $"/Photos/05CreatorPost/Medium/{CurrentImageUrl}.png";
     }

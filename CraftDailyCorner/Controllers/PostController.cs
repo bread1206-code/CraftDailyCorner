@@ -1,9 +1,7 @@
 ﻿using CraftDailyCorner.DTOs;
 using CraftDailyCorner.Extensions;
-using CraftDailyCorner.Services;
 using CraftDailyCorner.Services.Interface;
 using CraftDailyCorner.ViewModels.CreatorPost;
-using CraftDailyCorner.ViewModels.CreatorPost.Front;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -12,18 +10,13 @@ namespace CraftDailyCorner.Controllers.Front
     public class PostController : Controller
     {
         private readonly ICreatorPostService _postService;
-        private readonly IImageUploadService _imageUploadService;
 
-        public PostController(
-            ICreatorPostService postService,
-            IImageUploadService imageUploadService)
+        public PostController(ICreatorPostService postService)
         {
             _postService = postService;
-            _imageUploadService = imageUploadService;
         }
 
-        //前台列表（公開）
-
+        // 前台列表
         public async Task<IActionResult> Index(string? keyword, int page = 1)
         {
             var query = new VMPostIndexQuery
@@ -38,8 +31,7 @@ namespace CraftDailyCorner.Controllers.Front
             return View(vm);
         }
 
-        //前台單篇
-
+        // 前台單篇
         public async Task<IActionResult> Detail(string id)
         {
             var memberId = User.Identity?.IsAuthenticated == true
@@ -53,7 +45,7 @@ namespace CraftDailyCorner.Controllers.Front
                 return Forbid();
 
             var post = await _postService
-                .GetPostDetailAsync(id); // 不再限制 Public
+                .GetPostDetailAsync(id);
 
             if (post == null)
                 return NotFound();
@@ -61,19 +53,18 @@ namespace CraftDailyCorner.Controllers.Front
             return View(post);
         }
 
-        //後台列表
-
+        // 後台列表
         [Authorize(Roles = "02")]
         public async Task<IActionResult> List()
         {
             var creatorId = User.GetCreatorId();
-            var posts = await _postService.GetCreatorPostsAsync(creatorId);
+            var posts = await _postService
+                .GetCreatorPostsAsync(creatorId);
 
             return View(posts);
         }
 
-        //建立
-
+        // 建立
         [Authorize(Roles = "02")]
         public IActionResult Create()
         {
@@ -88,20 +79,13 @@ namespace CraftDailyCorner.Controllers.Front
             if (!ModelState.IsValid)
                 return View(vm);
 
-            var imageKey = _imageUploadService.UploadImage(
-                vm.ImageFile,
-                null,
-                "05CreatorPost",
-                ImageSizePresets.Post
-            );
-
             await _postService.CreateAsync(
                 new CreateCreatorPostDTO
                 {
                     Title = vm.Title,
                     Content = vm.Content,
-                    ImageUrl = imageKey,
-                    Visibility = vm.Visibility
+                    Visibility = vm.Visibility,
+                    ImageFile = vm.ImageFile
                 },
                 User.GetCreatorId()
             );
@@ -109,8 +93,7 @@ namespace CraftDailyCorner.Controllers.Front
             return RedirectToAction(nameof(List));
         }
 
-        //編輯
-
+        // 編輯
         [Authorize(Roles = "02")]
         public async Task<IActionResult> Edit(string id)
         {
@@ -129,19 +112,19 @@ namespace CraftDailyCorner.Controllers.Front
         public async Task<IActionResult> Edit(VMCreatorPostEdit vm)
         {
             if (!ModelState.IsValid)
-                return View(vm);
-
-            string imageKey = vm.CurrentImageUrl;
-
-            if (vm.NewImageFile != null)
             {
-                imageKey = _imageUploadService.UploadImage(
-                    vm.NewImageFile,
-                    null,
-                    "Post",
-                    ImageSizePresets.Post,
-                    vm.PostID
-                );
+                Console.WriteLine("=== ModelState Invalid ===");
+
+                foreach (var state in ModelState)
+                {
+                    foreach (var error in state.Value.Errors)
+                    {
+                        Console.WriteLine($"欄位: {state.Key}");
+                        Console.WriteLine($"錯誤: {error.ErrorMessage}");
+                    }
+                }
+
+                return View(vm);
             }
 
             await _postService.UpdateAsync(
@@ -150,8 +133,8 @@ namespace CraftDailyCorner.Controllers.Front
                     PostID = vm.PostID,
                     Title = vm.Title,
                     Content = vm.Content,
-                    ImageUrl = imageKey,
-                    Visibility = vm.Visibility
+                    Visibility = vm.Visibility,
+                    NewImageFile = vm.NewImageFile
                 },
                 User.GetCreatorId()
             );
@@ -160,7 +143,6 @@ namespace CraftDailyCorner.Controllers.Front
         }
 
         // 軟刪除
-
         [HttpPost]
         [Authorize(Roles = "02")]
         [ValidateAntiForgeryToken]

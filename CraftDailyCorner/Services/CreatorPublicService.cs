@@ -2,7 +2,7 @@
 using CraftDailyCorner.Services.Interface;
 using CraftDailyCorner.ViewModels.Creator;
 using CraftDailyCorner.ViewModels.CreatorPortfolio.Front;
-using CraftDailyCorner.ViewModels.CreatorPost.Front;
+using CraftDailyCorner.ViewModels.CreatorPost;
 using CraftDailyCorner.ViewModels.FollowCreator;
 using CraftDailyCorner.ViewModels.Product;
 using Microsoft.EntityFrameworkCore;
@@ -41,7 +41,7 @@ namespace CraftDailyCorner.Services.Creator
                                     p.Visibility == CreatorPostVisibility.Public)
                         .OrderByDescending(p => p.CreatedAt)
                         .Take(3)
-                        .Select(p => new VMCreatorPostPublicListItem
+                        .Select(p => new VMPostListItem
                         {
                             PostID = p.PostID,
                             Title = p.Title,

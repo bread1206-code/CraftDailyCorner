@@ -234,7 +234,7 @@ namespace CraftDailyCorner.Services.Creator
             if (portfolio == null)
                 throw new Exception("找不到作品或無權限");
 
-            var now = DateTime.UtcNow;
+            var now = DateTime.Now;
 
             //軟刪作品集
             portfolio.StatusID = 3; // Deleted

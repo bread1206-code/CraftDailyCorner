@@ -1,16 +1,10 @@
 ﻿using CraftDailyCorner.DTOs;
 using CraftDailyCorner.Extensions;
-using CraftDailyCorner.Models;
 using CraftDailyCorner.Services;
-using CraftDailyCorner.Services.Creator;
 using CraftDailyCorner.Services.Interface;
-using CraftDailyCorner.ViewModels.Creator;
 using CraftDailyCorner.ViewModels.CreatorApplication;
-using CraftDailyCorner.ViewModels.CreatorPortfolio.Front;
-using CraftDailyCorner.ViewModels.CreatorPost.Front;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace CraftDailyCorner.Controllers.Front
 {

@@ -23,6 +23,7 @@ builder.Services.AddScoped<ICreatorPublicService, CreatorPublicService>();
 builder.Services.AddScoped<IFollowService, FollowService>();
 builder.Services.AddScoped<ICreatorPortfolioItemService, CreatorPortfolioItemService>();
 builder.Services.AddScoped<IImageFileService, ImageFileService>();
+builder.Services.AddScoped<ICreatorPostCommentService, CreatorPostCommentService>();
 builder.Services.AddScoped <SeedRunner>();
 builder.Services.AddScoped <SeedMember>();
 builder.Services.AddScoped <SeedPrivacy>();
@@ -89,6 +90,8 @@ builder.Services.AddScoped<MemberCenterService>();
 builder.Services.AddScoped<ProductService>();
 builder.Services.AddScoped<CreatorApplicationService>();
 builder.Services.AddHostedService<PortfolioItemCleanupService>();
+builder.Services.AddScoped<CreatorPostCleanupService>();
+
 
 builder.Services.AddSession();
 builder.Services.AddHttpContextAccessor();

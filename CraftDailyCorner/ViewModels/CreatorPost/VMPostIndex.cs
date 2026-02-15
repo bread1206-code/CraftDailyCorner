@@ -2,13 +2,10 @@
 {
     public class VMPostIndex
     {
-        // 搜尋條件
         public VMPostIndexQuery Query { get; set; } = new();
 
-        // 顯示結果
-        public List<VMCreatorPostPublicListItem> Posts { get; set; } = new();
+        public List<VMPostListItem> Posts { get; set; } = new();
 
-        // 分頁資訊
         public int TotalCount { get; set; }
 
         public int TotalPages =>

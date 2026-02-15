@@ -1,47 +1,127 @@
-﻿@model CraftDailyCorner.ViewModels.CreatorPost.Front.VMPostIndex
+﻿@model CraftDailyCorner.ViewModels.CreatorPost.VMPostIndex
 
 @{
     ViewData["Title"] = "創作日誌";
 }
 
-<div class="container py-5" style="max-width:1100px;">
+<div class="container py-5" style="max-width:1200px;">
 
-    <div class="page-header mb-4">
+    <!-- 標題 -->
+    <div class="text-center mb-5">
         <h2 class="fw-bold">創作日誌</h2>
-        <p class="text-muted">探索最新創作內容</p>
+        <p class="text-muted">探索創作者的最新分享</p>
     </div>
 
-    <div class="row g-4">
-        @foreach (var post in Model.Posts)
-        {
-            <div class="col-md-4">
-                <div class="card shadow-sm border-0 h-100">
+    <!-- 搜尋 -->
+    <form method="get" class="row justify-content-center mb-5">
+        <div class="col-md-6 d-flex gap-2">
+            <input type="text"
+                   name="keyword"
+                   value="@Model.Query.Keyword"
+                   class="form-control"
+                   placeholder="搜尋標題或內容..." />
 
-                    <img src=@($"/Photos/05CreatorPost/Medium/{post.ImageUrl}.png")
-                         class="card-img-top"
-                         style="height:200px;object-fit:cover;" />
+            <button type="submit"
+                    class="btn btn-dark">
+                搜尋
+            </button>
+        </div>
+    </form>
 
-                    <div class="card-body">
-                        <h6 class="fw-semibold">
-                            @post.Title
-                        </h6>
+    @if (!Model.Posts.Any())
+    {
+        <div class="text-center text-muted py-5">
+            尚無符合條件的日誌
+        </div>
+    }
+    else
+    {
+        <div class="row g-4">
 
-                        <p class="text-muted small">
-                            @post.CreatedAt.ToString("yyyy/MM/dd")
-                        </p>
+            @foreach (var item in Model.Posts)
+            {
+                <div class="col-md-6 col-lg-4">
 
-                        <p class="small">
-                            作者：@post.CreatorName
-                        </p>
+                    <div class="card shadow-sm border-0 h-100">
 
                         <a asp-action="Detail"
-                           asp-route-id="@post.PostID"
-                           class="stretched-link"></a>
+                           asp-route-id="@item.PostID"
+                           class="text-decoration-none text-dark">
+
+                            <!-- 封面 -->
+                            <img src="@item.CoverImagePath"
+                                 class="card-img-top"
+                                 style="height:240px; object-fit:cover;" />
+
+                            <div class="card-body d-flex flex-column">
+
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <h5 class="fw-semibold mb-0">
+                                        <i class="bi bi-filter-right"> </i>@item.Title<i class="bi bi-filter-left"> </i>
+                                    </h5>
+
+                                    <div class="text-muted small">
+                                        @(item.CreatedAt.ToLocalTime().ToString("yyyy/MM/dd"))
+                                    </div>
+                                </div>
+
+
+                                <div class="text-muted small text-end">
+                                    <i class="bi bi-chat-left-dots"></i> @item.CommentCount 則留言
+                                </div>
+
+                            </div>
+                        </a>
+
                     </div>
 
                 </div>
-            </div>
-        }
-    </div>
+            }
+
+        </div>
+
+        <!-- 分頁 -->
+        <nav class="mt-5">
+            <ul class="pagination justify-content-center">
+
+                @if (Model.HasPreviousPage)
+                {
+                    <li class="page-item">
+                        <a class="page-link"
+                           asp-action="Index"
+                           asp-route-page="@(Model.Query.Page - 1)"
+                           asp-route-keyword="@Model.Query.Keyword">
+                            上一頁
+                        </a>
+                    </li>
+                }
+
+                @for (int i = 1; i <= Model.TotalPages; i++)
+                {
+                    <li class="page-item @(i == Model.Query.Page ? "active" : "")">
+                        <a class="page-link"
+                           asp-action="Index"
+                           asp-route-page="@i"
+                           asp-route-keyword="@Model.Query.Keyword">
+                            @i
+                        </a>
+                    </li>
+                }
+
+                @if (Model.HasNextPage)
+                {
+                    <li class="page-item">
+                        <a class="page-link"
+                           asp-action="Index"
+                           asp-route-page="@(Model.Query.Page + 1)"
+                           asp-route-keyword="@Model.Query.Keyword">
+                            下一頁
+                        </a>
+                    </li>
+                }
+
+            </ul>
+        </nav>
+    }
 
 </div>

@@ -1,0 +1,35 @@
+﻿@using CraftDailyCorner.ViewModels.CreatorPost
+@model VMPostCommentItem
+
+<div class="comment-item border-bottom py-3" data-id="@Model.CommentID">
+
+    <div class="d-flex align-items-start">
+
+        <img src="@Model.AvatarPath"
+             class="rounded-circle me-3"
+             width="40" height="40" />
+
+        <div class="flex-grow-1">
+
+            <div class="fw-semibold">
+                @Model.MemberName
+                <span class="text-muted small ms-2">
+                    @Model.CreatedAt.ToString("yyyy/MM/dd HH:mm")
+                </span>
+            </div>
+
+            <div class="mt-1">
+                @Model.Content
+            </div>
+
+            <div class="mt-2 small">
+
+                <a href="#" class="text-warning btn-report"
+                   data-id="@Model.CommentID">
+                    檢舉
+                </a>
+
+            </div>
+        </div>
+    </div>
+</div>

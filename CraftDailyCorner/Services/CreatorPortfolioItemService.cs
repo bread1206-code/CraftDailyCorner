@@ -89,8 +89,8 @@ public class CreatorPortfolioItemService
 
         // 先標記為刪除，待時間到就真正刪除
         item.IsDeleted = true;
-        item.DeletedAt = DateTime.UtcNow;
-        item.UpdatedAt = DateTime.UtcNow;
+        item.DeletedAt = DateTime.Now;
+        item.UpdatedAt = DateTime.Now;
 
         await ReorderAsync(portfolioId);
 

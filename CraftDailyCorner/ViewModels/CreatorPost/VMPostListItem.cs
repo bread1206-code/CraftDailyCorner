@@ -2,9 +2,10 @@
 
 namespace CraftDailyCorner.ViewModels.CreatorPost
 {
-    public class VMCreatorPostListItem
+    public class VMPostListItem
     {
         public string PostID { get; set; } = null!;
+        public string CreatorName { get; set; } = null!;
 
         [Display(Name = "標題")]
         public string Title { get; set; } = null!;
@@ -23,9 +24,10 @@ namespace CraftDailyCorner.ViewModels.CreatorPost
         [Display(Name = "留言數")]
         public int CommentCount { get; set; }
 
-        // UI 屬性
+        // ===== UI 屬性 =====
+
         public string CoverImagePath =>
-            $"/Photos/Post/Medium/{ImageUrl}.png";
+            $"/Photos/05CreatorPost/Medium/{ImageUrl}.png";
 
         public string VisibilityText =>
             Visibility switch

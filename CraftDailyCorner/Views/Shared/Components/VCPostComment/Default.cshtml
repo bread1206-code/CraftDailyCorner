@@ -1,0 +1,9 @@
+﻿@using CraftDailyCorner.ViewModels.CreatorPost
+@model List<VMPostCommentItem>
+
+<div id="comment-list">
+    @foreach (var item in Model)
+    {
+        @await Html.PartialAsync("_PostCommentItem", item)
+    }
+</div>

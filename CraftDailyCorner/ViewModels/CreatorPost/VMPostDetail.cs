@@ -23,13 +23,12 @@ namespace CraftDailyCorner.ViewModels.CreatorPost
         [Display(Name = "最後更新")]
         public DateTime UpdatedAt { get; set; }
 
-        // UI 輔助屬性
+        public List<VMPostCommentItem> Comments { get; set; } = new();
+
+        // UI
 
         public string CoverImagePath =>
             $"/Photos/05CreatorPost/Large/{ImageUrl}.png";
-
-        public string CreatorProfileUrl =>
-            $"/Creator/Public/{CreatorName}";
 
         public bool IsUpdated =>
             UpdatedAt > CreatedAt;

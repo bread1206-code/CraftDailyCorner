@@ -5,25 +5,23 @@ namespace CraftDailyCorner.Services.Interface
 {
     public interface ICreatorPostService
     {
-        //取得創作者所有日誌（後台列表）
-        Task<List<VMCreatorPostListItem>> GetCreatorPostsAsync(string creatorId);
+        // 前台
+        Task<VMPostIndex> GetPostIndexAsync(VMPostIndexQuery query);
+        Task<VMPostDetail?> GetPostDetailAsync(string postId);
+        Task<bool> CanViewPostAsync(string postId, string? memberId);
 
-        //取得單筆日誌（編輯頁用）
+        // 後台
+        Task<List<VMPostListItem>> GetCreatorPostsAsync(string creatorId);
+
         Task<VMCreatorPostEdit?> GetEditDataAsync(string postId, string creatorId);
 
-        //建立日誌
+        // 建立
         Task CreateAsync(CreateCreatorPostDTO dto, string creatorId);
 
-        //更新日誌
+        // 更新
         Task UpdateAsync(UpdateCreatorPostDTO dto, string creatorId);
 
-        // 軟刪除日誌
+        // 軟刪除
         Task SoftDeleteAsync(string postId, string creatorId);
-
-        Task<VMPostIndex> GetPostIndexAsync(VMPostIndexQuery query);
-        Task<VMPostDetail?> GetPublicPostDetailAsync(string postId);
-        // 判斷是否可以觀看日誌
-        Task<bool> CanViewPostAsync(string postId, string? memberId);
-        Task<VMPostDetail?> GetPostDetailAsync(string postId); 
     }
 }
