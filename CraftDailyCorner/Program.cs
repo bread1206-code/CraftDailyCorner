@@ -92,6 +92,8 @@ builder.Services.AddScoped<ProductService>();
 builder.Services.AddScoped<CreatorApplicationService>();
 builder.Services.AddHostedService<PortfolioItemCleanupService>();
 builder.Services.AddScoped<CreatorPostCleanupService>();
+builder.Services.AddScoped<CreatorProductService>();
+builder.Services.AddScoped<CreatorProductImageService>();
 
 
 builder.Services.AddSession();

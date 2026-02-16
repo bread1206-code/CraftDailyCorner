@@ -1,0 +1,292 @@
+﻿@using CraftDailyCorner.ViewModels.CreatorProduct
+@model VMCreatorProductForm
+
+@{
+    ViewData["Title"] = "新增商品";
+}
+
+<div class="container py-5" style="max-width:1100px;">
+
+    <h2 class="fw-bold mb-4">新增商品</h2>
+
+    <form asp-action="Create"
+          method="post"
+          enctype="multipart/form-data">
+
+        @Html.AntiForgeryToken()
+
+        <div asp-validation-summary="ModelOnly"
+             class="text-danger mb-3"></div>
+
+        <!-- ================= 基本資料 ================= -->
+
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-body">
+
+                <div class="mb-3">
+                    <label asp-for="ProductName" class="form-label fw-semibold"></label>
+                    <input asp-for="ProductName" class="form-control" />
+                    <span asp-validation-for="ProductName" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Description" class="form-label fw-semibold"></label>
+                    <textarea asp-for="Description"
+                              class="form-control"
+                              rows="4"></textarea>
+                    <span asp-validation-for="Description" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Price" class="form-label fw-semibold"></label>
+                    <input asp-for="Price"
+                           type="number"
+                           step="0.01"
+                           class="form-control" />
+                    <span asp-validation-for="Price" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="StatusID" class="form-label fw-semibold"></label>
+                    <select asp-for="StatusID"
+                            asp-items="Model.StatusSelectList"
+                            class="form-select">
+                    </select>
+                </div>
+
+            </div>
+        </div>
+
+
+        <!-- ================= 商品圖片 ================= -->
+
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-header bg-light fw-semibold">
+                商品圖片（最多 10 張）
+            </div>
+
+            <div class="card-body">
+
+                <input asp-for="ImageFiles"
+                       type="file"
+                       id="image-input"
+                       class="form-control"
+                       accept="image/*"
+                       multiple />
+
+                <div class="form-text mb-3">
+                    建議尺寸 800x800，PNG / JPG
+                </div>
+
+                <span asp-validation-for="ImageFiles"
+                      class="text-danger"></span>
+
+                <!-- 預覽區 -->
+                <div id="preview-container"
+                     class="row mt-3"></div>
+
+            </div>
+        </div>
+
+
+        <!-- ================= 庫存 ================= -->
+
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-header bg-light fw-semibold">
+                庫存設定
+            </div>
+
+            <div class="card-body">
+
+                <div class="mb-3">
+                    <label asp-for="StockQty" class="form-label fw-semibold"></label>
+                    <input asp-for="StockQty"
+                           type="number"
+                           class="form-control" />
+                    <span asp-validation-for="StockQty" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="AlertQty" class="form-label fw-semibold"></label>
+                    <input asp-for="AlertQty"
+                           type="number"
+                           class="form-control" />
+                    <span asp-validation-for="AlertQty" class="text-danger"></span>
+                </div>
+
+            </div>
+        </div>
+
+
+        <!-- ================= 分類 ================= -->
+
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-header bg-light fw-semibold">
+                商品分類（最多 3 個）
+            </div>
+
+            <div class="card-body">
+
+                @foreach (var group in Model.CategoryGroups)
+                {
+                    <div class="mb-4">
+
+                        <h6 class="fw-bold border-bottom pb-2">
+                            @group.ParentCategoryName
+                        </h6>
+
+                        <div class="row mt-2">
+                            @foreach (var child in group.Children)
+                            {
+                                <div class="col-md-3 mb-2">
+                                    <div class="form-check">
+                                        <input class="form-check-input category-checkbox"
+                                               type="checkbox"
+                                               name="SelectedCategoryIds"
+                                               value="@child.CategoryID" />
+
+                                        <label class="form-check-label">
+                                            @child.CategoryName
+                                        </label>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+
+                <span asp-validation-for="SelectedCategoryIds"
+                      class="text-danger"></span>
+
+            </div>
+        </div>
+
+
+        <!-- ================= 標籤 ================= -->
+
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-header bg-light fw-semibold">
+                商品標籤（最多 10 個）
+            </div>
+
+            <div class="card-body">
+
+                <div class="row">
+                    @foreach (var tag in Model.TagSelectList)
+                    {
+                        <div class="col-md-3 mb-2">
+                            <div class="form-check">
+                                <input class="form-check-input tag-checkbox"
+                                       type="checkbox"
+                                       name="SelectedTagIds"
+                                       value="@tag.Value" />
+
+                                <label class="form-check-label">
+                                    @tag.Text
+                                </label>
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                <span asp-validation-for="SelectedTagIds"
+                      class="text-danger"></span>
+
+            </div>
+        </div>
+
+
+        <!-- ================= 按鈕 ================= -->
+
+        <div class="text-end">
+            <a asp-action="Index"
+               class="btn btn-outline-secondary me-2">
+                取消
+            </a>
+
+            <button type="submit"
+                    class="btn btn-primary">
+                建立商品
+            </button>
+        </div>
+
+    </form>
+</div>
+@section Scripts {
+
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+
+        document.addEventListener("DOMContentLoaded", () => {
+
+            const imageInput = document.getElementById("image-input");
+            const previewContainer = document.getElementById("preview-container");
+
+            // ===== 多圖預覽 =====
+            imageInput.addEventListener("change", function () {
+
+                previewContainer.innerHTML = "";
+
+                if (this.files.length > 10) {
+                    alert("最多只能上傳 10 張圖片");
+                    this.value = "";
+                    return;
+                }
+
+                Array.from(this.files).forEach(file => {
+
+                    const reader = new FileReader();
+
+                    reader.onload = function (e) {
+
+                        const col = document.createElement("div");
+                        col.className = "col-md-3 mb-3";
+
+                        col.innerHTML = `
+                            <img src="${e.target.result}"
+                                 class="img-fluid rounded shadow-sm"
+                                 style="height:160px;object-fit:cover;" />
+                        `;
+
+                        previewContainer.appendChild(col);
+                    };
+
+                    reader.readAsDataURL(file);
+                });
+            });
+
+            // ===== 分類限制 =====
+            document.querySelectorAll(".category-checkbox")
+                .forEach(cb => {
+                    cb.addEventListener("change", function () {
+
+                        const checked =
+                            document.querySelectorAll(".category-checkbox:checked");
+
+                        if (checked.length > 3) {
+                            this.checked = false;
+                            alert("商品分類最多只能選 3 個");
+                        }
+                    });
+                });
+
+            // ===== 標籤限制 =====
+            document.querySelectorAll(".tag-checkbox")
+                .forEach(cb => {
+                    cb.addEventListener("change", function () {
+
+                        const checked =
+                            document.querySelectorAll(".tag-checkbox:checked");
+
+                        if (checked.length > 10) {
+                            this.checked = false;
+                            alert("商品標籤最多只能選 10 個");
+                        }
+                    });
+                });
+
+        });
+
+    </script>
+}

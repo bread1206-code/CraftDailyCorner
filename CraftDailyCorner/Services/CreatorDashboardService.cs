@@ -44,17 +44,17 @@ namespace CraftDailyCorner.Services.Creator
             var productCount = await _context.Products
                 .CountAsync(p =>
                     p.CreatorID == creator.CreatorID &&
-                    p.StatusID == 0);
+                    p.StatusID == 2);//上架中
 
             var postCount = await _context.CreatorPosts
                 .CountAsync(p =>
                     p.CreatorID == creator.CreatorID &&
-                    p.StatusID == 0);
+                    p.StatusID == 1);//啟用   
 
             var portfolioCount = await _context.Portfolios
                 .CountAsync(p =>
                     p.CreatorID == creator.CreatorID &&
-                    p.StatusID == 0);
+                    p.StatusID == 1);//啟用
 
 
             // 回傳 Dashboard VM

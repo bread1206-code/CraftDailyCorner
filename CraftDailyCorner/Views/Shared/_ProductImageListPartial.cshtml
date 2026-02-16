@@ -1,0 +1,54 @@
+﻿@model List<CraftDailyCorner.ViewModels.CreatorProduct.VMProductImageItem>
+
+@if (Model == null || !Model.Any())
+{
+    <div class="text-muted">
+        尚未上傳任何圖片
+    </div>
+}
+else
+{
+    <div id="sortable-list" class="row g-3">
+
+        @foreach (var item in Model)
+        {
+            <div class="col-md-3 sortable-item"
+                 data-itemid="@item.ImageID">
+
+                <div class="card shadow-sm border-0 h-100">
+
+                    <img src="@($"/Photos/04ProductImage/Medium/{item.ImageUrl}.png")"
+                         class="card-img-top img-fluid"
+                         style="object-fit:cover; height:200px;" />
+
+                    <div class="card-body p-2 text-center">
+
+                        <div class="small text-muted mb-2">
+                            @if (item.SortOrder == 1)
+                            {
+                                <span class="badge bg-dark">
+                                    封面
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="text-muted">
+                                    排序：@item.SortOrder
+                                </span>
+                            }
+                        </div>
+
+                        <button type="button"
+                                class="btn btn-sm btn-outline-danger btn-delete"
+                                data-itemid="@item.ImageID">
+                            刪除
+                        </button>
+
+                    </div>
+                </div>
+
+            </div>
+        }
+
+    </div>
+}

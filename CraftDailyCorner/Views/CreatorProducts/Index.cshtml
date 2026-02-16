@@ -1,0 +1,94 @@
+﻿@model CraftDailyCorner.ViewModels.CreatorProduct.VMCreatorProductList
+
+@{
+    ViewData["Title"] = "商品管理";
+}
+
+<div class="container py-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold">商品管理</h2>
+
+        <a asp-action="Create" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> 新增商品
+        </a>
+    </div>
+
+    @if (!Model.Products.Any())
+    {
+        <div class="alert alert-info">
+            目前尚未建立任何商品。
+        </div>
+    }
+    else
+    {
+        <div class="card shadow-sm border-0">
+            <div class="table-responsive">
+                <table class="table align-middle mb-0">
+
+                    <thead class="table-light">
+                        <tr>
+                            <th>商品名稱</th>
+                            <th>價格</th>
+                            <th>狀態</th>
+                            <th>庫存</th>
+                            <th>建立時間</th>
+                            <th class="text-end">操作</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @foreach (var item in Model.Products)
+                        {
+                            <tr>
+                                <td class="fw-semibold">
+                                    @item.ProductName
+                                </td>
+
+                                <td>
+                                    @item.Price.ToString("N0")
+                                </td>
+
+                                <td>
+                                    @item.StatusName
+                                </td>
+
+                                <td>
+                                    @item.StockQty
+                                </td>
+
+                                <td>
+                                    @item.CreatedAt.ToLocalTime().ToString("yyyy/MM/dd HH:mm")
+                                </td>
+
+                                <td class="text-end">
+
+                                    <a asp-action="Edit"
+                                       asp-route-id="@item.ProductID"
+                                       class="btn btn-sm btn-outline-secondary me-2">
+                                        編輯
+                                    </a>
+
+                                    <form asp-action="Delete"
+                                          asp-route-id="@item.ProductID"
+                                          method="post"
+                                          class="d-inline"
+                                          onsubmit="return confirm('確定要下架此商品嗎？');">
+
+                                        <button type="submit"
+                                                class="btn btn-sm btn-outline-danger">
+                                            下架
+                                        </button>
+                                    </form>
+
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+
+                </table>
+            </div>
+        </div>
+    }
+
+</div>

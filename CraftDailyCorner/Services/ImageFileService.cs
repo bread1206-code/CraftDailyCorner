@@ -22,7 +22,7 @@ namespace CraftDailyCorner.Services
             // 商品圖片刪除
             public void DeleteProductImage(string imageName)
             {
-                DeleteImage(imageName, "04Product");
+                DeleteImage(imageName, "04ProductImage");
             }
 
             // 創作日誌圖片刪除

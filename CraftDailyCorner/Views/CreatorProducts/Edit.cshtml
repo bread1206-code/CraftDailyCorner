@@ -1,0 +1,233 @@
+﻿@using CraftDailyCorner.ViewModels.CreatorProduct
+@model VMCreatorProductForm
+
+@{
+    ViewData["Title"] = "編輯商品";
+}
+
+<div class="container py-5" style="max-width:1100px;">
+
+    <form asp-action="Edit" method="post">
+        @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="ProductID" />
+
+        <!-- 基本資料 -->
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-body">
+
+                <div class="mb-3">
+                    <label asp-for="ProductName"></label>
+                    <input asp-for="ProductName" class="form-control" />
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Description"></label>
+                    <textarea asp-for="Description"
+                              class="form-control"
+                              rows="4"></textarea>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Price"></label>
+                    <input asp-for="Price"
+                           type="number"
+                           step="0.01"
+                           class="form-control" />
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="StatusID"></label>
+                    <select asp-for="StatusID"
+                            asp-items="Model.StatusSelectList"
+                            class="form-select">
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="StockQty"></label>
+                    <input asp-for="StockQty"
+                           type="number"
+                           class="form-control" />
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="AlertQty"></label>
+                    <input asp-for="AlertQty"
+                           type="number"
+                           class="form-control" />
+                </div>
+
+            </div>
+        </div>
+
+        <div class="text-end">
+            <button type="submit"
+                    class="btn btn-primary">
+                儲存修改
+            </button>
+        </div>
+
+    </form>
+
+
+    <!-- 圖片管理 -->
+    <div class="card shadow-sm border-0 mt-5">
+        <div class="d-flex align-items-center justify-content-between mb-3">
+            <h5 class="fw-bold mb-0">圖片管理</h5>
+
+            <div class="form-check">
+                <input class="form-check-input"
+                       type="checkbox"
+                       id="quick-delete-toggle">
+
+                <label class="form-check-label text-danger fw-semibold"
+                       for="quick-delete-toggle">
+                    快速刪除模式
+                </label>
+            </div>
+        </div>
+
+        <div id="quick-delete-alert"
+             class="alert alert-warning d-none py-2">
+            <i class="bi bi-exclamation-triangle me-1"></i>
+            您已開啟快速刪除模式，點擊圖片即會刪除
+        </div>
+        <div class="card-body">
+            <div id="product-images-container">
+                @await Html.PartialAsync("_ProductImageListPartial",
+                Model.ExistingImages)
+            </div>
+
+        </div>
+    </div>
+
+</div>
+@section Scripts {
+
+    <partial name="_ValidationScriptsPartial" />
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
+
+    <script>
+
+                document.addEventListener("DOMContentLoaded", () => {
+
+            // =============================
+            // DOM
+            // =============================
+
+            const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value || "";
+            const container = document.getElementById("product-images-container");
+
+            const quickToggle = document.getElementById("quick-delete-toggle");
+            const quickAlert = document.getElementById("quick-delete-alert");
+
+            // =============================
+            // 快速刪除模式
+            // =============================
+
+            if (quickToggle && quickAlert) {
+                quickToggle.addEventListener("change", () => {
+                    quickAlert.classList.toggle("d-none", !quickToggle.checked);
+                });
+            }
+
+            // =============================
+            // 刪除圖片
+            // =============================
+
+            document.addEventListener("click", async (e) => {
+
+                if (!e.target.classList.contains("btn-delete"))
+                    return;
+
+                // 未開啟快速刪除 → 需要確認
+                if (!quickToggle || !quickToggle.checked) {
+                    if (!confirm("確定刪除圖片？")) return;
+                }
+
+                const imageId = e.target.dataset.itemid;
+
+                const formData = new FormData();
+                formData.append("imageId", imageId);
+                formData.append("__RequestVerificationToken", token);
+
+                LoadingOverlay?.show("刪除圖片中...");
+
+                const response = await fetch("/ProductImage/Delete", {
+                    method: "POST",
+                    body: formData
+                });
+
+                const html = await response.text();
+                container.innerHTML = html;
+
+                initSortable();
+
+                LoadingOverlay?.hide();
+            });
+
+            // =============================
+            // 初始化排序
+            // =============================
+
+            initSortable();
+        });
+
+
+        // =====================================================
+        // 拖曳排序
+        // =====================================================
+
+        function initSortable() {
+
+            const el = document.getElementById("sortable-list");
+            if (!el) return;
+
+            new Sortable(el, {
+
+                animation: 150,
+                ghostClass: 'bg-light',
+
+                onEnd: async function () {
+
+                    const items = el.querySelectorAll(".sortable-item");
+
+                    const data = [];
+                    let order = 1;
+
+                    items.forEach(item => {
+
+                        data.push({
+                            imageID: parseInt(item.dataset.itemid),
+                            sortOrder: order
+                        });
+
+                        // 即時更新排序顯示
+                        const label = item.querySelector(".small");
+
+                        if (order === 1) {
+                            label.innerHTML =
+                                `<span class="badge bg-dark">封面</span>`;
+                        } else {
+                            label.innerHTML =
+                                `<span class="text-muted">排序：${order}</span>`;
+                        }
+
+                        order++;
+                    });
+
+                    await fetch("/ProductImage/UpdateSort", {
+                        method: "POST",
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'RequestVerificationToken':
+                                document.querySelector('input[name="__RequestVerificationToken"]')?.value
+                        },
+                        body: JSON.stringify(data)
+                    });
+                }
+            });
+        }
+
+    </script>
+}
