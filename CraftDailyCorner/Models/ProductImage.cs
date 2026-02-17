@@ -1,9 +1,10 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using CraftDailyCorner.ImageManagementCore.Interfaces;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CraftDailyCorner.Models
 {
-    public class ProductImage
+    public class ProductImage : IEntityImage
     {
         [Key]
         [Display(Name = "圖片編號")]
@@ -27,5 +28,7 @@ namespace CraftDailyCorner.Models
 
         public virtual Product Product { get; set; } = null!;
         public virtual ProductImageStatus ProductImageStatus { get; set; } = null!;
+
+        public string EntityID => ProductID;
     }
 }

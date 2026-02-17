@@ -1,13 +1,14 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using CraftDailyCorner.ImageManagementCore.Interfaces;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CraftDailyCorner.Models
 {
-    public class PortfolioItem
+    public class PortfolioItem : IEntityImage
     {
         [Key]
         [Display(Name = "作品編號")]
-        public int ItemID { get; set; } 
+        public long ItemID { get; set; } 
 
         [StringLength(36, MinimumLength = 36)]
         [Column(TypeName = "nchar(36)")]
@@ -32,5 +33,8 @@ namespace CraftDailyCorner.Models
         public DateTime? DeletedAt { get; set; }
 
         public virtual Portfolio Portfolio { get; set; } = null!;
+
+        public long ImageID => ItemID;
+        public string EntityID => PortfolioID;
     }
 }
