@@ -156,20 +156,21 @@ namespace CraftDailyCorner.Services.Creator
             {
                 if (dto.ImageFile == null)
                     throw new Exception("請上傳封面圖片");
-
-                var imageKey = _imageUploadService.UploadImage(
+            var postId = Guid.NewGuid().ToString();
+            var imageKey = _imageUploadService.UploadImage(
                     dto.ImageFile,
                     null,
                     "05CreatorPost",
-                    ImageSizePresets.Post
+                    ImageSizePresets.Post,
+                    postId
                 );
-
-                var post = new CreatorPost
+            
+            var post = new CreatorPost
                 {
-                    PostID = Guid.NewGuid().ToString(),
+                    PostID = postId,
                     Title = dto.Title,
                     Content = dto.Content,
-                    ImageUrl = imageKey,
+                    ImageUrl = postId,
                     Visibility = dto.Visibility,
                     CreatorID = creatorId,
                     StatusID = 1,
@@ -212,7 +213,7 @@ namespace CraftDailyCorner.Services.Creator
                         dto.PostID
                     );
 
-                    post.ImageUrl = imageKey;
+                    post.ImageUrl = dto.PostID;
                 }
 
                 await _context.SaveChangesAsync();
