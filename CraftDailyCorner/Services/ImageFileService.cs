@@ -38,17 +38,20 @@ namespace CraftDailyCorner.Services
                 {
                     var largePath = Path.Combine(
                         _env.WebRootPath,
+                        "Photos",
                         folderName,
                         "Large",
                         imageName + ".png");
 
                     var mediumPath = Path.Combine(
                         _env.WebRootPath,
+                        "Photos",
                         folderName,
                         "Medium",
                         imageName + ".png");
 
-                    if (File.Exists(largePath))
+
+                if (File.Exists(largePath))
                         File.Delete(largePath);
 
                     if (File.Exists(mediumPath))
