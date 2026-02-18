@@ -30,8 +30,6 @@ namespace CraftDailyCorner.Services
 
         private async Task CleanupAsync()
         {
-            Console.WriteLine("CleanupService 執行中");
-
             using var scope = _serviceProvider.CreateScope();
 
             var context = scope.ServiceProvider

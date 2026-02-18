@@ -16,7 +16,7 @@ namespace CraftDailyCorner.Services.Creator
             _context = context;
             _imageFileService = imageFileService;
         }
-
+        // 每天凌晨執行，清理已刪除超過7天的貼文及相關資源
         public async Task CleanupDeletedPostsAsync()
         {
             var threshold = DateTime.Now.AddDays(-7);
