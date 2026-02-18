@@ -90,6 +90,7 @@ builder.Services.AddScoped<FavoriteService>();
 builder.Services.AddScoped<MemberCenterService>();
 builder.Services.AddScoped<ProductService>();
 builder.Services.AddScoped<CreatorApplicationService>();
+//自動刪除圖片
 builder.Services.AddHostedService<PortfolioItemCleanupService>();
 builder.Services.AddScoped<CreatorPostCleanupService>();
 builder.Services.AddScoped<CreatorProductService>();

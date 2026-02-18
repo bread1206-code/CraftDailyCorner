@@ -22,7 +22,7 @@ public class CreatorPortfolioItemService
         _imageUploadService = imageUploadService;
         _imageFileService = imageFileService;
     }
-    private const int MaxImageCount = 50;//上限50張圖片
+    private const int MaxImageCount = 25;//上限25張圖片
     public async Task UploadAsync(
     string portfolioId,
     string creatorId,
@@ -149,7 +149,7 @@ public class CreatorPortfolioItemService
     private async Task ReorderAsync(string portfolioId)
     {
         var items = await _context.PortfolioItems
-            .Where(i => i.PortfolioID == portfolioId)
+            .Where(i => i.PortfolioID == portfolioId && !i.IsDeleted)
             .OrderBy(i => i.SortOrder)
             .ToListAsync();
 

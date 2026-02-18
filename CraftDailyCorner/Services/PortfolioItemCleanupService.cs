@@ -22,6 +22,9 @@ namespace CraftDailyCorner.Services
 
                 // 每24小時跑一次
                 await Task.Delay(TimeSpan.FromHours(24), stoppingToken);
+
+                //測試用每10秒跑一次
+                //await Task.Delay(TimeSpan.FromSeconds(10), stoppingToken);
             }
         }
 

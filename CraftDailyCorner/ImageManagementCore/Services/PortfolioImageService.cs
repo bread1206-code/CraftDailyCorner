@@ -76,8 +76,8 @@ public class PortfolioImageService
             ImageUrl = fileName,
             PortfolioID = portfolioId,
             SortOrder = nextSort,
-            CreatedAt = DateTime.UtcNow,
-            UpdatedAt = DateTime.UtcNow,
+            CreatedAt = DateTime.Now,
+            UpdatedAt = DateTime.Now,
             IsDeleted = false
         };
 
@@ -111,8 +111,8 @@ public class PortfolioImageService
             throw new InvalidOperationException("作品集至少需要一張圖片");
 
         item.IsDeleted = true;
-        item.DeletedAt = DateTime.UtcNow;
-        item.UpdatedAt = DateTime.UtcNow;
+        item.DeletedAt = DateTime.Now;
+        item.UpdatedAt = DateTime.Now;
 
         await ReorderAfterDelete(item.PortfolioID);
 
@@ -140,7 +140,7 @@ public class PortfolioImageService
             (item, order) =>
             {
                 item.SortOrder = order;
-                item.UpdatedAt = DateTime.UtcNow;
+                item.UpdatedAt = DateTime.Now;
             });
     }
 
@@ -158,7 +158,7 @@ public class PortfolioImageService
         for (int i = 0; i < items.Count; i++)
         {
             items[i].SortOrder = (byte)(i + 1);
-            items[i].UpdatedAt = DateTime.UtcNow;
+            items[i].UpdatedAt = DateTime.Now;
         }
     }
 

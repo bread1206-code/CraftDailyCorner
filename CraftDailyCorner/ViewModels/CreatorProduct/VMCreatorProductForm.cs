@@ -9,17 +9,16 @@ namespace CraftDailyCorner.ViewModels.CreatorProduct
         [Display(Name = "商品編號")]
         public string? ProductID { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "商品名稱為必填")]
         [StringLength(40)]
         [Display(Name = "商品名稱")]
         public string ProductName { get; set; } = null!;
 
-        [Required]
+        [Required(ErrorMessage = "商品描述為必填")]
         [Display(Name = "商品描述")]
         public string Description { get; set; } = null!;
 
-        [Required]
-        [Range(0.01, 9999999)]
+        [Range(1, 1000000,ErrorMessage = "價格最少為1，最多為1,000,000")]
         [DisplayFormat(DataFormatString = "{0:0}", ApplyFormatInEditMode = true)]
         [Display(Name = "價格")]
         public decimal Price { get; set; }
@@ -33,11 +32,10 @@ namespace CraftDailyCorner.ViewModels.CreatorProduct
         public List<SelectListItem> StatusSelectList { get; set; } = new();
 
         // 庫存
-        [Required]
+        [Range(1, 10000, ErrorMessage = "庫存最少為1，最多為10,000")]
         [Display(Name = "庫存數量")]
         public int StockQty { get; set; }
 
-        [Required]
         [Display(Name = "警戒數量")]
         public int AlertQty { get; set; }
 
@@ -62,6 +60,11 @@ namespace CraftDailyCorner.ViewModels.CreatorProduct
         // 驗證
         public IEnumerable<ValidationResult> Validate(ValidationContext context)
         {
+            if (SelectedCategoryIds == null || SelectedCategoryIds.Count == 0)
+                yield return new ValidationResult(
+                    "請至少選擇一個分類",
+                    new[] { nameof(SelectedCategoryIds) });
+
             if (SelectedCategoryIds.Count > 3)
                 yield return new ValidationResult(
                     "分類最多3個",
@@ -71,6 +74,11 @@ namespace CraftDailyCorner.ViewModels.CreatorProduct
                 yield return new ValidationResult(
                     "標籤最多10個",
                     new[] { nameof(SelectedTagIds) });
+
+            if (ImageFiles == null || ImageFiles.Count == 0)
+                yield return new ValidationResult(
+                    "請至少上傳 1 張商品圖片",
+                    new[] { nameof(ImageFiles) });
 
             if (AlertQty > StockQty)
                 yield return new ValidationResult(
