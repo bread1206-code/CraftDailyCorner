@@ -25,6 +25,10 @@ builder.Services.AddScoped<ICreatorPortfolioItemService, CreatorPortfolioItemSer
 builder.Services.AddScoped<IImageFileService, ImageFileService>();
 builder.Services.AddScoped<ICreatorPostCommentService, CreatorPostCommentService>();
 builder.Services.AddScoped<IPostCommentReportService, PostCommentReportService>();
+builder.Services.AddScoped<ISoftDeleteCleanupTask, PortfolioItemCleanupTask>();
+builder.Services.AddScoped<ISoftDeleteCleanupTask, CreatorPostCleanupTask>();
+
+builder.Services.AddHostedService<SoftDeleteCleanupBackgroundService>();
 builder.Services.AddScoped <SeedRunner>();
 builder.Services.AddScoped <SeedMember>();
 builder.Services.AddScoped <SeedPrivacy>();
@@ -91,8 +95,8 @@ builder.Services.AddScoped<MemberCenterService>();
 builder.Services.AddScoped<ProductService>();
 builder.Services.AddScoped<CreatorApplicationService>();
 //自動刪除圖片
-builder.Services.AddHostedService<PortfolioItemCleanupService>();
-builder.Services.AddScoped<CreatorPostCleanupService>();
+//builder.Services.AddHostedService<PortfolioItemCleanupService>();
+//builder.Services.AddScoped<CreatorPostCleanupService>();
 builder.Services.AddScoped<CreatorProductService>();
 builder.Services.AddScoped<CreatorProductImageService>();
 
