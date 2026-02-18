@@ -7,60 +7,168 @@
 
 <div class="container py-5" style="max-width:1100px;">
 
+    <h2 class="fw-bold mb-4">編輯商品</h2>
+
     <form asp-action="Edit" method="post">
         @Html.AntiForgeryToken()
         <input type="hidden" asp-for="ProductID" />
 
-        <!-- 基本資料 -->
+        <div asp-validation-summary="ModelOnly"
+             class="text-danger mb-3"></div>
+
+        <!-- ================= 基本資料 ================= -->
+
         <div class="card shadow-sm border-0 mb-4">
             <div class="card-body">
 
                 <div class="mb-3">
-                    <label asp-for="ProductName"></label>
+                    <label asp-for="ProductName" class="form-label fw-semibold"></label>
                     <input asp-for="ProductName" class="form-control" />
+                    <span asp-validation-for="ProductName" class="text-danger"></span>
                 </div>
 
                 <div class="mb-3">
-                    <label asp-for="Description"></label>
+                    <label asp-for="Description" class="form-label fw-semibold"></label>
                     <textarea asp-for="Description"
                               class="form-control"
                               rows="4"></textarea>
+                    <span asp-validation-for="Description" class="text-danger"></span>
                 </div>
 
                 <div class="mb-3">
-                    <label asp-for="Price"></label>
+                    <label asp-for="Price" class="form-label fw-semibold"></label>
                     <input asp-for="Price"
                            type="number"
                            step="0.01"
                            class="form-control" />
+                    <span asp-validation-for="Price" class="text-danger"></span>
                 </div>
 
                 <div class="mb-3">
-                    <label asp-for="StatusID"></label>
+                    <label asp-for="StatusID" class="form-label fw-semibold"></label>
                     <select asp-for="StatusID"
                             asp-items="Model.StatusSelectList"
                             class="form-select">
                     </select>
                 </div>
 
+            </div>
+        </div>
+
+        <!-- ================= 庫存 ================= -->
+
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-header bg-light fw-semibold">
+                庫存設定
+            </div>
+
+            <div class="card-body">
+
                 <div class="mb-3">
-                    <label asp-for="StockQty"></label>
+                    <label asp-for="StockQty" class="form-label fw-semibold"></label>
                     <input asp-for="StockQty"
                            type="number"
                            class="form-control" />
+                    <span asp-validation-for="StockQty" class="text-danger"></span>
                 </div>
 
                 <div class="mb-3">
-                    <label asp-for="AlertQty"></label>
+                    <label asp-for="AlertQty" class="form-label fw-semibold"></label>
                     <input asp-for="AlertQty"
                            type="number"
                            class="form-control" />
+                    <span asp-validation-for="AlertQty" class="text-danger"></span>
                 </div>
 
             </div>
         </div>
 
-        <div class="text-end">
+        <!-- ================= 分類 ================= -->
+
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-header bg-light fw-semibold">
+                商品分類（最多 3 個）
+            </div>
+
+            <div class="card-body">
+
+                @foreach (var group in Model.CategoryGroups)
+                {
+                    <div class="mb-4">
+
+                        <h6 class="fw-bold border-bottom pb-2">
+                            @group.ParentCategoryName
+                        </h6>
+
+                        <div class="row mt-2">
+                            @foreach (var child in group.Children)
+                            {
+                                <div class="col-md-3 mb-2">
+                                    <div class="form-check">
+                                        <input class="form-check-input category-checkbox"
+                                               type="checkbox"
+                                               name="SelectedCategoryIds"
+                                               value="@child.CategoryID"
+                                               @(Model.SelectedCategoryIds.Contains(child.CategoryID) ? "checked" : "") />
+
+                                        <label class="form-check-label">
+                                            @child.CategoryName
+                                        </label>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+
+                <span asp-validation-for="SelectedCategoryIds"
+                      class="text-danger"></span>
+
+            </div>
+        </div>
+
+        <!-- ================= 標籤 ================= -->
+
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-header bg-light fw-semibold">
+                商品標籤（最多 10 個）
+            </div>
+
+            <div class="card-body">
+
+                <div class="row">
+                    @foreach (var tag in Model.TagSelectList)
+                    {
+                        <div class="col-md-3 mb-2">
+                            <div class="form-check">
+                                <input class="form-check-input tag-checkbox"
+                                       type="checkbox"
+                                       name="SelectedTagIds"
+                                       value="@tag.Value"
+                                       @(Model.SelectedTagIds.Contains(int.Parse(tag.Value)) ? "checked" : "") />
+
+                                <label class="form-check-label">
+                                    @tag.Text
+                                </label>
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                <span asp-validation-for="SelectedTagIds"
+                      class="text-danger"></span>
+
+            </div>
+        </div>
+
+        <!-- ================= 按鈕 ================= -->
+
+        <div class="text-end mb-4">
+            <a asp-action="Index"
+               class="btn btn-outline-secondary me-2">
+                取消
+            </a>
+
             <button type="submit"
                     class="btn btn-primary">
                 儲存修改
@@ -69,165 +177,70 @@
 
     </form>
 
+    <!-- ================= 圖片管理 ================= -->
 
-    <!-- 圖片管理 -->
-    <div class="card shadow-sm border-0 mt-5">
-        <div class="d-flex align-items-center justify-content-between mb-3">
-            <h5 class="fw-bold mb-0">圖片管理</h5>
-
-            <div class="form-check">
-                <input class="form-check-input"
-                       type="checkbox"
-                       id="quick-delete-toggle">
-
-                <label class="form-check-label text-danger fw-semibold"
-                       for="quick-delete-toggle">
-                    快速刪除模式
-                </label>
-            </div>
-        </div>
-
-        <div id="quick-delete-alert"
-             class="alert alert-warning d-none py-2">
-            <i class="bi bi-exclamation-triangle me-1"></i>
-            您已開啟快速刪除模式，點擊圖片即會刪除
-        </div>
+    <div class="card shadow-sm border-0 mt-4">
         <div class="card-body">
-            <div id="product-images-container">
-                @await Html.PartialAsync("_ProductImageListPartial",
-                Model.ExistingImages)
+            <div id="imageManagementContainer">
+                <!-- 由 AJAX 載入 -->
             </div>
-
         </div>
     </div>
 
 </div>
+
 @section Scripts {
 
     <partial name="_ValidationScriptsPartial" />
+
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
+    <script src="~/js/imageManagement.js"></script>
 
     <script>
+        document.addEventListener("DOMContentLoaded", async function () {
 
-                document.addEventListener("DOMContentLoaded", () => {
+            // ===== 載入圖片管理 Partial =====
+            const productId = "@Model.ProductID";
 
-            // =============================
-            // DOM
-            // =============================
+            const response = await fetch(
+                `/ImageManagement/ProductPartial/${productId}`
+            );
 
-            const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value || "";
-            const container = document.getElementById("product-images-container");
+            const html = await response.text();
+            document.getElementById("imageManagementContainer").innerHTML = html;
 
-            const quickToggle = document.getElementById("quick-delete-toggle");
-            const quickAlert = document.getElementById("quick-delete-alert");
-
-            // =============================
-            // 快速刪除模式
-            // =============================
-
-            if (quickToggle && quickAlert) {
-                quickToggle.addEventListener("change", () => {
-                    quickAlert.classList.toggle("d-none", !quickToggle.checked);
-                });
+            if (typeof initImageManagement === "function") {
+                initImageManagement();
             }
 
-            // =============================
-            // 刪除圖片
-            // =============================
+            // ===== 分類限制 =====
+            document.querySelectorAll(".category-checkbox")
+                .forEach(cb => {
+                    cb.addEventListener("change", function () {
+                        const checked =
+                            document.querySelectorAll(".category-checkbox:checked");
 
-            document.addEventListener("click", async (e) => {
-
-                if (!e.target.classList.contains("btn-delete"))
-                    return;
-
-                // 未開啟快速刪除 → 需要確認
-                if (!quickToggle || !quickToggle.checked) {
-                    if (!confirm("確定刪除圖片？")) return;
-                }
-
-                const imageId = e.target.dataset.itemid;
-
-                const formData = new FormData();
-                formData.append("imageId", imageId);
-                formData.append("__RequestVerificationToken", token);
-
-                LoadingOverlay?.show("刪除圖片中...");
-
-                const response = await fetch("/ProductImage/Delete", {
-                    method: "POST",
-                    body: formData
+                        if (checked.length > 3) {
+                            this.checked = false;
+                            alert("商品分類最多只能選 3 個");
+                        }
+                    });
                 });
 
-                const html = await response.text();
-                container.innerHTML = html;
+            // ===== 標籤限制 =====
+            document.querySelectorAll(".tag-checkbox")
+                .forEach(cb => {
+                    cb.addEventListener("change", function () {
+                        const checked =
+                            document.querySelectorAll(".tag-checkbox:checked");
 
-                initSortable();
-
-                LoadingOverlay?.hide();
-            });
-
-            // =============================
-            // 初始化排序
-            // =============================
-
-            initSortable();
-        });
-
-
-        // =====================================================
-        // 拖曳排序
-        // =====================================================
-
-        function initSortable() {
-
-            const el = document.getElementById("sortable-list");
-            if (!el) return;
-
-            new Sortable(el, {
-
-                animation: 150,
-                ghostClass: 'bg-light',
-
-                onEnd: async function () {
-
-                    const items = el.querySelectorAll(".sortable-item");
-
-                    const data = [];
-                    let order = 1;
-
-                    items.forEach(item => {
-
-                        data.push({
-                            imageID: parseInt(item.dataset.itemid),
-                            sortOrder: order
-                        });
-
-                        // 即時更新排序顯示
-                        const label = item.querySelector(".small");
-
-                        if (order === 1) {
-                            label.innerHTML =
-                                `<span class="badge bg-dark">封面</span>`;
-                        } else {
-                            label.innerHTML =
-                                `<span class="text-muted">排序：${order}</span>`;
+                        if (checked.length > 10) {
+                            this.checked = false;
+                            alert("商品標籤最多只能選 10 個");
                         }
-
-                        order++;
                     });
+                });
 
-                    await fetch("/ProductImage/UpdateSort", {
-                        method: "POST",
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'RequestVerificationToken':
-                                document.querySelector('input[name="__RequestVerificationToken"]')?.value
-                        },
-                        body: JSON.stringify(data)
-                    });
-                }
-            });
-        }
-
+        });
     </script>
 }

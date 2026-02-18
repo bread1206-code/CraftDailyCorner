@@ -91,6 +91,18 @@ namespace CraftDailyCorner.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(VMCreatorProductForm vm)
         {
+            Console.WriteLine("進入 Edit POST");
+
+            if (!ModelState.IsValid)
+            {
+                foreach (var state in ModelState)
+                {
+                    foreach (var error in state.Value.Errors)
+                    {
+                        Console.WriteLine($"{state.Key}: {error.ErrorMessage}");
+                    }
+                }
+            }
             var creatorId = User.GetCreatorId();
 
             if (!ModelState.IsValid)

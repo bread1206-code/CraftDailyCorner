@@ -1,5 +1,7 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using CraftDailyCorner.ImageManagementCore.ViewModels;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using System.ComponentModel.DataAnnotations;
 
 namespace CraftDailyCorner.ViewModels.CreatorProduct
 {
@@ -45,8 +47,9 @@ namespace CraftDailyCorner.ViewModels.CreatorProduct
 
         // Edit 用圖片清單
         [Display(Name = "現有商品圖片")]
-        public List<VMProductImageItem> ExistingImages { get; set; } = new();
-
+        [ValidateNever]
+        //public List<VMProductImageItem> ExistingImages { get; set; } = new();
+        public VMImageManagement? ImageManagement { get; set; }
         // 分類
         [Display(Name = "商品分類")]
         public List<int> SelectedCategoryIds { get; set; } = new();
@@ -75,10 +78,13 @@ namespace CraftDailyCorner.ViewModels.CreatorProduct
                     "標籤最多10個",
                     new[] { nameof(SelectedTagIds) });
 
-            if (ImageFiles == null || ImageFiles.Count == 0)
-                yield return new ValidationResult(
-                    "請至少上傳 1 張商品圖片",
-                    new[] { nameof(ImageFiles) });
+            if (string.IsNullOrEmpty(ProductID)) // 只有建立才驗證
+            {
+                if (ImageFiles == null || ImageFiles.Count == 0)
+                    yield return new ValidationResult(
+                        "請至少上傳 1 張商品圖片",
+                        new[] { nameof(ImageFiles) });
+            }
 
             if (AlertQty > StockQty)
                 yield return new ValidationResult(

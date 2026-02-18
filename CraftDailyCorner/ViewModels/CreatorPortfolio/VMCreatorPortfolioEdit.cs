@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using CraftDailyCorner.ImageManagementCore.ViewModels;
+using System.ComponentModel.DataAnnotations;
 
 namespace CraftDailyCorner.ViewModels.CreatorPortfolio
 {
@@ -23,5 +24,7 @@ namespace CraftDailyCorner.ViewModels.CreatorPortfolio
         [Display(Name = "最後更新時間")]
         public DateTime UpdatedAt { get; set; }
         public List<VMCreatorPortfolioItemEdit> Items { get; set; } = new();
+
+        public VMImageManagement? ImageManagement { get; set; }
     }
 }

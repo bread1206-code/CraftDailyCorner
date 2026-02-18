@@ -1,3 +1,5 @@
+using CraftDailyCorner.ImageManagementCore.Services;
+using CraftDailyCorner.ImageManagementCore.Services.Interfaces;
 using CraftDailyCorner.Models;
 using CraftDailyCorner.Seed;
 using CraftDailyCorner.Seed.Datas;
@@ -27,7 +29,8 @@ builder.Services.AddScoped<ICreatorPostCommentService, CreatorPostCommentService
 builder.Services.AddScoped<IPostCommentReportService, PostCommentReportService>();
 builder.Services.AddScoped<ISoftDeleteCleanupTask, PortfolioItemCleanupTask>();
 builder.Services.AddScoped<ISoftDeleteCleanupTask, CreatorPostCleanupTask>();
-
+builder.Services.AddScoped<IImageManagementService, ProductImageService>();
+builder.Services.AddScoped<IImageManagementService, PortfolioImageService>();
 builder.Services.AddHostedService<SoftDeleteCleanupBackgroundService>();
 builder.Services.AddScoped <SeedRunner>();
 builder.Services.AddScoped <SeedMember>();

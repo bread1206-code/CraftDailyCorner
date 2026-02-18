@@ -149,12 +149,17 @@
                 body: formData
             });
 
+            //if (!response.ok) {
+            //    alert("刪除失敗");
+            //    button.disabled = false;
+            //    return;
+            //}
             if (!response.ok) {
-                alert("刪除失敗");
+                const msg = await response.text();
+                alert(msg);
                 button.disabled = false;
                 return;
             }
-
             const html = await response.text();
 
             // 只更新圖片列表
@@ -317,3 +322,5 @@
         }
     }
 }
+
+window.initImageManagement = initImageManagement;

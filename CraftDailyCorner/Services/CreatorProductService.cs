@@ -1,4 +1,5 @@
-﻿using CraftDailyCorner.Models;
+﻿using CraftDailyCorner.ImageManagementCore.ViewModels;
+using CraftDailyCorner.Models;
 using CraftDailyCorner.ViewModels.CreatorProduct;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -86,16 +87,12 @@ namespace CraftDailyCorner.Services
                 SelectedCategoryIds = product.ProductCategories
                     .Select(pc => pc.CategoryID).ToList(),
                 SelectedTagIds = product.ProductTags
-                    .Select(pt => pt.TagID).ToList(),
-                ExistingImages = product.ProductImages
-                    .Where(i => i.StatusID == 1)
-                    .OrderBy(i => i.SortOrder)
-                    .Select(i => new VMProductImageItem
-                    {
-                        ImageID = i.ImageID,
-                        ImageUrl = i.ImageUrl,
-                        SortOrder = i.SortOrder
-                    }).ToList()
+                    .Select(pt => pt.TagID).ToList()
+            };
+            vm.ImageManagement = new VMImageManagement
+            {
+                EntityId = product.ProductID,
+                EntityType = "Product"
             };
 
             LoadOptions(vm);

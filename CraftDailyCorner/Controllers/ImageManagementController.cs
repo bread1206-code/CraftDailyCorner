@@ -57,24 +57,46 @@ public class ImageManagementController : Controller
     // Delete
     // =============================
 
+    //[HttpPost("Delete")]
+    //[ValidateAntiForgeryToken]
+    //public async Task<IActionResult> Delete(
+    //    string entityId,
+    //    string entityType,
+    //    long imageId)
+    //{
+    //    var creatorId = User.GetCreatorId();
+
+    //    var service = GetService(entityType);
+
+    //    await service.DeleteWithValidationAsync(
+    //        imageId,
+    //        creatorId);
+
+    //    return await ReloadPartial(entityId, entityType);
+    //}
     [HttpPost("Delete")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(
-        string entityId,
-        string entityType,
-        long imageId)
+    string entityId,
+    string entityType,
+    long imageId)
     {
-        var creatorId = User.GetCreatorId();
+        try
+        {
+            var creatorId = User.GetCreatorId();
+            var service = GetService(entityType);
 
-        var service = GetService(entityType);
+            await service.DeleteWithValidationAsync(
+                imageId,
+                creatorId);
 
-        await service.DeleteWithValidationAsync(
-            imageId,
-            creatorId);
-
-        return await ReloadPartial(entityId, entityType);
+            return await ReloadPartial(entityId, entityType);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex.Message);
+        }
     }
-
     // =============================
     // Sort
     // =============================
@@ -98,10 +120,18 @@ public class ImageManagementController : Controller
         return Ok();
     }
 
+    // 商品
     [HttpGet("ProductPartial/{productId}")]
     public async Task<IActionResult> ProductPartial(string productId)
     {
         return await ReloadPartial(productId, "Product");
+    }
+
+    // 作品集
+    [HttpGet("PortfolioPartial/{portfolioId}")]
+    public async Task<IActionResult> PortfolioPartial(string portfolioId)
+    {
+        return await ReloadPartial(portfolioId, "Portfolio");
     }
 
     // =============================

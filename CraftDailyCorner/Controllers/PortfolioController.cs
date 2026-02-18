@@ -108,6 +108,11 @@ namespace CraftDailyCorner.Controllers.Front
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(VMCreatorPortfolioEdit vm)
         {
+            var errors = ModelState.Values
+        .SelectMany(v => v.Errors)
+        .Select(e => e.ErrorMessage)
+        .ToList();
+
             if (!ModelState.IsValid)
                 return View(vm);
 

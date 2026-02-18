@@ -94,7 +94,7 @@ public class PortfolioImageService
     {
         var item = await _dbSet
             .Include(x => x.Portfolio)
-            .FirstOrDefaultAsync(x => x.ImageID == imageId);
+            .FirstOrDefaultAsync(x => x.ItemID == imageId);
 
         if (item == null || item.IsDeleted)
             throw new Exception("圖片不存在");

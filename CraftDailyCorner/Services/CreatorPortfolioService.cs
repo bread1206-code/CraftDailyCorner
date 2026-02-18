@@ -1,4 +1,5 @@
 ﻿using CraftDailyCorner.DTOs;
+using CraftDailyCorner.ImageManagementCore.ViewModels;
 using CraftDailyCorner.Models;
 using CraftDailyCorner.Services.Interface;
 using CraftDailyCorner.ViewModels.CreatorPortfolio;
@@ -136,18 +137,13 @@ namespace CraftDailyCorner.Services.Creator
                 Visibility = portfolio.Visibility,
                 UpdatedAt = portfolio.UpdatedAt,
 
-                Items = portfolio.PortfolioItems
-                    .Where(i => !i.IsDeleted)
-                    .OrderBy(i => i.SortOrder)
-                    .Select(i => new VMCreatorPortfolioItemEdit
-                    {
-                        ItemID = i.ItemID,
-                        ImageUrl = i.ImageUrl,
-                        SortOrder = i.SortOrder,
-                        CreatedAt = i.CreatedAt,
-                        UpdatedAt = i.UpdatedAt
-                    })
-                    .ToList()
+                ImageManagement = new VMImageManagement
+                {
+                    EntityId = portfolio.PortfolioID,
+                    EntityType = "Portfolio",
+                    MaxImageCount = 25,
+                    HintMessage = "作品圖片最多 25 張"
+                }
             };
         }
 
@@ -171,7 +167,7 @@ namespace CraftDailyCorner.Services.Creator
 
             _context.Portfolios.Add(portfolio);
 
-            byte sort = 0;
+            byte sort = 1;
 
             foreach (var file in files)
             {
