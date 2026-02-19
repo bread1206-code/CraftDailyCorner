@@ -7,5 +7,7 @@
         public DateTime CreatedAt { get; set; }        // 下單時間
         public int TotalAmount { get; set; }           // 總金額（整數顯示）
         public string StatusText { get; set; } = null!;// 訂單狀態文字
+
+        public DateTime UpdatedAt { get; set; }        // 更新時間
     }
 }

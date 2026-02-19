@@ -22,5 +22,7 @@ namespace CraftDailyCorner.ViewModels.Order
         [Required(ErrorMessage ="請輸入收件地址")]
         [Display(Name ="收件地址")]
         public string ReceiverAddress { get; set; } = null!;
+
+        public string CreatorId { get; set; } = null!;
     }
 }

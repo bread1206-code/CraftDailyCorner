@@ -10,91 +10,69 @@
 }
 else
 {
-    <div class="list-group">
-
-        @foreach (var item in Model)
+    <div id="cart-items-container">
+        @* 按創作者分組 *@
+        @foreach (var group in Model.GroupBy(x => new { x.CreatorId, x.CreatorName }))
         {
-            <div class="list-group-item py-3">
-                <div class="row align-items-center">
+            <div class="creator-group mb-4 border rounded">
+                <div class="card-header bg-light d-flex align-items-center">
+                    <input type="checkbox" class="form-check-input creator-check me-2"
+                           data-creator-id="@group.Key.CreatorId"
+                           id="check-@group.Key.CreatorId" />
+                    <label class="fw-bold mb-0" for="check-@group.Key.CreatorId">
+                        創作者：@group.Key.CreatorName
+                    </label>
+                </div>
 
-                    <!-- 商品圖片 -->
-                    <div class="col-3 col-md-2">
-                        <img src=@($"/Photos/04ProductImage/Medium/{item.ImageUrl}.png")
-                             class="img-fluid rounded"
-                             alt="@item.ProductName" />
-                    </div>
+                <div class="list-group list-group-flush">
+                    @foreach (var item in group)
+                    {
+                        <div class="list-group-item py-3">
+                            <div class="row align-items-center">
+                                <div class="col-1">
+                                    <input type="checkbox" class="form-check-input product-check"
+                                           data-creator-id="@group.Key.CreatorId"
+                                           data-product-id="@item.ProductId" />
+                                </div>
 
-                    <!-- 商品資訊 -->
-                    <div class="col-9 col-md-4">
-                        <div class="fw-semibold">
-                            <a asp-controller="Products"
-                               asp-action="Detail"
-                               asp-route-id="@item.ProductId"
-                               class="text-decoration-none text-dark">
-                                @item.ProductName
-                            </a>
+                                <div class="col-2">
+                                    <img src=@($"/Photos/04ProductImage/Medium/{item.ImageUrl}.png") class="img-fluid rounded" />
+                                </div>
+
+                                <div class="col-4">
+                                    <div class="fw-semibold">@item.ProductName</div>
+                                    <small class="text-muted">$@item.PriceInt</small>
+                                </div>
+
+                                <div class="col-3">
+                                    <div class="input-group input-group-sm">
+                                        <button class="btn btn-outline-secondary" onclick="updateQuantity('@item.ProductId', @(item.Quantity - 1))">-</button>
+                                        <input type="number" class="form-control text-center" value="@item.Quantity" readonly />
+                                        <button class="btn btn-outline-secondary" onclick="updateQuantity('@item.ProductId', @(item.Quantity + 1))">+</button>
+                                    </div>
+                                </div>
+
+                                <div class="col-2 text-end">
+                                    <strong>$@item.SubTotal</strong>
+                                    <button class="btn btn-sm btn-link text-danger" onclick="removeFromCart('@item.ProductId')">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
                         </div>
-                        <small class="text-muted">
-                            單價：$@item.PriceInt
-                        </small>
-                    </div>
-
-                    <!-- 數量調整 -->
-                    <div class="col-6 col-md-3 mt-2 mt-md-0">
-                        <div class="input-group input-group-sm">
-                            <button class="btn btn-outline-secondary"
-                                    type="button"
-                                    @(item.Quantity <= 1 ? "disabled" : "")
-                                    onclick="updateQuantity('@item.ProductId', @(item.Quantity - 1))">
-                                -
-                            </button>
-
-                            <input type="number"
-                                   class="form-control text-center"
-                                   value="@item.Quantity"
-                                   min="1"
-                                   step="1"
-                                   required
-                                   oninput="this.value = this.value.replace(/[^0-9]/g, '')"
-                                   onchange="updateQuantity('@item.ProductId', this.value)" />
-
-                            <button class="btn btn-outline-secondary"
-                                    type="button"
-                                    onclick="updateQuantity('@item.ProductId', @(item.Quantity + 1))">
-                                +
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- 小計 -->
-                    <div class="col-3 col-md-2 text-end mt-2 mt-md-0">
-                        <strong>$@item.SubTotal</strong>
-                    </div>
-
-                    <!-- 移除 -->
-                    <div class="col-3 col-md-1 text-end mt-2 mt-md-0">
-                        <button class="btn btn-sm btn-outline-danger"
-                                onclick="removeFromCart('@item.ProductId')">
-                            <i class="bi bi-trash"></i>
-                        </button>
-                    </div>
-
+                    }
                 </div>
             </div>
         }
-
     </div>
 
-    <!-- 底部操作 -->
-    <div class="d-flex justify-content-between align-items-center mt-4">
-        <span class="text-muted">
-            共 @Model.Sum(x => x.Quantity) 件商品
-        </span>
-
-        <a asp-controller="Orders"
-           asp-action="Checkout"
-           class="btn btn-primary">
-            前往結帳
-        </a>
+    <div class="d-flex justify-content-between align-items-center mt-4 border-top pt-3">
+        <span class="text-muted">已選擇 <span id="selected-count">0</span> 件商品</span>
+        <div>
+            <span class="me-3 fw-bold">總計: $<span id="selected-amount">0</span></span>
+            <button id="checkout-btn" class="btn btn-primary" disabled onclick="goToCheckout()">
+                前往結帳
+            </button>
+        </div>
     </div>
 }

@@ -13,6 +13,9 @@ namespace CraftDailyCorner.ViewModels.Cart
 
         public string? ImageUrl { get; set; }
 
+        public string CreatorId { get; set; } = string.Empty;
+        public string CreatorName { get; set; } = string.Empty;
+
         // 顯示用單價（無條件捨去）
         public int PriceInt => (int)Math.Floor(Price);
 

@@ -7,6 +7,8 @@ namespace CraftDailyCorner.ViewModels.Order
     public class VMCreateOrderRequest
     {
         [Required]
+        public string CreatorId { get; set; } = null!;
+        [Required]
         public string ReceiverName { get; set; } = null!;
 
         [Required]

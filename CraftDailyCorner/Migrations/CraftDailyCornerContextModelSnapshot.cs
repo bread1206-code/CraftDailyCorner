@@ -518,6 +518,9 @@ namespace CraftDailyCorner.Migrations
                     b.Property<int>("StockQty")
                         .HasColumnType("int");
 
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
                     b.HasKey("InventoryID");
 
                     b.HasIndex("ProductID")
@@ -828,6 +831,9 @@ namespace CraftDailyCorner.Migrations
 
                     b.Property<decimal>("TotalAmount")
                         .HasColumnType("money");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
 
                     b.HasKey("OrderID");
 

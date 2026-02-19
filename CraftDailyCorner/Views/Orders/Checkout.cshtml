@@ -87,6 +87,8 @@
         <form asp-action="Create" method="post">
             @Html.AntiForgeryToken()
 
+            <input type="hidden" name="CreatorId" value="@Model.Items.FirstOrDefault()?.Product.CreatorId" />
+
             <div class="card">
                 <div class="card-header fw-semibold">
                     收件資訊

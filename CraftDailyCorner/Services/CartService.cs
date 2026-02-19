@@ -120,15 +120,17 @@ namespace CraftDailyCorner.Services
         }
 
         //取得購物車清單（Modal / Page）
+        // 修改 GetCartItems 方法
         public List<VMCartItem> GetCartItems(string memberId)
         {
             var cart = GetCart(memberId);
-            if (cart == null)
-                return new();
+            if (cart == null) return new();
 
             return _context.CartItems
                 .Include(ci => ci.Product)
                     .ThenInclude(p => p.ProductImages)
+                .Include(ci => ci.Product)
+                    .ThenInclude(p => p.CreatorProfile) // 確保載入創作者資訊
                 .Where(ci => ci.CartID == cart.CartID)
                 .Select(ci => new VMCartItem
                 {
@@ -136,6 +138,8 @@ namespace CraftDailyCorner.Services
                     ProductName = ci.Product.ProductName,
                     Price = ci.Product.Price,
                     Quantity = ci.Quantity,
+                    CreatorId = ci.Product.CreatorProfile!.CreatorID, // 填入 ID
+                    CreatorName = ci.Product.CreatorProfile.DisplayName, // 填入名稱
                     ImageUrl = ci.Product.ProductImages
                         .Where(i => i.StatusID == 1)
                         .OrderBy(i => i.SortOrder)

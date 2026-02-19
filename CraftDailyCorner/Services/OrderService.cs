@@ -22,69 +22,95 @@ namespace CraftDailyCorner.Services
         }
 
         // 建立訂單
-        public VMCreateOrderResult CreateOrder(
-            string memberId,
-            VMCreateOrderRequest request)
+        public VMCreateOrderResult CreateOrder(string memberId, VMCreateOrderRequest request, string creatorId)
         {
-            // 1️ 取得購物車快照
-            var cartItems = _cartService.GetCartItemsForCheckout(memberId);
-
-            if (!cartItems.Any())
+            // 1. 開啟交易，確保「扣庫存」與「建訂單」是一體操作
+            using var transaction = _context.Database.BeginTransaction();
+            try
             {
+                // 2. 直接查詢購物車實體 (Entity) 而非 ViewModel
+                // 這樣我們可以直接操作 inventory 物件並讓 EF 追蹤修改
+                var cartItems = _context.CartItems
+                    .Include(ci => ci.Product)
+                        .ThenInclude(p => p.Inventory) // 務必包含庫存表
+                    .Include(ci => ci.Product)
+                        .ThenInclude(p => p.CreatorProfile)
+                    .Where(ci => ci.Cart.MemberID == memberId && ci.Product.CreatorID == creatorId)
+                    .ToList();
+
+                if (!cartItems.Any())
+                {
+                    return new VMCreateOrderResult { Success = false, Message = "購物車內無該創作者的商品" };
+                }
+
+                // 3. 建立 Order 主檔
+                var orderId = GetNewOrderID();
+                var totalAmount = cartItems.Sum(ci => ci.Product.Price * ci.Quantity);
+
+                var order = new Order
+                {
+                    OrderID = orderId,
+                    MemberID = memberId,
+                    CreatedAt = DateTime.Now,
+                    ReceiverName = request.ReceiverName,
+                    ReceiverPhone = request.ReceiverPhone,
+                    ShippingAddress = request.ReceiverAddress,
+                    TotalAmount = totalAmount,
+                    StatusID = 1 // 待付款
+                };
+                _context.Orders.Add(order);
+
+                // 4. 逐項檢查庫存、扣除庫存、並建立訂單明細
+                foreach (var item in cartItems)
+                {
+                    var product = item.Product;
+                    var inventory = product.Inventory;
+
+                    // --- 庫存校驗 ---
+                    if (inventory == null || inventory.StockQty < item.Quantity)
+                    {
+                        // 若庫存不足，直接拋出例外觸發 Rollback
+                        throw new Exception($"商品「{product.ProductName}」庫存不足（僅剩 {inventory?.StockQty ?? 0} 件）");
+                    }
+
+                    // --- 扣除庫存 ---
+                    inventory.StockQty -= item.Quantity;
+                    inventory.UpdatedAt = DateTime.Now;
+
+                    // --- 建立訂單明細 ---
+                    var orderDetail = new OrderDetail
+                    {
+                        OrderID = order.OrderID,
+                        ProductID = product.ProductID,
+                        ProductNameSnapshot = product.ProductName,
+                        PriceSnapshot = product.Price,
+                        Quantity = item.Quantity
+                    };
+                    _context.OrderDetails.Add(orderDetail);
+                }
+
+                // 5. 清空該創作者在購物車中的商品
+                _context.CartItems.RemoveRange(cartItems);
+
+                // 6. 一次性儲存：這會包含 Order 的 Insert、OrderDetail 的 Insert、Inventory 的 Update、CartItem 的 Delete
+                _context.SaveChanges();
+
+                // 7. 提交交易
+                transaction.Commit();
+
                 return new VMCreateOrderResult
                 {
-                    Success = false,
-                    Message = "購物車是空的，無法建立訂單"
+                    Success = true,
+                    Message = "訂單建立成功",
+                    OrderID = order.OrderID
                 };
             }
-
-            // 2️ 計算總金額
-            var totalAmount = cartItems.Sum(i =>
-                i.Product.Price * i.Quantity);
-
-            // 3️ 建立 Order 主檔
-            var orderId = GetNewOrderID();
-            var order = new Order
+            catch (Exception ex)
             {
-                OrderID = orderId,
-                MemberID = memberId,
-                CreatedAt = DateTime.Now,
-                ReceiverName = request.ReceiverName,
-                ReceiverPhone = request.ReceiverPhone,
-                ShippingAddress = request.ReceiverAddress,
-                TotalAmount = totalAmount,
-                StatusID = 1 // 未付款
-            };
-
-            _context.Orders.Add(order);
-            _context.SaveChanges(); // 先存，取得 OrderID
-
-            // 4️ 建立 OrderItems（商品快照）
-            foreach (var item in cartItems)
-            {
-                var orderItem = new OrderDetail
-                {
-                    OrderID = order.OrderID,
-                    ProductID = item.Product.ProductId,
-                    ProductNameSnapshot = item.Product.ProductName,
-                    PriceSnapshot = item.Product.Price,
-                    Quantity = item.Quantity
-                };
-
-                _context.OrderDetails.Add(orderItem);
+                // 發生錯誤（如庫存不足）時自動回滾，保護資料
+                transaction.Rollback();
+                return new VMCreateOrderResult { Success = false, Message = ex.Message };
             }
-
-            _context.SaveChanges();
-
-            // 5️ 清空購物車
-            _cartService.ClearCart(memberId);
-
-            return new VMCreateOrderResult
-            {
-                Success = true,
-                Message = "訂單建立成功",
-                OrderID = order.OrderID
-            };
         }
 
         // 我的訂單列表
@@ -112,7 +138,8 @@ namespace CraftDailyCorner.Services
                        OrderID = o.OrderID,
                        CreatedAt = o.CreatedAt,
                        TotalAmount = (int)Math.Floor(o.TotalAmount),
-                       StatusText = o.OrderStatus.StatusName
+                       StatusText = o.OrderStatus.StatusName,
+                       UpdatedAt = o.UpdatedAt
                    })
                    .ToList();
         }
@@ -194,6 +221,70 @@ namespace CraftDailyCorner.Services
             );
 
             return outputParam.Value!.ToString()!;
+        }
+        // 取消訂單
+        // 檔案：Services/OrderService.cs
+
+        public (bool Success, string Message) CancelOrder(string orderId, string memberId)
+        {
+            // 使用交易確保「狀態變更」與「庫存回補」同時成功
+            using var transaction = _context.Database.BeginTransaction();
+            try
+            {
+                // 1. 取得訂單，並包含明細與庫存資料
+                var order = _context.Orders
+                    .Include(o => o.OrderDetails)
+                        .ThenInclude(od => od.Product)
+                            .ThenInclude(p => p.Inventory)
+                    .FirstOrDefault(o => o.OrderID == orderId && o.MemberID == memberId);
+
+                if (order == null) return (false, "找不到該訂單");
+
+                // 2. 嚴格限制：只有「待付款 (StatusID = 1)」才能取消
+                if (order.StatusID != 1)
+                {
+                    return (false, "目前訂單狀態不可取消（僅限待付款訂單）");
+                }
+
+                // 3. 庫存回補邏輯
+                if (order.OrderDetails != null)
+                {
+                    foreach (var detail in order.OrderDetails)
+                    {
+                        if (detail.Product.Inventory != null)
+                        {
+                            // 將當初扣除的數量加回去
+                            detail.Product.Inventory.StockQty += detail.Quantity;
+                            detail.Product.Inventory.UpdatedAt = DateTime.Now;
+                        }
+                    }
+                }
+
+                // 4. 變更訂單狀態為「取消 (StatusID = 6)」
+                order.StatusID = 6;
+                order.UpdatedAt = DateTime.Now;
+                _context.SaveChanges();
+                transaction.Commit();
+
+                return (true, "訂單已成功取消，庫存已釋出");
+            }
+            catch (Exception ex)
+            {
+                transaction.Rollback();
+                return (false, "系統錯誤，無法取消訂單");
+            }
+        }
+
+        private void ClearCartByCreator(string memberId, string creatorId)
+        {
+            var cart = _context.Carts.FirstOrDefault(c => c.MemberID == memberId);
+            if (cart == null) return;
+
+            var itemsToRemove = _context.CartItems
+                .Include(ci => ci.Product)
+                .Where(ci => ci.CartID == cart.CartID && ci.Product.CreatorID == creatorId);
+
+            _context.CartItems.RemoveRange(itemsToRemove);
         }
     }
 }

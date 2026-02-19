@@ -544,6 +544,7 @@ namespace CraftDailyCorner.Migrations
                     ReceiverPhone = table.Column<string>(type: "nchar(10)", maxLength: 10, nullable: false),
                     ShippingAddress = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     StatusID = table.Column<byte>(type: "tinyint", nullable: false),
                     TotalAmount = table.Column<decimal>(type: "money", nullable: false),
                     MemberID = table.Column<string>(type: "nchar(8)", maxLength: 8, nullable: false)
@@ -1041,7 +1042,8 @@ namespace CraftDailyCorner.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     StockQty = table.Column<int>(type: "int", nullable: false),
                     AlertQty = table.Column<int>(type: "int", nullable: false),
-                    ProductID = table.Column<string>(type: "nchar(10)", maxLength: 10, nullable: false)
+                    ProductID = table.Column<string>(type: "nchar(10)", maxLength: 10, nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {

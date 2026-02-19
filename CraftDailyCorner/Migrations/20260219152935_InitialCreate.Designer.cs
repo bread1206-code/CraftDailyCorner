@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CraftDailyCorner.Migrations
 {
     [DbContext(typeof(CraftDailyCornerContext))]
-    [Migration("20260218075551_InitialCreate")]
+    [Migration("20260219152935_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -521,6 +521,9 @@ namespace CraftDailyCorner.Migrations
                     b.Property<int>("StockQty")
                         .HasColumnType("int");
 
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
                     b.HasKey("InventoryID");
 
                     b.HasIndex("ProductID")
@@ -831,6 +834,9 @@ namespace CraftDailyCorner.Migrations
 
                     b.Property<decimal>("TotalAmount")
                         .HasColumnType("money");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
 
                     b.HasKey("OrderID");
 

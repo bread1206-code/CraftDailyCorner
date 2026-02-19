@@ -125,7 +125,8 @@ namespace CraftDailyCorner.Services
             {
                 ProductID = productId,
                 StockQty = vm.StockQty,
-                AlertQty = vm.AlertQty
+                AlertQty = vm.AlertQty,
+                UpdatedAt = DateTime.Now
             });
 
             foreach (var cid in vm.SelectedCategoryIds)
