@@ -1,0 +1,70 @@
+﻿@using CraftDailyCorner.Models.Enums
+@using CraftDailyCorner.ViewModels.Report
+@model VMReport
+
+<div class="modal fade"
+     id="reportModal-@Model.ReportType-@Model.TargetID"
+     tabindex="-1">
+
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <form asp-controller="Report"
+                  asp-action="Report"
+                  method="post">
+
+                @Html.AntiForgeryToken()
+
+                <input type="hidden"
+                       name="ReportType"
+                       value="@Model.ReportType" />
+
+                <input type="hidden"
+                       name="TargetID"
+                       value="@Model.TargetID" />
+
+                <div class="modal-header">
+                    <h5 class="modal-title">檢舉內容</h5>
+                    <button type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body text-start">
+                    @foreach (ReportReason reason in Enum.GetValues(typeof(ReportReason)))
+                    {
+                        var radioId = $"report-{Model.TargetID}-{(int)reason}";
+
+                        <div class="form-check">
+                            <input class="form-check-input report-reason"
+                                   type="radio"
+                                   id="@radioId"
+                                   name="ReasonCode"
+                                   value="@((int)reason)"
+                                   data-is-other="@(reason == ReportReason.Other ? "true" : "false")"
+                                   required />
+
+                            <label class="form-check-label" for="@radioId">
+                                @reason.GetDisplayName()
+                            </label>
+                        </div>
+                    }
+
+                    <textarea name="Description"
+                              class="form-control mt-2 report-description d-none"
+                              placeholder="補充說明 (200字以內)"></textarea>
+
+                </div>
+
+                <div class="modal-footer">
+                    <button type="submit"
+                            class="btn btn-danger">
+                        送出檢舉
+                    </button>
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+</div>

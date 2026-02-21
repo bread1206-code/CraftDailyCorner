@@ -422,3 +422,64 @@ body {
     margin-right: 10px;
     font-weight: bold;
 }
+/*檢舉圖示*/
+.report-btn {
+    background-color: transparent;
+    padding: 4px 8px;
+    transition: all 0.2s ease;
+}
+
+.report-icon-fill {
+    display: none;
+}
+
+.report-btn:hover {
+    background-color: transparent !important;
+}
+
+.report-btn:hover .report-icon-outline {
+    display: none;
+}
+
+.report-btn:hover .report-icon-fill {
+    display: inline;
+    color: #dc3545;
+}
+
+.comment-item {
+    position: relative;
+}
+
+/* 三點按鈕基本樣式 */
+.comment-item .btn {
+    line-height: 1;
+}
+
+/* 三點 icon 大小 */
+.comment-item .bi-three-dots {
+    font-size: 1rem;
+}
+
+/*  預設隱藏三點選單 */
+.comment-item .dropdown {
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+/*  滑鼠移到整個留言區塊時顯示 */
+.comment-item:hover .dropdown {
+    opacity: 1;
+}
+/*移除focus邊框*/
+.comment-item .btn:focus {
+    box-shadow: none;
+}
+
+.comment-item .btn:focus-visible {
+    box-shadow: none;
+    outline: none;
+}
+
+.comment-content {
+    white-space: pre-line;
+}

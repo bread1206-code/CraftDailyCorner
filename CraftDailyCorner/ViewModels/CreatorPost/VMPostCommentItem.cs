@@ -33,11 +33,9 @@ namespace CraftDailyCorner.ViewModels.CreatorPost
                 ? "/images/default-avatar.png"
                 : $"/Photos/01Member/Thumbnail/{MemberAvatar}.png";
 
-        public string CreatedTimeText =>
-            CreatedAt.ToLocalTime().ToString("yyyy/MM/dd HH:mm");
 
-        //是否可顯示檢舉按鈕
-        public bool CanReport { get; set; }
+        //是否為留言者本人
+        public bool IsOwner { get; set; }
 
 
     }

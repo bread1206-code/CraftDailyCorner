@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace CraftDailyCorner.Models
 {
-    public class PostCommentReportStatus
+    public class ReportStatus
     {
         [Key]
         [Display(Name = "狀態代碼")]
@@ -21,7 +21,7 @@ namespace CraftDailyCorner.Models
         [Display(Name = "是否啟用")]
         public bool IsActive { get; set; }
 
-        public virtual List<PostCommentReport>? PostCommentReports { get; set; }
+        public virtual List<Report>? Reports { get; set; }
 
     }
 }

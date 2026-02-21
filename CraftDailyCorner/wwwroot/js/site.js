@@ -319,3 +319,30 @@ function showFavoriteStamp() {
         overlay.style.display = "none";
     }, 800); // 跟動畫時間一致
 }
+
+//檢舉時控制顯示檢舉原因欄位 
+document.addEventListener("change", function (e) {
+
+    if (!e.target.classList.contains("report-reason"))
+        return;
+
+    const modal = e.target.closest(".modal");
+    if (!modal)
+        return;
+
+    const textarea = modal.querySelector(".report-description");
+    if (!textarea)
+        return;
+
+    const isOther = e.target.dataset.isOther === "true";
+
+    if (isOther) {
+        textarea.classList.remove("d-none");
+        textarea.setAttribute("required", "required");
+    } else {
+        textarea.classList.add("d-none");
+        textarea.removeAttribute("required");
+        textarea.value = "";
+    }
+
+});

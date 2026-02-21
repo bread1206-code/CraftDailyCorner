@@ -1,6 +1,8 @@
 ﻿@model CraftDailyCorner.ViewModels.CreatorPost.VMPostDetail
 @using CraftDailyCorner.Models.Enums
 @using CraftDailyCorner.Extensions
+@using CraftDailyCorner.Models.enums
+@using CraftDailyCorner.ViewModels.Report
 
 @{
     ViewData["Title"] = Model.Title;
@@ -46,7 +48,7 @@
 
     <!-- 內文 -->
     <div class="mb-5" style="white-space:pre-line; line-height:1.9;">
-        @Model.Content
+        @Html.Raw(Model.Content.Replace("\r\n", "<br>"))
     </div>
 
     <hr class="my-4" />
@@ -65,8 +67,18 @@
         {
             <span class="text-muted">請登入後留言</span>
         }
+        <!--檢舉-->
+        <span>
+            <partial name="_ReportButtonPartial"
+                     model="new VMReport
+                     {
+                         ReportType = ReportTargetType.Post,
+                         TargetID = Model.PostID
+                     }" />
+        </span>
     </div>
-
+    
+    
     <!-- 留言列表 -->
     <div id="comment-container">
         @await Component.InvokeAsync("VCPostComment",
@@ -105,96 +117,3 @@
         </div>
     </div>
 </div>
-
-<!-- 檢舉 Modal -->
-<div class="modal fade" id="reportModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-
-            <form asp-controller="PostComment"
-                  asp-action="Report"
-                  method="post">
-                <!--注意!!ASP.NET Core 路由會自動過濾「Async」字尾-->
-                @Html.AntiForgeryToken()
-                <div class="modal-header">
-                    <h5 class="modal-title">檢舉留言</h5>
-                    <button type="button"
-                            class="btn-close"
-                            data-bs-dismiss="modal"></button>
-                </div>
-
-                <div class="modal-body">
-
-                    <input type="hidden"
-                           name="CommentID"
-                           id="reportCommentId" />
-
-                    <!-- Enum Radio -->
-                    @foreach (CommentReportReason reason
-                                        in Enum.GetValues(typeof(CommentReportReason)))
-                    {
-                        <div class="form-check">
-                            <input class="form-check-input"
-                                   type="radio"
-                                   name="ReasonCode"
-                                   value="@((int)reason)"
-                                   required />
-
-                            <label class="form-check-label">
-                                @reason.GetDisplayName()
-                            </label>
-                        </div>
-                    }
-
-                    <!-- Other 補充說明 -->
-                    <div class="mt-3 d-none" id="otherBox">
-                        <textarea name="Description"
-                                  class="form-control"
-                                  placeholder="請說明原因..."></textarea>
-                    </div>
-
-                </div>
-
-                <div class="modal-footer">
-                    <button type="submit"
-                            class="btn btn-danger">
-                        送出檢舉
-                    </button>
-                </div>
-
-            </form>
-
-        </div>
-    </div>
-</div>
-
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-
-        // 設定 CommentID
-        document.querySelectorAll(".btn-report")
-            .forEach(btn => {
-                btn.addEventListener("click", function () {
-                    document.getElementById("reportCommentId")
-                        .value = this.dataset.id;
-                });
-            });
-
-        // 控制 Other 顯示
-        document.querySelectorAll("input[name='ReasonCode']")
-            .forEach(radio => {
-                radio.addEventListener("change", function () {
-
-                    const otherValue = "@((int)CommentReportReason.Other)";
-                    const box = document.getElementById("otherBox");
-
-                    if (this.value === otherValue) {
-                        box.classList.remove("d-none");
-                    } else {
-                        box.classList.add("d-none");
-                    }
-                });
-            });
-
-    });
-</script>

@@ -13,10 +13,10 @@ namespace CraftDailyCorner.Seed.Datas
 
         public void Run()
         {
-            if (_context.PostCommentReportStatuses.Any()) return;
+            if (_context.ReportStatuses.Any()) return;
 
-            _context.PostCommentReportStatuses.AddRange(
-                new PostCommentReportStatus
+            _context.ReportStatuses.AddRange(
+                new ReportStatus
                 {
                     StatusID = 1,
                     StatusCode = "Pending",
@@ -24,7 +24,7 @@ namespace CraftDailyCorner.Seed.Datas
                     Description = "尚未審核",
                     IsActive = true
                 },
-                new PostCommentReportStatus
+                new ReportStatus
                 {
                     StatusID = 2,
                     StatusCode = "Violation",
@@ -32,7 +32,7 @@ namespace CraftDailyCorner.Seed.Datas
                     Description = "確認違規",
                     IsActive = false
                 },
-                new PostCommentReportStatus
+                new ReportStatus
                 {
                     StatusID = 3,
                     StatusCode = "Normal",

@@ -26,32 +26,39 @@ namespace CraftDailyCorner.Models
         [Display(Name ="狀態")]
         public byte StatusID { get; set; }
 
+        [Display(Name = "惡意檢舉次數")]
+        public int MaliciousReportCount { get; set; } = 0;
+
+        [Display(Name = "檢舉功能停權至")]
+        public DateTime? ReportBanUntil { get; set; }
+
         [HiddenInput]
         [Display(Name ="建立時間")]
         public DateTime CreatedAt { get; set; }= DateTime.Now;
 
         public virtual Privacy? Privacy { get; set; }
-        public virtual List<MemberRole>? MemberRoles { get; set; }
-        public virtual List<CreatorApplication>? CreatorApplications { get; set; }
-        public virtual List<CreatorApplication>? ReviewedCreatorApplications { get; set; }
-        public virtual CreatorProfile? CreatorProfile { get; set; }= null!;
-        public virtual List<Cart>? Carts { get; set; }
-        public virtual List<Order>? Orders { get; set; }
-        public virtual List<ProductReview>? ProductReviews { get; set; }
-        public virtual List<FavoriteProduct>? FavoriteProducts { get; set; }
-        public virtual List<FollowCreator>? FollowCreators { get; set; }
-        public virtual List<MessageThread>? MessageThreads { get; set; }
-        public virtual List<PlatformAnnouncement>? PlatformAnnouncements { get; set; }
-        public virtual List<HomepageBanner>? HomepageBanners { get; set; }
-        public virtual List<PlatformSetting>? PlatformSettings { get; set; }
-        public virtual List<NotificationPreference>? NotificationPreferences { get; set; }
-        public virtual List<NotificationEvent>? NotificationEvents { get; set; }
-        public virtual List<PostComment>? PostComments { get; set; }
-        public virtual List<Message>? Messages { get; set; }
-        public virtual List<PasswordResetToken>? PasswordResetTokens { get; set; }
+        public virtual List<MemberRole> MemberRoles { get; set; } = new List<MemberRole>();
+        public virtual List<CreatorApplication> CreatorApplications { get; set; } = new List<CreatorApplication>();
+        public virtual List<CreatorApplication> ReviewedCreatorApplications { get; set; } = new List<CreatorApplication>();
+        public virtual CreatorProfile? CreatorProfile { get; set; }
+        public virtual List<Cart> Carts { get; set; } = new List<Cart>();
+        public virtual List<Order> Orders { get; set; } = new List<Order>();
+        public virtual List<ProductReview> ProductReviews { get; set; } = new List<ProductReview>();
+        public virtual List<FavoriteProduct> FavoriteProducts { get; set; } = new List<FavoriteProduct>();
+        public virtual List<FollowCreator> FollowCreators { get; set; } = new List<FollowCreator>();
+        public virtual List<MessageThread> MessageThreads { get; set; } = new List<MessageThread>();
+        public virtual List<PlatformAnnouncement> PlatformAnnouncements { get; set; } = new List<PlatformAnnouncement>();
+        public virtual List<HomepageBanner> HomepageBanners { get; set; } = new List<HomepageBanner>();
+        public virtual List<PlatformSetting> PlatformSettings { get; set; } = new List<PlatformSetting>();
+        public virtual List<NotificationPreference> NotificationPreferences { get; set; } = new List<NotificationPreference>();
+        public virtual List<NotificationEvent> NotificationEvents { get; set; } = new List<NotificationEvent>();
+        public virtual List<PostComment> PostComments { get; set; } = new List<PostComment>();
+        public virtual List<Message> Messages { get; set; } = new List<Message>();
+        public virtual List<PasswordResetToken> PasswordResetTokens { get; set; } = new List<PasswordResetToken>();
         public virtual MemberStatus? MemberStatus { get; set; }
-        public virtual List<PostCommentReport>? PostCommentReports { get; set; }
-        public virtual List<MemberRoleHistory> RoleChangeHistories { get; set; } = null!;
-        public virtual List<MemberRoleHistory> OperatedRoleHistories { get; set; } = null!;
+        public virtual List<MemberRoleHistory> RoleChangeHistories { get; set; } = new List<MemberRoleHistory>();
+        public virtual List<MemberRoleHistory> OperatedRoleHistories { get; set; } = new List<MemberRoleHistory>();
+        public virtual List<Report> ReportsCreated { get; set; } = new List<Report>();
+        public virtual List<Report> ReportsReviewed { get; set; } = new List<Report>();
     }
 }

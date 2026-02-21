@@ -2,7 +2,7 @@
 
 namespace CraftDailyCorner.Models.Enums
 {
-    public enum CommentReportReason
+    public enum ReportReason
     {
         [Display(Name = "垃圾訊息")]
         Spam = 1,

@@ -60,8 +60,8 @@ namespace CraftDailyCorner.Models
         public DbSet<PlatformAnnouncementStatus> PlatformAnnouncementStatuses => Set<PlatformAnnouncementStatus>();
         public DbSet<HomepageBannerStatus> HomepageBannerStatuses => Set<HomepageBannerStatus>();
         public DbSet<PlatformSettingCategory> PlatformSettingCategories => Set<PlatformSettingCategory>();
-        public DbSet<PostCommentReport> PostCommentReports => Set<PostCommentReport>();
-        public DbSet<PostCommentReportStatus> PostCommentReportStatuses => Set<PostCommentReportStatus>();
+        public DbSet<Report> Reports => Set<Report>();
+        public DbSet<ReportStatus> ReportStatuses => Set<ReportStatus>();
 
         #endregion
 
@@ -115,8 +115,8 @@ namespace CraftDailyCorner.Models
             modelBuilder.Entity<PlatformAnnouncementStatus>().HasKey(x => x.StatusID);
             modelBuilder.Entity<HomepageBannerStatus>().HasKey(x => x.StatusID);
             modelBuilder.Entity<PlatformSettingCategory>().HasKey(x => x.CategoryID);
-            modelBuilder.Entity<PostCommentReport>().HasKey(x => x.ReportID);
-            modelBuilder.Entity<PostCommentReportStatus>().HasKey(x => x.StatusID);
+            modelBuilder.Entity<Report>().HasKey(x => x.ReportID);
+            modelBuilder.Entity<ReportStatus>().HasKey(x => x.StatusID);
 
             #endregion
 
@@ -518,21 +518,21 @@ namespace CraftDailyCorner.Models
                 .HasForeignKey(ps => ps.CategoryID)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            modelBuilder.Entity<PostCommentReport>()
-                .HasOne(pcr => pcr.Member)
-                .WithMany(pcrs => pcrs.PostCommentReports)
-                .HasForeignKey(pcr => pcr.MemberID)
+            modelBuilder.Entity<Report>()
+                .HasOne(r => r.Reporter)
+                .WithMany(m => m.ReportsCreated)
+                .HasForeignKey(r => r.MemberID)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            modelBuilder.Entity<PostCommentReport>()
-                .HasOne(pcr => pcr.PostComment)
-                .WithMany(pcrs => pcrs.PostCommentReports)
-                .HasForeignKey(pcr => pcr.CommentID)
+            modelBuilder.Entity<Report>()
+                .HasOne(r => r.Reviewer)
+                .WithMany(m => m.ReportsReviewed)
+                .HasForeignKey(r => r.ReviewedBy)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            modelBuilder.Entity<PostCommentReportStatus>()
-                .HasMany(pcrs => pcrs.PostCommentReports)
-                .WithOne(pcr => pcr.PostCommentReportStatus)
+            modelBuilder.Entity<ReportStatus>()
+                .HasMany(pcrs => pcrs.Reports)
+                .WithOne(pcr => pcr.ReportStatus)
                 .HasForeignKey(pcr => pcr.StatusID)
                 .OnDelete(DeleteBehavior.Restrict);
 
@@ -614,7 +614,7 @@ namespace CraftDailyCorner.Models
                 .HasIndex(psc => psc.CategoryCode)
                 .IsUnique();
 
-            modelBuilder.Entity<PostCommentReportStatus>()
+            modelBuilder.Entity<ReportStatus>()
                 .HasIndex(pcrs => pcrs.StatusCode)
                 .IsUnique();
 
@@ -624,6 +624,10 @@ namespace CraftDailyCorner.Models
 
             modelBuilder.Entity<FollowCreator>()
                 .HasIndex(e => new { e.MemberID, e.CreatorID })
+                .IsUnique();
+
+            modelBuilder.Entity<Report>()
+                .HasIndex(r => new { r.ReportType, r.TargetID, r.MemberID })
                 .IsUnique();
 
             #endregion

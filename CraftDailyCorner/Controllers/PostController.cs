@@ -1,7 +1,6 @@
 ﻿using CraftDailyCorner.DTOs;
 using CraftDailyCorner.Extensions;
-using CraftDailyCorner.Services;
-using CraftDailyCorner.Services.ReportCommentRe;
+
 using CraftDailyCorner.Services.Interface;
 using CraftDailyCorner.ViewModels.CreatorPost;
 using Microsoft.AspNetCore.Authorization;
@@ -12,12 +11,10 @@ namespace CraftDailyCorner.Controllers
     public class PostController : Controller
     {
         private readonly ICreatorPostService _postService;
-        private readonly IPostCommentReportService _postCommentReportService;
 
-        public PostController(ICreatorPostService postService, IPostCommentReportService postCommentReportService)
+        public PostController(ICreatorPostService postService)
         {
             _postService = postService;
-            _postCommentReportService = postCommentReportService;
         }
         public IActionResult Test()
         {

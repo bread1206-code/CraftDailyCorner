@@ -1,6 +1,5 @@
 ﻿using CraftDailyCorner.DTOs;
 using CraftDailyCorner.Extensions;
-using CraftDailyCorner.Services.ReportCommentRe;
 using CraftDailyCorner.Services.Interface;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -35,39 +34,5 @@ namespace CraftDailyCorner.Controllers
                 vm);
         }
 
-        [HttpPost]
-        [Authorize(Roles = "02")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ReportAsync(ReportPostCommentDTO dto)
-        {
-            var memberId = User.GetMemberId();
-
-            var result = await _creatorPostCommentService
-                .ReportAsync(dto, memberId);
-
-            switch (result.Result)
-            {
-                case ReportCommentResult.Success:
-                    TempData["Success"] = "檢舉已送出";
-                    break;
-
-                case ReportCommentResult.AlreadyReported:
-                    TempData["Warning"] = "您已檢舉過此留言";
-                    break;
-
-                case ReportCommentResult.Forbidden:
-                    return Forbid();
-
-                case ReportCommentResult.NotFound:
-                    return NotFound();
-            }
-
-            return RedirectToAction(
-                "Detail",
-                "Post",
-                new { id = result.PostId });
-        }
-
-        
     }
 }

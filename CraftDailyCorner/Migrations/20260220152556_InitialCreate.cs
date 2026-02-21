@@ -199,21 +199,6 @@ namespace CraftDailyCorner.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "PostCommentReportStatuses",
-                columns: table => new
-                {
-                    StatusID = table.Column<byte>(type: "tinyint", nullable: false),
-                    StatusCode = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    StatusName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
-                    IsActive = table.Column<bool>(type: "bit", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_PostCommentReportStatuses", x => x.StatusID);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "ProductImageStatuses",
                 columns: table => new
                 {
@@ -241,6 +226,21 @@ namespace CraftDailyCorner.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_ProductStatuses", x => x.StatusID);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ReportStatuses",
+                columns: table => new
+                {
+                    StatusID = table.Column<byte>(type: "tinyint", nullable: false),
+                    StatusCode = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    StatusName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ReportStatuses", x => x.StatusID);
                 });
 
             migrationBuilder.CreateTable(
@@ -294,6 +294,8 @@ namespace CraftDailyCorner.Migrations
                     ImageUrl = table.Column<string>(type: "nvarchar(36)", maxLength: 36, nullable: true),
                     DisplayName = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
                     StatusID = table.Column<byte>(type: "tinyint", nullable: false),
+                    MaliciousReportCount = table.Column<int>(type: "int", nullable: false),
+                    ReportBanUntil = table.Column<DateTime>(type: "datetime2", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
@@ -1189,39 +1191,47 @@ namespace CraftDailyCorner.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "PostCommentReports",
+                name: "Reports",
                 columns: table => new
                 {
                     ReportID = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
+                    ReportType = table.Column<byte>(type: "tinyint", nullable: false),
+                    TargetID = table.Column<string>(type: "nvarchar(36)", maxLength: 36, nullable: false),
                     ReasonCode = table.Column<int>(type: "int", maxLength: 20, nullable: false),
                     Description = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: true),
-                    ReviewedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ReviewedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    CommentID = table.Column<string>(type: "nchar(36)", nullable: false),
                     MemberID = table.Column<string>(type: "nchar(8)", nullable: false),
-                    StatusID = table.Column<byte>(type: "tinyint", nullable: false)
+                    StatusID = table.Column<byte>(type: "tinyint", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    ReviewedBy = table.Column<string>(type: "nchar(8)", nullable: true),
+                    ReviewedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    PostCommentCommentID = table.Column<string>(type: "nchar(36)", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_PostCommentReports", x => x.ReportID);
+                    table.PrimaryKey("PK_Reports", x => x.ReportID);
                     table.ForeignKey(
-                        name: "FK_PostCommentReports_Members_MemberID",
+                        name: "FK_Reports_Members_MemberID",
                         column: x => x.MemberID,
                         principalTable: "Members",
                         principalColumn: "MemberID",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_PostCommentReports_PostCommentReportStatuses_StatusID",
-                        column: x => x.StatusID,
-                        principalTable: "PostCommentReportStatuses",
-                        principalColumn: "StatusID",
+                        name: "FK_Reports_Members_ReviewedBy",
+                        column: x => x.ReviewedBy,
+                        principalTable: "Members",
+                        principalColumn: "MemberID",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_PostCommentReports_PostComments_CommentID",
-                        column: x => x.CommentID,
+                        name: "FK_Reports_PostComments_PostCommentCommentID",
+                        column: x => x.PostCommentCommentID,
                         principalTable: "PostComments",
-                        principalColumn: "CommentID",
+                        principalColumn: "CommentID");
+                    table.ForeignKey(
+                        name: "FK_Reports_ReportStatuses_StatusID",
+                        column: x => x.StatusID,
+                        principalTable: "ReportStatuses",
+                        principalColumn: "StatusID",
                         onDelete: ReferentialAction.Restrict);
                 });
 
@@ -1537,27 +1547,6 @@ namespace CraftDailyCorner.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_PostCommentReports_CommentID",
-                table: "PostCommentReports",
-                column: "CommentID");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_PostCommentReports_MemberID",
-                table: "PostCommentReports",
-                column: "MemberID");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_PostCommentReports_StatusID",
-                table: "PostCommentReports",
-                column: "StatusID");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_PostCommentReportStatuses_StatusCode",
-                table: "PostCommentReportStatuses",
-                column: "StatusCode",
-                unique: true);
-
-            migrationBuilder.CreateIndex(
                 name: "IX_PostComments_MemberID",
                 table: "PostComments",
                 column: "MemberID");
@@ -1631,6 +1620,38 @@ namespace CraftDailyCorner.Migrations
                 name: "IX_ProductTags_TagID",
                 table: "ProductTags",
                 column: "TagID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Reports_MemberID",
+                table: "Reports",
+                column: "MemberID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Reports_PostCommentCommentID",
+                table: "Reports",
+                column: "PostCommentCommentID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Reports_ReportType_TargetID_MemberID",
+                table: "Reports",
+                columns: new[] { "ReportType", "TargetID", "MemberID" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Reports_ReviewedBy",
+                table: "Reports",
+                column: "ReviewedBy");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Reports_StatusID",
+                table: "Reports",
+                column: "StatusID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ReportStatuses_StatusCode",
+                table: "ReportStatuses",
+                column: "StatusCode",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Shipments_OrderID",
@@ -1708,9 +1729,6 @@ namespace CraftDailyCorner.Migrations
                 name: "PortfolioItems");
 
             migrationBuilder.DropTable(
-                name: "PostCommentReports");
-
-            migrationBuilder.DropTable(
                 name: "Privacies");
 
             migrationBuilder.DropTable(
@@ -1724,6 +1742,9 @@ namespace CraftDailyCorner.Migrations
 
             migrationBuilder.DropTable(
                 name: "ProductTags");
+
+            migrationBuilder.DropTable(
+                name: "Reports");
 
             migrationBuilder.DropTable(
                 name: "Shipments");
@@ -1762,12 +1783,6 @@ namespace CraftDailyCorner.Migrations
                 name: "Portfolios");
 
             migrationBuilder.DropTable(
-                name: "PostCommentReportStatuses");
-
-            migrationBuilder.DropTable(
-                name: "PostComments");
-
-            migrationBuilder.DropTable(
                 name: "Categories");
 
             migrationBuilder.DropTable(
@@ -1775,6 +1790,12 @@ namespace CraftDailyCorner.Migrations
 
             migrationBuilder.DropTable(
                 name: "Tags");
+
+            migrationBuilder.DropTable(
+                name: "PostComments");
+
+            migrationBuilder.DropTable(
+                name: "ReportStatuses");
 
             migrationBuilder.DropTable(
                 name: "Orders");

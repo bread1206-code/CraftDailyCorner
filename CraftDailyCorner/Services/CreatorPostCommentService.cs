@@ -4,7 +4,7 @@ using CraftDailyCorner.Models.Enums;
 using CraftDailyCorner.Services.Interface;
 using CraftDailyCorner.ViewModels.CreatorPost;
 using Microsoft.EntityFrameworkCore;
-using CraftDailyCorner.Services.ReportCommentRe;
+
 
 namespace CraftDailyCorner.Services.Creator
 {
@@ -73,73 +73,12 @@ namespace CraftDailyCorner.Services.Creator
                     Content = c.Content,
                     CreatedAt = c.CreatedAt,
                     Status = c.Status,
-
-                    CanReport =
-                        currentCreatorId != null &&
-                        c.CreatorPost.CreatorID == currentCreatorId &&
-                        c.MemberID != currentMemberId
+                    IsOwner = c.MemberID == currentMemberId
             }).ToListAsync();
         }
 
 
-        //檢舉留言
-        public async Task<ReportCommentResponse> ReportAsync(ReportPostCommentDTO dto,string reporterId)
-        {
-            var comment = await _context.PostComments
-                .Include(c => c.CreatorPost)
-                .FirstOrDefaultAsync(c => c.CommentID == dto.CommentID);
-
-            if (comment == null)
-                return new ReportCommentResponse
-                {
-                    Result = ReportCommentResult.NotFound
-                };
-
-            var creatorProfile = await _context.CreatorProfiles
-                .FirstOrDefaultAsync(c => c.MemberID == reporterId);
-
-            if (creatorProfile == null ||
-                comment.CreatorPost.CreatorID != creatorProfile.CreatorID)
-            {
-                return new ReportCommentResponse
-                {
-                    Result = ReportCommentResult.Forbidden
-                };
-            }
-
-            var exists = await _context.PostCommentReports
-                .AnyAsync(r =>
-                    r.CommentID == dto.CommentID &&
-                    r.MemberID == reporterId);
-
-            if (exists)
-                return new ReportCommentResponse
-                {
-                    Result = ReportCommentResult.AlreadyReported,
-                    PostId = comment.PostID
-                };
-
-            var report = new PostCommentReport
-            {
-                CommentID = dto.CommentID,
-                MemberID = reporterId,
-                ReasonCode = dto.ReasonCode,
-                Description =
-                    dto.ReasonCode == CommentReportReason.Other
-                        ? dto.Description?.Trim()
-                        : null,
-                StatusID = 1
-            };
-
-            _context.PostCommentReports.Add(report);
-            await _context.SaveChangesAsync();
-
-            return new ReportCommentResponse
-            {
-                Result = ReportCommentResult.Success,
-                PostId = comment.PostID
-            };
-        }
+        
 
         //建構留言
         public async Task<VMPostCommentItem>
@@ -162,11 +101,7 @@ namespace CraftDailyCorner.Services.Creator
                     Content = c.Content,
                     CreatedAt = c.CreatedAt,
                     Status = c.Status,
-
-                    CanReport =
-                        currentCreatorId != null &&
-                        c.CreatorPost.CreatorID == currentCreatorId &&
-                        c.MemberID != currentMemberId
+                    IsOwner = c.MemberID == currentMemberId
                 })
                 .FirstAsync();
         }
