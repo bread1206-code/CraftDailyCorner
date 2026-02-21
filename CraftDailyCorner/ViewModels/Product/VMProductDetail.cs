@@ -34,6 +34,7 @@ namespace CraftDailyCorner.ViewModels.Product
 
         // 使用者狀態
         public bool IsFavorite { get; set; }
+        public bool IsOwner { get; set; }
 
         // UI 行為
         public int MaxPurchaseQty => StockQty;   // 給 input max 用

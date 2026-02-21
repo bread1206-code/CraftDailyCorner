@@ -66,12 +66,10 @@ namespace CraftDailyCorner.Services.Creator
         // ===============================
         // 前台單篇
         // ===============================
-        public async Task<VMPostDetail?> GetPostDetailAsync(string postId)
+        public async Task<VMPostDetail?> GetPostDetailAsync(string postId,string? currentMemberId)
         {
             return await _context.CreatorPosts
-                .Where(p =>
-                    p.PostID == postId &&
-                    p.StatusID == 1)
+                .Where(p => p.PostID == postId && p.StatusID == 1)
                 .Select(p => new VMPostDetail
                 {
                     PostID = p.PostID,
@@ -80,7 +78,10 @@ namespace CraftDailyCorner.Services.Creator
                     ImageUrl = p.ImageUrl,
                     CreatorName = p.CreatorProfile.DisplayName,
                     CreatedAt = p.CreatedAt,
-                    UpdatedAt = p.UpdatedAt
+                    UpdatedAt = p.UpdatedAt,
+
+                    IsOwner = currentMemberId != null &&
+                              p.CreatorProfile.MemberID == currentMemberId
                 })
                 .FirstOrDefaultAsync();
         }

@@ -163,6 +163,8 @@ namespace CraftDailyCorner.Services
                     .ToList(),
 
                 IsFavorite = isFavorite,
+                IsOwner = memberId != null &&
+                              product.CreatorProfile.MemberID == memberId,
                 Breadcrumb = BuildProductDetailBreadcrumb(product)
             };
         }

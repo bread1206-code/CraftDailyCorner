@@ -69,7 +69,7 @@ namespace CraftDailyCorner.Services.Creator
         //前台 Detail
 
         public async Task<VMPortfolioDetail?> GetPublicPortfolioDetailAsync(
-            string portfolioId)
+            string portfolioId, string? currentMemberId)
         {
             return await _context.Portfolios
                 .Where(p =>
@@ -83,6 +83,7 @@ namespace CraftDailyCorner.Services.Creator
                     Description = p.Description!,
                     CreatedAt = p.CreatedAt,
                     CreatorName = p.CreatorProfile.DisplayName,
+                    IsOwner = p.CreatorProfile.MemberID == currentMemberId,
                     Items = p.PortfolioItems
                         .OrderBy(i => i.SortOrder)
                         .Select(i => new VMPortfolioDetailItem

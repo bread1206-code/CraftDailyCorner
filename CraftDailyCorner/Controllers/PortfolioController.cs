@@ -38,8 +38,10 @@ namespace CraftDailyCorner.Controllers.Front
 
         public async Task<IActionResult> Detail(string id)
         {
+            var currentMemberId = User.GetMemberId();
+               
             var vm = await _portfolioService
-                .GetPublicPortfolioDetailAsync(id);
+                .GetPublicPortfolioDetailAsync(id, currentMemberId);
 
             if (vm == null)
                 return NotFound();

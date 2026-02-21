@@ -129,21 +129,6 @@ namespace CraftDailyCorner.Services
                         ? (false, null, null)
                         : (true, product.CreatorID, null);
 
-                //檢舉商品評價
-                case ReportTargetType.Review:
-                    if (!long.TryParse(targetId, out long reviewId))
-                        return (false, null, null);
-
-                    var review = await _context.ProductReviews
-                        .FirstOrDefaultAsync(x => x.ReviewID == reviewId);
-
-                    if (review == null)
-                        return (false, null, null);
-                    
-                    // OwnerId = 評價會員ID
-                    return (true, review.MemberID, null);
-                    
-
                 //檢舉作品集
                 case ReportTargetType.Portfolio:
                     var portfolio = await _context.Portfolios

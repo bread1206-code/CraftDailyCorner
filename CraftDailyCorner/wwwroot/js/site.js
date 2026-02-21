@@ -346,3 +346,69 @@ document.addEventListener("change", function (e) {
     }
 
 });
+
+/*檢舉 */
+    // AJAX 檢舉送出
+    document.addEventListener("submit", async function(e) {
+
+        if (!e.target.classList.contains("report-form"))
+            return;
+
+        e.preventDefault();
+
+        const form = e.target;
+        const formData = new FormData(form);
+
+        const token = form.querySelector("input[name='__RequestVerificationToken']").value;
+
+        try {
+
+            const response = await fetch(form.action, {
+                method: "POST",
+                headers: {
+                    "RequestVerificationToken": token
+                },
+                body: formData
+            });
+            if (!response.ok) {
+                showReportStamp("發生錯誤");
+                return;
+            }
+            const data = await response.json();
+
+            if (data.result === "Success") {
+                    showReportStamp("檢舉成功");
+                }
+                else if (data.result === "AlreadyReported") {
+                    showReportStamp("您已檢舉過");
+                }
+
+            // 關閉 modal
+            const modalEl = form.closest(".modal");
+            const modal = bootstrap.Modal.getInstance(modalEl);
+            if (modal) modal.hide();
+
+        } catch (error) {
+            showToast("Error");
+        }
+
+    });
+/*動畫 */
+function showReportStamp(text = "檢舉已送出") {
+
+    const overlay = document.getElementById("report-stamp-overlay");
+    if (!overlay) return;
+
+    // 動態改文字
+    overlay.style.setProperty("--stamp-text", `"${text}"`);
+
+    overlay.classList.add("show");
+    overlay.style.display = "block";
+
+    // 動畫結束後隱藏
+    overlay.addEventListener("animationend", function handler() {
+        overlay.classList.remove("show");
+        overlay.style.display = "none";
+        overlay.removeEventListener("animationend", handler);
+    });
+} 

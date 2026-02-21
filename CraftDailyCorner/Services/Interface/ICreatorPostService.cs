@@ -7,7 +7,7 @@ namespace CraftDailyCorner.Services.Interface
     {
         // 前台
         Task<VMPostIndex> GetPostIndexAsync(VMPostIndexQuery query);
-        Task<VMPostDetail?> GetPostDetailAsync(string postId);
+        Task<VMPostDetail?> GetPostDetailAsync(string postId, string? currentMemberId);
         Task<bool> CanViewPostAsync(string postId, string? memberId);
 
         // 後台

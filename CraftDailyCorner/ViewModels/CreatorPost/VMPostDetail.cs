@@ -32,5 +32,7 @@ namespace CraftDailyCorner.ViewModels.CreatorPost
 
         public bool IsUpdated =>
             UpdatedAt > CreatedAt;
+
+        public bool IsOwner { get; set; }
     }
 }

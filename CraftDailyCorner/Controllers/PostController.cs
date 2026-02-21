@@ -47,9 +47,11 @@ namespace CraftDailyCorner.Controllers
 
             if (!canView)
                 return Forbid();
-
+            var currentMemberId = User.Identity?.IsAuthenticated == true
+                ? User.GetMemberId()
+                : null;
             var post = await _postService
-                .GetPostDetailAsync(id);
+                .GetPostDetailAsync(id, currentMemberId);
 
             if (post == null)
                 return NotFound();

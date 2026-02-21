@@ -30,70 +30,11 @@ namespace CraftDailyCorner.Controllers
             var result = await _reportService
                 .ReportAsync(dto, memberId);
 
-            switch (result.Result)
+            return Json(new
             {
-                case ReportResponseEnum.Success:
-                    TempData["Success"] = "檢舉已送出";
-                    break;
-
-                case ReportResponseEnum.AlreadyReported:
-                    TempData["Warning"] = "您已檢舉過此內容";
-                    break;
-
-                case ReportResponseEnum.Forbidden:
-                    return Forbid();
-
-                case ReportResponseEnum.NotFound:
-                    return NotFound();
-            }
-
-            //根據檢舉類型決定導頁
-            return RedirectByReportType(dto, result);
+                result = result.Result.ToString()
+            });
         }
 
-        // --------------------------------------------------
-        // 根據不同檢舉類型導回對應頁面
-        // --------------------------------------------------
-        private IActionResult RedirectByReportType(
-            ReportDTO dto,
-            ReportResponse result)
-        {
-            switch (dto.ReportType)
-            {
-                case ReportTargetType.Comment:
-                    return RedirectToAction(
-                        "Detail",
-                        "Post",
-                        new { id = result.TargetID });
-
-                case ReportTargetType.Post:
-                    return RedirectToAction(
-                        "Detail",
-                        "Post",
-                        new { id = dto.TargetID });
-
-                case ReportTargetType.Product:
-                    return RedirectToAction(
-                        "Detail",
-                        "Product",
-                        new { id = dto.TargetID });
-
-                case ReportTargetType.Review:
-                    // 評價通常在商品頁
-                    return RedirectToAction(
-                        "Detail",
-                        "Product",
-                        new { id = result.TargetID });
-
-                case ReportTargetType.Portfolio:
-                    return RedirectToAction(
-                        "Detail",
-                        "CreatorPortfolio",
-                        new { id = dto.TargetID });
-
-                default:
-                    return RedirectToAction("Index", "Home");
-            }
-        }
     }
 }

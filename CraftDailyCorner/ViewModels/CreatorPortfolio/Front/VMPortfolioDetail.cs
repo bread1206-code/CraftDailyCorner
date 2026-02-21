@@ -7,6 +7,7 @@
         public string? Description { get; set; }
         public string CreatorName { get; set; } = null!;
         public DateTime CreatedAt { get; set; }
+        public bool IsOwner { get; set; }
 
         public List<VMPortfolioDetailItem> Items { get; set; } = new();
     }
