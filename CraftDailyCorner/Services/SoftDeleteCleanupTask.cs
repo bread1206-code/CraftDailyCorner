@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CraftDailyCorner.Services
 {
-    public class PortfolioItemCleanupTask : ISoftDeleteCleanupTask
+    public class SoftDeleteCleanupTask : ISoftDeleteCleanupTask
     {
         public async Task CleanupAsync(IServiceProvider serviceProvider)
         {
