@@ -1,6 +1,10 @@
-﻿    public enum MemberRoleHistoryOperated : byte
+﻿using System.ComponentModel.DataAnnotations;
+
+public enum MemberRoleHistoryOperated : byte
 {
+    [Display(Name = "系統")]
     System=0,//系統
-    Admin=1 //管理者
+        [Display(Name = "管理者")]
+    Admin =1 //管理者
 }
 

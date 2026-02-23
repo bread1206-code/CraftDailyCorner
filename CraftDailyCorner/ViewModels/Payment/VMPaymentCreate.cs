@@ -1,0 +1,24 @@
+﻿using CraftDailyCorner.Models;
+
+namespace CraftDailyCorner.ViewModels.Payment
+{
+    //使用者「前往付款頁」時用
+    public class VMPaymentCreate
+    {
+        // 訂單資訊
+        public string OrderID { get; set; } = string.Empty;
+        public decimal OrderAmount { get; set; }
+
+        // 顯示用
+        public DateTime OrderCreatedAt { get; set; }
+
+        // 付款方式
+        public byte SelectedMethodID { get; set; }
+        public List<VMPaymentMethod> PaymentMethods { get; set; } = new();
+
+        // Mock 用
+        public bool IsMockPayment { get; set; } = true;
+
+        public bool IsPaid { get; set; }
+    }
+}

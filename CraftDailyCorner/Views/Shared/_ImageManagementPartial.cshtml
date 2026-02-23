@@ -1,0 +1,131 @@
+﻿@model CraftDailyCorner.ImageManagementCore.ViewModels.VMImageManagement
+
+<div id="imageManagement"
+     data-entity-id="@Model.EntityId"
+     data-entity-type="@Model.EntityType"
+     data-max-count="@Model.MaxImageCount">
+
+    @Html.AntiForgeryToken()
+
+    <!-- ========================= -->
+    <!-- 標題與提示 -->
+    <!-- ========================= -->
+
+    <div class="mb-3">
+        <h5 class="fw-bold mb-1">圖片管理</h5>
+
+        @if (!string.IsNullOrEmpty(Model.HintMessage))
+        {
+            <div class="text-muted small">
+                @Model.HintMessage 、可以拖曳排序。
+            </div>
+        }
+    </div>
+
+    <!-- ========================= -->
+    <!-- 上傳區塊 -->
+    <!-- ========================= -->
+
+    <div class="mb-4">
+
+        <label class="form-label fw-semibold">新增圖片</label>
+
+        <input type="file"
+               id="imageUploadInput"
+               class="form-control"
+               multiple
+               accept="image/png,image/jpeg"
+               @(Model.MaxImageCount.HasValue &&
+                              Model.Images.Count >= Model.MaxImageCount ? "disabled" : "") />
+
+        <button type="button"
+                id="uploadImagesBtn"
+                class="btn btn-primary mt-2"
+                @(Model.MaxImageCount.HasValue &&
+                                Model.Images.Count >= Model.MaxImageCount ? "disabled" : "")>
+            上傳圖片
+        </button>
+
+        @if (Model.MaxImageCount.HasValue &&
+                Model.Images.Count >= Model.MaxImageCount)
+        {
+            <div class="text-danger small mt-2">
+                已達圖片上限，請刪除後再上傳。
+            </div>
+        }
+    </div>
+
+    <!-- ========================= -->
+    <!-- 快速刪除 -->
+    <!-- ========================= -->
+
+    <div class="form-check form-switch mb-3">
+        <input class="form-check-input"
+               type="checkbox"
+               id="quickDeleteToggle">
+
+        <label class="form-check-label text-danger fw-semibold">
+            快速刪除模式
+        </label>
+    </div>
+
+    <div id="quickDeleteAlert"
+         class="alert alert-warning py-2 d-none">
+        ⚠ 已開啟快速刪除模式，點擊刪除將不再詢問。
+    </div>
+
+    <!-- ========================= -->
+    <!-- 圖片列表 -->
+    <!-- ========================= -->
+
+    <div id="imageList" class="row g-3">
+
+        @if (!Model.Images.Any())
+        {
+            <div class="text-muted">
+                尚未上傳圖片
+            </div>
+        }
+
+        @foreach (var img in Model.Images)
+        {
+            <div class="col-md-3 imageItem"
+                 data-image-id="@img.ImageId">
+
+                <div class="card shadow-sm h-100">
+
+                    <!-- 圖片 -->
+                    <img src="@img.ImageUrl"
+                         class="card-img-top"
+                         style="height:200px;object-fit:cover;" />
+
+                    <!-- 控制區 -->
+                    <div class="card-body text-center">
+
+                        @if (img.SortOrder == 1)
+                        {
+                            <span class="badge bg-success mb-1">封面</span>
+                        }
+                        else
+                        {
+                            <span class="text-muted small mb-1 sortLabel">
+                                排序：@img.SortOrder
+                            </span>
+                        }
+
+                        <span class="ms-2">
+                            <button type="button"
+                                    class="btn btn-sm btn-outline-danger deleteBtn"
+                                    data-image-id="@img.ImageId">
+                                刪除
+                            </button>
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+        }
+    </div>
+</div>

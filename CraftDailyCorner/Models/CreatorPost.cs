@@ -10,12 +10,15 @@ namespace CraftDailyCorner.Models
         [Column(TypeName = "nchar(36)")]
         [Display(Name = "日誌編號")]
         public string PostID { get; set; } = null!;
+        [Required]
         [StringLength(50, MinimumLength = 1)]
         [Display(Name = "標題")]
         public string Title { get; set; } = null!;
+        [Required]
         [Column(TypeName = "nvarchar(max)")]
         [Display(Name = "內容")]
         public string Content { get; set; } = null!;
+        [Required]
         [Column(TypeName = "nchar(36)")]
         [Display(Name ="日誌圖片")]
         public string ImageUrl { get; set; } = null!;
@@ -35,7 +38,7 @@ namespace CraftDailyCorner.Models
 
         // 導覽屬性
         public virtual CreatorProfile CreatorProfile { get; set; } = null!;
-        public virtual List<PostComment>? PostComments { get; set; }
+        public virtual List<PostComment>? PostComments { get; set; } = new();
         public virtual CreatorPostStatus CreatorPostStatus { get; set; } = null!;
     }
 }

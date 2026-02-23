@@ -1,0 +1,13 @@
+﻿@using CraftDailyCorner.ViewModels.Report
+@model VMReport
+
+<button type="button"
+        class="btn btn-outline-secondary report-btn"
+        data-bs-toggle="modal"
+        data-bs-target="#reportModal-@Model.ReportType-@Model.TargetID">
+
+    <i class="bi bi-flag report-icon-outline"></i>
+    <i class="bi bi-flag-fill report-icon-fill"></i>
+</button>
+
+<partial name="_ReportModal" model="Model" />

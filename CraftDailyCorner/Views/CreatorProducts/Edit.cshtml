@@ -1,0 +1,246 @@
+﻿@using CraftDailyCorner.ViewModels.CreatorProduct
+@model VMCreatorProductForm
+
+@{
+    ViewData["Title"] = "編輯商品";
+}
+
+<div class="container py-5" style="max-width:1100px;">
+
+    <h2 class="fw-bold mb-4">編輯商品</h2>
+
+    <form asp-action="Edit" method="post">
+        @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="ProductID" />
+
+        <div asp-validation-summary="ModelOnly"
+             class="text-danger mb-3"></div>
+
+        <!-- ================= 基本資料 ================= -->
+
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-body">
+
+                <div class="mb-3">
+                    <label asp-for="ProductName" class="form-label fw-semibold"></label>
+                    <input asp-for="ProductName" class="form-control" />
+                    <span asp-validation-for="ProductName" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Description" class="form-label fw-semibold"></label>
+                    <textarea asp-for="Description"
+                              class="form-control"
+                              rows="4"></textarea>
+                    <span asp-validation-for="Description" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Price" class="form-label fw-semibold"></label>
+                    <input asp-for="Price"
+                           type="number"
+                           step="0.01"
+                           class="form-control" />
+                    <span asp-validation-for="Price" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="StatusID" class="form-label fw-semibold"></label>
+                    <select asp-for="StatusID"
+                            asp-items="Model.StatusSelectList"
+                            class="form-select">
+                    </select>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- ================= 庫存 ================= -->
+
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-header bg-light fw-semibold">
+                庫存設定
+            </div>
+
+            <div class="card-body">
+
+                <div class="mb-3">
+                    <label asp-for="StockQty" class="form-label fw-semibold"></label>
+                    <input asp-for="StockQty"
+                           type="number"
+                           class="form-control" />
+                    <span asp-validation-for="StockQty" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="AlertQty" class="form-label fw-semibold"></label>
+                    <input asp-for="AlertQty"
+                           type="number"
+                           class="form-control" />
+                    <span asp-validation-for="AlertQty" class="text-danger"></span>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- ================= 分類 ================= -->
+
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-header bg-light fw-semibold">
+                商品分類（最多 3 個）
+            </div>
+
+            <div class="card-body">
+
+                @foreach (var group in Model.CategoryGroups)
+                {
+                    <div class="mb-4">
+
+                        <h6 class="fw-bold border-bottom pb-2">
+                            @group.ParentCategoryName
+                        </h6>
+
+                        <div class="row mt-2">
+                            @foreach (var child in group.Children)
+                            {
+                                <div class="col-md-3 mb-2">
+                                    <div class="form-check">
+                                        <input class="form-check-input category-checkbox"
+                                               type="checkbox"
+                                               name="SelectedCategoryIds"
+                                               value="@child.CategoryID"
+                                               @(Model.SelectedCategoryIds.Contains(child.CategoryID) ? "checked" : "") />
+
+                                        <label class="form-check-label">
+                                            @child.CategoryName
+                                        </label>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+
+                <span asp-validation-for="SelectedCategoryIds"
+                      class="text-danger"></span>
+
+            </div>
+        </div>
+
+        <!-- ================= 標籤 ================= -->
+
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-header bg-light fw-semibold">
+                商品標籤（最多 10 個）
+            </div>
+
+            <div class="card-body">
+
+                <div class="row">
+                    @foreach (var tag in Model.TagSelectList)
+                    {
+                        <div class="col-md-3 mb-2">
+                            <div class="form-check">
+                                <input class="form-check-input tag-checkbox"
+                                       type="checkbox"
+                                       name="SelectedTagIds"
+                                       value="@tag.Value"
+                                       @(Model.SelectedTagIds.Contains(int.Parse(tag.Value)) ? "checked" : "") />
+
+                                <label class="form-check-label">
+                                    @tag.Text
+                                </label>
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                <span asp-validation-for="SelectedTagIds"
+                      class="text-danger"></span>
+
+            </div>
+        </div>
+
+        <!-- ================= 按鈕 ================= -->
+
+        <div class="text-end mb-4">
+            <a asp-action="Index"
+               class="btn btn-outline-secondary me-2">
+                取消
+            </a>
+
+            <button type="submit"
+                    class="btn btn-primary">
+                儲存修改
+            </button>
+        </div>
+
+    </form>
+
+    <!-- ================= 圖片管理 ================= -->
+
+    <div class="card shadow-sm border-0 mt-4">
+        <div class="card-body">
+            <div id="imageManagementContainer">
+                <!-- 由 AJAX 載入 -->
+            </div>
+        </div>
+    </div>
+
+</div>
+
+@section Scripts {
+
+    <partial name="_ValidationScriptsPartial" />
+
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
+    <script src="~/js/imageManagement.js"></script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", async function () {
+
+            // ===== 載入圖片管理 Partial =====
+            const productId = "@Model.ProductID";
+
+            const response = await fetch(
+                `/ImageManagement/ProductPartial/${productId}`
+            );
+
+            const html = await response.text();
+            document.getElementById("imageManagementContainer").innerHTML = html;
+
+            if (typeof initImageManagement === "function") {
+                initImageManagement();
+            }
+
+            // ===== 分類限制 =====
+            document.querySelectorAll(".category-checkbox")
+                .forEach(cb => {
+                    cb.addEventListener("change", function () {
+                        const checked =
+                            document.querySelectorAll(".category-checkbox:checked");
+
+                        if (checked.length > 3) {
+                            this.checked = false;
+                            alert("商品分類最多只能選 3 個");
+                        }
+                    });
+                });
+
+            // ===== 標籤限制 =====
+            document.querySelectorAll(".tag-checkbox")
+                .forEach(cb => {
+                    cb.addEventListener("change", function () {
+                        const checked =
+                            document.querySelectorAll(".tag-checkbox:checked");
+
+                        if (checked.length > 10) {
+                            this.checked = false;
+                            alert("商品標籤最多只能選 10 個");
+                        }
+                    });
+                });
+
+        });
+    </script>
+}

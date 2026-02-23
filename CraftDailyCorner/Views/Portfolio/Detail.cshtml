@@ -1,0 +1,73 @@
+﻿@using CraftDailyCorner.Models.enums
+@using CraftDailyCorner.ViewModels.Report
+@model CraftDailyCorner.ViewModels.CreatorPortfolio.Front.VMPortfolioDetail
+
+@{
+    ViewData["Title"] = Model.Title;
+}
+@section Styles
+{
+    <link rel="stylesheet" href="~/css/PortfolioDetail.css" />
+}
+
+<div class="container py-5" style="max-width:1100px;">
+
+    <!-- 標題區 -->
+    <div class="mb-5">
+        
+        <div class="d-flex justify-content-between align-items-center mb-0">
+
+            <div class="fw-bold h2">@Model.Title</div>
+
+            @if (!Model.IsOwner)
+            {
+                <partial name="_ReportButtonPartial"
+                         model="new VMReport
+                         {
+                             ReportType = ReportTargetType.Portfolio,
+                             TargetID = Model.PortfolioID
+                         }" />
+                        }
+
+        </div>
+        <div class="d-flex justify-content-between align-items-center">
+            <div class="text-muted text-content">
+                @Model.Description              
+            </div>
+            <div class="small text-secondary">
+                @Model.CreatorName · @Model.CreatedAt.ToString("yyyy/MM/dd")
+            </div>
+        </div>
+        
+    </div>
+
+    <!-- 畫廊區 -->
+    <div id="Portfoliocarousel" class="carousel slide carousel-fade" data-bs-ride="carousel">
+        <div class="carousel-inner">
+            @foreach (var item in Model.Items)
+            {
+                var a = item == Model.Items.First() ? "active" : "";
+
+                <div class="carousel-item @a">
+                    <img src="@($"/Photos/06Portfolio/Large/{item.ImageUrl}.png")"
+                         class="d-block w-100" />
+                </div>
+            }
+            
+
+        </div>
+        <button class="carousel-control-prev" type="button" data-bs-target="#Portfoliocarousel" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Previous</span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#Portfoliocarousel" data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Next</span>
+        </button>
+    </div>
+
+</div>
+
+@section Scripts {
+    <script src="/js/PortfolioDetail.js"></script>
+}

@@ -1,10 +1,7 @@
 ﻿using CraftDailyCorner.Models;
-using CraftDailyCorner.ViewModels;
-using CraftDailyCorner.ViewModels.Front;
-using CraftDailyCorner.ViewModels.Front.Breadcrumb;
-using CraftDailyCorner.ViewModels.Front.Product;
+using CraftDailyCorner.ViewModels.Breadcrumb;
+using CraftDailyCorner.ViewModels.Product;
 using Microsoft.EntityFrameworkCore;
-using System.Security.Claims;
 
 namespace CraftDailyCorner.Services
 {
@@ -166,6 +163,8 @@ namespace CraftDailyCorner.Services
                     .ToList(),
 
                 IsFavorite = isFavorite,
+                IsOwner = memberId != null &&
+                              product.CreatorProfile.MemberID == memberId,
                 Breadcrumb = BuildProductDetailBreadcrumb(product)
             };
         }

@@ -1,6 +1,5 @@
 ﻿using CraftDailyCorner.Services;
-using CraftDailyCorner.ViewModels.Front;
-using CraftDailyCorner.ViewModels.Front.Order;
+using CraftDailyCorner.ViewModels.Order;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -44,22 +43,22 @@ namespace CraftDailyCorner.Controllers
         }
 
         // GET: /Orders/Checkout
-        public IActionResult Checkout()
+        public IActionResult Checkout(string creatorId)
         {
             var memberId = GetMemberId();
+            if (string.IsNullOrEmpty(creatorId)) return RedirectToAction("Index", "Cart");
 
-            var items = _cartService.GetCartItemsForCheckout(memberId);
+            // 取得該創作者的商品清單
+            var allItems = _cartService.GetCartItemsForCheckout(memberId);
+            var filteredItems = allItems.Where(i => i.Product.CreatorId == creatorId).ToList();
 
-            if (!items.Any())
-            {
-                TempData["Error"] = "購物車是空的";
-                return RedirectToAction("Index", "Products");
-            }
+            if (!filteredItems.Any()) return RedirectToAction("Index", "Products");
 
             var vm = new VMCheckout
             {
-                Items = items,
-                TotalAmount = items.Sum(i => i.Product.Price * i.Quantity)
+                Items = filteredItems,
+                TotalAmount = filteredItems.Sum(i => i.Product.Price * i.Quantity),
+                CreatorId = creatorId // 傳給 View
             };
 
             return View(vm);
@@ -72,31 +71,33 @@ namespace CraftDailyCorner.Controllers
         {
             if (!ModelState.IsValid)
             {
-                // 表單驗證失敗 → 回 Checkout
                 var memberId = GetMemberId();
-                var items = _cartService.GetCartItemsForCheckout(memberId);
+                // 驗證失敗重新載入時，也要帶回該創作者的商品
+                var allItems = _cartService.GetCartItemsForCheckout(memberId);
+                var filteredItems = allItems.Where(i => i.Product.CreatorId == request.CreatorId).ToList();
 
                 var vm = new VMCheckout
                 {
-                    Items = items,
-                    TotalAmount = items.Sum(i => i.Product.Price * i.Quantity),
+                    Items = filteredItems,
+                    TotalAmount = filteredItems.Sum(i => i.Product.Price * i.Quantity),
+                    CreatorId = request.CreatorId,
                     ReceiverName = request.ReceiverName,
                     ReceiverPhone = request.ReceiverPhone,
                     ReceiverAddress = request.ReceiverAddress
                 };
-
                 return View("Checkout", vm);
             }
 
-            var result = _orderService.CreateOrder(GetMemberId(), request);
+            // ⭐ 這裡傳入第三個參數 request.CreatorId
+            var result = _orderService.CreateOrder(GetMemberId(), request, request.CreatorId);
 
             if (!result.Success)
             {
                 TempData["Error"] = result.Message;
-                return RedirectToAction(nameof(Checkout));
+                // 如果失敗，導回結帳頁並帶上 creatorId
+                return RedirectToAction(nameof(Checkout), new { creatorId = request.CreatorId });
             }
 
-            // 成功 → 導向訂單完成頁
             return RedirectToAction(nameof(Complete), new { orderId = result.OrderID });
         }
 
@@ -113,7 +114,26 @@ namespace CraftDailyCorner.Controllers
 
             return View(vm);
         }
+        //取消訂單
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Cancel(string orderId)
+        {
+            var memberId = GetMemberId();
+            var result = _orderService.CancelOrder(orderId, memberId);
 
+            if (result.Success)
+            {
+                TempData["Success"] = result.Message;
+                // 取消成功後導向明細頁，明細頁會因為狀態改變而隱藏付款/取消按鈕
+                return RedirectToAction(nameof(Detail), new { orderId = orderId });
+            }
+            else
+            {
+                TempData["Error"] = result.Message;
+                return RedirectToAction(nameof(Detail), new { orderId = orderId });
+            }
+        }
         // Private
 
         private string GetMemberId()

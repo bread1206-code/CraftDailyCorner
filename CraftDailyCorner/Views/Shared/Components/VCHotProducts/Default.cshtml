@@ -1,5 +1,5 @@
-﻿@using CraftDailyCorner.ViewModels.Front
-@using CraftDailyCorner.ViewModels.Front.Homepage
+﻿@using CraftDailyCorner.ViewModels
+@using CraftDailyCorner.ViewModels.Homepage
 @model IEnumerable<VMHotProductCard>
 
 @{
@@ -14,23 +14,22 @@
                 @foreach (var item in Model)
                 {
                     <div class="col-md-3 px-3">
-                    <a asp-controller="Products" asp-action="Detail" asp-route-id="@item.ProductID" class="text-decoration-none text-dark">
-                    
-                        <div class="card hover-card">
-                            @if (item.CoverImage != null)
-                            {
+                        <a asp-controller="Products" asp-action="Detail" asp-route-id="@item.ProductID" class="text-decoration-none text-dark">
+                            <div class="card hover-card">
+                                @if (item.CoverImage != null)
+                                {
                                     <img src="@($"/Photos/04ProductImage/Medium/{item.CoverImage}.png")" alt="Photo" class="img-thumbnail" />
-                            }
-                            <div class="card-body">
-                                <div>@Html.DisplayFor(modelItem => item.CreatorName)</div>
-                                <div class="fw-bold fs-3 hotpost-title">@Html.DisplayFor(modelItem => item.ProductName)</div>
-                            </div>
-                            <div class="fw-bold fs-4 mx-1"><i class="bi bi-currency-dollar"></i>@Html.DisplayFor(modelItem => item.Price)</div>
+                                }
+                                <div class="card-body">
+                                    <div>@Html.DisplayFor(modelItem => item.CreatorName)</div>
+                                    <div class="fw-bold fs-3 hotpost-title">@Html.DisplayFor(modelItem => item.ProductName)</div>
+                                </div>
+                                <div class="fw-bold fs-4 mx-1"><i class="bi bi-currency-dollar"></i>@Html.DisplayFor(modelItem => item.Price)</div>
                                 <div class="text-end mx-1 mb-1">@Html.DisplayFor(modelItem => item.FavoriteCount)人收藏中</div>
-                        </div>
+                            </div>
                         </a>
                     </div>
-                    
+
                 }
             </div>
         }

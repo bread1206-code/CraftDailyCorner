@@ -1,0 +1,123 @@
+﻿@model CraftDailyCorner.ViewModels.CreatorPost.VMPostDetail
+@using CraftDailyCorner.Models.Enums
+@using CraftDailyCorner.Extensions
+@using CraftDailyCorner.Models.enums
+@using CraftDailyCorner.ViewModels.Report
+
+@{
+    ViewData["Title"] = Model.Title;
+}
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["Success"]
+    </div>
+}
+
+@if (TempData["Warning"] != null)
+{
+    <div class="alert alert-warning">
+        @TempData["Warning"]
+    </div>
+}
+
+<div class="container py-5" style="max-width:900px;">
+
+    <!-- 封面圖 -->
+    <div class="mb-4">
+        <img src="@Model.CoverImagePath"
+             class="w-100 rounded shadow-sm"
+             style="max-height:500px; object-fit:cover;" />
+    </div>
+
+    <!-- 標題 + 作者資訊 -->
+    <div class="d-flex justify-content-between align-items-start mb-4">
+        <h2 class="fw-bold mb-0">
+            <i class="bi bi-filter-right"></i>
+            @Model.Title
+            <i class="bi bi-filter-left"></i>
+        </h2>
+
+        <div class="text-end text-muted small ">
+            <div>@Model.CreatorName</div>
+            <div>
+                @Model.CreatedAt.ToLocalTime().ToString("yyyy/MM/dd")
+            </div>
+        </div>
+    </div>
+
+    <!-- 內文 -->
+    <div class="mb-5 text-content" style="white-space:pre-line; line-height:1.9;">
+        @Model.Content
+    </div>
+
+    <hr class="my-4" />
+
+    <!-- 留言按鈕 -->
+    <div class="text-end mb-4">
+        @if (User.Identity?.IsAuthenticated == true)
+        {
+            <button class="btn btn-dark"
+                    data-bs-toggle="modal"
+                    data-bs-target="#commentModal">
+                留言
+            </button>
+        }
+        else
+        {
+            <span class="text-muted">請登入後留言</span>
+        }
+        <!--檢舉-->
+        
+        @if (!Model.IsOwner)
+        {
+            <span>
+                <partial name="_ReportButtonPartial"
+                model="new VMReport
+                     {
+                         ReportType = ReportTargetType.Post,
+                         TargetID = Model.PostID
+                     }" />
+            </span>            
+        }
+    </div>
+    
+    
+    <!-- 留言列表 -->
+    <div id="comment-container">
+        @await Component.InvokeAsync("VCPostComment",
+        new { postId = Model.PostID })
+    </div>
+
+</div>
+
+<!-- 留言 Modal -->
+<div class="modal fade" id="commentModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title">新增留言</h5>
+                <button type="button" class="btn-close"
+                        data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body">
+                <textarea id="comment-content"
+                          class="form-control"
+                          rows="4"
+                          placeholder="請輸入留言內容"></textarea>
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn btn-dark"
+                        id="btn-comment"
+                        data-postid="@Model.PostID"
+                        data-bs-dismiss="modal">
+                    送出留言
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>

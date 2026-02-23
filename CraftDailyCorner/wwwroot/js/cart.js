@@ -228,3 +228,80 @@ function onLoginSuccess() {
         pendingAddToCart = null;
     }
 }
+
+// 在 cart.js 中加入或修改
+document.addEventListener('change', function (e) {
+    // 1. 創作者主 Checkbox
+    if (e.target.classList.contains('creator-check')) {
+        const creatorId = e.target.dataset.creatorId;
+        const isChecked = e.target.checked;
+
+        if (isChecked) {
+            // 強制只能選一個創作者：取消其他創作者的勾選
+            document.querySelectorAll('.creator-check').forEach(cb => {
+                if (cb !== e.target) cb.checked = false;
+            });
+            document.querySelectorAll('.product-check').forEach(cb => {
+                cb.checked = (cb.dataset.creatorId === creatorId);
+            });
+        } else {
+            document.querySelectorAll(`.product-check[data-creator-id="${creatorId}"]`)
+                .forEach(cb => cb.checked = false);
+        }
+        updateCartSummary();
+    }
+
+    // 2. 單一商品 Checkbox
+    if (e.target.classList.contains('product-check')) {
+        const creatorId = e.target.dataset.creatorId;
+        const isChecked = e.target.checked;
+
+        if (isChecked) {
+            // 如果勾選了不同創作者的商品，取消其他人的勾選
+            document.querySelectorAll('.product-check').forEach(cb => {
+                if (cb.dataset.creatorId !== creatorId) cb.checked = false;
+            });
+            document.querySelectorAll('.creator-check').forEach(cb => {
+                cb.checked = (cb.dataset.creatorId === creatorId);
+            });
+        }
+
+        // 檢查是否該創作者下的商品全取消了
+        const creatorCheckbox = document.getElementById(`check-${creatorId}`);
+        const siblings = document.querySelectorAll(`.product-check[data-creator-id="${creatorId}"]`);
+        const anyChecked = Array.from(siblings).some(s => s.checked);
+
+        creatorCheckbox.checked = anyChecked; // 只要有一個商品選中，標題就勾選 (或你可以改為全選才勾選)
+
+        updateCartSummary();
+    }
+});
+
+// 更新底部金額與按鈕狀態
+function updateCartSummary() {
+    let total = 0;
+    let count = 0;
+    const checkedProducts = document.querySelectorAll('.product-check:checked');
+
+    checkedProducts.forEach(cb => {
+        // 從 DOM 取得小計金額 (簡單做法是把金額存進 data-price)
+        const row = cb.closest('.row');
+        const subtotal = parseInt(row.querySelector('strong').textContent.replace('$', ''));
+        total += subtotal;
+        count++;
+    });
+
+    document.getElementById('selected-count').textContent = count;
+    document.getElementById('selected-amount').textContent = total.toLocaleString();
+    document.getElementById('checkout-btn').disabled = (count === 0);
+}
+
+// 導向結帳頁 (需告知後端選了哪個創作者)
+function goToCheckout() {
+    const selectedCreator = document.querySelector('.creator-check:checked');
+    if (selectedCreator) {
+        const creatorId = selectedCreator.dataset.creatorId;
+        // 導向結帳，並帶入 CreatorID 過濾
+        window.location.href = `/Orders/Checkout?creatorId=${creatorId}`;
+    }
+}

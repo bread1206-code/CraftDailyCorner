@@ -1,0 +1,107 @@
+﻿@model CraftDailyCorner.ViewModels.CreatorPost.VMCreatorPostCreate
+
+@{
+    ViewData["Title"] = "新增創作日誌";
+}
+
+<div class="container py-5" style="max-width:900px;">
+
+    <div class="page-header mb-4">
+        <h2 class="fw-bold">新增創作日誌</h2>
+        <p class="text-muted">分享您的創作故事</p>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-4">
+
+            <form asp-action="Create"
+                  method="post"
+                  enctype="multipart/form-data"
+                  class="auto-loading-form">
+
+                @Html.AntiForgeryToken()
+
+                <!-- 標題 -->
+                <div class="mb-3">
+                    <label asp-for="Title" class="form-label fw-semibold"></label>
+                    <input asp-for="Title" class="form-control" />
+                    <span asp-validation-for="Title"
+                          class="text-danger small"></span>
+                </div>
+
+                <!-- 圖片預覽 -->
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">圖片預覽</label>
+                    <div class="border rounded p-2 text-center">
+                        <img id="previewImage"
+                             class="img-fluid rounded shadow-sm d-none"
+                             style="max-height:300px;" />
+                    </div>
+                </div>
+
+                <!-- 上傳圖片 -->
+                <div class="mb-3">
+                    <label asp-for="ImageFile"
+                           class="form-label fw-semibold"></label>
+
+                    <input asp-for="ImageFile"
+                           type="file"
+                           class="form-control image-preview-input"
+                           data-preview-target="previewImage"
+                           accept="image/*"
+                           required />
+
+                    <div class="form-text">
+                        建議尺寸 1200x800，PNG / JPG
+                    </div>
+
+                    <span asp-validation-for="ImageFile"
+                          class="text-danger small"></span>
+                </div>
+
+                <!-- 內容 -->
+                <div class="mb-3">
+                    <label asp-for="Content"
+                           class="form-label fw-semibold"></label>
+
+                    <textarea asp-for="Content"
+                              class="form-control"
+                              rows="6"></textarea>
+
+                    <span asp-validation-for="Content"
+                          class="text-danger small"></span>
+                </div>
+
+                <!-- 可見性 -->
+                <div class="mb-4">
+                    <label asp-for="Visibility"
+                           class="form-label fw-semibold"></label>
+
+                    <select asp-for="Visibility"
+                            asp-items="Html.GetEnumSelectList<CreatorPostVisibility>()"
+                            class="form-select">
+                    </select>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-dark">
+                        發佈日誌
+                    </button>
+
+                    <a asp-action="List"
+                       class="btn btn-outline-secondary">
+                        取消
+                    </a>
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/postImagePreview.js"></script>
+}

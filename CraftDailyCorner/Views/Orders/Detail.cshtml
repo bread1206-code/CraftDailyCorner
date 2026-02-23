@@ -1,25 +1,48 @@
-﻿@using CraftDailyCorner.ViewModels.Front.Member
+﻿@using CraftDailyCorner.ViewModels.Member
 @model VMMyOrderDetail
 
 @{
     ViewData["Title"] = "訂單明細";
 
-    int step = Model.StatusText switch
+    int step = Model.StatusID switch
     {
-        "待付款" => 0,
-        "已付款" => 1,
-        "出貨中" => 2,
-        "已完成" => 3,
+        1 => 1, // 待付款
+        2 => 2, // 已付款
+        3 => 3, // 準備中
+        4 => 4, // 出貨中
+        5 => 5, // 已完成
+        6 => 6, // 取消
         _ => 0
     };
 
+    // 判斷狀態
     bool isPendingPayment = Model.StatusID == 1;
+    bool isCancelled = Model.StatusID == 6;
+
+    // 根據狀態設定 Banner 樣式
+    string bannerClass = "alert-success";
+    string iconClass = "bi-check-circle";
+    string subMessage = "此訂單已完成付款，感謝您的購買";
+
+    if (isPendingPayment)
+    {
+        bannerClass = "alert-warning";
+        iconClass = "bi-exclamation-circle";
+        subMessage = "此訂單尚未完成付款，請於下方進行付款";
+    }
+    else if (isCancelled)
+    {
+        bannerClass = "alert-secondary";
+        iconClass = "bi-x-circle";
+        subMessage = "此訂單已取消，相關商品庫存已釋出，歡迎重新選購。";
+    }
 
     // 訂單狀態 badge 顏色
     string statusBadgeClass = Model.StatusText switch
     {
         "待付款" => "bg-danger",   // 紅色
         "已付款" => "bg-success",   // 綠色
+        "準備中" => "bg-success",   
         "出貨中" => "bg-warning",   // 黃色
         "已完成" => "bg-primary",   // 藍色
         _ => "bg-secondary"
@@ -39,53 +62,60 @@
     </div>
 
     <!-- ===== 訂單狀態 Banner ===== -->
-    <div class="alert @(isPendingPayment ? "alert-warning" : "alert-success") d-flex align-items-center mb-4 shadow-sm">
-        <i class="bi @(isPendingPayment ? "bi-exclamation-circle" : "bi-check-circle") fs-4 me-3"></i>
+    <div class="alert @bannerClass d-flex align-items-center mb-4 shadow-sm">
+        <i class="bi @iconClass fs-4 me-3"></i>
         <div>
             <div class="fw-semibold fs-5">
                 @Model.StatusText
             </div>
             <small class="text-muted fs-6">
-                @(isPendingPayment
-                                ? "此訂單尚未完成付款，請於下方進行付款"
-                                : "此訂單已完成付款，感謝您的購買")
+                @subMessage
             </small>
         </div>
     </div>
 
     <!-- ===== 訂單狀態進度條 ===== -->
-    <div class="card mb-4 shadow-sm">
-        <div class="card-body">
-            <div class="order-progress">
-                <div class="step @(step >= 0 ? "active" : "")">
-                    <div class="circle">1</div>
-                    <div class="label">已下單<br /><small>建立訂單</small></div>
-                </div>
+    @if (Model.StatusID != 6)
+    {
+        <div class="card mb-4 shadow-sm">
+            <div class="card-body">
+                <div class="order-progress">
+                    <div class="step @(step >= 1 ? "active" : "")">
+                        <div class="circle">1</div>
+                        <div class="label">已下單<br /><small>建立訂單</small></div>
+                    </div>
 
-                <div class="line @(step >= 1 ? "active" : "")"></div>
+                    <div class="line @(step >= 2 ? "active" : "")"></div>
 
-                <div class="step @(step >= 1 ? "active" : "")">
-                    <div class="circle">2</div>
-                    <div class="label">已付款<br /><small>付款完成</small></div>
-                </div>
+                    <div class="step @(step >= 2 ? "active" : "")">
+                        <div class="circle">2</div>
+                        <div class="label">已付款<br /><small>付款完成</small></div>
+                    </div>
 
-                <div class="line @(step >= 2 ? "active" : "")"></div>
+                    <div class="line @(step >= 3 ? "active" : "")"></div>
 
-                <div class="step @(step >= 2 ? "active" : "")">
-                    <div class="circle">3</div>
-                    <div class="label">配送中<br /><small>商品寄出</small></div>
-                </div>
+                    <div class="step @(step >= 3 ? "active" : "")">
+                        <div class="circle">3</div>
+                        <div class="label">準備中<br /><small>訂單準備中</small></div>
+                    </div>
 
-                <div class="line @(step >= 3 ? "active" : "")"></div>
+                    <div class="line @(step >= 4 ? "active" : "")"></div>
 
-                <div class="step @(step >= 3 ? "active" : "")">
-                    <div class="circle">4</div>
-                    <div class="label">已完成<br /><small>完成收貨</small></div>
+                    <div class="step @(step >= 4 ? "active" : "")">
+                        <div class="circle">4</div>
+                        <div class="label">配送中<br /><small>商品寄出</small></div>
+                    </div>
+
+                    <div class="line @(step >= 5 ? "active" : "")"></div>
+
+                    <div class="step @(step >= 5 ? "active" : "")">
+                        <div class="circle">5</div>
+                        <div class="label">已完成<br /><small>完成收貨</small></div>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-
+    }
     <!-- ===== 訂單基本資訊 ===== -->
     <div class="card mb-4 shadow-sm">
         <div class="card-body">
@@ -168,28 +198,44 @@
     </div>
 
     <!-- ===== 付款主行動 ===== -->
-    @if (isPendingPayment)
-    {
-        <div class="text-center my-5">
+    <div class="text-center my-5">
+        @if (Model.StatusID == 1) @* 待付款 *@
+        {
             <a asp-controller="Payment"
                asp-action="Create"
                asp-route-orderId="@Model.OrderID"
-               class="btn btn-primary btn-lg px-5 py-3 shadow">
+               class="btn btn-primary btn-lg px-5 py-3 shadow me-3">
                 <i class="bi bi-credit-card me-2"></i>
                 前往付款
             </a>
             <div class="text-muted small mt-2">
                 支援多種付款方式，安全快速
             </div>
-        </div>
-    }
-    else
-    {
-        <div class="alert alert-success text-center my-5 shadow-sm">
-            <i class="bi bi-check-circle-fill fs-3 me-2"></i>
-            此訂單已完成付款
-        </div>
-    }
+
+            <form asp-action="Cancel" method="post" class="d-inline"
+                  onsubmit="return confirm('確定要取消這筆訂單嗎？')">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="orderId" value="@Model.OrderID" />
+                <button type="submit" class="btn btn-outline-danger btn-lg px-4 py-3">
+                    取消訂單
+                </button>
+            </form>
+        }
+        else if (Model.StatusID == 6)
+        {
+            <div class="alert alert-secondary text-center shadow-sm py-4">
+                <i class="bi bi-x-circle-fill fs-3 d-block mb-2"></i>
+                <span class="fs-5">此訂單已取消，相關商品庫存已釋出，歡迎重新選購。</span>
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-success text-center shadow-sm">
+                <i class="bi bi-check-circle-fill fs-3 me-2"></i>
+                此訂單已完成付款
+            </div>
+        }
+    </div>
 
     <!-- ===== 客服資訊 ===== -->
     <div class="alert alert-light mt-4">

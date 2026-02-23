@@ -1,7 +1,7 @@
-﻿using CraftDailyCorner.Models;
+﻿using CraftDailyCorner.DTOs;
+using CraftDailyCorner.Models;
 using CraftDailyCorner.Services.Interface;
-using CraftDailyCorner.ViewModels.Front.CreatorApplication;
-using CraftDailyCorner.ViewModels.Front.DTOs;
+using CraftDailyCorner.ViewModels.CreatorApplication;
 using Microsoft.EntityFrameworkCore;
 
 namespace CraftDailyCorner.Services.Creator
@@ -24,6 +24,7 @@ namespace CraftDailyCorner.Services.Creator
                 .OrderByDescending(ca => ca.AppliedAt)
                 .FirstOrDefaultAsync();
 
+            // 尚未申請過
             if (latest == null)
             {
                 return new VMCreatorApplicationApply
@@ -32,7 +33,9 @@ namespace CraftDailyCorner.Services.Creator
                 };
             }
 
-            switch (latest.CreatorApplicationStatus.StatusCode)
+            var statusCode = latest.CreatorApplicationStatus.StatusCode;
+
+            switch (statusCode)
             {
                 case "Pending":
                     return new VMCreatorApplicationPending
@@ -45,7 +48,7 @@ namespace CraftDailyCorner.Services.Creator
                     return new VMCreatorApplicationApproved
                     {
                         DisplayName = latest.DisplayName,
-                        ReviewedAt = latest.ReviewedAt ?? DateTime.Now
+                        ReviewedAt = latest.ReviewedAt ?? latest.AppliedAt
                     };
 
                 default:
@@ -56,7 +59,7 @@ namespace CraftDailyCorner.Services.Creator
             }
         }
 
-        //是否有 Pending
+        //是否有審核中的申請
         public async Task<bool> HasPendingAsync(string memberId)
         {
             return await _context.CreatorApplications
@@ -72,12 +75,11 @@ namespace CraftDailyCorner.Services.Creator
             if (await HasPendingAsync(dto.MemberId))
                 throw new InvalidOperationException("已有審核中的申請");
 
-            var pendingStatusId = await _context.CreatorApplicationStatuses
-                .Where(s => s.StatusCode == "Pending")
-                .Select(s => s.StatusID)
+            var pendingStatus = await _context.CreatorApplicationStatuses
+                .Where(s => s.StatusCode == "Pending" && s.IsActive)
                 .FirstOrDefaultAsync();
 
-            if (pendingStatusId == 0)
+            if (pendingStatus == null)
                 throw new Exception("系統狀態設定錯誤：找不到 Pending 狀態");
 
             var entity = new CreatorApplication
@@ -88,11 +90,21 @@ namespace CraftDailyCorner.Services.Creator
                 PortfolioSampleUrl = dto.PortfolioSampleUrl,
                 StartDate = dto.StartDate,
                 AppliedAt = DateTime.Now,
-                StatusID = pendingStatusId
+                StatusID = pendingStatus.StatusID
             };
 
             _context.CreatorApplications.Add(entity);
             await _context.SaveChangesAsync();
+        }
+
+        //取得會員最新一筆申請
+        public async Task<CreatorApplication?> GetLatestByMemberAsync(string memberId)
+        {
+            return await _context.CreatorApplications
+                .Include(ca => ca.CreatorApplicationStatus)
+                .Where(ca => ca.MemberID == memberId)
+                .OrderByDescending(ca => ca.AppliedAt)
+                .FirstOrDefaultAsync();
         }
     }
 }

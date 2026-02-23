@@ -57,6 +57,7 @@ namespace CraftDailyCorner.Seed
         private readonly SeedHomepageBannerStatus _seedHomepageBannerStatus;
         private readonly SeedPlatformSettingCategory _seedPlatformSettingCategory;
         private readonly SeedPostCommentReportStatus _seedPostCommentReportStatus;
+        private readonly SeedPortfolioStatus _seedPortfolioStatus;
 
 
         private readonly Dictionary<string, List<ImageSizeOption>> _folderSizeMapping =
@@ -125,7 +126,8 @@ namespace CraftDailyCorner.Seed
             SeedPlatformAnnouncementStatus seedPlatformAnnouncementStatus,
             SeedHomepageBannerStatus seedHomepageBannerStatus,
             SeedPlatformSettingCategory seedPlatformSettingCategory,
-            SeedPostCommentReportStatus seedPostCommentReportStatus
+            SeedPostCommentReportStatus seedPostCommentReportStatus,
+            SeedPortfolioStatus seedPortfolioStatus
         )
         {
             _context = context;
@@ -179,7 +181,7 @@ namespace CraftDailyCorner.Seed
             _seedHomepageBannerStatus = seedHomepageBannerStatus;
             _seedPlatformSettingCategory = seedPlatformSettingCategory;
             _seedPostCommentReportStatus = seedPostCommentReportStatus;
-
+            _seedPortfolioStatus = seedPortfolioStatus;
         }
 
         public void Run()
@@ -193,6 +195,7 @@ namespace CraftDailyCorner.Seed
             var productImageGuids = GenerateGuids(6);
             var creatorPostGuids = GenerateGuids(7);
             var seedPortfolioItemGuids = GenerateGuids(2);
+            var prtfolioGuids = GenerateGuids(1);
             var logoGuids = GenerateGuids(1);
             var homepageBannerGuids = GenerateGuids(6);
             Console.WriteLine("準備 GUID 完成");
@@ -214,6 +217,7 @@ namespace CraftDailyCorner.Seed
                 // 3 更新Seed資料
             _seedMemberStatus.Run();
             _seedCreatorApplicationStatus.Run();
+            _seedPortfolioStatus.Run();
             _seedCreatorProfileStatus.Run();
             _seedProductStatus.Run();
             _seedProductImageStatus.Run();
@@ -229,6 +233,7 @@ namespace CraftDailyCorner.Seed
             _seedRole.Run();
             _seedTag.Run();
             _seedCategory.Run();
+            
 
             _seedMember.Run(memberGuids);
             _seedPrivacy.Run();
@@ -244,7 +249,7 @@ namespace CraftDailyCorner.Seed
             //_seedOrder.Run();
             //_seedOrderDetail.Run();
             //_seedPayment.Run();
-            _seedShipment.Run();
+            //_seedShipment.Run();
             _seedFavoriteProduct.Run();
             _seedFollowCreator.Run();
             _seedProductReview.Run();
@@ -258,8 +263,8 @@ namespace CraftDailyCorner.Seed
             _seedPlatformAnnouncement.Run();
             _seedHomepageBanner.Run(homepageBannerGuids);
             _seedPlatformSetting.Run(logoGuids);
-            _seedPortfolio.Run(seedPortfolioItemGuids);
-            _seedPortfolioItem.Run(seedPortfolioItemGuids);
+            _seedPortfolio.Run(prtfolioGuids);
+            _seedPortfolioItem.Run(prtfolioGuids, seedPortfolioItemGuids);
             _seedNotificationPreference.Run();
             _seedNotificationEvent.Run();
 

@@ -1,9 +1,12 @@
-using Microsoft.EntityFrameworkCore;
+using CraftDailyCorner.ImageManagementCore.Services;
+using CraftDailyCorner.ImageManagementCore.Services.Interfaces;
 using CraftDailyCorner.Models;
 using CraftDailyCorner.Seed;
 using CraftDailyCorner.Seed.Datas;
 using CraftDailyCorner.Services;
+using CraftDailyCorner.Services.Creator;
 using CraftDailyCorner.Services.Interface;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,6 +16,22 @@ builder.Services.AddDbContext<CraftDailyCornerContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("CraftDailyCornerConnection")));
 builder.Services.AddScoped <IImageUploadService, ImageUploadService>();
 builder.Services.AddScoped <ISiteSettingService, SiteSettingService>();
+builder.Services.AddScoped<ICreatorApplicationService, CreatorApplicationService>();
+builder.Services.AddScoped<ICreatorPortfolioService, CreatorPortfolioService>();
+builder.Services.AddScoped<ICreatorPostService, CreatorPostService>();
+builder.Services.AddScoped<IPaymentService, PaymentService>();
+builder.Services.AddScoped<ICreatorDashboardService, CreatorDashboardService>();
+builder.Services.AddScoped<ICreatorPublicService, CreatorPublicService>();
+builder.Services.AddScoped<IFollowService, FollowService>();
+builder.Services.AddScoped<ICreatorPortfolioItemService, CreatorPortfolioItemService>();
+builder.Services.AddScoped<IImageFileService, ImageFileService>();
+builder.Services.AddScoped<ICreatorPostCommentService, CreatorPostCommentService>();
+builder.Services.AddScoped<ISoftDeleteCleanupTask, SoftDeleteCleanupTask>();
+builder.Services.AddScoped<ISoftDeleteCleanupTask, CreatorPostCleanupTask>();
+builder.Services.AddScoped<IImageManagementService, ProductImageService>();
+builder.Services.AddScoped<IImageManagementService, PortfolioImageService>();
+builder.Services.AddScoped<ICreatorApplicationService, CreatorApplicationService>();
+builder.Services.AddHostedService<SoftDeleteCleanupBackgroundService>();
 builder.Services.AddScoped <SeedRunner>();
 builder.Services.AddScoped <SeedMember>();
 builder.Services.AddScoped <SeedPrivacy>();
@@ -47,6 +66,7 @@ builder.Services.AddScoped <SeedHomepageBanner>();
 builder.Services.AddScoped <SeedPlatformSetting>();
 builder.Services.AddScoped <SeedPortfolio>();
 builder.Services.AddScoped <SeedPortfolioItem>();
+builder.Services.AddScoped <SeedPortfolioStatus>();
 builder.Services.AddScoped <SeedNotificationPreference>();
 builder.Services.AddScoped <SeedNotificationEvent>();
 builder.Services.AddScoped <SeedMemberStatus>();
@@ -76,12 +96,18 @@ builder.Services.AddScoped<OrderService>();
 builder.Services.AddScoped<FavoriteService>();
 builder.Services.AddScoped<MemberCenterService>();
 builder.Services.AddScoped<ProductService>();
-builder.Services.AddScoped<CreatorApplicationService>();
 
-builder.Services.AddScoped<IPaymentService, PaymentService>();
+builder.Services.AddScoped<ReportService>();
+builder.Services.AddScoped<CreatorProductService>();
+builder.Services.AddScoped<CreatorProductImageService>();
+
+
 builder.Services.AddSession();
 builder.Services.AddHttpContextAccessor();
-
+builder.Services.AddAntiforgery(options =>
+{
+    options.HeaderName = "RequestVerificationToken";
+});
 
 
 
@@ -104,7 +130,7 @@ app.UseStaticFiles();
 app.UseRouting();
 
 app.UseSession();
-
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllerRoute(

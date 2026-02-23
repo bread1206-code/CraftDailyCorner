@@ -20,7 +20,7 @@ namespace CraftDailyCorner.Seed.Datas
                     {
                         CommentID = Guid.NewGuid().ToString(),
                         Content = "真的很漂亮！",
-                        Status = (PostCommentStatus)1,
+                        Status = 0,
                         CreatedAt = DateTime.Now,
                         PostID = imageGuids[0],
                         MemberID = "M0000002"

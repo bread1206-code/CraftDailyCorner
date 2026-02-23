@@ -10,7 +10,7 @@ namespace CraftDailyCorner.Seed.Datas
         {
             _context = context;
         }
-        public void Run(string[] imageGuids)
+        public void Run(string[] prtfolioGuids, string[] imageGuids)
         {
             if (!_context.PortfolioItems.Any()) // 避免重複 Seed
             {
@@ -18,14 +18,18 @@ namespace CraftDailyCorner.Seed.Datas
                 {
                     new PortfolioItem
                     {
-                        ItemID = Guid.NewGuid().ToString(),
-                        ImageUrl = Guid.NewGuid().ToString(),
-                        Title = "榫接木盒",
-                        Description = "全手工榫接製作",
+                        ImageUrl = imageGuids[0],
                         SortOrder = 0,
                         CreatedAt = DateTime.Now,
                         UpdatedAt = DateTime.Now,
-                        PortfolioID = imageGuids[0]
+                        PortfolioID = prtfolioGuids[0]
+                    },new PortfolioItem
+                    {
+                        ImageUrl = imageGuids[1],
+                        SortOrder = 1,
+                        CreatedAt = DateTime.Now,
+                        UpdatedAt = DateTime.Now,
+                        PortfolioID = prtfolioGuids[0]
                     }
                 };
                 _context.PortfolioItems.AddRange(portfolioItems);

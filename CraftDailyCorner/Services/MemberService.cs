@@ -1,5 +1,5 @@
 ﻿using CraftDailyCorner.Models;
-using CraftDailyCorner.ViewModels.Front.Member;
+using CraftDailyCorner.ViewModels.Member;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;

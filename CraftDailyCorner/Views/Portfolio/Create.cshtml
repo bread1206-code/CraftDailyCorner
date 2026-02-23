@@ -1,0 +1,193 @@
+﻿@model CraftDailyCorner.ViewModels.CreatorPortfolio.VMCreatorPortfolioCreate
+
+@{
+    ViewData["Title"] = "新增作品集";
+}
+
+<div class="container py-5" style="max-width:900px;">
+
+    <!-- 標題 -->
+    <div class="mb-4">
+        <h2 class="fw-bold">新增作品集</h2>
+        <p class="text-muted mb-0">建立新的作品集</p>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-4">
+
+            <form asp-action="Create"
+                  method="post"
+                  enctype="multipart/form-data"
+                  class="needs-validation"
+                  novalidate>
+
+                @Html.AntiForgeryToken()
+
+                <!-- Validation Summary -->
+                <div asp-validation-summary="ModelOnly"
+                     class="text-danger mb-3"></div>
+
+                <!-- 標題 -->
+                <div class="mb-3">
+                    <label asp-for="Title"
+                           class="form-label fw-semibold"></label>
+                    <input asp-for="Title"
+                           class="form-control" />
+                    <span asp-validation-for="Title"
+                          class="text-danger small"></span>
+                </div>
+
+                <!-- 描述 -->
+                <div class="mb-3">
+                    <label asp-for="Description"
+                           class="form-label fw-semibold"></label>
+                    <textarea asp-for="Description"
+                              class="form-control"
+                              rows="4"></textarea>
+                    <span asp-validation-for="Description"
+                          class="text-danger small"></span>
+                </div>
+
+                <!-- 可見性 -->
+                <div class="mb-3">
+                    <label asp-for="Visibility"
+                           class="form-label fw-semibold"></label>
+                    <select asp-for="Visibility"
+                            asp-items="Html.GetEnumSelectList<CreatorPostVisibility>()"
+                            class="form-select">
+                    </select>
+                </div>
+
+                <!-- 圖片上傳 -->
+                <div class="mb-4">
+                    <label asp-for="Files"
+                           class="form-label fw-semibold"></label>
+
+                    <input type="file"
+                           asp-for="Files"
+                           multiple
+                           id="portfolio-image-input"
+                           class="form-control" />
+
+                    <div class="form-text">
+                        可選擇多張圖片（最多 25 張）
+                    </div>
+
+                    <span asp-validation-for="Files"
+                          class="text-danger small"></span>
+                    <div>作品預覽：</div>
+                    <!-- 新增這個預覽區 -->
+                    <div id="portfolio-preview-container"
+                         class="row mt-3"></div>
+                </div>
+
+                <!-- 按鈕 -->
+                <div class="d-flex gap-2">
+                    <button type="submit"
+                            class="btn btn-dark">
+                        <i class="bi bi-plus-lg me-1"></i>
+                        建立作品集
+                    </button>
+
+                    <a asp-action="List"
+                       class="btn btn-outline-secondary">
+                        返回列表
+                    </a>
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+
+            const form = document.querySelector("form");
+            const fileInput = document.getElementById("portfolio-image-input");
+            const previewContainer = document.getElementById("portfolio-preview-container");
+            const maxFiles = 25;
+
+            // ===============================
+            // 多圖預覽
+            // ===============================
+            fileInput.addEventListener("change", function () {
+
+                previewContainer.innerHTML = "";
+
+                const fileCount = this.files.length;
+
+                if (fileCount > maxFiles) {
+                    alert(`圖片最多只能上傳 ${maxFiles} 張`);
+                    this.value = "";
+                    return;
+                }
+
+                Array.from(this.files).forEach(file => {
+
+                    const reader = new FileReader();
+
+                    reader.onload = function (e) {
+
+                        const col = document.createElement("div");
+                        col.className = "col-md-3 mb-3";
+
+                        col.innerHTML = `
+                            <img src="${e.target.result}"
+                                 class="img-fluid rounded shadow-sm"
+                                 style="height:160px;object-fit:cover;" />
+                        `;
+
+                        previewContainer.appendChild(col);
+                    };
+
+                    reader.readAsDataURL(file);
+                });
+            });
+
+            // ===============================
+            // 送出前驗證
+            // ===============================
+            form.addEventListener("submit", function (e) {
+
+                let hasError = false;
+
+                const fileError =
+                    document.querySelector("[data-valmsg-for='Files']");
+
+                // 清空舊錯誤
+                fileError.textContent = "";
+                fileError.classList.remove("field-validation-error");
+                fileError.classList.add("field-validation-valid");
+
+                const fileCount = fileInput.files.length;
+
+                // 至少 1 張
+                if (fileCount === 0) {
+                    fileError.textContent = "請至少上傳 1 張圖片";
+                    fileError.classList.remove("field-validation-valid");
+                    fileError.classList.add("field-validation-error");
+                    hasError = true;
+                }
+
+                // 不得超過 25 張
+                if (fileCount > maxFiles) {
+                    fileError.textContent = `圖片最多只能上傳 ${maxFiles} 張`;
+                    fileError.classList.remove("field-validation-valid");
+                    fileError.classList.add("field-validation-error");
+                    hasError = true;
+                }
+
+                if (hasError) {
+                    e.preventDefault();
+                }
+            });
+
+        });
+    </script>
+}

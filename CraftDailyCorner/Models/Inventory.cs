@@ -20,6 +20,9 @@ namespace CraftDailyCorner.Models
         [Display(Name = "商品編號")]
         public string ProductID { get; set; } = null!;
 
+        [Display(Name = "更新時間")]
+        public DateTime UpdatedAt { get; set; }
+
         public virtual Product Product { get; set; } = null!;
         public virtual List<InventoryAlert>? InventoryAlerts { get; set; }
     }

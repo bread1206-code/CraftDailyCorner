@@ -1,6 +1,6 @@
 ﻿using CraftDailyCorner.Models;
 using CraftDailyCorner.Services.Interface;
-using CraftDailyCorner.ViewModels.Front.Payment;
+using CraftDailyCorner.ViewModels.Payment;
 using Microsoft.EntityFrameworkCore;
 
 namespace CraftDailyCorner.Services

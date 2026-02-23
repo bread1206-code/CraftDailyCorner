@@ -1,29 +1,19 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using CraftDailyCorner.ImageManagementCore.Interfaces;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CraftDailyCorner.Models
 {
-    public class PortfolioItem
+    public class PortfolioItem : IEntityImage
     {
         [Key]
-        [StringLength(36, MinimumLength = 36)]
-        [Column(TypeName = "nchar(36)")]
         [Display(Name = "作品編號")]
-        public string ItemID { get; set; } = null!;
+        public long ItemID { get; set; } 
 
         [StringLength(36, MinimumLength = 36)]
         [Column(TypeName = "nchar(36)")]
         [Display(Name = "圖片URL")]
         public string ImageUrl { get; set; } = null!;
-
-        [Required(ErrorMessage = "必填欄位")]
-        [StringLength(50)]
-        [Display(Name = "標題")]
-        public string Title { get; set; } = null!;
-
-        [Column(TypeName = "nvarchar(max)")]
-        [Display(Name = "簡介")]
-        public string? Description { get; set; }
 
         [Display(Name = "排序")]
         public byte SortOrder { get; set; }
@@ -38,7 +28,13 @@ namespace CraftDailyCorner.Models
         [Column(TypeName = "nchar(36)")]
         [Display(Name = "作品集編號")]
         public string PortfolioID { get; set; } = null!;
+        public bool IsDeleted { get; set; } = false;
+
+        public DateTime? DeletedAt { get; set; }
 
         public virtual Portfolio Portfolio { get; set; } = null!;
+
+        public long ImageID => ItemID;
+        public string EntityID => PortfolioID;
     }
 }

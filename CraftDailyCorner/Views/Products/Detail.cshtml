@@ -1,4 +1,6 @@
-﻿@using CraftDailyCorner.ViewModels.Front.Product
+﻿@using CraftDailyCorner.Models.enums
+@using CraftDailyCorner.ViewModels.Product
+@using CraftDailyCorner.ViewModels.Report
 @model VMProductDetail
 @{
     ViewData["Title"] = @Model.ProductName;
@@ -121,8 +123,22 @@
                     <hr />
 
                     <!-- 商品介紹 -->
-                    <h5 class="fw-bold mb-3">商品介紹</h5>
-                    <p>@Model.Description</p>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+
+                        <h5 class="fw-bold mb-0">商品介紹</h5>
+
+                        @if (!Model.IsOwner)
+                        {
+                            <partial name="_ReportButtonPartial"
+                                     model="new VMReport
+                                     {
+                                         ReportType = ReportTargetType.Product,
+                                         TargetID = Model.ProductId
+                                     }" />
+                                                }
+
+                    </div>
+                    <p class="text-content">@Model.Description</p>
 
                     <!-- Tags -->
                     <div class="mb-3">

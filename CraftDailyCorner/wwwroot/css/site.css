@@ -260,7 +260,7 @@ body {
         }
     }
 }
-
+/*收藏動畫*/
 #favorite-stamp-overlay {
     position: fixed;
     inset: 0;
@@ -421,4 +421,124 @@ body {
     text-align: center;
     margin-right: 10px;
     font-weight: bold;
+}
+/*檢舉圖示*/
+.report-btn {
+    background-color: transparent;
+    padding: 4px 8px;
+    transition: all 0.2s ease;
+}
+
+.report-icon-fill {
+    display: none;
+}
+
+.report-btn:hover {
+    background-color: transparent !important;
+}
+
+.report-btn:hover .report-icon-outline {
+    display: none;
+}
+
+.report-btn:hover .report-icon-fill {
+    display: inline;
+    color: #dc3545;
+}
+
+.comment-item {
+    position: relative;
+}
+
+/* 三點按鈕基本樣式 */
+.comment-item .btn {
+    line-height: 1;
+}
+
+/* 三點 icon 大小 */
+.comment-item .bi-three-dots {
+    font-size: 1rem;
+}
+
+/*  預設隱藏三點選單 */
+.comment-item .dropdown {
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+/*  滑鼠移到整個留言區塊時顯示 */
+.comment-item:hover .dropdown {
+    opacity: 1;
+}
+/*移除focus邊框*/
+.comment-item .btn:focus {
+    box-shadow: none;
+}
+
+.comment-item .btn:focus-visible {
+    box-shadow: none;
+    outline: none;
+}
+/*文字內容換行*/
+.text-content {
+    white-space: pre-line;
+}
+/*檢舉動畫*/
+#report-stamp-overlay {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 9999;
+    display: none;
+}
+
+    #report-stamp-overlay::before {
+        content: var(--stamp-text, "檢舉已送出");
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%) scale(0.5) rotate(-10deg);
+        width: 60vmin;
+        height: 18vmin;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 5vmin;
+        font-weight: 900;
+        letter-spacing: 0.2em;
+        color: rgba(220, 53, 69, 0.95);
+        border: 8px solid rgba(220, 53, 69, 0.85);
+        text-transform: uppercase;
+        opacity: 0;
+        background: transparent;
+    }
+
+/* 蓋章動畫 */
+@keyframes report-stamp {
+    0% {
+        transform: translate(-50%, -50%) scale(0.3) rotate(-18deg);
+        opacity: 0;
+    }
+
+    35% {
+        transform: translate(-50%, -50%) scale(1.15) rotate(-8deg);
+        opacity: 1;
+    }
+
+    55% {
+        transform: translate(-50%, -50%) scale(0.95) rotate(-12deg);
+    }
+
+    75% {
+        transform: translate(-50%, -50%) scale(1.02);
+    }
+
+    100% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 0;
+    }
+}
+
+#report-stamp-overlay.show::before {
+    animation: report-stamp 2.5s cubic-bezier(.2,1.4,.3,1);
 }

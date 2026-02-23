@@ -35,6 +35,14 @@ namespace CraftDailyCorner.Seed.Datas
                 new OrderStatus
                 {
                     StatusID = 3,
+                    StatusCode = "Processing",
+                    StatusName = "準備中",
+                    Description = "商品準備中",
+                    IsActive = true
+                },
+                new OrderStatus
+                {
+                    StatusID = 4,
                     StatusCode = "Shipped",
                     StatusName = "已出貨",
                     Description = "商品已出貨",
@@ -42,7 +50,7 @@ namespace CraftDailyCorner.Seed.Datas
                 },
                 new OrderStatus
                 {
-                    StatusID = 4,
+                    StatusID = 5,
                     StatusCode = "Completed",
                     StatusName = "完成",
                     Description = "訂單完成",
@@ -50,7 +58,7 @@ namespace CraftDailyCorner.Seed.Datas
                 },
                 new OrderStatus
                 {
-                    StatusID = 5,
+                    StatusID = 6,
                     StatusCode = "Cancelled",
                     StatusName = "取消",
                     Description = "訂單取消",

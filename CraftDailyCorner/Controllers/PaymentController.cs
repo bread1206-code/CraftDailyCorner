@@ -1,6 +1,6 @@
 ﻿using CraftDailyCorner.Services;
 using CraftDailyCorner.Services.Interface;
-using CraftDailyCorner.ViewModels.Front.Payment;
+using CraftDailyCorner.ViewModels.Payment;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;

@@ -52,13 +52,13 @@ namespace CraftDailyCorner.Services
             if (file == null || file.Length == 0)
                 throw new ArgumentException("檔案不存在");
             // ContentType
-            var allowedTypes = new[] { "image/jpeg", "image/png" };
+            var allowedTypes = new[] { "image/jpeg", "image/png","image/jpg" };
 
             if (!allowedTypes.Contains(file.ContentType))
-                throw new InvalidOperationException("只允許上傳 jpg 或 png 圖片");
+                throw new InvalidOperationException("只允許上傳 jpg、jpeg 或 png 圖片");
             //副檔名
             var ext = Path.GetExtension(file.FileName).ToLowerInvariant();
-            var allowedExts = new[] { ".jpg", ".png" };
+            var allowedExts = new[] { ".jpg", ".jpeg", ".png" };
 
             if (!allowedExts.Contains(ext))
                 throw new InvalidOperationException("圖片副檔名不正確");
@@ -66,7 +66,15 @@ namespace CraftDailyCorner.Services
             //ImageSharp 真正解析（最後防線）
             string fileName = entityId ?? Guid.NewGuid().ToString();
             using var stream = file.OpenReadStream();
-            using var image = Image.Load(stream);
+            Image image;
+            try
+            {
+                image = Image.Load(stream);
+            }
+            catch
+            {
+                throw new InvalidOperationException("圖片格式無法解析");
+            }
 
             ProcessAndSaveImage(image, folderName, fileName, sizes);
 

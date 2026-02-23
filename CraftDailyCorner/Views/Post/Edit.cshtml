@@ -1,0 +1,120 @@
+﻿@model CraftDailyCorner.ViewModels.CreatorPost.VMCreatorPostEdit
+
+@{
+    ViewData["Title"] = "編輯創作日誌";
+}
+
+<div class="container py-5" style="max-width:900px;">
+
+    <div class="page-header mb-4">
+        <h2 class="fw-bold">編輯創作日誌</h2>
+        <p class="text-muted">
+            最後更新時間：
+            @Model.UpdatedAt.ToLocalTime().ToString("yyyy/MM/dd HH:mm")
+        </p>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-4">
+
+            <form asp-action="Edit"
+                  method="post"
+                  enctype="multipart/form-data"
+                  class="auto-loading-form">
+
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="PostID" />
+
+                <!-- 標題 -->
+                <div class="mb-3">
+                    <label asp-for="Title" class="form-label fw-semibold"></label>
+                    <input asp-for="Title" class="form-control" />
+                    <span asp-validation-for="Title" class="text-danger small"></span>
+                </div>
+
+                <!-- 圖片區 -->
+                <div class="mb-4">
+                    <label class="form-label fw-semibold">封面圖片</label>
+
+                    <div class="row g-4">
+                        <!-- 目前封面 -->
+                        <div class="col-md-6">
+                            <div class="border rounded p-2 text-center">
+                                <div class="small text-muted mb-2">目前封面</div>
+                                <img src="@Model.CoverImagePath"
+                                     class="img-fluid rounded shadow-sm"
+                                     style="max-height:300px;" />
+                            </div>
+                        </div>
+
+                        <!-- 新圖片預覽 -->
+                        <div class="col-md-6">
+                            <div class="border rounded p-2 text-center">
+                                <div class="small text-muted mb-2">新圖片預覽</div>
+                                <img id="previewImage"
+                                     class="img-fluid rounded shadow-sm d-none"
+                                     style="max-height:300px;" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 更換封面 -->
+                <div class="mb-3">
+                    <label asp-for="NewImageFile" class="form-label fw-semibold"></label>
+
+                    <input asp-for="NewImageFile"
+                           type="file"
+                           class="form-control image-preview-input"
+                           data-preview-target="previewImage"
+                           accept="image/*" />
+
+                    <div class="form-text">
+                        若不選擇圖片，將保留原封面
+                    </div>
+
+                    <span asp-validation-for="NewImageFile"
+                          class="text-danger small"></span>
+                </div>
+
+                <!-- 內容 -->
+                <div class="mb-3">
+                    <label asp-for="Content" class="form-label fw-semibold"></label>
+                    <textarea asp-for="Content"
+                              class="form-control"
+                              rows="6"></textarea>
+                    <span asp-validation-for="Content"
+                          class="text-danger small"></span>
+                </div>
+
+                <!-- 可見性 -->
+                <div class="mb-4">
+                    <label asp-for="Visibility" class="form-label fw-semibold"></label>
+                    <select asp-for="Visibility"
+                            asp-items="Html.GetEnumSelectList<CreatorPostVisibility>()"
+                            class="form-select">
+                    </select>
+                </div>
+
+                <!-- 按鈕 -->
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-dark">
+                        儲存修改
+                    </button>
+
+                    <a asp-action="List" class="btn btn-outline-secondary">
+                        返回列表
+                    </a>
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/postImagePreview.js"></script>
+}

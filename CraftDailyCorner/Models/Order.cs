@@ -31,6 +31,9 @@ namespace CraftDailyCorner.Models
         [Display(Name = "建立時間")]
         public DateTime CreatedAt { get; set; }
 
+        [Display(Name = "更新時間")]
+        public DateTime UpdatedAt { get; set; }
+
         [Display(Name = "狀態")]
         public byte StatusID { get; set; }
 
