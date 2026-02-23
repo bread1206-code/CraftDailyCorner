@@ -630,6 +630,9 @@ namespace CraftDailyCorner.Models
                 .HasIndex(r => new { r.ReportType, r.TargetID, r.MemberID })
                 .IsUnique();
 
+            modelBuilder.Entity<Shipment>()
+                .HasIndex(r => new { r.TrackingNo })
+                .IsUnique();
             #endregion
 
             modelBuilder.Entity<PortfolioItem>()

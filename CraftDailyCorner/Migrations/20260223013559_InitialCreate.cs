@@ -760,7 +760,7 @@ namespace CraftDailyCorner.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     MemberID = table.Column<string>(type: "nchar(8)", maxLength: 8, nullable: false),
-                    CreatorID = table.Column<string>(type: "nchar(6)", maxLength: 8, nullable: false)
+                    CreatorID = table.Column<string>(type: "nchar(6)", maxLength: 6, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -817,6 +817,7 @@ namespace CraftDailyCorner.Migrations
                     ProductName = table.Column<string>(type: "nvarchar(40)", maxLength: 40, nullable: false),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Price = table.Column<decimal>(type: "money", nullable: false),
+                    CostPrice = table.Column<decimal>(type: "money", nullable: false),
                     StatusID = table.Column<byte>(type: "tinyint", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     CreatorID = table.Column<string>(type: "nchar(6)", maxLength: 6, nullable: false)
@@ -1066,6 +1067,7 @@ namespace CraftDailyCorner.Migrations
                     ProductID = table.Column<string>(type: "nchar(10)", maxLength: 10, nullable: false),
                     ProductNameSnapshot = table.Column<string>(type: "nvarchar(40)", maxLength: 40, nullable: false),
                     PriceSnapshot = table.Column<decimal>(type: "money", nullable: false),
+                    CostSnapshot = table.Column<decimal>(type: "money", nullable: false),
                     Quantity = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>

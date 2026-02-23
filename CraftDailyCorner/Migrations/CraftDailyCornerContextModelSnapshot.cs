@@ -724,7 +724,7 @@ namespace CraftDailyCorner.Migrations
 
                     b.Property<string>("CreatorID")
                         .IsRequired()
-                        .HasMaxLength(8)
+                        .HasMaxLength(6)
                         .HasColumnType("nchar(6)");
 
                     b.Property<string>("MemberID")
@@ -859,6 +859,9 @@ namespace CraftDailyCorner.Migrations
                     b.Property<string>("ProductID")
                         .HasMaxLength(10)
                         .HasColumnType("nchar(10)");
+
+                    b.Property<decimal>("CostSnapshot")
+                        .HasColumnType("money");
 
                     b.Property<decimal>("PriceSnapshot")
                         .HasColumnType("money");
@@ -1368,6 +1371,9 @@ namespace CraftDailyCorner.Migrations
                     b.Property<string>("ProductID")
                         .HasMaxLength(10)
                         .HasColumnType("nchar(10)");
+
+                    b.Property<decimal>("CostPrice")
+                        .HasColumnType("money");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");

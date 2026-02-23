@@ -15,13 +15,11 @@ namespace CraftDailyCorner.Controllers
     {
         private readonly CraftDailyCornerContext _context;
         private readonly MemberService _memberService;
-        private readonly CartService _cartService;
 
-        public AccountController(CraftDailyCornerContext context, MemberService memberService,CartService cartService)
+        public AccountController(CraftDailyCornerContext context, MemberService memberService)
         {
             _context = context;
             _memberService = memberService;
-            _cartService = cartService;
         }
         public IActionResult Login(string? returnUrl = null)
         {
@@ -158,7 +156,7 @@ namespace CraftDailyCorner.Controllers
             _context.PasswordResetTokens.Add(resetToken);
             await _context.SaveChangesAsync();
 
-            // 寄送 Email (用你的 Email Service)
+            // 寄送 Email 
             var resetLink = Url.Action("ResetPassword", "Account", new { token = token }, Request.Scheme);
             // SendEmail(vm.Email, "重設密碼", $"請點擊此連結重設密碼：{resetLink}");
 

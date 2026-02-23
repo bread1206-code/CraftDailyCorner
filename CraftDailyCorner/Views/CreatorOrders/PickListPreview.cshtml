@@ -1,0 +1,147 @@
+﻿@using CraftDailyCorner.ViewModels.CreatorPickList
+@model VMCreatorPickList
+
+@{
+    ViewData["Title"] = "撿貨單預覽";
+    var now = DateTime.Now;
+}
+
+<div class="container my-5">
+
+    <!--標題與資訊 -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+            <h3 class="fw-bold mb-1">撿貨單預覽</h3>
+            <div class="text-muted small">
+                產生時間：@now.ToString("yyyy/MM/dd HH:mm")
+                ｜本次訂單數：@Model.TotalOrderCount
+            </div>
+        </div>
+
+        <div class="no-print">
+
+            <!-- 取消 -->
+            <a asp-action="Index"
+               asp-route-status="new"
+               class="btn btn-outline-secondary me-2">
+                取消返回
+            </a>
+
+            <!-- 確認列印 -->
+            <form asp-action="ConfirmPrint"
+                  method="post"
+                  class="d-inline">
+                <button type="submit"
+                        class="btn btn-danger">
+                    <i class="bi bi-printer"> </i>確認列印並開始準備
+                </button>
+            </form>
+
+        </div>
+    </div>
+
+    <!--撿貨總表（最重要） -->
+    <div class="card shadow-sm border-0 mb-5">
+        <div class="card-body">
+
+            <h5 class="fw-semibold mb-3">
+                <i class="bi bi-box-seam"> </i>商品撿貨總數統計
+            </h5>
+
+            @if (!Model.SummaryItems.Any())
+            {
+                <div class="text-muted">
+                    無商品資料
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-bordered align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th style="width:70%">商品名稱</th>
+                                <th class="text-center">總數量</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.SummaryItems)
+                            {
+                                <tr>
+                                    <td>@item.ProductName</td>
+                                    <td class="text-center fw-bold text-danger fs-5">
+                                        @item.TotalQuantity
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+
+        </div>
+    </div>
+
+    <!-- 各訂單明細 -->
+    <h5 class="fw-semibold mb-3">
+        <i class="bi bi-file-earmark-text"> </i>各訂單明細
+    </h5>
+
+    @foreach (var order in Model.Orders)
+    {
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-body">
+
+                <!-- 訂單基本資訊 -->
+                <div class="mb-3">
+                    <div>
+                        <strong>訂單編號：</strong>@order.OrderID
+                    </div>
+                    <div>
+                        <strong>收件人：</strong>
+                        @order.ReceiverName ｜ @order.ReceiverPhone
+                    </div>
+                    <div>
+                        <strong>地址：</strong>
+                        @order.ShippingAddress
+                    </div>
+                    <div>
+                        <strong>建立時間：</strong>
+                        @order.CreatedAt.ToString("yyyy/MM/dd HH:mm")
+                    </div>
+                </div>
+
+                <!-- 商品明細 -->
+                <div class="table-responsive">
+                    <table class="table table-sm table-bordered mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>商品名稱</th>
+                                <th class="text-center" style="width:120px;">數量</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in order.Items)
+                            {
+                                <tr>
+                                    <td>@item.ProductName</td>
+                                    <td class="text-center">
+                                        @item.Quantity
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+        </div>
+    }
+
+</div>
+
+
+
+
+

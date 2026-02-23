@@ -51,8 +51,6 @@
         @Model.Content
     </div>
 
-    <hr class="my-4" />
-
     <!-- 留言按鈕 -->
     <div class="text-end mb-4">
         @if (User.Identity?.IsAuthenticated == true)
@@ -81,14 +79,14 @@
             </span>            
         }
     </div>
-    
+    <hr style="border-top: 2px dashed #6c757d" />
     
     <!-- 留言列表 -->
     <div id="comment-container">
         @await Component.InvokeAsync("VCPostComment",
         new { postId = Model.PostID })
     </div>
-
+    
 </div>
 
 <!-- 留言 Modal -->

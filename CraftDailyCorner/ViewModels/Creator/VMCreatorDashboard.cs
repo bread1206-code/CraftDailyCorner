@@ -37,8 +37,17 @@ namespace CraftDailyCorner.ViewModels.Creator
         [Display(Name = "粉絲數量")]
         public int FollowerCount { get; set; }
 
-        [Display(Name = "每月銷售額")]
-        public decimal MonthlySales { get; set; }
+        [Display(Name = "新訂單數量")]
+        public int NewOrderCount { get; set; }
+
+        [Display(Name = "準備中訂單數量")]
+        public int ProcessingOrderCount { get; set; }
+
+        [Display(Name = "配送中訂單數量")]
+        public int ShippingOrderCount { get; set; }
+
+        [Display(Name = "歷史訂單數量")]
+        public int HistoryOrderCount { get; set; }
 
         // UI 輔助屬性
 

@@ -23,6 +23,10 @@ namespace CraftDailyCorner.Models
         [Column(TypeName = "money")]
         public decimal PriceSnapshot { get; set; }
 
+        [Display(Name = "成本快照")]
+        [Column(TypeName = "money")]
+        public decimal CostSnapshot { get; set; }
+
         [Display(Name = "數量")]
         public int Quantity { get; set; }
 

@@ -23,6 +23,13 @@ namespace CraftDailyCorner.Models
         [Required(ErrorMessage = "必填欄位")]
         [DisplayFormat(DataFormatString = "{0:N0}")]
         public decimal Price { get; set; }
+
+        [Column(TypeName = "money")]
+        [Display(Name = "商品成本")]
+        [Required(ErrorMessage = "必填欄位")]
+        [DisplayFormat(DataFormatString = "{0:N0}")]
+        public decimal CostPrice { get; set; }
+
         [Display(Name = "狀態")]
         public byte StatusID { get; set; }
         [Display(Name = "建立時間")]

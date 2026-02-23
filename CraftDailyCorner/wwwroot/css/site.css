@@ -542,3 +542,28 @@ body {
 #report-stamp-overlay.show::before {
     animation: report-stamp 2.5s cubic-bezier(.2,1.4,.3,1);
 }
+
+/*列印樣式（隱藏按鈕與不必要元素）*/
+@media print {
+    body {
+        background: white !important;
+    }
+
+    .no-print {
+        display: none !important;
+    }
+
+    .card {
+        box-shadow: none !important;
+        border: 1px solid #ccc;
+    }
+
+    h3, h5 {
+        margin-top: 0;
+    }
+
+    .container {
+        margin: 0;
+        padding: 0;
+    }
+}

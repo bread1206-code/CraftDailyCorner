@@ -6,5 +6,6 @@ namespace CraftDailyCorner.Services.Interface
     {
         // 取得創作者後台 Dashboard 資料
         Task<VMCreatorDashboard?> GetDashboardAsync(string memberId);
+
     }
 }

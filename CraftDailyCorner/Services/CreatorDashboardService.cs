@@ -40,24 +40,49 @@ namespace CraftDailyCorner.Services.Creator
             if (creator == null)
                 return null;
 
-            //統計資料（只計算正常狀態）
+            //基本統計資料
             var productCount = await _context.Products
                 .CountAsync(p =>
                     p.CreatorID == creator.CreatorID &&
-                    p.StatusID == 2);//上架中
+                    p.StatusID == 2); // 上架中
 
             var postCount = await _context.CreatorPosts
                 .CountAsync(p =>
                     p.CreatorID == creator.CreatorID &&
-                    p.StatusID == 1);//啟用   
+                    p.StatusID == 1); // 啟用
 
             var portfolioCount = await _context.Portfolios
                 .CountAsync(p =>
                     p.CreatorID == creator.CreatorID &&
-                    p.StatusID == 1);//啟用
+                    p.StatusID == 1); // 啟用
 
 
-            // 回傳 Dashboard VM
+            //訂單統計
+            var orderGrouped = await _context.Orders
+                .Where(o => o.OrderDetails
+                    .Any(d => d.Product.CreatorID == creator.CreatorID))
+                .GroupBy(o => o.StatusID)
+                .Select(g => new
+                {
+                    StatusID = g.Key,
+                    Count = g.Count()
+                })
+                .ToListAsync();
+
+            int newCount = orderGrouped
+                .FirstOrDefault(x => x.StatusID == 2)?.Count ?? 0; // Paid
+
+            int processingCount = orderGrouped
+                .FirstOrDefault(x => x.StatusID == 3)?.Count ?? 0;
+
+            int shippingCount = orderGrouped
+                .FirstOrDefault(x => x.StatusID == 4)?.Count ?? 0;
+
+            int historyCount = orderGrouped
+                .Where(x => x.StatusID == 5 || x.StatusID == 6)
+                .Sum(x => x.Count);
+
+            //回傳 Dashboard VM
             return new VMCreatorDashboard
             {
                 CreatorID = creator.CreatorID,
@@ -69,7 +94,12 @@ namespace CraftDailyCorner.Services.Creator
 
                 ProductCount = productCount,
                 PostCount = postCount,
-                PortfolioCount = portfolioCount
+                PortfolioCount = portfolioCount,
+
+                NewOrderCount = newCount,
+                ProcessingOrderCount = processingCount,
+                ShippingOrderCount = shippingCount,
+                HistoryOrderCount = historyCount
             };
         }
     }

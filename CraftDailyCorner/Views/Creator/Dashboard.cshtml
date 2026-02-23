@@ -11,7 +11,7 @@
 
 <div class="container my-5">
 
-    <!-- ===== 歡迎區塊 ===== -->
+    <!--創作者歡迎資訊區塊（品牌形象 + 基本資料） -->
     <div class="card shadow-sm border-0 mb-3">
         <div class="card-body d-flex flex-column flex-md-row align-items-center gap-4">
 
@@ -37,11 +37,10 @@
                     成為創作者於：@Model.CreatedAt.ToString("yyyy/MM/dd")
                 </div>
             </div>
-
         </div>
     </div>
 
-    <!-- ===== 簡介區 ===== -->
+    <!--品牌簡介區塊 -->
     <div class="card shadow-sm border-0 mb-3">
         <div class="card-body">
             <h5 class="fw-semibold mb-3">
@@ -54,32 +53,25 @@
         </div>
     </div>
 
-    <!-- ===== 管理卡片 ===== -->
+
+    
+    <!--創作與商品管理總覽區塊 -->
+    
     <div class="row g-4 mb-3">
 
         <!-- 商品管理 -->
         <div class="col-md-4">
             <div class="card hover-card h-100 shadow-sm">
                 <div class="card-body text-center d-flex flex-column">
-                    <div class="stat-icon-wrapper mb-2">
-                        <i class="bi bi-box-seam fs-1 text-primary"></i>
+
+                    <i class="bi bi-box-seam fs-1 text-primary mb-2"></i>
+
+                    <div class="fs-5 fw-semibold">已上架商品</div>
+
+                    <div class="fs-2 fw-bold text-primary mb-3">
+                        @Model.ProductCount
                     </div>
 
-                    <div class="fs-5 fw-semibold">
-                        已上架商品
-                    </div>
-                    @if (Model.ProductCount == 0)
-                    {
-                        <div class="text-muted small mb-2">
-                            尚未建立任何商品
-                        </div>
-                    }
-                    else
-                    {
-                        <div class="fs-2 fw-bold text-primary mb-3">
-                            @Model.ProductCount
-                        </div>
-                    }
                     <div class="mt-auto">
                         <a asp-controller="CreatorProducts"
                            asp-action="Index"
@@ -87,6 +79,7 @@
                             商品管理
                         </a>
                     </div>
+
                 </div>
             </div>
         </div>
@@ -95,26 +88,14 @@
         <div class="col-md-4">
             <div class="card hover-card h-100 shadow-sm">
                 <div class="card-body text-center d-flex flex-column">
-                    <div class="stat-icon-wrapper mb-2">
-                        <i class="bi bi-images fs-1 text-success"></i>
-                    </div>
 
-                    <div class="fs-5 fw-semibold">
-                        作品集
+                    <i class="bi bi-images fs-1 text-success mb-2"></i>
+
+                    <div class="fs-5 fw-semibold">作品集</div>
+
+                    <div class="fs-2 fw-bold text-success mb-3">
+                        @Model.PortfolioCount
                     </div>
-                    @if (Model.PortfolioCount == 0)
-                    {
-                        <div class="text-muted small mb-2">
-                            尚未分享您的作品集
-                        </div>
-                    }
-                    else
-                    {
-                        <div class="fs-2 fw-bold text-success mb-3">
-                            @Model.PortfolioCount
-                        </div>
-                    }
-     
 
                     <div class="mt-auto">
                         <a asp-controller="Portfolio"
@@ -123,6 +104,7 @@
                             作品集管理
                         </a>
                     </div>
+
                 </div>
             </div>
         </div>
@@ -131,26 +113,14 @@
         <div class="col-md-4">
             <div class="card hover-card h-100 shadow-sm">
                 <div class="card-body text-center d-flex flex-column">
-                    <div class="stat-icon-wrapper mb-2">
-                        <i class="bi bi-journal-text fs-1 text-purple"></i>
-                    </div>
 
-                    <div class="fs-5 fw-semibold">
-                        創作日誌
+                    <i class="bi bi-journal-text fs-1 text-purple mb-2"></i>
+
+                    <div class="fs-5 fw-semibold">創作日誌</div>
+
+                    <div class="fs-2 fw-bold text-purple mb-3">
+                        @Model.PostCount
                     </div>
-                    @if (Model.PostCount == 0)
-                    {
-                        <div class="text-muted small mb-2">
-                            尚未撰寫創作日誌
-                        </div>
-                    }
-                    else
-                    {
-                        <div class="fs-2 fw-bold text-purple mb-3">
-                            @Model.PostCount
-                        </div>
-                    }
-                    
 
                     <div class="mt-auto">
                         <a asp-controller="Post"
@@ -159,10 +129,89 @@
                             日誌管理
                         </a>
                     </div>
+
                 </div>
             </div>
         </div>
 
+    </div>
+
+
+    
+    <!--訂單管理總覽區塊-->
+    
+    <div class="card shadow-sm border-0">
+        <div class="card-body">
+
+            <h5 class="fw-semibold mb-4">
+                訂單管理
+            </h5>
+
+            <div class="row g-3">
+
+                <!-- 新訂單 -->
+                <div class="col-md-3">
+                    <a asp-controller="CreatorOrders"
+                       asp-action="Index"
+                       asp-route-status="new"
+                       class="text-decoration-none">
+                        <div class="border rounded p-3 text-center hover-card">
+                            <div class="fw-semibold">新訂單</div>
+                            <div class="fs-4 text-danger">
+                                @Model.NewOrderCount
+                            </div>
+                        </div>
+                    </a>
+                </div>
+
+                <!-- 準備中 -->
+                <div class="col-md-3">
+                    <a asp-controller="CreatorOrders"
+                       asp-action="Index"
+                       asp-route-status="processing"
+                       class="text-decoration-none">
+                        <div class="border rounded p-3 text-center hover-card">
+                            <div class="fw-semibold">準備中</div>
+                            <div class="fs-4 text-warning">
+                                @Model.ProcessingOrderCount
+                            </div>
+                        </div>
+                    </a>
+                </div>
+
+                <!-- 配送中 -->
+                <div class="col-md-3">
+                    <a asp-controller="CreatorOrders"
+                       asp-action="Index"
+                       asp-route-status="shipping"
+                       class="text-decoration-none">
+                        <div class="border rounded p-3 text-center hover-card">
+                            <div class="fw-semibold">配送中</div>
+                            <div class="fs-4 text-primary">
+                                @Model.ShippingOrderCount
+                            </div>
+                        </div>
+                    </a>
+                </div>
+
+                <!-- 歷史訂單 -->
+                <div class="col-md-3">
+                    <a asp-controller="CreatorOrders"
+                       asp-action="Index"
+                       asp-route-status="history"
+                       class="text-decoration-none">
+                        <div class="border rounded p-3 text-center hover-card">
+                            <div class="fw-semibold">歷史訂單</div>
+                            <div class="fs-4 text-secondary">
+                                @Model.HistoryOrderCount
+                            </div>
+                        </div>
+                    </a>
+                </div>
+
+            </div>
+
+        </div>
     </div>
 
 </div>

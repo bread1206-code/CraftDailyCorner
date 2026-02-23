@@ -84,6 +84,7 @@ namespace CraftDailyCorner.Services
                         ProductID = product.ProductID,
                         ProductNameSnapshot = product.ProductName,
                         PriceSnapshot = product.Price,
+                        CostSnapshot = product.CostPrice,
                         Quantity = item.Quantity
                     };
                     _context.OrderDetails.Add(orderDetail);
