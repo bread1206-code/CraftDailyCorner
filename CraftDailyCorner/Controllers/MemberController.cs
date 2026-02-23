@@ -13,15 +13,13 @@ namespace CraftDailyCorner.Controllers
         private readonly MemberCenterService _memberCenterService;
         private readonly IImageUploadService _imageUploadService;
         private readonly FavoriteService _favoriteService;
-        private readonly CreatorApplicationService _creatorApplicationService;
 
         public MemberController(MemberCenterService memberCenterService, IImageUploadService imageUploadService, 
-            FavoriteService favoriteService, CreatorApplicationService creatorApplicationService)
+            FavoriteService favoriteService)
         {
             _memberCenterService = memberCenterService;
             _imageUploadService = imageUploadService;
             _favoriteService = favoriteService;
-            _creatorApplicationService = creatorApplicationService;
         }
 
         //會員中心首頁
