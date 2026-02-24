@@ -188,13 +188,15 @@ public class CreatorOrderService : ICreatorOrderService
             {
                 TrackingNo = trackingNo,
                 StatusID = 2,
-                OrderID = order.OrderID
+                OrderID = order.OrderID,
+                ShippedAt = DateTime.Now
             };
         }
         else
         {
             order.Shipment.TrackingNo = trackingNo;
             order.Shipment.StatusID = 2;
+            order.Shipment.ShippedAt = DateTime.Now;
         }
 
         await _context.SaveChangesAsync();

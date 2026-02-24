@@ -885,6 +885,7 @@ namespace CraftDailyCorner.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     TrackingNo = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     StatusID = table.Column<byte>(type: "tinyint", nullable: false),
+                    ShippedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     OrderID = table.Column<string>(type: "nchar(12)", maxLength: 12, nullable: false)
                 },
                 constraints: table =>
@@ -1665,6 +1666,12 @@ namespace CraftDailyCorner.Migrations
                 name: "IX_Shipments_StatusID",
                 table: "Shipments",
                 column: "StatusID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Shipments_TrackingNo",
+                table: "Shipments",
+                column: "TrackingNo",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_ShipmentStatuses_StatusCode",

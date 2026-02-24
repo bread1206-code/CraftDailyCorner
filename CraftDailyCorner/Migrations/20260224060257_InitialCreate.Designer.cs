@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CraftDailyCorner.Migrations
 {
     [DbContext(typeof(CraftDailyCornerContext))]
-    [Migration("20260223013559_InitialCreate")]
+    [Migration("20260224060257_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -1693,6 +1693,9 @@ namespace CraftDailyCorner.Migrations
                         .HasMaxLength(12)
                         .HasColumnType("nchar(12)");
 
+                    b.Property<DateTime?>("ShippedAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<byte>("StatusID")
                         .HasColumnType("tinyint");
 
@@ -1707,6 +1710,9 @@ namespace CraftDailyCorner.Migrations
                         .IsUnique();
 
                     b.HasIndex("StatusID");
+
+                    b.HasIndex("TrackingNo")
+                        .IsUnique();
 
                     b.ToTable("Shipments");
                 });

@@ -34,6 +34,7 @@ builder.Services.AddScoped<ICreatorApplicationService, CreatorApplicationService
 builder.Services.AddScoped<ICreatorOrderService, CreatorOrderService>();
 builder.Services.AddScoped<ICreatorPickListService, CreatorPickListService>();
 builder.Services.AddScoped<ICreatorShipmentService, CreatorShipmentService>();
+builder.Services.AddScoped<ICreatorAnalyticsService, CreatorAnalyticsService>();
 builder.Services.AddHostedService<SoftDeleteCleanupBackgroundService>();
 builder.Services.AddScoped <SeedRunner>();
 builder.Services.AddScoped <SeedMember>();

@@ -1,0 +1,110 @@
+﻿@model CraftDailyCorner.ViewModels.CreatorAnalytics.VMCommunityDashboard
+@using System.Text.Json
+
+@{
+    ViewData["Title"] = "社群經營分析";
+}
+
+<div class="container-fluid py-4">
+
+    <!-- Page Title -->
+    <div class="mb-4">
+        <h2 class="fw-bold">社群經營儀表板</h2>
+        <p class="text-muted">內容成長、互動分析與商業價值</p>
+    </div>
+
+    <!-- Overview KPI -->
+    <div class="row g-4 mb-5">
+
+        <div class="col-md-3">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body">
+                    <h6 class="text-muted">總貼文數</h6>
+                    <h3 class="fw-bold">@Model.Overview.TotalPosts</h3>
+                    <small class="text-muted">
+                        已發布 @Model.Overview.PublishedPosts /
+                        草稿 @Model.Overview.DraftPosts
+                    </small>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body">
+                    <h6 class="text-muted">總留言數</h6>
+                    <h3 class="fw-bold">@Model.Overview.TotalComments</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body">
+                    <h6 class="text-muted">總訂單數</h6>
+                    <h3 class="fw-bold">@Model.Overview.TotalOrders</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card shadow-sm border-0 h-100 bg-light">
+                <div class="card-body">
+                    <h6 class="text-muted">總營收</h6>
+                    <h3 class="fw-bold text-success">
+                        @Model.Overview.TotalRevenue.ToString("C")
+                    </h3>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Content Trend -->
+    <div class="card shadow-sm border-0 mb-5">
+        <div class="card-body">
+
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold mb-0">發文趨勢</h5>
+                <span class="badge bg-primary">
+                    成長率 @Model.ContentAnalysis.MonthlyGrowthRate.ToString("P")
+                </span>
+            </div>
+
+            <div style="height:320px;">
+                <canvas id="postTrendChart"></canvas>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Comment Trend -->
+    <div class="card shadow-sm border-0 mb-5">
+        <div class="card-body">
+
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold mb-0">留言趨勢</h5>
+                <span class="badge bg-info">
+                    成長率 @Model.InteractionAnalysis.CommentGrowthRate.ToString("P")
+                </span>
+            </div>
+
+            <div style="height:320px;">
+                <canvas id="commentTrendChart"></canvas>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+<!-- 把資料存在隱藏區塊 -->
+<div id="chartData"
+     data-post='@Html.Raw(JsonSerializer.Serialize(Model.ContentAnalysis.MonthlyTrend))'
+     data-comment='@Html.Raw(JsonSerializer.Serialize(Model.InteractionAnalysis.CommentTrend))'>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="~/js/creatorCommunityDashboard.js"></script>
+}

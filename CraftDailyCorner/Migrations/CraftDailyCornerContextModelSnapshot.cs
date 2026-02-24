@@ -1690,6 +1690,9 @@ namespace CraftDailyCorner.Migrations
                         .HasMaxLength(12)
                         .HasColumnType("nchar(12)");
 
+                    b.Property<DateTime?>("ShippedAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<byte>("StatusID")
                         .HasColumnType("tinyint");
 
@@ -1704,6 +1707,9 @@ namespace CraftDailyCorner.Migrations
                         .IsUnique();
 
                     b.HasIndex("StatusID");
+
+                    b.HasIndex("TrackingNo")
+                        .IsUnique();
 
                     b.ToTable("Shipments");
                 });

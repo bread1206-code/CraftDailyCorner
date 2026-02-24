@@ -16,6 +16,9 @@ namespace CraftDailyCorner.Models
         [Display(Name = "狀態")]
         public byte StatusID { get; set; } = 0;
 
+        [Display(Name ="出貨時間")]
+        public DateTime? ShippedAt { get; set; }
+
         [StringLength(12, MinimumLength = 12)]
         [Column(TypeName = "nchar(12)")]
         [Display(Name = "訂單編號")]
