@@ -26,5 +26,15 @@ namespace CraftDailyCorner.Controllers
 
             return View(vm);
         }
+
+        public async Task<IActionResult> Commerce()
+        {
+            var creatorId = User.FindFirst("CreatorID")?.Value;
+            if (string.IsNullOrEmpty(creatorId))
+                return Unauthorized();
+
+            var vm = await _analyticsService.GetCommerceDashboardAsync(creatorId);
+            return View(vm);
+        }
     }
 }

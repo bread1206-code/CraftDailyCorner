@@ -1,4 +1,5 @@
-﻿using CraftDailyCorner.Services;
+﻿using CraftDailyCorner.Extensions;
+using CraftDailyCorner.Services;
 using CraftDailyCorner.Services.Creator;
 using CraftDailyCorner.ViewModels.Member;
 using Microsoft.AspNetCore.Authorization;
@@ -26,7 +27,7 @@ namespace CraftDailyCorner.Controllers
         // GET: /Member
         public IActionResult Index()
         {
-            var memberId = GetMemberId();
+            var memberId = User.GetMemberId();
 
             var vm = _memberCenterService.GetMemberDashboard(memberId);
 
@@ -38,7 +39,7 @@ namespace CraftDailyCorner.Controllers
         [HttpGet]
         public IActionResult Profile()
         {
-            var memberId = GetMemberId();
+            var memberId = User.GetMemberId();
             var vm = _memberCenterService.GetProfile(memberId);
             return View(vm);
         }
@@ -52,7 +53,7 @@ namespace CraftDailyCorner.Controllers
             if (!ModelState.IsValid)
                 return View(vm);
 
-            var memberId = GetMemberId();
+            var memberId = User.GetMemberId();
 
             if (vm.AvatarFile != null && vm.AvatarFile.Length > 0)
             {
@@ -82,22 +83,12 @@ namespace CraftDailyCorner.Controllers
         [Authorize]
         public IActionResult Favorites()
         {
-            var memberId = GetMemberId();
+            var memberId = User.GetMemberId();
 
             var favorites = _favoriteService.GetMyFavorites(memberId);
 
             return View(favorites);
         }
 
-        //私有方法：取得登入會員 ID
-        private string GetMemberId()
-        {
-            var memberId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-            if (string.IsNullOrEmpty(memberId))
-                throw new UnauthorizedAccessException("找不到會員識別資訊");
-
-            return memberId;
-        }
     }
 }

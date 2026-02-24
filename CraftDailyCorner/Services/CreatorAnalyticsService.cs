@@ -14,6 +14,7 @@ namespace CraftDailyCorner.Services
             _context = context;
         }
 
+        //社群經營儀表板
         public async Task<VMCommunityDashboard> GetCommunityDashboardAsync(string creatorId)
         {
             var now = DateTime.Now;
@@ -189,6 +190,121 @@ namespace CraftDailyCorner.Services
                 TotalRevenue = totalRevenue,
                 AverageOrderValue = avgOrderValue,
                 TopSellingProducts = topProducts
+            };
+
+            return dashboard;
+        }
+        //電商銷售儀表板
+        public async Task<VMCommerceDashboard> GetCommerceDashboardAsync(string creatorId)
+        {
+            var now = DateTime.Now;
+            var firstDayThisMonth = new DateTime(now.Year, now.Month, 1);
+            var firstDayLastMonth = firstDayThisMonth.AddMonths(-1);
+
+            var dashboard = new VMCommerceDashboard();
+
+            var orderQuery = _context.OrderDetails
+                .Where(o => o.Product.CreatorID == creatorId);
+
+            //Overview
+
+            var totalOrders = await orderQuery
+                .Select(o => o.OrderID)
+                .Distinct()
+                .CountAsync();
+
+            var totalQuantity = await orderQuery
+                .SumAsync(o => (int?)o.Quantity) ?? 0;
+
+            var totalRevenue = await orderQuery
+                .SumAsync(o => (decimal?)o.Quantity * o.Product.Price) ?? 0;
+
+            decimal avgOrderValue = 0;
+            if (totalOrders > 0)
+                avgOrderValue = totalRevenue / totalOrders;
+
+            dashboard.Overview = new VMCommerceOverview
+            {
+                TotalOrders = totalOrders,
+                TotalQuantitySold = totalQuantity,
+                TotalRevenue = totalRevenue,
+                AverageOrderValue = avgOrderValue
+            };
+
+            //Revenue Trend
+
+            var revenueRaw = await orderQuery
+                .GroupBy(o => new { o.Order.CreatedAt.Year, o.Order.CreatedAt.Month })
+                .Select(g => new
+                {
+                    g.Key.Year,
+                    g.Key.Month,
+                    Revenue = g.Sum(x => x.Quantity * x.Product.Price)
+                })
+                .OrderBy(g => g.Year)
+                .ThenBy(g => g.Month)
+                .ToListAsync();
+
+            var monthlyTrend = revenueRaw
+                .Select(x => new VMRevenueMonthlyTrend
+                {
+                    MonthLabel = $"{x.Year}-{x.Month:D2}",
+                    Revenue = x.Revenue
+                })
+                .ToList();
+
+            var thisMonthRevenue = monthlyTrend
+                .Where(x => x.MonthLabel == $"{now.Year}-{now.Month:D2}")
+                .Select(x => x.Revenue)
+                .FirstOrDefault();
+
+            var lastMonthRevenue = monthlyTrend
+                .Where(x => x.MonthLabel == $"{firstDayLastMonth.Year}-{firstDayLastMonth.Month:D2}")
+                .Select(x => x.Revenue)
+                .FirstOrDefault();
+
+            decimal growth = 0;
+            if (lastMonthRevenue > 0)
+                growth = (thisMonthRevenue - lastMonthRevenue) / lastMonthRevenue;
+
+            dashboard.RevenueTrend = new VMCommerceRevenueTrend
+            {
+                MonthlyTrend = monthlyTrend,
+                MonthlyGrowthRate = growth
+            };
+
+            //Product Ranking
+
+            var topByRevenue = await orderQuery
+                .GroupBy(o => new { o.ProductID, o.Product.ProductName })
+                .Select(g => new VMProductSalesRanking
+                {
+                    ProductID = g.Key.ProductID,
+                    ProductName = g.Key.ProductName,
+                    QuantitySold = g.Sum(x => x.Quantity),
+                    Revenue = g.Sum(x => x.Quantity * x.Product.Price)
+                })
+                .OrderByDescending(x => x.Revenue)
+                .Take(5)
+                .ToListAsync();
+
+            var topByQuantity = await orderQuery
+                .GroupBy(o => new { o.ProductID, o.Product.ProductName })
+                .Select(g => new VMProductSalesRanking
+                {
+                    ProductID = g.Key.ProductID,
+                    ProductName = g.Key.ProductName,
+                    QuantitySold = g.Sum(x => x.Quantity),
+                    Revenue = g.Sum(x => x.Quantity * x.Product.Price)
+                })
+                .OrderByDescending(x => x.QuantitySold)
+                .Take(5)
+                .ToListAsync();
+
+            dashboard.ProductRanking = new VMCommerceProductRanking
+            {
+                TopByRevenue = topByRevenue,
+                TopByQuantity = topByQuantity
             };
 
             return dashboard;

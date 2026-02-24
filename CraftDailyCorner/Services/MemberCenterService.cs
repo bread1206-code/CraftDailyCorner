@@ -52,7 +52,7 @@ namespace CraftDailyCorner.Services
                     .Count(o =>
                         o.MemberID == memberId &&
                         o.StatusID != 1 &&
-                        o.StatusID != 4),
+                        o.StatusID != 5),
 
                 AllOrderCount = _context.Orders
                     .Count(o => o.MemberID == memberId),

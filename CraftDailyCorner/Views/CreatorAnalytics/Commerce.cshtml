@@ -1,0 +1,162 @@
+﻿@model CraftDailyCorner.ViewModels.CreatorAnalytics.VMCommerceDashboard
+@using System.Text.Json
+
+@{
+    ViewData["Title"] = "銷售分析";
+}
+
+<div class="container-fluid py-4">
+
+    <!-- Page Title -->
+    <div class="mb-4">
+        <h2 class="fw-bold">電商銷售儀表板</h2>
+        <p class="text-muted">營收趨勢與商品銷售分析</p>
+    </div>
+
+    <!-- KPI Cards -->
+    <div class="row g-4 mb-5">
+
+        <div class="col-md-3">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body">
+                    <h6 class="text-muted">總營收</h6>
+                    <h3 class="fw-bold text-success">
+                        @Model.Overview.TotalRevenue.ToString("C")
+                    </h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body">
+                    <h6 class="text-muted">總訂單數</h6>
+                    <h3 class="fw-bold">
+                        @Model.Overview.TotalOrders
+                    </h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body">
+                    <h6 class="text-muted">總銷售數量</h6>
+                    <h3 class="fw-bold">
+                        @Model.Overview.TotalQuantitySold
+                    </h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card shadow-sm border-0 h-100 bg-light">
+                <div class="card-body">
+                    <h6 class="text-muted">平均客單價</h6>
+                    <h3 class="fw-bold">
+                        @Model.Overview.AverageOrderValue.ToString("C")
+                    </h3>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Revenue Trend -->
+    <div class="card shadow-sm border-0 mb-5">
+        <div class="card-body">
+
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold mb-0">月營收趨勢</h5>
+                <span class="badge bg-primary">
+                    成長率 @Model.RevenueTrend.MonthlyGrowthRate.ToString("P")
+                </span>
+            </div>
+
+            <div style="height:350px;">
+                <canvas id="revenueTrendChart"></canvas>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Product Ranking -->
+    <div class="row g-4">
+
+        <!-- Top Revenue -->
+        <div class="col-md-6">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body">
+                    <h5 class="fw-bold mb-3">營收排行 TOP 5</h5>
+
+                    <div class="table-responsive">
+                        <table class="table align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>商品名稱</th>
+                                    <th>營收</th>
+                                    <th>銷售數量</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model.ProductRanking.TopByRevenue)
+                                {
+                                    <tr>
+                                        <td>@item.ProductName</td>
+                                        <td>@item.Revenue.ToString("C")</td>
+                                        <td>@item.QuantitySold</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- Top Quantity -->
+        <div class="col-md-6">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body">
+                    <h5 class="fw-bold mb-3">銷售數量排行 TOP 5</h5>
+
+                    <div class="table-responsive">
+                        <table class="table align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>商品名稱</th>
+                                    <th>銷售數量</th>
+                                    <th>營收</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model.ProductRanking.TopByQuantity)
+                                {
+                                    <tr>
+                                        <td>@item.ProductName</td>
+                                        <td>@item.QuantitySold</td>
+                                        <td>@item.Revenue.ToString("C")</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+<!-- 傳資料給 JS -->
+<div id="commerceChartData"
+     data-revenue='@Html.Raw(JsonSerializer.Serialize(Model.RevenueTrend.MonthlyTrend))'>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="~/js/creator-commerce-dashboard.js"></script>
+}

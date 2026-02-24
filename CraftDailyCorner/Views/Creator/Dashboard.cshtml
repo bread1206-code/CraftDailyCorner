@@ -214,4 +214,74 @@
         </div>
     </div>
 
+    <!-- 🔥 數據分析入口區塊（新增） -->
+    <!-- ========================= -->
+
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-body">
+
+            <h5 class="fw-semibold mb-4">
+                數據分析中心
+            </h5>
+
+            <div class="row g-4">
+
+                <!-- 電商銷售分析 -->
+                <div class="col-md-6">
+                    <div class="card hover-card h-100 shadow-sm border-0">
+                        <div class="card-body text-center d-flex flex-column">
+
+                            <i class="bi bi-graph-up-arrow fs-1 text-success mb-3"></i>
+
+                            <div class="fs-5 fw-semibold">
+                                電商銷售分析
+                            </div>
+
+                            <p class="text-muted small mb-4">
+                                查看營收趨勢、商品銷售排行與客單價分析
+                            </p>
+
+                            <div class="mt-auto">
+                                <a asp-controller="CreatorAnalytics"
+                                   asp-action="Commerce"
+                                   class="btn btn-success w-100">
+                                    前往銷售儀表板
+                                </a>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 社群經營分析 -->
+                <div class="col-md-6">
+                    <div class="card hover-card h-100 shadow-sm border-0">
+                        <div class="card-body text-center d-flex flex-column">
+
+                            <i class="bi bi-bar-chart-line fs-1 text-primary mb-3"></i>
+
+                            <div class="fs-5 fw-semibold">
+                                社群經營分析
+                            </div>
+
+                            <p class="text-muted small mb-4">
+                                分析發文成長、留言互動與社群價值表現
+                            </p>
+
+                            <div class="mt-auto">
+                                <a asp-controller="CreatorAnalytics"
+                                   asp-action="Community"
+                                   class="btn btn-primary w-100">
+                                    前往社群儀表板
+                                </a>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
 </div>

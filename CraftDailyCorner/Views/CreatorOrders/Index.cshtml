@@ -132,6 +132,12 @@
                                                     break;
                                                 case 4:
                                                     <span class="badge bg-primary">配送中</span>
+                                                    @if (order.HasShipment && !string.IsNullOrEmpty(order.TrackingNo))
+                                                    {
+                                                        <span class="small text-muted mt-1">
+                                                            (物流編號：@order.TrackingNo)
+                                                        </span>
+                                                    }
                                                     break;
                                                 case 5:
                                                     <span class="badge bg-success">完成</span>
