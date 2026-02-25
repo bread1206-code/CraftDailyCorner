@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace CraftDailyCorner.Controllers
 {
+    //分析儀表板
     [Authorize(Roles = "02")]
     public class CreatorAnalyticsController : Controller
     {
