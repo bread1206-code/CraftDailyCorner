@@ -62,6 +62,8 @@ namespace CraftDailyCorner.Models
         public DbSet<PlatformSettingCategory> PlatformSettingCategories => Set<PlatformSettingCategory>();
         public DbSet<Report> Reports => Set<Report>();
         public DbSet<ReportStatus> ReportStatuses => Set<ReportStatus>();
+        public DbSet<Reaction> Reactions => Set<Reaction>();    
+
 
         #endregion
 
@@ -117,6 +119,7 @@ namespace CraftDailyCorner.Models
             modelBuilder.Entity<PlatformSettingCategory>().HasKey(x => x.CategoryID);
             modelBuilder.Entity<Report>().HasKey(x => x.ReportID);
             modelBuilder.Entity<ReportStatus>().HasKey(x => x.StatusID);
+            modelBuilder.Entity<Reaction>().HasKey(x => x.ReactionID);
 
             #endregion
 
@@ -142,6 +145,7 @@ namespace CraftDailyCorner.Models
 
             modelBuilder.Entity<ProductTag>()
                 .HasKey(x => new { x.ProductID, x.TagID });
+
 
             #endregion
 
@@ -350,6 +354,12 @@ namespace CraftDailyCorner.Models
                 .HasForeignKey(m => m.ThreadID)
                 .OnDelete(DeleteBehavior.Cascade);
 
+            modelBuilder.Entity<Message>()
+                .HasOne(m => m.Member)
+                .WithMany(m => m.Messages)
+                .HasForeignKey(m => m.SenderID)
+                .OnDelete(DeleteBehavior.Restrict);
+
             modelBuilder.Entity<AutoReplyTemplate>()
                 .HasOne(a => a.CreatorProfile)
                 .WithMany(c => c.AutoReplyTemplates)
@@ -417,7 +427,7 @@ namespace CraftDailyCorner.Models
                 .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<PortfolioStatus>()
-                .HasMany(cps => cps.Portfolio)
+                .HasMany(cps => cps.Portfolios)
                 .WithOne(cp => cp.PortfolioStatus)
                 .HasForeignKey(cp => cp.StatusID)
                 .OnDelete(DeleteBehavior.Restrict);
@@ -536,10 +546,10 @@ namespace CraftDailyCorner.Models
                 .HasForeignKey(pcr => pcr.StatusID)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            modelBuilder.Entity<Message>()
-                .HasOne(m => m.Member)
-                .WithMany(m => m.Messages)
-                .HasForeignKey(m => m.SenderID)
+            modelBuilder.Entity<Reaction>()
+                .HasOne(r => r.Member)
+                .WithMany(m => m.Reactions)
+                .HasForeignKey(r => r.MemberID)
                 .OnDelete(DeleteBehavior.Restrict);
 
             #endregion
@@ -632,7 +642,13 @@ namespace CraftDailyCorner.Models
 
             modelBuilder.Entity<Shipment>()
                 .HasIndex(r => new { r.TrackingNo })
+                .IsUnique()
+                .HasFilter("[TrackingNo] IS NOT NULL");
+
+            modelBuilder.Entity<Reaction>()
+                .HasIndex(r => new { r.MemberID, r.TargetType, r.TargetID })
                 .IsUnique();
+
             #endregion
 
             modelBuilder.Entity<PortfolioItem>()

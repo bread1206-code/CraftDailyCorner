@@ -60,5 +60,6 @@ namespace CraftDailyCorner.Models
         public virtual List<MemberRoleHistory> OperatedRoleHistories { get; set; } = new List<MemberRoleHistory>();
         public virtual List<Report> ReportsCreated { get; set; } = new List<Report>();
         public virtual List<Report> ReportsReviewed { get; set; } = new List<Report>();
+        public virtual List<Reaction> Reactions { get; set; } = new List<Reaction>();
     }
 }

@@ -673,6 +673,29 @@ namespace CraftDailyCorner.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Reactions",
+                columns: table => new
+                {
+                    ReactionID = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    TargetType = table.Column<byte>(type: "tinyint", nullable: false),
+                    TargetID = table.Column<string>(type: "nvarchar(36)", maxLength: 36, nullable: false),
+                    ReactionType = table.Column<byte>(type: "tinyint", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    MemberID = table.Column<string>(type: "nchar(8)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Reactions", x => x.ReactionID);
+                    table.ForeignKey(
+                        name: "FK_Reactions_Members_MemberID",
+                        column: x => x.MemberID,
+                        principalTable: "Members",
+                        principalColumn: "MemberID",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "AutoReplyTemplates",
                 columns: table => new
                 {
@@ -1625,6 +1648,12 @@ namespace CraftDailyCorner.Migrations
                 column: "TagID");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Reactions_MemberID_TargetType_TargetID",
+                table: "Reactions",
+                columns: new[] { "MemberID", "TargetType", "TargetID" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Reports_MemberID",
                 table: "Reports",
                 column: "MemberID");
@@ -1671,7 +1700,8 @@ namespace CraftDailyCorner.Migrations
                 name: "IX_Shipments_TrackingNo",
                 table: "Shipments",
                 column: "TrackingNo",
-                unique: true);
+                unique: true,
+                filter: "[TrackingNo] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
                 name: "IX_ShipmentStatuses_StatusCode",
@@ -1751,6 +1781,9 @@ namespace CraftDailyCorner.Migrations
 
             migrationBuilder.DropTable(
                 name: "ProductTags");
+
+            migrationBuilder.DropTable(
+                name: "Reactions");
 
             migrationBuilder.DropTable(
                 name: "Reports");

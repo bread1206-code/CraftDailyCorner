@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CraftDailyCorner.Migrations
 {
     [DbContext(typeof(CraftDailyCornerContext))]
-    [Migration("20260224060257_InitialCreate")]
+    [Migration("20260226132457_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -1571,6 +1571,40 @@ namespace CraftDailyCorner.Migrations
                     b.ToTable("ProductTags");
                 });
 
+            modelBuilder.Entity("CraftDailyCorner.Models.Reaction", b =>
+                {
+                    b.Property<long>("ReactionID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("ReactionID"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("MemberID")
+                        .IsRequired()
+                        .HasColumnType("nchar(8)");
+
+                    b.Property<byte>("ReactionType")
+                        .HasColumnType("tinyint");
+
+                    b.Property<string>("TargetID")
+                        .IsRequired()
+                        .HasMaxLength(36)
+                        .HasColumnType("nvarchar(36)");
+
+                    b.Property<byte>("TargetType")
+                        .HasColumnType("tinyint");
+
+                    b.HasKey("ReactionID");
+
+                    b.HasIndex("MemberID", "TargetType", "TargetID")
+                        .IsUnique();
+
+                    b.ToTable("Reactions");
+                });
+
             modelBuilder.Entity("CraftDailyCorner.Models.Report", b =>
                 {
                     b.Property<long>("ReportID")
@@ -1712,7 +1746,8 @@ namespace CraftDailyCorner.Migrations
                     b.HasIndex("StatusID");
 
                     b.HasIndex("TrackingNo")
-                        .IsUnique();
+                        .IsUnique()
+                        .HasFilter("[TrackingNo] IS NOT NULL");
 
                     b.ToTable("Shipments");
                 });
@@ -2204,7 +2239,7 @@ namespace CraftDailyCorner.Migrations
                         .IsRequired();
 
                     b.HasOne("CraftDailyCorner.Models.PortfolioStatus", "PortfolioStatus")
-                        .WithMany("Portfolio")
+                        .WithMany("Portfolios")
                         .HasForeignKey("StatusID")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
@@ -2348,6 +2383,17 @@ namespace CraftDailyCorner.Migrations
                     b.Navigation("Product");
 
                     b.Navigation("Tag");
+                });
+
+            modelBuilder.Entity("CraftDailyCorner.Models.Reaction", b =>
+                {
+                    b.HasOne("CraftDailyCorner.Models.Member", "Member")
+                        .WithMany("Reactions")
+                        .HasForeignKey("MemberID")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Member");
                 });
 
             modelBuilder.Entity("CraftDailyCorner.Models.Report", b =>
@@ -2496,6 +2542,8 @@ namespace CraftDailyCorner.Migrations
 
                     b.Navigation("ProductReviews");
 
+                    b.Navigation("Reactions");
+
                     b.Navigation("ReportsCreated");
 
                     b.Navigation("ReportsReviewed");
@@ -2556,7 +2604,7 @@ namespace CraftDailyCorner.Migrations
 
             modelBuilder.Entity("CraftDailyCorner.Models.PortfolioStatus", b =>
                 {
-                    b.Navigation("Portfolio");
+                    b.Navigation("Portfolios");
                 });
 
             modelBuilder.Entity("CraftDailyCorner.Models.PostComment", b =>

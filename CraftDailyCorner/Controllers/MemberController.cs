@@ -1,6 +1,7 @@
 ﻿using CraftDailyCorner.Extensions;
 using CraftDailyCorner.Services;
 using CraftDailyCorner.Services.Creator;
+using CraftDailyCorner.Services.Interface;
 using CraftDailyCorner.ViewModels.Member;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -14,13 +15,15 @@ namespace CraftDailyCorner.Controllers
         private readonly MemberCenterService _memberCenterService;
         private readonly IImageUploadService _imageUploadService;
         private readonly FavoriteService _favoriteService;
+        private readonly IFollowService _followService;
 
         public MemberController(MemberCenterService memberCenterService, IImageUploadService imageUploadService, 
-            FavoriteService favoriteService)
+            FavoriteService favoriteService, IFollowService followService)
         {
             _memberCenterService = memberCenterService;
             _imageUploadService = imageUploadService;
             _favoriteService = favoriteService;
+            _followService = followService;
         }
 
         //會員中心首頁
@@ -90,5 +93,12 @@ namespace CraftDailyCorner.Controllers
             return View(favorites);
         }
 
+        // 我的追蹤頁面
+        public async Task<IActionResult> Follows()
+        {
+            var memberId = User.GetMemberId();
+            var list = await _followService.GetMyFollowingAsync(memberId);
+            return View(list);
+        }
     }
 }

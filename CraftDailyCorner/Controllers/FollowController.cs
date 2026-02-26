@@ -25,5 +25,6 @@ namespace CraftDailyCorner.Controllers.Front
 
             return Redirect(Request.Headers["Referer"].ToString());
         }
+        
     }
 }
