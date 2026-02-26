@@ -151,8 +151,13 @@ function prepareLoginModal() {
 }
 //AJAX 登入
 function ajaxLogin() {
-    const form = document.getElementById('loginForm');
-    const formData = new FormData(form);
+    const form = $('#loginForm');
+
+    //前端驗證
+    if (!form.valid()) {
+        return; // 驗證不通過就不要送出
+    }
+    const formData = new FormData(form[0]);
 
     fetch('/Account/Login', {
         method: 'POST',
@@ -186,8 +191,14 @@ function showLoginError(msg) {
 }
 //註冊Ajax版本
 function ajaxRegister() {
-    const form = document.getElementById('registerForm');
-    const formData = new FormData(form);
+    const form = $('#registerForm');
+
+    //前端驗證
+    if (!form.valid()) {
+        return;
+    }
+
+    const formData = new FormData(form[0]);
 
     fetch('/Account/Register', {
         method: 'POST',
@@ -198,11 +209,19 @@ function ajaxRegister() {
     })
         .then(r => r.json())
         .then(res => {
+
             if (!res.success) {
-                showRegisterError(res.message);
+                //處理欄位錯誤
+                if (res.errors) {
+                    showRegisterErrors(res.errors);
+                }
+                //處理整體錯誤
+                if (res.message) {
+                    showRegisterError(res.message);
+                }
+
                 return;
             }
-
             // 註冊成功 = 已登入
             onLoginSuccess();
         })
@@ -241,6 +260,8 @@ function switchToRegister() {
     if (!registerTabBtn) return;
 
     bootstrap.Tab.getOrCreateInstance(registerTabBtn).show();
+    //重新解析驗證規則
+    $.validator.unobtrusive.parse('#registerForm');
 }
 
 //收藏商品

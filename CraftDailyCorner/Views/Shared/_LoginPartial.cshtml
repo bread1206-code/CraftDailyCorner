@@ -11,11 +11,15 @@
     }
 }
 
-<form id="loginForm">
+<form id="loginForm" method="post">
     @Html.AntiForgeryToken()
     <input type="hidden" name="returnUrl" value="" />
 
-    <!-- 錯誤訊息 -->
+    <!-- 驗證總錯誤 -->
+    <div asp-validation-summary="ModelOnly"
+         class="text-danger mb-2"></div>
+    
+    <!-- 錯誤訊息 (AJAX 用) -->
     <div id="loginError"
          class="alert alert-danger d-none">
     </div>
@@ -23,20 +27,28 @@
     <!-- Account -->
     <div class="mb-3">
         <label asp-for="Account" class="form-label"></label>
+
         <input asp-for="Account"
                class="form-control"
                placeholder="請輸入 Email 或 手機號碼"
                autocomplete="username" />
+
+        <span asp-validation-for="Account"
+              class="text-danger"></span>
     </div>
 
     <!-- Password -->
     <div class="mb-3">
         <label asp-for="Password" class="form-label"></label>
+
         <input asp-for="Password"
                type="password"
                class="form-control"
                placeholder="請輸入密碼"
                autocomplete="current-password" />
+
+        <span asp-validation-for="Password"
+              class="text-danger"></span>
     </div>
 
     <!-- Remember -->
@@ -44,9 +56,7 @@
         <input asp-for="RememberAccount"
                class="form-check-input" />
         <label asp-for="RememberAccount"
-               class="form-check-label">
-            記住帳號
-        </label>
+               class="form-check-label"></label>
     </div>
 
     <div class="d-grid">
@@ -64,6 +74,7 @@
             立即註冊
         </a>
     </div>
+
     <div class="text-center mt-3">
         <span>忘記密碼？</span>
         <a asp-controller="Account"

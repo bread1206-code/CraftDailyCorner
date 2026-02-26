@@ -4,45 +4,40 @@
 <form id="registerForm">
     @Html.AntiForgeryToken()
 
-    <!-- 顯示整體錯誤（非欄位） -->
-    <div id="registerGlobalError"
+    <div id="registerError"
          class="alert alert-danger d-none"></div>
 
     <!-- 暱稱 -->
     <div class="mb-3">
         <label asp-for="DisplayName" class="form-label"></label>
         <input asp-for="DisplayName" class="form-control" />
-        <span class="text-danger"
-              data-valmsg-for="DisplayName"></span>
+        <span asp-validation-for="DisplayName" class="text-danger"></span>
     </div>
 
     <!-- Email -->
     <div class="mb-3">
         <label asp-for="Email" class="form-label"></label>
         <input asp-for="Email" class="form-control" />
-        <span class="text-danger"
-              data-valmsg-for="Email"></span>
+        <span asp-validation-for="Email" class="text-danger"></span>
     </div>
 
     <!-- 手機 -->
     <div class="mb-3">
         <label asp-for="Phone" class="form-label"></label>
         <input asp-for="Phone" class="form-control" />
-        <span class="text-danger"
-              data-valmsg-for="Phone"></span>
+        <span asp-validation-for="Phone" class="text-danger"></span>
     </div>
 
     <!-- 性別 -->
     <div class="mb-3">
         <label asp-for="Gender" class="form-label"></label>
         <select asp-for="Gender" class="form-select">
-            <option value="" selected>-- 請選擇 --</option>
+            <option value="">-- 請選擇 --</option>
             <option value="Male">男</option>
             <option value="Female">女</option>
             <option value="Other">其他</option>
         </select>
-        <span class="text-danger"
-              data-valmsg-for="Gender"></span>
+        <span asp-validation-for="Gender" class="text-danger"></span>
     </div>
 
     <!-- 密碼 -->
@@ -51,8 +46,7 @@
         <input asp-for="Password"
                type="password"
                class="form-control" />
-        <span class="text-danger"
-              data-valmsg-for="Password"></span>
+        <span asp-validation-for="Password" class="text-danger"></span>
     </div>
 
     <!-- 確認密碼 -->
@@ -61,11 +55,9 @@
         <input asp-for="ConfirmPassword"
                type="password"
                class="form-control" />
-        <span class="text-danger"
-              data-valmsg-for="ConfirmPassword"></span>
+        <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
     </div>
 
-    <!-- ⭐ 注意：不是 submit -->
     <div class="d-grid">
         <button type="button"
                 class="btn btn-success"

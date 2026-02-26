@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Data;
 using System.Security.Claims;
+using System.Text.Json;
 
 namespace CraftDailyCorner.Controllers
 {
@@ -102,7 +103,8 @@ namespace CraftDailyCorner.Controllers
                 {
                     success = false,
                     errors = new { Email = "此 Email 已被註冊" }
-                });
+                    //加入這個設定，保持 "Email" 不會變成 "email"
+                }, new JsonSerializerOptions { PropertyNamingPolicy = null });
             }
 
             if (_context.Privacies.Any(p => p.Phone == model.Phone))
@@ -111,7 +113,7 @@ namespace CraftDailyCorner.Controllers
                 {
                     success = false,
                     errors = new { Phone = "此手機號碼已被註冊" }
-                });
+                }, new JsonSerializerOptions { PropertyNamingPolicy = null });
             }
 
             // 建立會員

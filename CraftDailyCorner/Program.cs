@@ -137,8 +137,16 @@ app.UseSession();
 app.UseAuthentication();
 app.UseAuthorization();
 
+//區域路由
+//app.MapControllerRoute(
+//    name: "other",
+//    pattern: "{area=Admin}/{controller=Home}/{action=Index}/{id?}");
+
+//預設路由
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
+
+
 
 app.Run();
