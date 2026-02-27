@@ -53,6 +53,7 @@ public class AdminDashboardService : IAdminDashboardService
         return new VMDashboard
         {
             TodayOrders = todayOrders,
+            YesterdayOrders = yesterdayOrders,
             TodayRevenue = todayRevenue,
             TodayMembers = todayMembers,
 
@@ -60,9 +61,9 @@ public class AdminDashboardService : IAdminDashboardService
             RevenueGrowthRate = CalculateGrowth(todayRevenue, yesterdayRevenue),
             MemberGrowthRate = CalculateGrowth(todayMembers, yesterdayMembers),
 
-            OrderGrowthUp = todayOrders >= yesterdayOrders,
-            RevenueGrowthUp = todayRevenue >= yesterdayRevenue,
-            MemberGrowthUp = todayMembers >= yesterdayMembers,
+            OrderGrowthUp = todayOrders > yesterdayOrders,
+            RevenueGrowthUp = todayRevenue > yesterdayRevenue,
+            MemberGrowthUp = todayMembers > yesterdayMembers,
 
             AvailableMonths = await GenerateAvailableMonths()
         };

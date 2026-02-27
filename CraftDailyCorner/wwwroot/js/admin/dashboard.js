@@ -2,8 +2,9 @@
 // Admin Dashboard JS
 // ===============================
 
-let dashboardChart = null;
 let isLoading = false;
+let transactionChart = null;
+let memberChart = null;
 
 //初始化
 
@@ -52,53 +53,109 @@ document.addEventListener("DOMContentLoaded", function () {
 
 function initChart() {
 
-    const ctx = document.getElementById("dashboardChart");
+    const ctx1 = document.getElementById("transactionChart");
+    const ctx2 = document.getElementById("memberChart");
 
-    dashboardChart = new Chart(ctx, {
+    const axisTextColor = "#cbd5e1";
+    const gridColor = "rgba(148,163,184,0.15)";
+
+    transactionChart = new Chart(ctx1, {
+        type: 'line',
         data: {
             labels: [],
             datasets: [
                 {
-                    type: 'line',
                     label: '訂單數',
                     data: [],
-                    borderWidth: 2,
-                    tension: 0.3,
-                    yAxisID: 'y'
+                    borderColor: '#3b82f6',
+                    backgroundColor: 'rgba(59,130,246,0.1)',
+                    pointBackgroundColor: '#3b82f6',
+                    tension: 0.3
                 },
                 {
-                    type: 'line',
                     label: '營收',
                     data: [],
-                    borderWidth: 2,
+                    borderColor: '#22c55e',
+                    backgroundColor: 'rgba(34,197,94,0.1)',
+                    pointBackgroundColor: '#22c55e',
                     tension: 0.3,
                     yAxisID: 'y1'
-                },
-                {
-                    type: 'bar',
-                    label: '新增會員',
-                    data: [],
-                    yAxisID: 'y'
                 }
             ]
         },
         options: {
             responsive: true,
-            interaction: {
-                mode: 'index',
-                intersect: false
+            plugins: {
+                legend: {
+                    labels: {
+                        color: axisTextColor
+                    }
+                },
+                tooltip: {
+                    backgroundColor: '#1e293b',
+                    titleColor: '#fff',
+                    bodyColor: '#e2e8f0',
+                    borderColor: '#334155',
+                    borderWidth: 1
+                }
             },
             scales: {
+                x: {
+                    ticks: { color: axisTextColor },
+                    grid: { color: gridColor }
+                },
                 y: {
-                    type: 'linear',
-                    position: 'left'
+                    ticks: { color: axisTextColor },
+                    grid: { color: gridColor },
+                    beginAtZero: true
                 },
                 y1: {
-                    type: 'linear',
+                    ticks: { color: axisTextColor },
+                    grid: { drawOnChartArea: false },
                     position: 'right',
-                    grid: {
-                        drawOnChartArea: false
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+
+    memberChart = new Chart(ctx2, {
+        type: 'bar',
+        data: {
+            labels: [],
+            datasets: [
+                {
+                    label: '新增會員',
+                    data: [],
+                    backgroundColor: 'rgba(148,163,184,0.6)'
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    labels: {
+                        color: axisTextColor
                     }
+                },
+                tooltip: {
+                    backgroundColor: '#1e293b',
+                    titleColor: '#fff',
+                    bodyColor: '#e2e8f0',
+                    borderColor: '#334155',
+                    borderWidth: 1
+                }
+            },
+            scales: {
+                x: {
+                    ticks: { color: axisTextColor },
+                    grid: { color: gridColor }
+                },
+                y: {
+                    ticks: { color: axisTextColor },
+                    grid: { color: gridColor },
+                    beginAtZero: true
                 }
             }
         }
@@ -165,13 +222,14 @@ async function loadHistoryData(month) {
 
 function updateChart(data) {
 
-    dashboardChart.data.labels = data.labels;
+    transactionChart.data.labels = data.labels;
+    transactionChart.data.datasets[0].data = data.orderData || [];
+    transactionChart.data.datasets[1].data = data.revenueData || [];
+    transactionChart.update();
 
-    dashboardChart.data.datasets[0].data = data.orderData || [];
-    dashboardChart.data.datasets[1].data = data.revenueData || [];
-    dashboardChart.data.datasets[2].data = data.memberData || [];
-
-    dashboardChart.update();
+    memberChart.data.labels = data.labels;
+    memberChart.data.datasets[0].data = data.memberData || [];
+    memberChart.update();
 }
 
 //Loading 控制
@@ -180,11 +238,12 @@ function setLoading(state) {
 
     isLoading = state;
 
-    const canvas = document.getElementById("dashboardChart");
+    const tCanvas = document.getElementById("transactionChart");
+    const mCanvas = document.getElementById("memberChart");
 
-    if (state) {
-        canvas.style.opacity = "0.5";
-    } else {
-        canvas.style.opacity = "1";
-    }
+    const opacity = state ? "0.5" : "1";
+
+    if (tCanvas) tCanvas.style.opacity = opacity;
+    if (mCanvas) mCanvas.style.opacity = opacity;
 }
+

@@ -5,14 +5,17 @@
         // ===== KPI 區 =====
 
         public int TodayOrders { get; set; }
+        public int YesterdayOrders { get; set; }
         public decimal TodayRevenue { get; set; }
+        public decimal YesterdayRevenue { get; set; }
         public int TodayMembers { get; set; }
+        public int YesterdayMembers { get; set; }
 
         // 成長率（與昨日比較）
         public decimal OrderGrowthRate { get; set; }
         public decimal RevenueGrowthRate { get; set; }
         public decimal MemberGrowthRate { get; set; }
-
+        
         // 是否成長（控制箭頭方向）
         public bool OrderGrowthUp { get; set; }
         public bool RevenueGrowthUp { get; set; }
