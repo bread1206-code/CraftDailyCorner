@@ -17,6 +17,7 @@ namespace CraftDailyCorner.ViewModels.Member
         [DataType(DataType.Password)]
         public string Password { get; set; } = null!;
 
+        [Display(Name = "記住帳號")]
         public bool RememberAccount { get; set; }
     }
 }

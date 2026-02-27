@@ -49,6 +49,9 @@ namespace CraftDailyCorner.ViewModels.Creator
         [Display(Name = "歷史訂單數量")]
         public int HistoryOrderCount { get; set; }
 
+        [Display(Name = "庫存警示數量")]
+        public int InventoryAlertCount { get; set; }
+
         // UI 輔助屬性
 
         public string ProfileImagePath =>

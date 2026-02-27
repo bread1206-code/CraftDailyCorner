@@ -127,7 +127,7 @@ namespace CraftDailyCorner.Services
                     query.Where(o => o.OrderStatus.StatusID == 1),
 
                 "processing" =>
-                    query.Where(o => o.OrderStatus.StatusID == 2 || o.OrderStatus.StatusID == 3),
+                    query.Where(o => o.OrderStatus.StatusID == 2 || o.OrderStatus.StatusID == 3 || o.OrderStatus.StatusID == 4),
 
                 _ => query // All
             };

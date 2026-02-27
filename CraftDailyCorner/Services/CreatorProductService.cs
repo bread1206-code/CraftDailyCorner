@@ -15,16 +15,18 @@ namespace CraftDailyCorner.Services
             _context = context;
         }
 
-        // =========================================================
-        // 商品列表
-        // =========================================================
+        //商品列表
         public VMCreatorProductList GetCreatorProductList(string creatorId)
         {
             var items = _context.Products
                 .Include(p => p.Inventory)
                 .Include(p => p.ProductStatus)
+                .Include(p => p.ProductImages)
                 .Where(p => p.CreatorID == creatorId)
-                .OrderByDescending(p => p.CreatedAt)
+                .OrderBy(p =>
+                        p.Inventory.StockQty == 0 ? 0 :
+                        p.Inventory.StockQty <= p.Inventory.AlertQty ? 1 : 2)
+                    .ThenByDescending(p => p.ProductID)
                 .Select(p => new VMCreatorProductListItem
                 {
                     ProductID = p.ProductID,
@@ -32,6 +34,13 @@ namespace CraftDailyCorner.Services
                     Price = p.Price,
                     StatusName = p.ProductStatus.StatusName,
                     StockQty = p.Inventory.StockQty,
+                    CoverImageUrl = p.ProductImages
+                        .Where(i => i.StatusID == 1)
+                        .OrderBy(i => i.SortOrder)
+                        .Select(i => i.ImageUrl)
+                        .FirstOrDefault(),
+
+                    AlertQty = p.Inventory.AlertQty,
                     CreatedAt = p.CreatedAt
                 })
                 .ToList();
@@ -42,9 +51,7 @@ namespace CraftDailyCorner.Services
             };
         }
 
-        // =========================================================
         // 取得建立表單
-        // =========================================================
         public VMCreatorProductForm GetCreateForm()
         {
             var vm = new VMCreatorProductForm
@@ -56,9 +63,7 @@ namespace CraftDailyCorner.Services
             return vm;
         }
 
-        // =========================================================
-        // 取得編輯表單
-        // =========================================================
+        //取得編輯表單
         public async Task<VMCreatorProductForm?> GetEditFormAsync(
             string productId,
             string creatorId)
@@ -99,9 +104,7 @@ namespace CraftDailyCorner.Services
             return vm;
         }
 
-        // =========================================================
-        // 建立商品
-        // =========================================================
+        //建立商品
         public async Task<string> CreateAsync(
             VMCreatorProductForm vm,
             string creatorId)
@@ -151,9 +154,7 @@ namespace CraftDailyCorner.Services
             return productId;
         }
 
-        // =========================================================
-        // 更新商品
-        // =========================================================
+        //更新商品
         public async Task<bool> UpdateAsync(
             VMCreatorProductForm vm,
             string creatorId)
@@ -169,9 +170,7 @@ namespace CraftDailyCorner.Services
             if (product == null)
                 return false;
 
-            // ==========================
-            // 上架檢查
-            // ==========================
+            //上架檢查
             if (vm.StatusID == 2)
             {
                 if (product.Inventory.StockQty <= 0)
@@ -218,9 +217,7 @@ namespace CraftDailyCorner.Services
             return true;
         }
 
-        // =========================================================
-        // 載入選單
-        // =========================================================
+        //載入選單
         public void LoadOptions(VMCreatorProductForm vm)
         {
             vm.StatusSelectList = _context.ProductStatuses

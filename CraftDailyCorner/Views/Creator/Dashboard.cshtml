@@ -75,8 +75,16 @@
                     <div class="mt-auto">
                         <a asp-controller="CreatorProducts"
                            asp-action="Index"
-                           class="btn btn-outline-primary btn-sm w-100">
+                           class="btn btn-outline-primary btn-sm w-100 position-relative">
                             商品管理
+                            @if (Model.InventoryAlertCount > 0)
+                            {
+                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                    @(Model.InventoryAlertCount >= 10
+                                        ? "9+"
+                                        : Model.InventoryAlertCount.ToString())
+                                </span>
+                            }
                         </a>
                     </div>
 

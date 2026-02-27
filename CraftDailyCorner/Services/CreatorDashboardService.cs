@@ -46,6 +46,12 @@ namespace CraftDailyCorner.Services.Creator
                     p.CreatorID == creator.CreatorID &&
                     p.StatusID == 2); // 上架中
 
+            var inventoryAlertCount = await _context.Products
+                .CountAsync(p =>
+                    p.CreatorID == creator.CreatorID &&
+                    p.StatusID == 2 &&
+                    p.Inventory.StockQty <= p.Inventory.AlertQty);
+
             var postCount = await _context.CreatorPosts
                 .CountAsync(p =>
                     p.CreatorID == creator.CreatorID &&
@@ -93,6 +99,7 @@ namespace CraftDailyCorner.Services.Creator
                 CreatedAt = creator.CreatedAt,
 
                 ProductCount = productCount,
+                InventoryAlertCount = inventoryAlertCount,
                 PostCount = postCount,
                 PortfolioCount = portfolioCount,
 

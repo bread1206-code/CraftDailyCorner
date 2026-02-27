@@ -26,5 +26,17 @@ namespace CraftDailyCorner.ViewModels.CreatorProduct
 
         [Display(Name = "建立時間")]
         public DateTime CreatedAt { get; set; }
+        
+        [Display(Name = "封面圖片")]
+        public string? CoverImageUrl { get; set; }
+        
+        [Display(Name = "警示庫存")]
+        public int AlertQty { get; set; }
+        
+        [Display(Name = "缺貨")]
+        public bool IsOutOfStock => StockQty == 0;
+        
+        [Display(Name = "庫存不足")]
+        public bool IsLowStock => StockQty > 0 && StockQty <= AlertQty;
     }
 }

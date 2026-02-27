@@ -20,9 +20,7 @@ namespace CraftDailyCorner.Controllers
             _imageService = imageService;
         }
 
-        // ==========================================
-        // 商品列表
-        // ==========================================
+        //商品列表
         public IActionResult Index()
         {
             var creatorId = User.GetCreatorId();
@@ -33,9 +31,7 @@ namespace CraftDailyCorner.Controllers
             return View(products);
         }
 
-        // ==========================================
-        // 建立
-        // ==========================================
+        //建立
         public IActionResult Create()
         {
             var vm = _productService.GetCreateForm();
@@ -71,9 +67,7 @@ namespace CraftDailyCorner.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // ==========================================
-        // 編輯
-        // ==========================================
+        //編輯
         public async Task<IActionResult> Edit(string id)
         {
             var creatorId = User.GetCreatorId();
@@ -120,9 +114,7 @@ namespace CraftDailyCorner.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // ==========================================
-        // 軟刪除（下架）
-        // ==========================================
+        //軟刪除（下架）
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(string id)

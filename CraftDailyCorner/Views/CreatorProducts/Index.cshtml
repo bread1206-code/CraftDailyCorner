@@ -31,7 +31,7 @@
                             <th>商品名稱</th>
                             <th>價格</th>
                             <th>狀態</th>
-                            <th>庫存</th>
+                            <th>商品狀態</th>
                             <th>建立時間</th>
                             <th class="text-end">操作</th>
                         </tr>
@@ -41,8 +41,18 @@
                         @foreach (var item in Model.Products)
                         {
                             <tr>
-                                <td class="fw-semibold">
-                                    @item.ProductName
+                                <td>
+                                    <div class="d-flex align-items-center gap-3">
+                                        <img src="@(string.IsNullOrEmpty(item.CoverImageUrl)
+                                                    ? "/Photos/04ProductImage/default.png" 
+                                                    : $"/Photos/04ProductImage/Medium/{item.CoverImageUrl}.png")"
+                                             style="width:60px;height:60px;object-fit:cover;"
+                                             class="rounded border" />
+
+                                        <div class="fw-semibold">
+                                            @item.ProductName
+                                        </div>
+                                    </div>
                                 </td>
 
                                 <td>
@@ -50,11 +60,33 @@
                                 </td>
 
                                 <td>
-                                    @item.StatusName
+                                    @if (item.StatusName == "上架中")
+                                    {
+                                        <span class="badge bg-success">上架中</span>
+                                    }
+                                    else if (item.StatusName == "草稿")
+                                    {
+                                        <span class="badge bg-primary">草稿</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-danger">下架</span>
+                                    }
                                 </td>
 
                                 <td>
-                                    @item.StockQty
+                                    @if (item.IsOutOfStock)
+                                    {
+                                        <span class="badge bg-danger">缺貨</span>
+                                    }
+                                    else if (item.IsLowStock)
+                                    {
+                                        <span class="badge bg-warning text-dark">低庫存 (@item.StockQty)</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-success">正常 (@item.StockQty)</span>
+                                    }
                                 </td>
 
                                 <td>
