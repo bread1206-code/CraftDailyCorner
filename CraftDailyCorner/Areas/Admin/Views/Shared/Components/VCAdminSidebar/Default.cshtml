@@ -1,0 +1,77 @@
+﻿@model CraftDailyCorner.Areas.Admin.ViewModels.VMAdminSidebar
+
+<div class="admin-sidebar p-3 border-end">
+
+    <ul class="nav flex-column">
+
+        <li class="nav-item mb-2">
+            <a asp-area="Admin"
+               asp-controller="Dashboard"
+               asp-action="Index"
+               class="nav-link">
+                <i class="bi bi-speedometer2 me-2"></i>
+                儀表板
+            </a>
+        </li>
+
+        <li class="nav-item mb-2">
+            <a asp-area="Admin"
+               asp-controller="CreatorReview"
+               asp-action="Index"
+               class="nav-link d-flex justify-content-between align-items-center">
+                <span>
+                    <i class="bi bi-person-check me-2"></i>
+                    創作者審核
+                </span>
+                @if (Model.PendingCreators > 0)
+                {
+                    <span id="badgeCreators" class="badge bg-danger">
+                        @Model.PendingCreators
+                    </span>
+                }
+                else
+                {
+                    <span id="badgeCreators" class="badge bg-danger d-none"></span>
+                }
+            </a>
+        </li>
+
+        <li class="nav-item mb-2">
+            <a asp-area="Admin"
+               asp-controller="Violation"
+               asp-action="Index"
+               class="nav-link d-flex justify-content-between align-items-center">
+                <span>
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    違規管理
+                </span>
+                @if (Model.PendingViolations > 0)
+                {
+                    <span id="badgeViolations" class="badge bg-danger">
+                        @Model.PendingViolations
+                    </span>
+                }
+                else
+                {
+                    <span id="badgeViolations" class="badge bg-danger d-none"></span>
+                }
+            </a>
+        </li>
+
+        <li class="nav-item mt-3">
+            <hr />
+        </li>
+
+        <li class="nav-item">
+            <a asp-area=""
+               asp-controller="Home"
+               asp-action="Index"
+               class="nav-link">
+                <i class="bi bi-arrow-left me-2"></i>
+                回前台
+            </a>
+        </li>
+
+    </ul>
+
+</div>

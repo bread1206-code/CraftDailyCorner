@@ -56,7 +56,7 @@ namespace CraftDailyCorner.Seed
         private readonly SeedPlatformAnnouncementStatus _seedPlatformAnnouncementStatus;
         private readonly SeedHomepageBannerStatus _seedHomepageBannerStatus;
         private readonly SeedPlatformSettingCategory _seedPlatformSettingCategory;
-        private readonly SeedPostCommentReportStatus _seedPostCommentReportStatus;
+        private readonly SeedReportStatus _seedPostCommentReportStatus;
         private readonly SeedPortfolioStatus _seedPortfolioStatus;
 
 
@@ -126,7 +126,7 @@ namespace CraftDailyCorner.Seed
             SeedPlatformAnnouncementStatus seedPlatformAnnouncementStatus,
             SeedHomepageBannerStatus seedHomepageBannerStatus,
             SeedPlatformSettingCategory seedPlatformSettingCategory,
-            SeedPostCommentReportStatus seedPostCommentReportStatus,
+            SeedReportStatus seedPostCommentReportStatus,
             SeedPortfolioStatus seedPortfolioStatus
         )
         {

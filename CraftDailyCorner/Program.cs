@@ -35,6 +35,9 @@ builder.Services.AddScoped<ICreatorOrderService, CreatorOrderService>();
 builder.Services.AddScoped<ICreatorPickListService, CreatorPickListService>();
 builder.Services.AddScoped<ICreatorShipmentService, CreatorShipmentService>();
 builder.Services.AddScoped<ICreatorAnalyticsService, CreatorAnalyticsService>();
+builder.Services.AddScoped<IAdminDashboardService, AdminDashboardService>();
+builder.Services.AddScoped<IAdminSidebarService, AdminSidebarService>();
+
 builder.Services.AddHostedService<SoftDeleteCleanupBackgroundService>();
 builder.Services.AddScoped <SeedRunner>();
 builder.Services.AddScoped <SeedMember>();
@@ -86,7 +89,7 @@ builder.Services.AddScoped <SeedCreatorPostStatus>();
 builder.Services.AddScoped <SeedPlatformAnnouncementStatus>();
 builder.Services.AddScoped <SeedHomepageBannerStatus>();
 builder.Services.AddScoped <SeedPlatformSettingCategory>();
-builder.Services.AddScoped <SeedPostCommentReportStatus>();
+builder.Services.AddScoped <SeedReportStatus>();
 builder.Services.AddAuthentication("CraftDailyCornerLogin").AddCookie("CraftDailyCornerLogin", option =>
 {
     option.LoginPath = "/Account/Login";//設定登入頁面路徑(入口)，若需登入而未登入時強制導到此路徑
@@ -137,10 +140,10 @@ app.UseSession();
 app.UseAuthentication();
 app.UseAuthorization();
 
-//區域路由
-//app.MapControllerRoute(
-//    name: "other",
-//    pattern: "{area=Admin}/{controller=Home}/{action=Index}/{id?}");
+app.MapControllerRoute(
+    name: "areas",
+    pattern: "{area:exists}/{controller=Dashboard}/{action=Index}/{id?}");
+
 
 //預設路由
 app.MapControllerRoute(

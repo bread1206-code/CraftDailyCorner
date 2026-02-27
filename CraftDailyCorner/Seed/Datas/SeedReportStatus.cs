@@ -2,11 +2,11 @@
 
 namespace CraftDailyCorner.Seed.Datas
 {
-    public class SeedPostCommentReportStatus
+    public class SeedReportStatus
     {
         private readonly CraftDailyCornerContext _context;
 
-        public SeedPostCommentReportStatus(CraftDailyCornerContext context)
+        public SeedReportStatus(CraftDailyCornerContext context)
         {
             _context = context;
         }
