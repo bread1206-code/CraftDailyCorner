@@ -20,8 +20,9 @@ namespace CraftDailyCorner.Controllers.Front
         public async Task<IActionResult> Toggle(string creatorId)
         {
             var memberId = User.GetMemberId();
+            var loginCreatorId = User.GetCreatorId();
 
-            await _followService.ToggleAsync(creatorId, memberId);
+            await _followService.ToggleAsync(creatorId, memberId, loginCreatorId);
 
             return Redirect(Request.Headers["Referer"].ToString());
         }

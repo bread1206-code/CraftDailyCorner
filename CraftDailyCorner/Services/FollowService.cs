@@ -14,8 +14,12 @@ namespace CraftDailyCorner.Services
             _context = context;
         }
 
-        public async Task ToggleAsync(string creatorId, string memberId)
+        public async Task ToggleAsync(string creatorId, string memberId, string? loginCreatorId)
         {
+            // 🚫 創作者本人不能追蹤自己
+            if (!string.IsNullOrEmpty(loginCreatorId) && loginCreatorId == creatorId)
+                throw new InvalidOperationException("不能追蹤自己");
+
             var existing = await _context.FollowCreators
                 .FirstOrDefaultAsync(f =>
                     f.CreatorID == creatorId &&

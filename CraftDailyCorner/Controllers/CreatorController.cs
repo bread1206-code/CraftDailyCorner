@@ -100,8 +100,12 @@ namespace CraftDailyCorner.Controllers.Front
                 ? User.GetMemberId()
                 : null;
 
+            var loginCreatorId = User.Identity?.IsAuthenticated == true
+                ? User.GetCreatorId()
+                : null;
+
             var creator = await _creatorPublicService
-                .GetProfileAsync(id, memberId);
+                .GetProfileAsync(id, memberId, loginCreatorId);
 
             if (creator == null)
                 return NotFound();
@@ -110,11 +114,9 @@ namespace CraftDailyCorner.Controllers.Front
         }
         [AllowAnonymous]
         //創作者列表首頁
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string? keyword, int page = 1)
         {
-            var vm = await _creatorPublicService
-                .GetCreatorIndexAsync();
-
+            var vm = await _creatorPublicService.GetCreatorIndexAsync(keyword, page);
             return View(vm);
         }
     }

@@ -17,6 +17,8 @@ namespace CraftDailyCorner.ViewModels.CreatorPortfolio
 
         [Display(Name = "作品數量")]
         public int ItemCount { get; set; }
+        [Display(Name = "封面圖片URL")]
+        public string? CoverImageUrl { get; set; }
 
         public string VisibilityText =>
             Visibility switch

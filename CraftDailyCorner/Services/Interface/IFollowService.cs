@@ -4,7 +4,7 @@ namespace CraftDailyCorner.Services.Interface
 {
     public interface IFollowService
     {
-        Task ToggleAsync(string creatorId, string memberId);
+        Task ToggleAsync(string creatorId, string memberId, string? loginCreatorId);
 
         Task<bool> IsFollowingAsync(string creatorId, string memberId);
 

@@ -4,48 +4,131 @@
     ViewData["Title"] = "創作者";
 }
 
-<div class="container py-5" style="max-width:1100px;">
+<div class="container py-5" style="max-width:1200px;">
 
-    <div class="page-header mb-4">
+    <!-- 標題 -->
+    <div class="text-center mb-2">
         <h2 class="fw-bold">探索創作者</h2>
         <p class="text-muted">發掘最新加入的創作者</p>
     </div>
 
-    <div class="row g-4">
-        @foreach (var creator in Model.Creators)
-        {
-            <div class="col-md-4">
-                <div class="card shadow-sm border-0 h-100">
+    <!-- 搜尋 -->
+    <form method="get" class="row justify-content-center mb-3">
+        <div class="col-md-6 d-flex gap-2">
+            <input type="text"
+                   name="keyword"
+                   value="@Model.Query.Keyword"
+                   class="form-control"
+                   placeholder="搜尋創作者名稱或介紹..." />
 
-                    <div class="card-body text-center">
+            <button type="submit"
+                    class="btn btn-dark text-nowrap px-4">
+                <i class="bi bi-search me-1"></i>搜尋
+            </button>
+        </div>
+    </form>
 
-                        <img src="@creator.ImagePath"
-                             class="rounded-circle mb-3"
-                             style="width:100px;height:100px;object-fit:cover;" />
+    @if (!Model.Creators.Any())
+    {
+        <div class="text-center text-muted py-5">
+            尚無符合條件的創作者
+        </div>
+    }
+    else
+    {
+        <div class="row g-4">
 
-                        <h5 class="fw-semibold">
-                            @creator.DisplayName
-                        </h5>
+            @foreach (var creator in Model.Creators)
+            {
+                <div class="col-md-6 col-lg-4">
 
-                        <p class="text-muted small">
-                            @creator.Intro
-                        </p>
+                    <div class="card shadow-sm border-0 h-100 p-card">
 
-                        <p class="small text-secondary">
-                            粉絲數：@creator.FollowerCount
-                        </p>
-
+                        <!-- 整張卡片超連結 -->
                         <a asp-action="Profile"
                            asp-route-id="@creator.CreatorID"
-                           class="btn btn-outline-dark btn-sm">
-                            查看創作者
+                           class="text-decoration-none text-dark d-block h-100">
+
+                            <div class="card-body text-center d-flex flex-column">
+
+                                <div class="d-flex justify-content-center mb-3">
+                                    <img src="@creator.ImagePath"
+                                         class="rounded-circle"
+                                         style="width:100px;height:100px;object-fit:cover;" />
+                                </div>
+
+                                <div class="fw-semibold h5 mb-2 text-truncate">
+                                    <i class="bi bi-filter-right"></i>
+                                    @creator.DisplayName
+                                    <i class="bi bi-filter-left"></i>
+                                </div>
+
+                                <div class="text-muted small p-preview mb-2">
+                                    @creator.Intro
+                                </div>
+
+                                <div class="text-muted small text-end mt-auto w-100">
+                                    <i class="bi bi-people"></i>
+                                    @creator.FollowerCount 位粉絲
+
+                                    <span class="mx-2">•</span>
+
+                                    @(creator.CreatedAt.ToLocalTime().ToString("yyyy/MM/dd"))
+                                </div>
+
+                            </div>
                         </a>
 
                     </div>
 
                 </div>
-            </div>
-        }
-    </div>
+            }
+
+        </div>
+    }
+    @if (Model.TotalPages > 1)
+    {
+        <nav class="mt-5">
+            <ul class="pagination justify-content-center">
+
+                @if (Model.HasPreviousPage)
+                {
+                    <li class="page-item">
+                        <a class="page-link"
+                           asp-action="Index"
+                           asp-route-page="@(Model.Query.Page - 1)"
+                           asp-route-keyword="@Model.Query.Keyword">
+                            上一頁
+                        </a>
+                    </li>
+                }
+
+                @for (int i = 1; i <= Model.TotalPages; i++)
+                {
+                    <li class="page-item @(i == Model.Query.Page ? "active" : "")">
+                        <a class="page-link"
+                           asp-action="Index"
+                           asp-route-page="@i"
+                           asp-route-keyword="@Model.Query.Keyword">
+                            @i
+                        </a>
+                    </li>
+                }
+
+                @if (Model.HasNextPage)
+                {
+                    <li class="page-item">
+                        <a class="page-link"
+                           asp-action="Index"
+                           asp-route-page="@(Model.Query.Page + 1)"
+                           asp-route-keyword="@Model.Query.Keyword">
+                            下一頁
+                        </a>
+                    </li>
+                }
+
+            </ul>
+        </nav>
+    }
 
 </div>

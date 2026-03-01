@@ -1,11 +1,14 @@
 ﻿using CraftDailyCorner.Models;
+using CraftDailyCorner.Models.enums;
 using CraftDailyCorner.Services.Interface;
 using CraftDailyCorner.ViewModels.Creator;
 using CraftDailyCorner.ViewModels.CreatorPortfolio.Front;
 using CraftDailyCorner.ViewModels.CreatorPost;
 using CraftDailyCorner.ViewModels.FollowCreator;
 using CraftDailyCorner.ViewModels.Product;
+using CraftDailyCorner.ViewModels.Reaction;
 using Microsoft.EntityFrameworkCore;
+using CraftDailyCorner.Extensions;
 
 namespace CraftDailyCorner.Services.Creator
 {
@@ -24,7 +27,8 @@ namespace CraftDailyCorner.Services.Creator
 
         public async Task<VMCreatorPublicProfile?> GetProfileAsync(
             string creatorId,
-            string? memberId)
+            string? memberId,
+            string? loginCreatorId)
         {
             var creator = await _context.CreatorProfiles
                 .Where(c => c.CreatorID == creatorId)
@@ -36,6 +40,7 @@ namespace CraftDailyCorner.Services.Creator
                     c.Intro,
                     c.StartDate,
 
+                    // ================= POSTS =================
                     LatestPosts = c.CreatorPosts
                         .Where(p => p.StatusID == 1 &&
                                     p.Visibility == CreatorPostVisibility.Public)
@@ -47,9 +52,41 @@ namespace CraftDailyCorner.Services.Creator
                             Title = p.Title,
                             ImageUrl = p.ImageUrl,
                             CreatedAt = p.CreatedAt,
-                            CreatorName = c.DisplayName
-                        }).ToList(),
+                            CreatorName = c.DisplayName,
 
+                            CommentCount = 0,
+                            Preview = "",
+
+                            ReactionSummary = new VMReactionButton
+                            {
+                                TargetType = ReactionTargetType.CreatorPost,
+                                TargetID = p.PostID,
+
+                                TotalCount = _context.Reactions
+                                    .Count(r => r.TargetType == ReactionTargetType.CreatorPost
+                                             && r.TargetID == p.PostID),
+
+                                TopReactionType = _context.Reactions
+                                    .Where(r => r.TargetType == ReactionTargetType.CreatorPost
+                                             && r.TargetID == p.PostID)
+                                    .GroupBy(r => r.ReactionType)
+                                    .OrderByDescending(g => g.Count())
+                                    .Select(g => (ReactionType?)g.Key)
+                                    .FirstOrDefault(),
+
+                                UserReactionType = memberId == null
+                                    ? null
+                                    : _context.Reactions
+                                        .Where(r => r.TargetType == ReactionTargetType.CreatorPost
+                                                 && r.TargetID == p.PostID
+                                                 && r.MemberID == memberId)
+                                        .Select(r => (ReactionType?)r.ReactionType)
+                                        .FirstOrDefault()
+                            }
+                        })
+                        .ToList(),
+
+                    // ================= PORTFOLIOS =================
                     LatestPortfolios = c.Portfolios
                         .Where(p => p.StatusID == 1 &&
                                     p.Visibility == CreatorPostVisibility.Public)
@@ -65,33 +102,77 @@ namespace CraftDailyCorner.Services.Creator
                             CoverImageUrl = p.PortfolioItems
                                 .OrderBy(i => i.SortOrder)
                                 .Select(i => i.ImageUrl)
-                                .FirstOrDefault()
-                        }).ToList(),
+                                .FirstOrDefault(),
+
+                            Preview = "",
+
+                            ReactionSummary = new VMReactionButton
+                            {
+                                TargetType = ReactionTargetType.Portfolio,
+                                TargetID = p.PortfolioID,
+
+                                TotalCount = _context.Reactions
+                                    .Count(r => r.TargetType == ReactionTargetType.Portfolio
+                                             && r.TargetID == p.PortfolioID),
+
+                                TopReactionType = _context.Reactions
+                                    .Where(r => r.TargetType == ReactionTargetType.Portfolio
+                                             && r.TargetID == p.PortfolioID)
+                                    .GroupBy(r => r.ReactionType)
+                                    .OrderByDescending(g => g.Count())
+                                    .Select(g => (ReactionType?)g.Key)
+                                    .FirstOrDefault(),
+
+                                UserReactionType = memberId == null
+                                    ? null
+                                    : _context.Reactions
+                                        .Where(r => r.TargetType == ReactionTargetType.Portfolio
+                                                 && r.TargetID == p.PortfolioID
+                                                 && r.MemberID == memberId)
+                                        .Select(r => (ReactionType?)r.ReactionType)
+                                        .FirstOrDefault()
+                            }
+                        })
+                        .ToList(),
+
+                    // ================= PRODUCTS =================
                     LatestProducts = c.Products
-                        .Where(p => p.StatusID == 2)// 1草稿 2上架中 2下架
+                        .Where(p => p.StatusID == 2)
                         .OrderByDescending(p => p.CreatedAt)
                         .Take(3)
                         .Select(p => new VMCreatorProductPublicListItem
                         {
                             ProductID = p.ProductID,
                             ProductName = p.ProductName,
-                            ImageUrl = p.ProductImages.OrderBy(i => i.SortOrder).Select(i => i.ImageUrl).FirstOrDefault(),
+                            ImageUrl = p.ProductImages
+                                .OrderBy(i => i.SortOrder)
+                                .Select(i => i.ImageUrl)
+                                .FirstOrDefault(),
                             Price = p.Price,
-                            CreatedAt = p.CreatedAt
-                        }).ToList()
-                                    })
+                            CreatedAt = p.CreatedAt,
+
+                            IsFavorite = memberId == null
+                                ? false
+                                : _context.FavoriteProducts.Any(fp =>
+                                    fp.MemberID == memberId &&
+                                    fp.ProductID == p.ProductID)
+                        })
+                        .ToList()
+                })
                 .FirstOrDefaultAsync();
 
             if (creator == null)
                 return null;
+            var isOwner = !string.IsNullOrEmpty(loginCreatorId)
+                  && loginCreatorId == creatorId;
 
-            // ===== Follow 狀態 =====
             var followerCount =
                 await _followService.GetFollowerCountAsync(creatorId);
 
             var isFollowing = false;
 
-            if (!string.IsNullOrEmpty(memberId))
+            // ✅ 本人不需要查追蹤狀態
+            if (!isOwner && !string.IsNullOrEmpty(memberId))
             {
                 isFollowing = await _followService
                     .IsFollowingAsync(creatorId, memberId);
@@ -104,9 +185,13 @@ namespace CraftDailyCorner.Services.Creator
                 ImageUrl = creator.ImageUrl,
                 Intro = creator.Intro,
                 StartDate = creator.StartDate,
+
+                IsOwner = isOwner,
+
                 LatestPosts = creator.LatestPosts,
                 LatestPortfolios = creator.LatestPortfolios,
                 LatestProducts = creator.LatestProducts,
+
                 FollowInfo = new VMFollowButton
                 {
                     CreatorID = creatorId,
@@ -115,10 +200,32 @@ namespace CraftDailyCorner.Services.Creator
                 }
             };
         }
-        public async Task<VMCreatorIndex> GetCreatorIndexAsync()
+        public async Task<VMCreatorIndex> GetCreatorIndexAsync(string? keyword, int page)
         {
-            var creators = await _context.CreatorProfiles
+            keyword = keyword?.Trim();
+            if (page < 1) page = 1;
+
+            var query = _context.CreatorProfiles.AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(keyword))
+            {
+                query = query.Where(c =>
+                    c.DisplayName.Contains(keyword) ||
+                    c.Intro.Contains(keyword));
+            }
+
+            // PageSize 建議在 VM 預設 9；這裡也可以固定
+            const int pageSize = 9;
+
+            var totalCount = await query.CountAsync();
+            var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
+            if (totalPages < 1) totalPages = 1;
+            if (page > totalPages) page = totalPages;
+
+            var creators = await query
                 .OrderByDescending(c => c.CreatedAt)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
                 .Select(c => new VMCreatorIndexItem
                 {
                     CreatorID = c.CreatorID,
@@ -126,14 +233,20 @@ namespace CraftDailyCorner.Services.Creator
                     ImageUrl = c.ImageUrl,
                     Intro = c.Intro,
                     CreatedAt = c.CreatedAt,
-                    FollowerCount = _context.FollowCreators
-                        .Count(f => f.CreatorID == c.CreatorID)
+                    FollowerCount = _context.FollowCreators.Count(f => f.CreatorID == c.CreatorID)
                 })
                 .ToListAsync();
 
             return new VMCreatorIndex
             {
-                Creators = creators
+                Query = new VMCreatorIndexQuery
+                {
+                    Keyword = keyword,
+                    Page = page,
+                    PageSize = pageSize
+                },
+                Creators = creators,
+                TotalPages = totalPages
             };
         }
     }

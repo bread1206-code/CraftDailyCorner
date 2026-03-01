@@ -156,7 +156,11 @@ namespace CraftDailyCorner.Services.Creator
                     CreatedAt = p.CreatedAt,
                     UpdatedAt = p.UpdatedAt,
                     ItemCount = p.PortfolioItems.Count(),
-                    Visibility = p.Visibility
+                    Visibility = p.Visibility,
+                    CoverImageUrl= p.PortfolioItems
+                        .OrderBy(i => i.SortOrder)
+                        .Select(i => i.ImageUrl)
+                        .FirstOrDefault()
                 })
                 .ToListAsync();
         }
