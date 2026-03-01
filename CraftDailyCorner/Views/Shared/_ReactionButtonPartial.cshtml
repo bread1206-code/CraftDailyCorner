@@ -10,9 +10,8 @@
             <i class="reaction-main-icon bi
                 @(Model.UserReactionType != null
                        ? CraftDailyCorner.Helpers.ReactionIconHelper.GetIcon(Model.UserReactionType.Value)
-                       : "bi-hand-thumbs-up-fill")">
+                        : "bi-hand-thumbs-up-fill reaction-inactive")">
             </i>
-        <span class="reaction-total">@Model.TotalCount</span>
     </button>
 
     <div class="reaction-picker shadow rounded bg-white p-2 d-none">

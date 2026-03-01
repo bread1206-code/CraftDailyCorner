@@ -1,4 +1,6 @@
-﻿namespace CraftDailyCorner.ViewModels.CreatorPortfolio.Front
+﻿using CraftDailyCorner.ViewModels.Reaction;
+
+namespace CraftDailyCorner.ViewModels.CreatorPortfolio.Front
 {
     public class VMPortfolioDetail
     {
@@ -10,5 +12,7 @@
         public bool IsOwner { get; set; }
 
         public List<VMPortfolioDetailItem> Items { get; set; } = new();
+
+        public VMReactionButton ReactionButton { get; set; } = new VMReactionButton();
     }
 }

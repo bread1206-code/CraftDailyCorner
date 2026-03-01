@@ -17,17 +17,28 @@
         
         <div class="d-flex justify-content-between align-items-center mb-0">
 
-            <div class="fw-bold h2">@Model.Title</div>
+            <div class="d-flex">
+                <h2 class="fw-bold mb-0">
+                    @Model.Title
+                </h2>
+                <div class="h5 ms-4 mt-2">
+                    <!--心情反應與計數-->
+                    <partial name="_ReactionSummaryPartial"
+                             model="Model.ReactionButton" />
+                </div>
+            </div>
 
-            @if (!Model.IsOwner)
-            {
-                <partial name="_ReportButtonPartial"
-                         model="new VMReport
-                         {
-                             ReportType = ReportTargetType.Portfolio,
-                             TargetID = Model.PortfolioID
-                         }" />
-                        }
+            <div class="d-flex align-items-center gap-2">
+                @if (!Model.IsOwner)
+                {
+                    <partial name="_ReportButtonPartial"
+                             model="new VMReport
+                             {
+                                 ReportType = ReportTargetType.Portfolio,
+                                 TargetID = Model.PortfolioID
+                             }" />
+                                }
+            </div>
 
         </div>
         <div class="d-flex justify-content-between align-items-center">
@@ -42,7 +53,9 @@
     </div>
 
     <!-- 畫廊區 -->
-    <div id="Portfoliocarousel" class="carousel slide carousel-fade" data-bs-ride="carousel">
+    <div id="Portfoliocarousel" 
+         class="carousel slide carousel-fade rounded-4 overflow-hidden shadow-sm" 
+         data-bs-ride="carousel">
         <div class="carousel-inner">
             @foreach (var item in Model.Items)
             {
@@ -65,9 +78,18 @@
             <span class="visually-hidden">Next</span>
         </button>
     </div>
+    <!-- 喜歡提示 + Reaction 按鈕 -->
+    <div class="d-flex justify-content-center align-items-center gap-3 mt-4">
+
+        <div class="text-muted">
+            喜歡這個作品集嗎？
+        </div>
+
+        <div class="big-effect">
+            <partial name="_ReactionButtonPartial"
+                     model="Model.ReactionButton" />
+        </div>
+
+    </div>
 
 </div>
-
-@section Scripts {
-    <script src="/js/PortfolioDetail.js"></script>
-}

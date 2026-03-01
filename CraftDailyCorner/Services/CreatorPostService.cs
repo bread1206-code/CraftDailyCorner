@@ -55,7 +55,26 @@ namespace CraftDailyCorner.Services.Creator
                     CreatedAt = p.CreatedAt,
                     UpdatedAt = p.UpdatedAt,
                     CommentCount = p.PostComments
-                        .Count(c => c.Status == PostCommentStatus.Visible)
+                        .Count(c => c.Status == PostCommentStatus.Visible),
+
+                    // 新增 summary
+                    ReactionSummary = new CraftDailyCorner.ViewModels.Reaction.VMReactionButton
+                    {
+                        TargetType = ReactionTargetType.CreatorPost,
+                        TargetID = p.PostID,
+
+                        TotalCount = _context.Reactions
+                            .Count(r => r.TargetType == ReactionTargetType.CreatorPost && r.TargetID == p.PostID),
+
+                                        TopReactionType = _context.Reactions
+                            .Where(r => r.TargetType == ReactionTargetType.CreatorPost && r.TargetID == p.PostID)
+                            .GroupBy(r => r.ReactionType)
+                            .OrderByDescending(g => g.Count())
+                            .ThenBy(g => (byte)g.Key)
+                            .Select(g => (ReactionType?)g.Key)
+                            .FirstOrDefault()
+                    },
+                    Preview = p.Content
                 })
                 .ToListAsync();
 

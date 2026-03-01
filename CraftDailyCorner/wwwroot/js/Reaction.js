@@ -68,7 +68,7 @@ document.querySelectorAll(".reaction-container").forEach(container => {
 
                 // ===== 關鍵修改：判斷要播哪種動畫 =====
                 // 只有在「新增」或「切換」反應時才播放動畫 (UserReactionType 有值)
-                if (result.userReactionType) {
+                if (result.userReactionType != null) {
                     const iconClass = iconMap[result.userReactionType];
 
                     if (container.closest(".big-effect")) {
@@ -91,14 +91,48 @@ document.querySelectorAll(".reaction-container").forEach(container => {
 
 function updateUI(container, result) {
     const mainIcon = container.querySelector(".reaction-main-icon");
-    const total = Object.values(result.reactions).reduce((a, b) => a + b, 0);
 
-    container.querySelector(".reaction-total").innerText = total;
-
-    if (result.userReactionType) {
+    // 1) 更新點擊用的 icon（不顯示數量）
+    if (result.userReactionType != null) {
         mainIcon.className = "reaction-main-icon bi " + iconMap[result.userReactionType];
+        mainIcon.classList.remove("reaction-inactive");
     } else {
-        mainIcon.className = "reaction-main-icon bi bi-hand-thumbs-up-fill"; // 預設灰/黑
+        // 取消 reaction：回到預設 icon（你要不要加 text-muted 看你 CSS）
+        mainIcon.className = "reaction-main-icon bi bi-hand-thumbs-up-fill";
+        mainIcon.classList.add("reaction-inactive");
+    }
+
+    // 2) 更新顯示用的 icon（最多 icon + 全部總數）
+    updateSummaryUI(container, result);
+}
+function updateSummaryUI(container, result) {
+    // 找到同 target 的 summary 區塊（在標題旁）
+    const targetType = container.dataset.targetType;
+    const targetId = container.dataset.targetId;
+
+    const summary = document.querySelector(
+        `[data-reaction-summary][data-target-type="${targetType}"][data-target-id="${targetId}"]`
+    );
+    if (!summary) return;
+
+    const totalEl = summary.querySelector("[data-reaction-total]");
+    const iconEl = summary.querySelector("i");
+
+    // total
+    if (typeof result.totalCount === "number") {
+        if (result.totalCount <= 0 || result.topReactionType == null) {
+            summary.classList.add("d-none");
+            return;
+        } else {
+            summary.classList.remove("d-none");
+        }
+
+        if (totalEl) totalEl.textContent = result.totalCount;
+    }
+
+    // top icon
+    if (iconEl && result.topReactionType != null) {
+        iconEl.className = "bi " + iconMap[result.topReactionType];
     }
 }
 

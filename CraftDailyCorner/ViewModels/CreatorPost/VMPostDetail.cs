@@ -35,7 +35,7 @@ namespace CraftDailyCorner.ViewModels.CreatorPost
             UpdatedAt > CreatedAt;
 
         public bool IsOwner { get; set; }
-
+        //心情反應按鈕
         public VMReactionButton ReactionButton { get; set; } = null!;
     }
 }

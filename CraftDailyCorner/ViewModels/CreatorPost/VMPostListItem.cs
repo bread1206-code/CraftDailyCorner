@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using CraftDailyCorner.ViewModels.Reaction;
+using System.ComponentModel.DataAnnotations;
 
 namespace CraftDailyCorner.ViewModels.CreatorPost
 {
@@ -46,5 +47,9 @@ namespace CraftDailyCorner.ViewModels.CreatorPost
                 CreatorPostVisibility.Private => "bg-secondary",
                 _ => "bg-dark"
             };
+        //心情反應摘要按鈕
+        public VMReactionButton ReactionSummary { get; set; }
+        //內容預覽
+        public string Preview { get; set; } = "";
     }
 }

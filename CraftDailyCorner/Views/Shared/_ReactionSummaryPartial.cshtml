@@ -1,0 +1,19 @@
+﻿@using CraftDailyCorner.Helpers
+@using CraftDailyCorner.Models.enums
+@model CraftDailyCorner.ViewModels.Reaction.VMReactionButton
+
+@{
+    var hidden = (Model.TotalCount <= 0 || Model.TopReactionType == null) ? "d-none" : "";
+    var iconClass = Model.TopReactionType != null
+        ? ReactionIconHelper.GetIcon(Model.TopReactionType.Value)
+        : "bi-hand-thumbs-up-fill"; // 預設(不重要，反正 hidden)
+}
+
+<span class="d-inline-flex align-items-center gap-1 @hidden"
+      data-reaction-summary
+      data-target-type="@((int)Model.TargetType)"
+      data-target-id="@Model.TargetID">
+
+    <i class="bi @iconClass"></i>
+    <span data-reaction-total>@Model.TotalCount</span>
+</span>

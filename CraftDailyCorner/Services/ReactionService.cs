@@ -66,33 +66,62 @@ namespace CraftDailyCorner.Services
                     Count = g.Count()
                 })
                 .ToListAsync();
+            var dict = grouped.ToDictionary(x => x.Type, x => x.Count);
+            var totalCount = dict.Values.Sum();
+            ReactionType? topType = null;
+
+            if (dict.Count > 0)
+            {
+                topType = dict
+                    .OrderByDescending(kv => kv.Value)
+                    .ThenBy(kv => (byte)kv.Key)   // 避免同分時 icon 跳動
+                    .First().Key;
+            }
 
             return new ReactionResultDTO
             {
-                Reactions = grouped.ToDictionary(x => x.Type, x => x.Count),
+                Reactions = dict,
+                TotalCount = totalCount,
+                TopReactionType = topType,
                 UserReactionType = userReaction
             };
         }
 
-        public async Task<VMReactionButton> GetButtonStateAsync(
-    string? memberId,
-    ReactionTargetType targetType,
-    string targetId)
+
+            public async Task<VMReactionButton> GetButtonStateAsync(
+                string? memberId,
+                ReactionTargetType targetType,
+                string targetId)
         {
-            var reactions = await _context.Reactions
-                .Where(r => r.TargetType == targetType &&
-                            r.TargetID == targetId)
-                .ToListAsync();
-
-            var total = reactions.Count;
-
+            // 1) 使用者自己的 reaction
             ReactionType? userReaction = null;
-
             if (!string.IsNullOrEmpty(memberId))
             {
-                userReaction = reactions
-                    .FirstOrDefault(r => r.MemberID == memberId)
-                    ?.ReactionType;
+                userReaction = await _context.Reactions
+                    .Where(r => r.TargetType == targetType &&
+                                r.TargetID == targetId &&
+                                r.MemberID == memberId)
+                    .Select(r => (ReactionType?)r.ReactionType)
+                    .FirstOrDefaultAsync();
+            }
+
+            // 2) 統計 top + total
+            var grouped = await _context.Reactions
+                .Where(r => r.TargetType == targetType &&
+                            r.TargetID == targetId)
+                .GroupBy(r => r.ReactionType)
+                .Select(g => new { Type = g.Key, Count = g.Count() })
+                .ToListAsync();
+
+            var totalCount = grouped.Sum(x => x.Count);
+
+            ReactionType? topType = null;
+            if (grouped.Count > 0)
+            {
+                topType = grouped
+                    .OrderByDescending(x => x.Count)
+                    .ThenBy(x => (byte)x.Type)
+                    .First().Type;
             }
 
             return new VMReactionButton
@@ -100,7 +129,8 @@ namespace CraftDailyCorner.Services
                 TargetType = targetType,
                 TargetID = targetId,
                 UserReactionType = userReaction,
-                TotalCount = total
+                TotalCount = totalCount,
+                TopReactionType = topType
             };
         }
     }

@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using CraftDailyCorner.ViewModels.Reaction;
+using System.ComponentModel.DataAnnotations;
 
 namespace CraftDailyCorner.ViewModels.CreatorPortfolio.Front
 {
@@ -18,7 +19,11 @@ namespace CraftDailyCorner.ViewModels.CreatorPortfolio.Front
         public int ItemCount { get; set; }
 
         public string? CoverImageUrl { get; set; }
+        //內文預覽（用 p-preview 多行截斷）
+        public string? Preview { get; set; }
 
+        //心情反應（標題旁 icon + total）
+        public VMReactionButton ReactionSummary { get; set; } = new VMReactionButton();
         public string CoverImagePath =>
             string.IsNullOrEmpty(CoverImageUrl)
                 ? "/images/default-cover.jpg"

@@ -1,5 +1,6 @@
 ﻿using CraftDailyCorner.DTOs;
 using CraftDailyCorner.Models;
+using CraftDailyCorner.Models.enums;
 using CraftDailyCorner.Models.Enums;
 using CraftDailyCorner.Services.Interface;
 using CraftDailyCorner.ViewModels.CreatorPost;
@@ -11,11 +12,13 @@ namespace CraftDailyCorner.Services.Creator
     public class CreatorPostCommentService : ICreatorPostCommentService
     {
         private readonly CraftDailyCornerContext _context;
+        private readonly IReactionService _reactionService;
 
         public CreatorPostCommentService(
-            CraftDailyCornerContext context)
+            CraftDailyCornerContext context, IReactionService reactionService)
         {
             _context = context;
+            _reactionService = reactionService;
         }
 
         //建立留言
@@ -54,11 +57,13 @@ namespace CraftDailyCorner.Services.Creator
         }
 
         //取得留言列表
-        public async Task<List<VMPostCommentItem>> GetPostCommentsAsync(string postId,string? currentMemberId,string? currentCreatorId)
+        public async Task<List<VMPostCommentItem>> GetPostCommentsAsync(
+            string postId,
+            string? currentMemberId,
+            string? currentCreatorId)
         {
-            return await _context.PostComments
+            var comments = await _context.PostComments
                 .Include(c => c.Member)
-                .Include(c => c.CreatorPost)
                 .Where(c =>
                     c.PostID == postId &&
                     c.Status == PostCommentStatus.Visible)
@@ -74,22 +79,33 @@ namespace CraftDailyCorner.Services.Creator
                     CreatedAt = c.CreatedAt,
                     Status = c.Status,
                     IsOwner = c.MemberID == currentMemberId
-            }).ToListAsync();
+                })
+                .ToListAsync();
+
+            //補上每則留言的 Reaction 狀態
+            foreach (var item in comments)
+            {
+                item.ReactionButton = await _reactionService.GetButtonStateAsync(
+                    currentMemberId,
+                    ReactionTargetType.PostComment,
+                    item.CommentID
+                );
+            }
+
+            return comments;
         }
 
 
-        
+
 
         //建構留言
-        public async Task<VMPostCommentItem>
-            BuildCommentViewModelAsync(
-                string commentId,
-                string? currentMemberId,
-                string? currentCreatorId)
+        public async Task<VMPostCommentItem> BuildCommentViewModelAsync(
+            string commentId,
+            string? currentMemberId,
+            string? currentCreatorId)
         {
-            return await _context.PostComments
+            var vm = await _context.PostComments
                 .Include(c => c.Member)
-                .Include(c => c.CreatorPost)
                 .Where(c => c.CommentID == commentId)
                 .Select(c => new VMPostCommentItem
                 {
@@ -104,6 +120,14 @@ namespace CraftDailyCorner.Services.Creator
                     IsOwner = c.MemberID == currentMemberId
                 })
                 .FirstAsync();
+
+            vm.ReactionButton = await _reactionService.GetButtonStateAsync(
+                currentMemberId,
+                ReactionTargetType.PostComment,
+                vm.CommentID
+            );
+
+            return vm;
         }
     }
 }

@@ -27,9 +27,9 @@
     cursor: pointer;
 }
 
-    .reaction-item:hover {
-        transform: scale(1.3);
-    }
+.reaction-item:hover {
+    transform: scale(1.3);
+}
 
 .reaction-main-btn {
     background: none;
@@ -43,12 +43,15 @@
     color: inherit;
 }
 
-    .reaction-main-btn:hover .reaction-main-icon {
-        transform: scale(1.15);
-    }
-
+.reaction-main-btn:hover .reaction-main-icon {
+    transform: scale(1.15);
+}
+/* 未選取狀態 hover 變主色 */
+.reaction-main-btn:hover .reaction-main-icon.reaction-inactive {
+    color: #0d6efd; /* 你想要的 hover 色 */
+}
 .reaction-main-icon {
-    transition: transform .2s ease;
+    transition: transform .2s ease, color 0.2s ease;
 }
 
 

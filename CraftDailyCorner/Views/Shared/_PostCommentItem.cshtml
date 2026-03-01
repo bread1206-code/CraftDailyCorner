@@ -14,47 +14,60 @@
 
         <div class="flex-grow-1">
 
-            <div class="d-flex align-items-center">
+            <div class="d-flex justify-content-between align-items-center">
 
-                <div class="fw-semibold">
-                    @Model.MemberName
-                    <span class="text-muted small ms-2">
-                        @Model.CreatedAt.ToString("yyyy/MM/dd HH:mm")
-                    </span>
+                <div class="d-flex align-items-center">
+                    <div class="fw-semibold">
+                        @Model.MemberName
+                        <span class="text-muted small ms-2">
+                            @Model.CreatedAt.ToString("yyyy/MM/dd HH:mm")
+                        </span>
+                    </div>
+
+                    @if (!Model.IsOwner)
+                    {
+                        <div class="ms-2 dropdown">
+                            <button class="btn btn-sm p-0 text-muted"
+                                    data-bs-toggle="dropdown">
+                                <i class="bi bi-three-dots"></i>
+                            </button>
+
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <button class="dropdown-item"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#reportModal-Comment-@Model.CommentID">
+                                        <i class="bi bi-flag me-2"></i>檢舉
+                                    </button>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <partial name="_ReportModal"
+                                 model="new VMReport
+                                 {
+                                     ReportType = ReportTargetType.Comment,
+                                     TargetID = Model.CommentID
+                                 }" />
+                                        }
                 </div>
 
-                @if (!Model.IsOwner)
-                {
-                    <div class="ms-2 dropdown">
-                        <button class="btn btn-sm p-0 text-muted"
-                                data-bs-toggle="dropdown">
-                            <i class="bi bi-three-dots"></i>
-                        </button>
-
-                        <ul class="dropdown-menu">
-                            <li>
-                                <button class="dropdown-item"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#reportModal-Comment-@Model.CommentID">
-                                    <i class="bi bi-flag me-2"></i>檢舉
-                                </button>
-                            </li>
-                        </ul>
-                    </div>
-                    <partial name="_ReportModal"
-                             model="new VMReport
-                             {
-                                 ReportType = ReportTargetType.Comment,
-                                 TargetID = Model.CommentID
-                             }" />
-                }
+                <!--Reaction 按鈕 -->
+                <div>
+                    <partial name="_ReactionButtonPartial"
+                             model="Model.ReactionButton" />
+                </div>
 
             </div>
 
-            <div class="mt-1 text-content">
-                @Model.Content
-            </div>
-
+            <div class="mt-1 text-content">@Model.Content</div>
+            @if (Model.ReactionButton.TotalCount > 0)
+            {
+                <div class="mt-2 small">
+                    <partial name="_ReactionSummaryPartial"
+                             model="Model.ReactionButton" />
+                </div>
+            }
         </div>
     </div>
 

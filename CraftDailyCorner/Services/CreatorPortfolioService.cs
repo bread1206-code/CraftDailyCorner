@@ -1,9 +1,11 @@
 ﻿using CraftDailyCorner.DTOs;
 using CraftDailyCorner.ImageManagementCore.ViewModels;
 using CraftDailyCorner.Models;
+using CraftDailyCorner.Models.enums;
 using CraftDailyCorner.Services.Interface;
 using CraftDailyCorner.ViewModels.CreatorPortfolio;
 using CraftDailyCorner.ViewModels.CreatorPortfolio.Front;
+using CraftDailyCorner.ViewModels.Reaction;
 using Microsoft.EntityFrameworkCore;
 
 namespace CraftDailyCorner.Services.Creator
@@ -12,11 +14,13 @@ namespace CraftDailyCorner.Services.Creator
     {
         private readonly CraftDailyCornerContext _context;
         private readonly IImageUploadService _imageUploadService;
+        private readonly IReactionService _reactionService;
 
-        public CreatorPortfolioService(CraftDailyCornerContext context, IImageUploadService imageUploadService)
+        public CreatorPortfolioService(CraftDailyCornerContext context, IImageUploadService imageUploadService, IReactionService reactionService)
         {
             _context = context;
             _imageUploadService = imageUploadService;
+            _reactionService = reactionService;
         }
 
         //前台 Index（搜尋 + 分頁）
@@ -54,7 +58,30 @@ namespace CraftDailyCorner.Services.Creator
                     CoverImageUrl = p.PortfolioItems
                         .OrderBy(i => i.SortOrder)
                         .Select(i => i.ImageUrl)
-                        .FirstOrDefault()
+                        .FirstOrDefault(),
+
+                    //內文預覽
+                    Preview = p.Description,
+
+                    // Reaction summary
+                    ReactionSummary = new VMReactionButton
+                    {
+                        TargetType = ReactionTargetType.Portfolio,
+                        TargetID = p.PortfolioID,
+
+                        TotalCount = _context.Reactions.Count(r =>
+                            r.TargetType == ReactionTargetType.Portfolio &&
+                            r.TargetID == p.PortfolioID),
+
+                        TopReactionType = _context.Reactions
+                            .Where(r => r.TargetType == ReactionTargetType.Portfolio &&
+                                        r.TargetID == p.PortfolioID)
+                            .GroupBy(r => r.ReactionType)
+                            .OrderByDescending(g => g.Count())
+                            .ThenBy(g => (byte)g.Key)
+                            .Select(g => (ReactionType?)g.Key)
+                            .FirstOrDefault()
+                    }
                 })
                 .ToListAsync();
 
@@ -69,21 +96,21 @@ namespace CraftDailyCorner.Services.Creator
         //前台 Detail
 
         public async Task<VMPortfolioDetail?> GetPublicPortfolioDetailAsync(
-            string portfolioId, string? currentMemberId)
+                string portfolioId, string? currentMemberId)
         {
-            return await _context.Portfolios
+            var data = await _context.Portfolios
                 .Where(p =>
                     p.PortfolioID == portfolioId &&
                     p.StatusID == 1 &&
                     p.Visibility == CreatorPostVisibility.Public)
-                .Select(p => new VMPortfolioDetail
+                .Select(p => new
                 {
-                    PortfolioID = p.PortfolioID,
-                    Title = p.Title,
-                    Description = p.Description!,
-                    CreatedAt = p.CreatedAt,
+                    p.PortfolioID,
+                    p.Title,
+                    p.Description,
+                    p.CreatedAt,
                     CreatorName = p.CreatorProfile.DisplayName,
-                    IsOwner = p.CreatorProfile.MemberID == currentMemberId,
+                    OwnerId = p.CreatorProfile.MemberID,
                     Items = p.PortfolioItems
                         .OrderBy(i => i.SortOrder)
                         .Select(i => new VMPortfolioDetailItem
@@ -93,6 +120,25 @@ namespace CraftDailyCorner.Services.Creator
                         }).ToList()
                 })
                 .FirstOrDefaultAsync();
+
+            if (data == null) return null;
+
+            var reactionVm = await _reactionService.GetButtonStateAsync(
+                currentMemberId,
+                ReactionTargetType.Portfolio,
+                data.PortfolioID);
+
+            return new VMPortfolioDetail
+            {
+                PortfolioID = data.PortfolioID,
+                Title = data.Title,
+                Description = data.Description ?? "",
+                CreatedAt = data.CreatedAt,
+                CreatorName = data.CreatorName,
+                IsOwner = currentMemberId != null && data.OwnerId == currentMemberId,
+                Items = data.Items,
+                ReactionButton = reactionVm
+            };
         }
 
         //後台列表

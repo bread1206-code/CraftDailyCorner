@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CraftDailyCorner.ViewModels.Reaction;
+using System;
 using System.ComponentModel.DataAnnotations;
 
 namespace CraftDailyCorner.ViewModels.CreatorPost
@@ -37,6 +38,6 @@ namespace CraftDailyCorner.ViewModels.CreatorPost
         //是否為留言者本人
         public bool IsOwner { get; set; }
 
-
+        public VMReactionButton ReactionButton { get; set; } = new VMReactionButton();
     }
 }

@@ -483,6 +483,7 @@ body {
 .text-content {
     white-space: pre-line;
 }
+
 /*檢舉動畫*/
 #report-stamp-overlay {
     position: fixed;
@@ -566,4 +567,22 @@ body {
         margin: 0;
         padding: 0;
     }
+}
+
+/* 多行截斷：顯示 2 行，超出顯示 ... */
+.p-preview {
+    display: -webkit-box;
+    -webkit-line-clamp: 2; /* 想 2 行就 2；想 3 行就 3 */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    white-space: normal;
+}
+/* 卡片浮動效果 */
+.p-card {
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.p-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12);
 }
