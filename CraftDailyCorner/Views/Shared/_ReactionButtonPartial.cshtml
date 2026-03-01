@@ -1,0 +1,26 @@
+﻿@using CraftDailyCorner.Models.enums
+@model CraftDailyCorner.ViewModels.Reaction.VMReactionButton
+
+<div class="reaction-container"
+     data-target-type="@((int)Model.TargetType)" 
+     data-target-id="@Model.TargetID">
+
+    <button type="button" 
+            class="reaction-main-btn focus-none">
+        <i class="reaction-main-icon bi
+            @(Model.UserReactionType != null
+                   ? CraftDailyCorner.Helpers.ReactionIconHelper.GetIcon(Model.UserReactionType.Value)
+                   : "bi-hand-thumbs-up-fill")">
+        </i>
+        <span class="reaction-total">@Model.TotalCount</span>
+    </button>
+
+    <div class="reaction-picker shadow rounded bg-white p-2 d-none">
+        <i class="bi bi-hand-thumbs-up-fill reaction-item text-primary" data-type="1"></i>
+        <i class="bi bi-heart-fill reaction-item text-danger" data-type="2"></i>
+        <i class="bi bi-emoji-laughing reaction-item text-success" data-type="3"></i>
+        <i class="bi bi-emoji-surprise reaction-item text-warning" data-type="4"></i>
+        <i class="bi bi-emoji-frown reaction-item text-info" data-type="5"></i>
+        <i class="bi bi-emoji-angry reaction-item text-danger" data-type="6"></i>
+    </div>
+</div>

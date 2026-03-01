@@ -190,46 +190,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-//為了加購而登入成功後的處理
-function onLoginSuccess() {
-    window.isAuthenticated = true;
-
-    // 關閉登入 Modal
-    const modalEl = document.getElementById('loginModal');
-    const modal = bootstrap.Modal.getInstance(modalEl);
-    if (modal) modal.hide();
-
-    // 如果是「為了加購而登入」，自動完成它
-    if (pendingAddToCart) {
-        addToCart(pendingAddToCart.productId);
-        pendingAddToCart = null;
-    }
-}
-function onLoginSuccess() {
-    window.isAuthenticated = true;
-
-    // 關閉登入 Modal
-    const modalEl = document.getElementById('loginModal');
-    bootstrap.Modal.getInstance(modalEl)?.hide();
-
-    // 刷新 Navbar（核心）
-    fetch('/Home/Navbar')
-        .then(r => r.text())
-        .then(html => {
-            document.getElementById('navbarContainer').innerHTML = html;
-
-            // Navbar 重新渲染後，重新初始化 Badge
-            initCartBadge();
-        });
-
-    // 如果是為了加購而登入，自動完成
-    if (pendingAddToCart) {
-        addToCart(pendingAddToCart.productId);
-        pendingAddToCart = null;
-    }
-}
-
-// 在 cart.js 中加入或修改
+//
 document.addEventListener('change', function (e) {
     // 1. 創作者主 Checkbox
     if (e.target.classList.contains('creator-check')) {

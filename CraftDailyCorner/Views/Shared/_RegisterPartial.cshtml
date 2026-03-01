@@ -18,6 +18,9 @@
     <div class="mb-3">
         <label asp-for="Email" class="form-label"></label>
         <input asp-for="Email" class="form-control" />
+        <small class="text-muted">
+            ※ 此電子郵件將作為登入帳號，註冊後無法變更
+        </small>
         <span asp-validation-for="Email" class="text-danger"></span>
     </div>
 

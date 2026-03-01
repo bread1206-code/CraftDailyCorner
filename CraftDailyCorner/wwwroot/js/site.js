@@ -178,6 +178,7 @@ function ajaxLogin() {
 
             // 登入成功
             onLoginSuccess();
+            location.reload();
         })
         .catch(() => {
             showLoginError('系統錯誤，請稍後再試');
@@ -228,6 +229,31 @@ function ajaxRegister() {
         .catch(() => {
             showRegisterError('系統錯誤，請稍後再試');
         });
+}
+
+//登入成功後的處理
+function onLoginSuccess() {
+    window.isAuthenticated = true;
+
+    // 關閉登入 Modal
+    const modalEl = document.getElementById('loginModal');
+    bootstrap.Modal.getInstance(modalEl)?.hide();
+
+    // 刷新 Navbar（核心）
+    fetch('/Home/Navbar')
+        .then(r => r.text())
+        .then(html => {
+            document.getElementById('navbarContainer').innerHTML = html;
+
+            // Navbar 重新渲染後，重新初始化 Badge
+            initCartBadge();
+        });
+
+    // 如果是為了加購而登入，自動完成
+    if (pendingAddToCart) {
+        addToCart(pendingAddToCart.productId);
+        pendingAddToCart = null;
+    }
 }
 
 function showRegisterError(msg) {

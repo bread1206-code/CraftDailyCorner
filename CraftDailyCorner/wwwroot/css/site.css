@@ -183,9 +183,9 @@ body {
     
 }
 /* 取消按鈕的聚焦樣式 */
-.favorite-btn:focus,
-.favorite-btn:focus-visible,
-.favorite-btn:active {
+.focus-none:focus,
+.focus-none:focus-visible,
+.focus-none:active {
     outline: none !important;
     box-shadow: none !important;
 }

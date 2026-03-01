@@ -13,6 +13,7 @@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/CraftDailyCorner.styles.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/loadingOverlay.css" />
+    <link rel="stylesheet" href="~/css/reaction.css" />
     @inject ISiteSettingService SiteSetting
     @RenderSection("Styles", required: false)
 </head>
@@ -110,6 +111,7 @@
     @await Html.PartialAsync("_LoadingOverlayPartial")
     <script src="~/js/loadingAuto.js"></script>
     <script src="~/js/postComment.js" asp-append-version="true"></script>
+    <script src="~/js/reaction.js"></script>
     @await Html.PartialAsync("_ValidationScriptsPartial")
     @await RenderSectionAsync("Scripts", required: false)
     

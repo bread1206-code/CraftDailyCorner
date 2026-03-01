@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using CraftDailyCorner.ViewModels.Reaction;
+using System.ComponentModel.DataAnnotations;
 
 namespace CraftDailyCorner.ViewModels.CreatorPost
 {
@@ -34,5 +35,7 @@ namespace CraftDailyCorner.ViewModels.CreatorPost
             UpdatedAt > CreatedAt;
 
         public bool IsOwner { get; set; }
+
+        public VMReactionButton ReactionButton { get; set; } = null!;
     }
 }

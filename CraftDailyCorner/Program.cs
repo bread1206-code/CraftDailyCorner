@@ -37,6 +37,7 @@ builder.Services.AddScoped<ICreatorShipmentService, CreatorShipmentService>();
 builder.Services.AddScoped<ICreatorAnalyticsService, CreatorAnalyticsService>();
 builder.Services.AddScoped<IAdminDashboardService, AdminDashboardService>();
 builder.Services.AddScoped<IAdminSidebarService, AdminSidebarService>();
+builder.Services.AddScoped<IReactionService, ReactionService>();
 
 builder.Services.AddHostedService<SoftDeleteCleanupBackgroundService>();
 builder.Services.AddScoped <SeedRunner>();

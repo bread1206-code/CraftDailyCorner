@@ -1,5 +1,6 @@
 ﻿using CraftDailyCorner.DTOs;
 using CraftDailyCorner.Models;
+using CraftDailyCorner.Models.enums;
 using CraftDailyCorner.Services.Interface;
 using CraftDailyCorner.ViewModels.CreatorPost;
 using Microsoft.EntityFrameworkCore;
@@ -10,13 +11,16 @@ namespace CraftDailyCorner.Services.Creator
     {
         private readonly CraftDailyCornerContext _context;
         private readonly IImageUploadService _imageUploadService;
+        private readonly IReactionService _reactionService;
 
         public CreatorPostService(
             CraftDailyCornerContext context,
-            IImageUploadService imageUploadService)
+            IImageUploadService imageUploadService,
+            IReactionService reactionService)
         {
             _context = context;
             _imageUploadService = imageUploadService;
+            _reactionService = reactionService;
         }
 
         // ===============================
@@ -66,24 +70,44 @@ namespace CraftDailyCorner.Services.Creator
         // ===============================
         // 前台單篇
         // ===============================
-        public async Task<VMPostDetail?> GetPostDetailAsync(string postId,string? currentMemberId)
-        {
-            return await _context.CreatorPosts
+        public async Task<VMPostDetail?> GetPostDetailAsync(
+            string postId, 
+            string? currentMemberId)
+        { var post = await _context.CreatorPosts
                 .Where(p => p.PostID == postId && p.StatusID == 1)
-                .Select(p => new VMPostDetail
-                {
-                    PostID = p.PostID,
-                    Title = p.Title,
-                    Content = p.Content,
-                    ImageUrl = p.ImageUrl,
-                    CreatorName = p.CreatorProfile.DisplayName,
-                    CreatedAt = p.CreatedAt,
-                    UpdatedAt = p.UpdatedAt,
-
-                    IsOwner = currentMemberId != null &&
-                              p.CreatorProfile.MemberID == currentMemberId
+                .Select(p => new 
+                { p.PostID,
+                  p.Title, 
+                  p.Content, 
+                  p.ImageUrl, 
+                  CreatorName = p.CreatorProfile.DisplayName, 
+                  p.CreatedAt, 
+                  p.UpdatedAt, 
+                  OwnerId = p.CreatorProfile.MemberID 
                 })
-                .FirstOrDefaultAsync();
+                .FirstOrDefaultAsync(); 
+            
+            if (post == null) return null; 
+
+            var reactionVm = await _reactionService
+                .GetButtonStateAsync(
+                currentMemberId, 
+                ReactionTargetType.CreatorPost, 
+                post.PostID); 
+            
+            return new VMPostDetail 
+            { 
+                PostID = post.PostID, 
+                Title = post.Title, 
+                Content = post.Content, 
+                ImageUrl = post.ImageUrl, 
+                CreatorName = post.CreatorName, 
+                CreatedAt = post.CreatedAt, 
+                UpdatedAt = post.UpdatedAt, 
+                IsOwner = currentMemberId != null &&
+                        post.OwnerId == currentMemberId, 
+                ReactionButton = reactionVm 
+            }; 
         }
 
         // ===============================
@@ -154,9 +178,9 @@ namespace CraftDailyCorner.Services.Creator
         public async Task CreateAsync(
         CreateCreatorPostDTO dto,
         string creatorId)
-            {
-                if (dto.ImageFile == null)
-                    throw new Exception("請上傳封面圖片");
+        {
+            if (dto.ImageFile == null)
+                throw new Exception("請上傳封面圖片");
             var postId = Guid.NewGuid().ToString();
             var imageKey = _imageUploadService.UploadImage(
                     dto.ImageFile,
@@ -165,23 +189,23 @@ namespace CraftDailyCorner.Services.Creator
                     ImageSizePresets.Post,
                     postId
                 );
-            
-            var post = new CreatorPost
-                {
-                    PostID = postId,
-                    Title = dto.Title,
-                    Content = dto.Content,
-                    ImageUrl = postId,
-                    Visibility = dto.Visibility,
-                    CreatorID = creatorId,
-                    StatusID = 1,
-                    CreatedAt = DateTime.Now,
-                    UpdatedAt = DateTime.Now
-                };
 
-                _context.CreatorPosts.Add(post);
-                await _context.SaveChangesAsync();
-            }
+            var post = new CreatorPost
+            {
+                PostID = postId,
+                Title = dto.Title,
+                Content = dto.Content,
+                ImageUrl = postId,
+                Visibility = dto.Visibility,
+                CreatorID = creatorId,
+                StatusID = 1,
+                CreatedAt = DateTime.Now,
+                UpdatedAt = DateTime.Now
+            };
+
+            _context.CreatorPosts.Add(post);
+            await _context.SaveChangesAsync();
+        }
 
         // ===============================
         // 更新
@@ -189,36 +213,36 @@ namespace CraftDailyCorner.Services.Creator
         public async Task UpdateAsync(
         UpdateCreatorPostDTO dto,
         string creatorId)
+        {
+            var post = await _context.CreatorPosts
+                .FirstOrDefaultAsync(p =>
+                    p.PostID == dto.PostID &&
+                    p.CreatorID == creatorId &&
+                    p.StatusID == 1);
+
+            if (post == null)
+                throw new Exception("找不到日誌或無權限");
+
+            post.Title = dto.Title;
+            post.Content = dto.Content;
+            post.Visibility = dto.Visibility;
+            post.UpdatedAt = DateTime.Now;
+
+            if (dto.NewImageFile != null)
             {
-                var post = await _context.CreatorPosts
-                    .FirstOrDefaultAsync(p =>
-                        p.PostID == dto.PostID &&
-                        p.CreatorID == creatorId &&
-                        p.StatusID == 1);
+                var imageKey = _imageUploadService.UploadImage(
+                    dto.NewImageFile,
+                    null,
+                    "05CreatorPost",
+                    ImageSizePresets.Post,
+                    dto.PostID
+                );
 
-                if (post == null)
-                    throw new Exception("找不到日誌或無權限");
-
-                post.Title = dto.Title;
-                post.Content = dto.Content;
-                post.Visibility = dto.Visibility;
-                post.UpdatedAt = DateTime.Now;
-
-                if (dto.NewImageFile != null)
-                {
-                    var imageKey = _imageUploadService.UploadImage(
-                        dto.NewImageFile,
-                        null,
-                        "05CreatorPost",
-                        ImageSizePresets.Post,
-                        dto.PostID
-                    );
-
-                    post.ImageUrl = dto.PostID;
-                }
-
-                await _context.SaveChangesAsync();
+                post.ImageUrl = dto.PostID;
             }
+
+            await _context.SaveChangesAsync();
+        }
 
         // ===============================
         // 軟刪除
@@ -241,7 +265,7 @@ namespace CraftDailyCorner.Services.Creator
 
             await _context.SaveChangesAsync();
         }
-        public async Task<VMCreatorPostEdit?> GetEditDataAsync(string postId,string creatorId)
+        public async Task<VMCreatorPostEdit?> GetEditDataAsync(string postId, string creatorId)
         {
             return await _context.CreatorPosts
                 .Where(p =>

@@ -50,12 +50,20 @@
     <div class="mb-5 text-content" style="white-space:pre-line; line-height:1.9;">
         @Model.Content
     </div>
+    <div>
+        UserId: @User.GetMemberId()
+    </div>
 
+    <div>
+        ReactionType: @Model.ReactionButton.UserReactionType
+    </div>
     <!-- 留言按鈕 -->
     <div class="text-end mb-4">
+        <partial name="_ReactionButtonPartial"
+                 model="Model.ReactionButton" />
         @if (User.Identity?.IsAuthenticated == true)
         {
-            <button class="btn btn-dark"
+            <button class="btn btn-dark btn-sm focus-none"
                     data-bs-toggle="modal"
                     data-bs-target="#commentModal">
                 留言
