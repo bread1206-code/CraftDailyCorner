@@ -1,4 +1,4 @@
-﻿@model CraftDailyCorner.ViewModels.CreatorAnalytics.VMCommerceDashboard
+﻿@model CraftDailyCorner.ViewModels.CreatorAnalytics.Commerce.VMCommerceDashboard
 @using System.Text.Json
 
 @{
@@ -7,55 +7,90 @@
 
 <div class="container-fluid py-4">
 
-    <!-- Page Title -->
-    <div class="mb-4">
-        <h2 class="fw-bold">電商銷售儀表板</h2>
-        <p class="text-muted">營收趨勢與商品銷售分析</p>
+    <!-- 標題區 -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold mb-1">電商銷售儀表板</h2>
+            <p class="text-muted mb-0">營收、訂單、銷售趨勢與商品排行</p>
+        </div>
+
+        <div>
+            <a asp-controller="Creator"
+               asp-action="Dashboard"
+               class="btn btn-outline-secondary">
+                回創作者中心
+            </a>
+        </div>
     </div>
 
     <!-- KPI Cards -->
     <div class="row g-4 mb-5">
 
+        <!-- Revenue -->
         <div class="col-md-3">
             <div class="card shadow-sm border-0 h-100">
                 <div class="card-body">
-                    <h6 class="text-muted">總營收</h6>
+                    <h6 class="text-muted">本月營收</h6>
                     <h3 class="fw-bold text-success">
-                        @Model.Overview.TotalRevenue.ToString("C")
+                        @Model.Overview.Revenue.Current.ToString("C")
                     </h3>
+                    <small class="text-muted d-block">
+                        上月 @Model.Overview.Revenue.Previous.ToString("C")
+                    </small>
+                    <small class="text-muted d-block">
+                        成長 @Model.Overview.Revenue.GrowthRate.ToString("P")
+                    </small>
                 </div>
             </div>
         </div>
 
+        <!-- Orders -->
         <div class="col-md-3">
             <div class="card shadow-sm border-0 h-100">
                 <div class="card-body">
-                    <h6 class="text-muted">總訂單數</h6>
+                    <h6 class="text-muted">本月訂單數</h6>
                     <h3 class="fw-bold">
-                        @Model.Overview.TotalOrders
+                        @Model.Overview.Orders.Current
                     </h3>
+                    <small class="text-muted d-block">
+                        上月 @Model.Overview.Orders.Previous
+                    </small>
+                    <small class="text-muted d-block">
+                        成長 @Model.Overview.Orders.GrowthRate.ToString("P")
+                    </small>
                 </div>
             </div>
         </div>
 
+        <!-- Quantity -->
         <div class="col-md-3">
             <div class="card shadow-sm border-0 h-100">
                 <div class="card-body">
-                    <h6 class="text-muted">總銷售數量</h6>
+                    <h6 class="text-muted">本月銷售件數</h6>
                     <h3 class="fw-bold">
-                        @Model.Overview.TotalQuantitySold
+                        @Model.Overview.Quantity.Current
                     </h3>
+                    <small class="text-muted d-block">
+                        上月 @Model.Overview.Quantity.Previous
+                    </small>
+                    <small class="text-muted d-block">
+                        成長 @Model.Overview.Quantity.GrowthRate.ToString("P")
+                    </small>
                 </div>
             </div>
         </div>
 
+        <!-- AOV -->
         <div class="col-md-3">
             <div class="card shadow-sm border-0 h-100 bg-light">
                 <div class="card-body">
-                    <h6 class="text-muted">平均客單價</h6>
+                    <h6 class="text-muted">本月平均客單價</h6>
                     <h3 class="fw-bold">
                         @Model.Overview.AverageOrderValue.ToString("C")
                     </h3>
+                    <small class="text-muted d-block">
+                        （本月營收 ÷ 本月訂單數）
+                    </small>
                 </div>
             </div>
         </div>
@@ -80,6 +115,21 @@
         </div>
     </div>
 
+    <!-- Order Trend -->
+    <div class="card shadow-sm border-0 mb-5">
+        <div class="card-body">
+
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold mb-0">月訂單趨勢</h5>
+            </div>
+
+            <div style="height:350px;">
+                <canvas id="orderTrendChart"></canvas>
+            </div>
+
+        </div>
+    </div>
+
     <!-- Product Ranking -->
     <div class="row g-4">
 
@@ -89,27 +139,36 @@
                 <div class="card-body">
                     <h5 class="fw-bold mb-3">營收排行 TOP 5</h5>
 
-                    <div class="table-responsive">
-                        <table class="table align-middle">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>商品名稱</th>
-                                    <th>營收</th>
-                                    <th>銷售數量</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach (var item in Model.ProductRanking.TopByRevenue)
-                                {
+                    @if (!Model.ProductRanking.TopByRevenue.Any())
+                    {
+                        <div class="text-muted">尚無資料</div>
+                    }
+                    else
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-sm align-middle">
+                                <thead class="table-light">
                                     <tr>
-                                        <td>@item.ProductName</td>
-                                        <td>@item.Revenue.ToString("C")</td>
-                                        <td>@item.QuantitySold</td>
+                                        <th>商品名稱</th>
+                                        <th class="text-end">營收</th>
+                                        <th class="text-end">銷售數量</th>
                                     </tr>
-                                }
-                            </tbody>
-                        </table>
-                    </div>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in Model.ProductRanking.TopByRevenue)
+                                    {
+                                        <tr>
+                                            <td class="text-truncate" style="max-width:260px;">
+                                                @item.ProductName
+                                            </td>
+                                            <td class="text-end">@item.Revenue.ToString("C")</td>
+                                            <td class="text-end">@item.QuantitySold</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
 
                 </div>
             </div>
@@ -121,27 +180,36 @@
                 <div class="card-body">
                     <h5 class="fw-bold mb-3">銷售數量排行 TOP 5</h5>
 
-                    <div class="table-responsive">
-                        <table class="table align-middle">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>商品名稱</th>
-                                    <th>銷售數量</th>
-                                    <th>營收</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach (var item in Model.ProductRanking.TopByQuantity)
-                                {
+                    @if (!Model.ProductRanking.TopByQuantity.Any())
+                    {
+                        <div class="text-muted">尚無資料</div>
+                    }
+                    else
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-sm align-middle">
+                                <thead class="table-light">
                                     <tr>
-                                        <td>@item.ProductName</td>
-                                        <td>@item.QuantitySold</td>
-                                        <td>@item.Revenue.ToString("C")</td>
+                                        <th>商品名稱</th>
+                                        <th class="text-end">銷售數量</th>
+                                        <th class="text-end">營收</th>
                                     </tr>
-                                }
-                            </tbody>
-                        </table>
-                    </div>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in Model.ProductRanking.TopByQuantity)
+                                    {
+                                        <tr>
+                                            <td class="text-truncate" style="max-width:260px;">
+                                                @item.ProductName
+                                            </td>
+                                            <td class="text-end">@item.QuantitySold</td>
+                                            <td class="text-end">@item.Revenue.ToString("C")</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
 
                 </div>
             </div>
@@ -153,7 +221,8 @@
 
 <!-- 傳資料給 JS -->
 <div id="commerceChartData"
-     data-revenue='@Html.Raw(JsonSerializer.Serialize(Model.RevenueTrend.MonthlyTrend))'>
+     data-revenue='@Html.Raw(JsonSerializer.Serialize(Model.RevenueTrend.MonthlyTrend))'
+     data-orders='@Html.Raw(JsonSerializer.Serialize(Model.OrderTrend.MonthlyTrend))'>
 </div>
 
 @section Scripts {

@@ -1,4 +1,4 @@
-﻿@model CraftDailyCorner.ViewModels.CreatorAnalytics.VMCommunityDashboard
+﻿@model CraftDailyCorner.ViewModels.CreatorAnalytics.Community.VMCommunityDashboard
 @using System.Text.Json
 
 @{
@@ -7,23 +7,32 @@
 
 <div class="container-fluid py-4">
 
-    <!-- Page Title -->
-    <div class="mb-4">
-        <h2 class="fw-bold">社群經營儀表板</h2>
-        <p class="text-muted">內容成長、互動分析與商業價值</p>
+    <!-- 標題區 -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold mb-1">社群經營儀表板</h2>
+            <p class="text-muted mb-0">內容成長、互動趨勢與反應表現</p>
+        </div>
+
+        <div>
+            <a asp-controller="Creator"
+               asp-action="Dashboard"
+               class="btn btn-outline-secondary">
+                回創作者中心
+            </a>
+        </div>
     </div>
 
-    <!-- Overview KPI -->
+    <!-- KPI -->
     <div class="row g-4 mb-5">
 
         <div class="col-md-3">
             <div class="card shadow-sm border-0 h-100">
                 <div class="card-body">
-                    <h6 class="text-muted">總貼文數</h6>
-                    <h3 class="fw-bold">@Model.Overview.TotalPosts</h3>
+                    <h6 class="text-muted">本月貼文</h6>
+                    <h3 class="fw-bold">@Model.Overview.PostsThisMonth</h3>
                     <small class="text-muted">
-                        已發布 @Model.Overview.PublishedPosts /
-                        草稿 @Model.Overview.DraftPosts
+                        總貼文 @Model.Overview.TotalPosts（已發布 @Model.Overview.PublishedPosts / 草稿 @Model.Overview.DraftPosts）
                     </small>
                 </div>
             </div>
@@ -32,8 +41,9 @@
         <div class="col-md-3">
             <div class="card shadow-sm border-0 h-100">
                 <div class="card-body">
-                    <h6 class="text-muted">總留言數</h6>
-                    <h3 class="fw-bold">@Model.Overview.TotalComments</h3>
+                    <h6 class="text-muted">本月作品集</h6>
+                    <h3 class="fw-bold">@Model.Overview.PortfoliosThisMonth</h3>
+                    <small class="text-muted">總作品集 @Model.Overview.TotalPortfolios</small>
                 </div>
             </div>
         </div>
@@ -41,8 +51,9 @@
         <div class="col-md-3">
             <div class="card shadow-sm border-0 h-100">
                 <div class="card-body">
-                    <h6 class="text-muted">總訂單數</h6>
-                    <h3 class="fw-bold">@Model.Overview.TotalOrders</h3>
+                    <h6 class="text-muted">本月留言</h6>
+                    <h3 class="fw-bold">@Model.Overview.CommentsThisMonth</h3>
+                    <small class="text-muted">總留言 @Model.Overview.TotalComments</small>
                 </div>
             </div>
         </div>
@@ -50,58 +61,172 @@
         <div class="col-md-3">
             <div class="card shadow-sm border-0 h-100 bg-light">
                 <div class="card-body">
-                    <h6 class="text-muted">總營收</h6>
-                    <h3 class="fw-bold text-success">
-                        @Model.Overview.TotalRevenue.ToString("C")
-                    </h3>
+                    <h6 class="text-muted">本月反應（Reaction）</h6>
+                    <h3 class="fw-bold">@Model.Overview.ReactionsThisMonth</h3>
+                    <small class="text-muted">總反應 @Model.Overview.TotalReactions</small>
                 </div>
             </div>
         </div>
 
     </div>
 
-    <!-- Content Trend -->
+    <!-- 發文趨勢 -->
     <div class="card shadow-sm border-0 mb-5">
         <div class="card-body">
-
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <h5 class="fw-bold mb-0">發文趨勢</h5>
                 <span class="badge bg-primary">
                     成長率 @Model.ContentAnalysis.MonthlyGrowthRate.ToString("P")
                 </span>
             </div>
-
             <div style="height:320px;">
                 <canvas id="postTrendChart"></canvas>
             </div>
-
         </div>
     </div>
 
-    <!-- Comment Trend -->
+    <!-- 作品集趨勢 -->
     <div class="card shadow-sm border-0 mb-5">
         <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold mb-0">作品集趨勢</h5>
+                <span class="badge bg-secondary">
+                    成長率 @Model.PortfolioAnalysis.MonthlyGrowthRate.ToString("P")
+                </span>
+            </div>
+            <div style="height:320px;">
+                <canvas id="portfolioTrendChart"></canvas>
+            </div>
+        </div>
+    </div>
 
+    <!-- 留言趨勢 -->
+    <div class="card shadow-sm border-0 mb-5">
+        <div class="card-body">
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <h5 class="fw-bold mb-0">留言趨勢</h5>
                 <span class="badge bg-info">
                     成長率 @Model.InteractionAnalysis.CommentGrowthRate.ToString("P")
                 </span>
             </div>
-
             <div style="height:320px;">
                 <canvas id="commentTrendChart"></canvas>
             </div>
-
         </div>
+    </div>
+
+    <!-- Reaction 趨勢 -->
+    <div class="card shadow-sm border-0 mb-5">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold mb-0">反應（Reaction）趨勢</h5>
+                <span class="badge bg-dark">
+                    成長率 @Model.ReactionAnalysis.ReactionGrowthRate.ToString("P")
+                </span>
+            </div>
+            <div style="height:320px;">
+                <canvas id="reactionTrendChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Top 排行 -->
+    <div class="row g-4 mb-5">
+
+        <div class="col-lg-6">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body">
+                    <h5 class="fw-bold mb-3">Top 貼文（依 Reaction）</h5>
+
+                    @if (!Model.ReactionAnalysis.TopReactedPosts.Any())
+                    {
+                        <div class="text-muted">尚無資料</div>
+                    }
+                    else
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-sm align-middle">
+                                <thead>
+                                    <tr class="text-muted">
+                                        <th>標題</th>
+                                        <th class="text-end">Reaction</th>
+                                        <th class="text-end">日期</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var p in Model.ReactionAnalysis.TopReactedPosts)
+                                    {
+                                        <tr>
+                                            <td class="text-truncate" style="max-width:320px;">
+                                                <a class="text-decoration-none"
+                                                   href="@Url.Action("Detail", "Post", new { id = p.PostID })">
+                                                    @p.Title
+                                                </a>
+                                            </td>
+                                            <td class="text-end">@p.ReactionCount</td>
+                                            <td class="text-end">@p.CreatedAt.ToString("yyyy/MM/dd")</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body">
+                    <h5 class="fw-bold mb-3">Top 作品集（依 Reaction）</h5>
+
+                    @if (!Model.ReactionAnalysis.TopReactedPortfolios.Any())
+                    {
+                        <div class="text-muted">尚無資料</div>
+                    }
+                    else
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-sm align-middle">
+                                <thead>
+                                    <tr class="text-muted">
+                                        <th>標題</th>
+                                        <th class="text-end">Reaction</th>
+                                        <th class="text-end">日期</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var p in Model.ReactionAnalysis.TopReactedPortfolios)
+                                    {
+                                        <tr>
+                                            <td class="text-truncate" style="max-width:320px;">
+                                                <a class="text-decoration-none"
+                                                   href="@Url.Action("Detail", "Portfolio", new { id = p.PortfolioID })">
+                                                    @p.Title
+                                                </a>
+                                            </td>
+                                            <td class="text-end">@p.ReactionCount</td>
+                                            <td class="text-end">@p.CreatedAt.ToString("yyyy/MM/dd")</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
     </div>
 
 </div>
 
-<!-- 把資料存在隱藏區塊 -->
+<!-- Chart Data -->
 <div id="chartData"
      data-post='@Html.Raw(JsonSerializer.Serialize(Model.ContentAnalysis.MonthlyTrend))'
-     data-comment='@Html.Raw(JsonSerializer.Serialize(Model.InteractionAnalysis.CommentTrend))'>
+     data-portfolio='@Html.Raw(JsonSerializer.Serialize(Model.PortfolioAnalysis.MonthlyTrend))'
+     data-comment='@Html.Raw(JsonSerializer.Serialize(Model.InteractionAnalysis.CommentTrend))'
+     data-reaction='@Html.Raw(JsonSerializer.Serialize(Model.ReactionAnalysis.MonthlyTrend))'>
 </div>
 
 @section Scripts {

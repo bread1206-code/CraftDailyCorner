@@ -15,7 +15,7 @@ namespace CraftDailyCorner.Controllers
         {
             _analyticsService = analyticsService;
         }
-
+        //社群分析儀表板
         public async Task<IActionResult> Community()
         {
             var creatorId = User.GetCreatorId();
@@ -27,10 +27,11 @@ namespace CraftDailyCorner.Controllers
 
             return View(vm);
         }
-
+        //商務分析儀表板
         public async Task<IActionResult> Commerce()
         {
-            var creatorId = User.FindFirst("CreatorID")?.Value;
+            var creatorId = User.GetCreatorId();
+
             if (string.IsNullOrEmpty(creatorId))
                 return Unauthorized();
 

@@ -4,20 +4,21 @@
     if (!dataElement) return;
 
     const revenueTrendData = JSON.parse(dataElement.dataset.revenue || "[]");
+    const orderTrendData = JSON.parse(dataElement.dataset.orders || "[]");
 
-    const labels = revenueTrendData.map(x => x.monthLabel || x.MonthLabel);
-    const revenueValues = revenueTrendData.map(x => x.revenue || x.Revenue);
+    // ===== Revenue =====
+    const rLabels = revenueTrendData.map(x => x.monthLabel || x.MonthLabel);
+    const rValues = revenueTrendData.map(x => x.revenue || x.Revenue);
 
-    const ctx = document.getElementById("revenueTrendChart");
-
-    if (ctx) {
-        new Chart(ctx, {
+    const revenueCtx = document.getElementById("revenueTrendChart");
+    if (revenueCtx) {
+        new Chart(revenueCtx, {
             type: "line",
             data: {
-                labels: labels,
+                labels: rLabels,
                 datasets: [{
                     label: "月營收",
-                    data: revenueValues,
+                    data: rValues,
                     borderWidth: 2,
                     tension: 0.3,
                     fill: true
@@ -30,11 +31,36 @@
                     tooltip: {
                         callbacks: {
                             label: function (context) {
-                                return " $" + context.raw.toLocaleString();
+                                return " $" + Number(context.raw).toLocaleString();
                             }
                         }
                     }
                 }
+            }
+        });
+    }
+
+    // ===== Orders =====
+    const oLabels = orderTrendData.map(x => x.monthLabel || x.MonthLabel);
+    const oValues = orderTrendData.map(x => x.orderCount || x.OrderCount);
+
+    const orderCtx = document.getElementById("orderTrendChart");
+    if (orderCtx) {
+        new Chart(orderCtx, {
+            type: "line",
+            data: {
+                labels: oLabels,
+                datasets: [{
+                    label: "月訂單數",
+                    data: oValues,
+                    borderWidth: 2,
+                    tension: 0.3,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false
             }
         });
     }

@@ -1,4 +1,4 @@
-﻿namespace CraftDailyCorner.ViewModels.CreatorAnalytics
+﻿namespace CraftDailyCorner.ViewModels.CreatorAnalytics.Community
 {
     public class VMCommentMonthlyTrend
     {

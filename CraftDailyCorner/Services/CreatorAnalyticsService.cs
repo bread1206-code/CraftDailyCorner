@@ -1,6 +1,9 @@
 ﻿using CraftDailyCorner.Models;
+using CraftDailyCorner.Models.enums;
 using CraftDailyCorner.Services.Interface;
 using CraftDailyCorner.ViewModels.CreatorAnalytics;
+using CraftDailyCorner.ViewModels.CreatorAnalytics.Commerce;
+using CraftDailyCorner.ViewModels.CreatorAnalytics.Community;
 using Microsoft.EntityFrameworkCore;
 
 namespace CraftDailyCorner.Services
@@ -23,106 +26,166 @@ namespace CraftDailyCorner.Services
 
             var dashboard = new VMCommunityDashboard();
 
-            //Overview
-
+            // ===== Base Queries =====
             var postsQuery = _context.CreatorPosts
                 .Where(p => p.CreatorID == creatorId);
 
+            var portfoliosQuery = _context.Portfolios
+                .Where(p => p.CreatorID == creatorId);
+
+            var commentsQuery = _context.PostComments
+                .Where(c => c.CreatorPost.CreatorID == creatorId);
+
+            // ===== Overview (社群) =====
             var totalPosts = await postsQuery.CountAsync();
             var publishedPosts = await postsQuery.CountAsync(p => p.StatusID == 1);
             var draftPosts = totalPosts - publishedPosts;
 
-            var totalComments = await _context.PostComments
-                .Where(c => c.CreatorPost.CreatorID == creatorId)
+            var totalPortfolios = await portfoliosQuery.CountAsync();
+            var totalComments = await commentsQuery.CountAsync();
+
+            var postsThisMonth = await postsQuery
+                .Where(p => p.CreatedAt >= firstDayThisMonth)
                 .CountAsync();
 
-            var totalProducts = await _context.Products
-                .Where(p => p.CreatorID == creatorId)
+            var portfoliosThisMonth = await portfoliosQuery
+                .Where(p => p.CreatedAt >= firstDayThisMonth)
                 .CountAsync();
 
-            var orderItemsQuery = _context.OrderDetails
-                .Where(o => o.Product.CreatorID == creatorId);
-
-            var totalOrders = await orderItemsQuery
-                .Select(o => o.OrderID)
-                .Distinct()
+            var commentsThisMonth = await commentsQuery
+                .Where(c => c.CreatedAt >= firstDayThisMonth)
                 .CountAsync();
 
-            var totalRevenue = await orderItemsQuery
-                .SumAsync(o => (decimal?)o.Quantity * o.Product.Price) ?? 0;
+            // ===== Reactions (總數 / 本月) =====
+            // Post reactions
+            var postReactionsQuery = _context.Reactions
+                .Where(r => r.TargetType == ReactionTargetType.CreatorPost)
+                .Join(
+                    postsQuery,
+                    r => r.TargetID,
+                    p => p.PostID,
+                    (r, p) => r
+                );
+
+            // Portfolio reactions
+            var portfolioReactionsQuery = _context.Reactions
+                .Where(r => r.TargetType == ReactionTargetType.Portfolio)
+                .Join(
+                    portfoliosQuery,
+                    r => r.TargetID,
+                    p => p.PortfolioID,
+                    (r, p) => r
+                );
+
+            // Comment reactions（留言屬於 creator 的 post）
+            var commentReactionsQuery = _context.Reactions
+                .Where(r => r.TargetType == ReactionTargetType.PostComment)
+                .Join(
+                    commentsQuery,
+                    r => r.TargetID,
+                    c => c.CommentID,
+                    (r, c) => r
+                );
+
+            var allReactionsQuery = postReactionsQuery
+                .Concat(portfolioReactionsQuery)
+                .Concat(commentReactionsQuery);
+
+            var totalReactions = await allReactionsQuery.CountAsync();
+
+            var reactionsThisMonth = await allReactionsQuery
+                .Where(r => r.CreatedAt >= firstDayThisMonth)
+                .CountAsync();
 
             dashboard.Overview = new VMCommunityOverview
             {
                 TotalPosts = totalPosts,
                 PublishedPosts = publishedPosts,
                 DraftPosts = draftPosts,
+                TotalPortfolios = totalPortfolios,
                 TotalComments = totalComments,
-                TotalProducts = totalProducts,
-                TotalOrders = totalOrders,
-                TotalRevenue = totalRevenue
+                TotalReactions = totalReactions,
+
+                PostsThisMonth = postsThisMonth,
+                PortfoliosThisMonth = portfoliosThisMonth,
+                CommentsThisMonth = commentsThisMonth,
+                ReactionsThisMonth = reactionsThisMonth
             };
 
-            //Content Analysis
-
-            var postsThisMonth = await postsQuery
-                .Where(p => p.CreatedAt >= firstDayThisMonth)
-                .CountAsync();
-
+            // ===== Content Analysis（發文趨勢 + 發文成長率）=====
             var postsLastMonth = await postsQuery
-                .Where(p => p.CreatedAt >= firstDayLastMonth &&
-                            p.CreatedAt < firstDayThisMonth)
+                .Where(p => p.CreatedAt >= firstDayLastMonth && p.CreatedAt < firstDayThisMonth)
                 .CountAsync();
 
-            decimal monthlyGrowth = 0;
+            decimal postGrowth = 0;
             if (postsLastMonth > 0)
-                monthlyGrowth = (decimal)(postsThisMonth - postsLastMonth) / postsLastMonth;
+                postGrowth = (decimal)(postsThisMonth - postsLastMonth) / postsLastMonth;
 
-            var monthlyRaw = await postsQuery
+            var postMonthlyRaw = await postsQuery
                 .GroupBy(p => new { p.CreatedAt.Year, p.CreatedAt.Month })
-                .Select(g => new
-                {
-                    g.Key.Year,
-                    g.Key.Month,
-                    PostCount = g.Count()
-                })
-                .OrderBy(g => g.Year)
-                .ThenBy(g => g.Month)
+                .Select(g => new { g.Key.Year, g.Key.Month, PostCount = g.Count() })
+                .OrderBy(g => g.Year).ThenBy(g => g.Month)
                 .ToListAsync();
-
-            var monthlyTrend = monthlyRaw
-                .Select(x => new VMPostMonthlyTrend
-                {
-                    MonthLabel = $"{x.Year}-{x.Month:D2}",
-                    PostCount = x.PostCount
-                })
-                .ToList();
 
             dashboard.ContentAnalysis = new VMCommunityContentAnalysis
             {
                 PostsThisMonth = postsThisMonth,
                 PostsLastMonth = postsLastMonth,
-                MonthlyGrowthRate = monthlyGrowth,
-                MonthlyTrend = monthlyTrend
+                MonthlyGrowthRate = postGrowth,
+                MonthlyTrend = postMonthlyRaw
+                    .Select(x => new VMPostMonthlyTrend
+                    {
+                        MonthLabel = $"{x.Year}-{x.Month:D2}",
+                        PostCount = x.PostCount
+                    })
+                    .ToList()
             };
 
-            //Interaction Analysis
-
-            var commentsThisMonth = await _context.PostComments
-                .Where(c => c.CreatorPost.CreatorID == creatorId &&
-                            c.CreatedAt >= firstDayThisMonth)
+            // ===== Portfolio Analysis（新增）=====
+            var portfoliosLastMonth = await portfoliosQuery
+                .Where(p => p.CreatedAt >= firstDayLastMonth && p.CreatedAt < firstDayThisMonth)
                 .CountAsync();
 
-            var commentsLastMonth = await _context.PostComments
-                .Where(c => c.CreatorPost.CreatorID == creatorId &&
-                            c.CreatedAt >= firstDayLastMonth &&
-                            c.CreatedAt < firstDayThisMonth)
+            decimal portfolioGrowth = 0;
+            if (portfoliosLastMonth > 0)
+                portfolioGrowth = (decimal)(portfoliosThisMonth - portfoliosLastMonth) / portfoliosLastMonth;
+
+            var portfolioMonthlyRaw = await portfoliosQuery
+                .GroupBy(p => new { p.CreatedAt.Year, p.CreatedAt.Month })
+                .Select(g => new { g.Key.Year, g.Key.Month, PortfolioCount = g.Count() })
+                .OrderBy(g => g.Year).ThenBy(g => g.Month)
+                .ToListAsync();
+
+            dashboard.PortfolioAnalysis = new VMCommunityPortfolioAnalysis
+            {
+                PortfoliosThisMonth = portfoliosThisMonth,
+                PortfoliosLastMonth = portfoliosLastMonth,
+                MonthlyGrowthRate = portfolioGrowth,
+                MonthlyTrend = portfolioMonthlyRaw
+                    .Select(x => new VMPortfolioMonthlyTrend
+                    {
+                        MonthLabel = $"{x.Year}-{x.Month:D2}",
+                        PortfolioCount = x.PortfolioCount
+                    })
+                    .ToList()
+            };
+
+            // ===== Interaction Analysis（留言趨勢 + Top留言貼文）=====
+            var commentsLastMonth = await commentsQuery
+                .Where(c => c.CreatedAt >= firstDayLastMonth && c.CreatedAt < firstDayThisMonth)
                 .CountAsync();
 
             decimal commentGrowth = 0;
             if (commentsLastMonth > 0)
                 commentGrowth = (decimal)(commentsThisMonth - commentsLastMonth) / commentsLastMonth;
 
-            var topPosts = await postsQuery
+            var commentMonthlyRaw = await commentsQuery
+                .GroupBy(c => new { c.CreatedAt.Year, c.CreatedAt.Month })
+                .Select(g => new { g.Key.Year, g.Key.Month, CommentCount = g.Count() })
+                .OrderBy(g => g.Year).ThenBy(g => g.Month)
+                .ToListAsync();
+
+            var topCommentPosts = await postsQuery
                 .Select(p => new VMPostCommentRanking
                 {
                     PostID = p.PostID,
@@ -130,66 +193,102 @@ namespace CraftDailyCorner.Services
                     CommentCount = p.PostComments.Count(),
                     CreatedAt = p.CreatedAt
                 })
-                .OrderByDescending(p => p.CommentCount)
+                .OrderByDescending(x => x.CommentCount)
                 .Take(5)
                 .ToListAsync();
-
-            var commentRaw = await _context.PostComments
-                .Where(c => c.CreatorPost.CreatorID == creatorId)
-                .GroupBy(c => new { c.CreatedAt.Year, c.CreatedAt.Month })
-                .Select(g => new
-                {
-                    g.Key.Year,
-                    g.Key.Month,
-                    CommentCount = g.Count()
-                })
-                .OrderBy(g => g.Year)
-                .ThenBy(g => g.Month)
-                .ToListAsync();
-
-            var commentTrend = commentRaw
-                .Select(x => new VMCommentMonthlyTrend
-                {
-                    MonthLabel = $"{x.Year}-{x.Month:D2}",
-                    CommentCount = x.CommentCount
-                })
-                .ToList();
 
             dashboard.InteractionAnalysis = new VMCommunityInteractionAnalysis
             {
                 CommentsThisMonth = commentsThisMonth,
                 CommentsLastMonth = commentsLastMonth,
                 CommentGrowthRate = commentGrowth,
-                TopCommentPosts = topPosts,
-                CommentTrend = commentTrend
+                CommentTrend = commentMonthlyRaw
+                    .Select(x => new VMCommentMonthlyTrend
+                    {
+                        MonthLabel = $"{x.Year}-{x.Month:D2}",
+                        CommentCount = x.CommentCount
+                    })
+                    .ToList(),
+                TopCommentPosts = topCommentPosts
             };
 
-            //Business Analysis
+            // ===== Reaction Analysis（新增：趨勢 + 成長率 + Top內容）=====
+            var reactionsLastMonth = await allReactionsQuery
+                .Where(r => r.CreatedAt >= firstDayLastMonth && r.CreatedAt < firstDayThisMonth)
+                .CountAsync();
 
-            var topProducts = await orderItemsQuery
-                .GroupBy(o => new { o.ProductID, o.Product.ProductName })
-                .Select(g => new VMProductSalesRanking
-                {
-                    ProductID = g.Key.ProductID,
-                    ProductName = g.Key.ProductName,
-                    QuantitySold = g.Sum(x => x.Quantity),
-                    Revenue = g.Sum(x => x.Quantity * x.Product.Price)
-                })
-                .OrderByDescending(p => p.Revenue)
-                .Take(5)
+            decimal reactionGrowth = 0;
+            if (reactionsLastMonth > 0)
+                reactionGrowth = (decimal)(reactionsThisMonth - reactionsLastMonth) / reactionsLastMonth;
+
+            var reactionMonthlyRaw = await allReactionsQuery
+                .GroupBy(r => new { r.CreatedAt.Year, r.CreatedAt.Month })
+                .Select(g => new { g.Key.Year, g.Key.Month, ReactionCount = g.Count() })
+                .OrderBy(g => g.Year).ThenBy(g => g.Month)
                 .ToListAsync();
 
-            decimal avgOrderValue = 0;
-            if (totalOrders > 0)
-                avgOrderValue = totalRevenue / totalOrders;
+            // Top Reacted Posts
+            var topReactedPosts = await postReactionsQuery
+                .GroupBy(r => r.TargetID)
+                .Select(g => new
+                {
+                    PostID = g.Key,
+                    ReactionCount = g.Count()
+                })
+                .OrderByDescending(x => x.ReactionCount)
+                .Take(5)
+                .Join(
+                    postsQuery,
+                    x => x.PostID,
+                    p => p.PostID,
+                    (x, p) => new VMPostReactionRanking
+                    {
+                        PostID = p.PostID,
+                        Title = p.Title,
+                        ReactionCount = x.ReactionCount,
+                        CreatedAt = p.CreatedAt
+                    }
+                )
+                .ToListAsync();
 
-            dashboard.BusinessAnalysis = new VMCommunityBusinessAnalysis
+            // Top Reacted Portfolios
+            var topReactedPortfolios = await portfolioReactionsQuery
+                .GroupBy(r => r.TargetID)
+                .Select(g => new
+                {
+                    PortfolioID = g.Key,
+                    ReactionCount = g.Count()
+                })
+                .OrderByDescending(x => x.ReactionCount)
+                .Take(5)
+                .Join(
+                    portfoliosQuery,
+                    x => x.PortfolioID,
+                    p => p.PortfolioID,
+                    (x, p) => new VMPortfolioReactionRanking
+                    {
+                        PortfolioID = p.PortfolioID,
+                        Title = p.Title,
+                        ReactionCount = x.ReactionCount,
+                        CreatedAt = p.CreatedAt
+                    }
+                )
+                .ToListAsync();
+
+            dashboard.ReactionAnalysis = new VMCommunityReactionAnalysis
             {
-                TotalProducts = totalProducts,
-                TotalOrders = totalOrders,
-                TotalRevenue = totalRevenue,
-                AverageOrderValue = avgOrderValue,
-                TopSellingProducts = topProducts
+                ReactionsThisMonth = reactionsThisMonth,
+                ReactionsLastMonth = reactionsLastMonth,
+                ReactionGrowthRate = reactionGrowth,
+                MonthlyTrend = reactionMonthlyRaw
+                    .Select(x => new VMReactionMonthlyTrend
+                    {
+                        MonthLabel = $"{x.Year}-{x.Month:D2}",
+                        ReactionCount = x.ReactionCount
+                    })
+                    .ToList(),
+                TopReactedPosts = topReactedPosts,
+                TopReactedPortfolios = topReactedPortfolios
             };
 
             return dashboard;
@@ -204,48 +303,64 @@ namespace CraftDailyCorner.Services
             var dashboard = new VMCommerceDashboard();
 
             var orderQuery = _context.OrderDetails
-                .Where(o => o.Product.CreatorID == creatorId);
+                .Where(od => od.Product.CreatorID == creatorId);
 
-            //Overview
+            // ===== 本月 / 上月 KPI =====
+            var thisMonthQuery = orderQuery.Where(od => od.Order.CreatedAt >= firstDayThisMonth);
+            var lastMonthQuery = orderQuery.Where(od => od.Order.CreatedAt >= firstDayLastMonth &&
+                                                       od.Order.CreatedAt < firstDayThisMonth);
 
-            var totalOrders = await orderQuery
-                .Select(o => o.OrderID)
-                .Distinct()
-                .CountAsync();
+            // Orders（distinct order id）
+            var thisMonthOrders = await thisMonthQuery.Select(x => x.OrderID).Distinct().CountAsync();
+            var lastMonthOrders = await lastMonthQuery.Select(x => x.OrderID).Distinct().CountAsync();
 
-            var totalQuantity = await orderQuery
-                .SumAsync(o => (int?)o.Quantity) ?? 0;
+            // Quantity（sum）
+            var thisMonthQty = await thisMonthQuery.SumAsync(x => (int?)x.Quantity) ?? 0;
+            var lastMonthQty = await lastMonthQuery.SumAsync(x => (int?)x.Quantity) ?? 0;
 
-            var totalRevenue = await orderQuery
-                .SumAsync(o => (decimal?)o.Quantity * o.Product.Price) ?? 0;
+            // Revenue（sum qty * price）
+            var thisMonthRevenue = await thisMonthQuery.SumAsync(x => (decimal?)x.Quantity * x.Product.Price) ?? 0;
+            var lastMonthRevenue = await lastMonthQuery.SumAsync(x => (decimal?)x.Quantity * x.Product.Price) ?? 0;
 
-            decimal avgOrderValue = 0;
-            if (totalOrders > 0)
-                avgOrderValue = totalRevenue / totalOrders;
+            // AOV（本月）
+            var aov = thisMonthOrders > 0 ? thisMonthRevenue / thisMonthOrders : 0;
 
             dashboard.Overview = new VMCommerceOverview
             {
-                TotalOrders = totalOrders,
-                TotalQuantitySold = totalQuantity,
-                TotalRevenue = totalRevenue,
-                AverageOrderValue = avgOrderValue
+                Revenue = new VMCommerceKpiDelta<decimal>
+                {
+                    Current = thisMonthRevenue,
+                    Previous = lastMonthRevenue,
+                    GrowthRate = CalculateGrowth(thisMonthRevenue, lastMonthRevenue)
+                },
+                Orders = new VMCommerceKpiDelta<int>
+                {
+                    Current = thisMonthOrders,
+                    Previous = lastMonthOrders,
+                    GrowthRate = CalculateGrowth(thisMonthOrders, lastMonthOrders)
+                },
+                Quantity = new VMCommerceKpiDelta<int>
+                {
+                    Current = thisMonthQty,
+                    Previous = lastMonthQty,
+                    GrowthRate = CalculateGrowth(thisMonthQty, lastMonthQty)
+                },
+                AverageOrderValue = aov
             };
 
-            //Revenue Trend
-
+            // ===== 月營收趨勢 =====
             var revenueRaw = await orderQuery
-                .GroupBy(o => new { o.Order.CreatedAt.Year, o.Order.CreatedAt.Month })
+                .GroupBy(x => new { x.Order.CreatedAt.Year, x.Order.CreatedAt.Month })
                 .Select(g => new
                 {
                     g.Key.Year,
                     g.Key.Month,
                     Revenue = g.Sum(x => x.Quantity * x.Product.Price)
                 })
-                .OrderBy(g => g.Year)
-                .ThenBy(g => g.Month)
+                .OrderBy(x => x.Year).ThenBy(x => x.Month)
                 .ToListAsync();
 
-            var monthlyTrend = revenueRaw
+            var revenueTrend = revenueRaw
                 .Select(x => new VMRevenueMonthlyTrend
                 {
                     MonthLabel = $"{x.Year}-{x.Month:D2}",
@@ -253,30 +368,38 @@ namespace CraftDailyCorner.Services
                 })
                 .ToList();
 
-            var thisMonthRevenue = monthlyTrend
-                .Where(x => x.MonthLabel == $"{now.Year}-{now.Month:D2}")
-                .Select(x => x.Revenue)
-                .FirstOrDefault();
-
-            var lastMonthRevenue = monthlyTrend
-                .Where(x => x.MonthLabel == $"{firstDayLastMonth.Year}-{firstDayLastMonth.Month:D2}")
-                .Select(x => x.Revenue)
-                .FirstOrDefault();
-
-            decimal growth = 0;
-            if (lastMonthRevenue > 0)
-                growth = (thisMonthRevenue - lastMonthRevenue) / lastMonthRevenue;
-
             dashboard.RevenueTrend = new VMCommerceRevenueTrend
             {
-                MonthlyTrend = monthlyTrend,
-                MonthlyGrowthRate = growth
+                MonthlyTrend = revenueTrend,
+                MonthlyGrowthRate = CalculateGrowth(thisMonthRevenue, lastMonthRevenue)
             };
 
-            //Product Ranking
+            // ===== 月訂單趨勢（新增）=====
+            var orderRaw = await orderQuery
+                .GroupBy(x => new { x.Order.CreatedAt.Year, x.Order.CreatedAt.Month })
+                .Select(g => new
+                {
+                    g.Key.Year,
+                    g.Key.Month,
+                    OrderCount = g.Select(x => x.OrderID).Distinct().Count()
+                })
+                .OrderBy(x => x.Year).ThenBy(x => x.Month)
+                .ToListAsync();
 
+            dashboard.OrderTrend = new VMCommerceOrderTrend
+            {
+                MonthlyTrend = orderRaw
+                    .Select(x => new VMOrderMonthlyTrend
+                    {
+                        MonthLabel = $"{x.Year}-{x.Month:D2}",
+                        OrderCount = x.OrderCount
+                    })
+                    .ToList()
+            };
+
+            // ===== 商品排行 =====
             var topByRevenue = await orderQuery
-                .GroupBy(o => new { o.ProductID, o.Product.ProductName })
+                .GroupBy(x => new { x.ProductID, x.Product.ProductName })
                 .Select(g => new VMProductSalesRanking
                 {
                     ProductID = g.Key.ProductID,
@@ -289,7 +412,7 @@ namespace CraftDailyCorner.Services
                 .ToListAsync();
 
             var topByQuantity = await orderQuery
-                .GroupBy(o => new { o.ProductID, o.Product.ProductName })
+                .GroupBy(x => new { x.ProductID, x.Product.ProductName })
                 .Select(g => new VMProductSalesRanking
                 {
                     ProductID = g.Key.ProductID,
@@ -308,6 +431,22 @@ namespace CraftDailyCorner.Services
             };
 
             return dashboard;
+        }
+
+        private decimal CalculateGrowth(decimal current, decimal previous)
+        {
+            if (previous == 0)
+                return current > 0 ? 1 : 0;
+
+            return (current - previous) / previous;
+        }
+
+        private decimal CalculateGrowth(int current, int previous)
+        {
+            if (previous == 0)
+                return current > 0 ? 1 : 0;
+
+            return (decimal)(current - previous) / previous;
         }
     }
 }
