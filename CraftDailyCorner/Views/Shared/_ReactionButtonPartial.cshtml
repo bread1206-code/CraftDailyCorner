@@ -6,12 +6,12 @@
      data-target-id="@Model.TargetID">
 
     <button type="button" 
-            class="reaction-main-btn focus-none">
-        <i class="reaction-main-icon bi
-            @(Model.UserReactionType != null
-                   ? CraftDailyCorner.Helpers.ReactionIconHelper.GetIcon(Model.UserReactionType.Value)
-                   : "bi-hand-thumbs-up-fill")">
-        </i>
+            class="reaction-main-btn focus-none ">
+            <i class="reaction-main-icon bi
+                @(Model.UserReactionType != null
+                       ? CraftDailyCorner.Helpers.ReactionIconHelper.GetIcon(Model.UserReactionType.Value)
+                       : "bi-hand-thumbs-up-fill")">
+            </i>
         <span class="reaction-total">@Model.TotalCount</span>
     </button>
 

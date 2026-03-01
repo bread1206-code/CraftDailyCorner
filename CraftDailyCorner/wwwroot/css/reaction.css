@@ -1,24 +1,25 @@
-﻿/* ===== Reaction 爆出動畫 ===== */
-/* 讓 picker 和 動畫 依照這個容器定位 */
+﻿/* =========================================
+   1. 通用設定 & 選單 (Picker)
+   ========================================= */
 .reaction-container {
     position: relative;
     display: inline-block;
 }
 
-/* 讓選單浮在按鈕上方，並加上 z-index 防止被蓋住 */
+/* 選單樣式 */
 .reaction-picker {
     position: absolute;
-    bottom: 100%; /* 顯示在按鈕上方 */
+    bottom: 100%;
     left: 50%;
     transform: translateX(-50%);
     z-index: 1000;
-    white-space: nowrap; /* 防止圖示換行 */
-    margin-bottom: 10px; /* 留點距離 */
+    white-space: nowrap;
+    margin-bottom: 10px;
     background: white;
-    cursor: pointer;
+    padding: 5px 10px;
+    border-radius: 50px; /* 圓角更柔和 */
 }
 
-/* 增加滑鼠移過去的效果 */
 .reaction-item {
     font-size: 1.5rem;
     margin: 0 5px;
@@ -26,34 +27,9 @@
     cursor: pointer;
 }
 
-.reaction-item:hover {
-    transform: scale(1.3);
-}
-
-.reaction-float {
-    position: absolute;
-    font-size: 22px;
-    pointer-events: none;
-    animation: floatUp 1.2s ease-out forwards;
-    z-index: 1001; /* 確保動畫在最上層 */
-}
-
-@keyframes floatUp {
-    0% {
-        opacity: 1;
-        transform: translateY(0) scale(1);
+    .reaction-item:hover {
+        transform: scale(1.3);
     }
-
-    50% {
-        opacity: 1;
-        transform: translateY(-30px) scale(1.2);
-    }
-
-    100% {
-        opacity: 0;
-        transform: translateY(-60px) scale(0.8);
-    }
-}
 
 .reaction-main-btn {
     background: none;
@@ -67,11 +43,159 @@
     color: inherit;
 }
 
-/* hover 效果 */
-.reaction-main-btn:hover .reaction-main-icon {
-    transform: scale(1.15);
-}
+    .reaction-main-btn:hover .reaction-main-icon {
+        transform: scale(1.15);
+    }
 
 .reaction-main-icon {
     transition: transform .2s ease;
+}
+
+
+/* =========================================
+   2. 普通版動畫 (Normal Effect)
+   (原本的小圖示上飄)
+   ========================================= */
+.reaction-normal-float {
+    position: absolute;
+    left: 50%;
+    bottom: 100%; /* 從按鈕上方開始 */
+    font-size: 24px;
+    pointer-events: none; /* 讓點擊穿透 */
+    transform: translateX(-50%);
+    animation: normalFloatUp 1.2s ease-out forwards;
+    z-index: 1001;
+}
+
+@keyframes normalFloatUp {
+    0% {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0) scale(1);
+    }
+
+    100% {
+        opacity: 0;
+        transform: translateX(-50%) translateY(-40px) scale(1.5);
+    }
+}
+
+
+/* =========================================
+   3. Big Effect 版動畫 (Bubble Pop)
+   (全螢幕、從下冒出、搖晃、縮小爆破)
+   ========================================= */
+
+/* 全螢幕遮罩 (不擋點擊) */
+.reaction-overlay {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 9999;
+    overflow: hidden;
+}
+
+/* 上升容器 (負責 Y 軸移動 + 變大) */
+.reaction-big-riser {
+    position: absolute;
+    left: 50%;
+    bottom: -150px; /* 從畫面外開始 */
+    width: 100px;
+    height: 100px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /* 上升動畫: 1.5秒，慢進慢出 */
+    animation: bigFloatUp 1.5s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+
+/* 圖示本體 (負責 X 軸搖晃 + 旋轉) */
+.reaction-big-icon {
+    font-size: 200px;
+    filter: drop-shadow(0 4px 6px rgba(0,0,0,0.2));
+    /* 左右搖晃動畫 */
+    animation: bigWobble 2s ease-in-out infinite;
+}
+
+    /* 爆破階段 (縮小後炸開) */
+    .reaction-big-icon.pop {
+        animation: bigPopExplode 0.4s ease-out forwards;
+    }
+
+/* 碎片特效 */
+.reaction-fragment {
+    position: absolute;
+    left: 0;
+    top: 0;
+    font-size: 100px;
+    pointer-events: none;
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0);
+    animation: fragmentFly 0.8s ease-out forwards;
+}
+
+/* --- Keyframes --- */
+
+/* 上升：從底部冒出到畫面中間 */
+@keyframes bigFloatUp {
+    0% {
+        bottom: -150px;
+        transform: translateX(-50%) scale(0.3);
+        opacity: 0.6;
+    }
+
+    100% {
+        bottom: 50%; /* 停在畫面垂直正中 */
+        transform: translateX(-50%) scale(1.2);
+        opacity: 1;
+    }
+}
+
+/* 搖晃：模擬氣泡飄動 */
+@keyframes bigWobble {
+    0%, 100% {
+        transform: translateX(0) rotate(0deg);
+    }
+
+    25% {
+        transform: translateX(-20px) rotate(-8deg);
+    }
+
+    50% {
+        transform: translateX(0) rotate(0deg);
+    }
+
+    75% {
+        transform: translateX(20px) rotate(8deg);
+    }
+}
+
+/* 爆破：縮小 -> 瞬間放大消失 */
+@keyframes bigPopExplode {
+    0% {
+        transform: scale(1.2);
+    }
+
+    40% {
+        transform: scale(0.8);
+    }
+    /* 預備動作：縮小 */
+    100% {
+        transform: scale(3);
+        opacity: 0;
+    }
+    /* 炸開 */
+}
+
+/* 碎片噴射 */
+@keyframes fragmentFly {
+    0% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(0.5);
+    }
+
+    100% {
+        opacity: 0;
+        /* --x 和 --y 由 JS 計算 */
+        transform: translate(calc(-50% + var(--x)), calc(-50% + var(--y))) scale(1) rotate(180deg);
+    }
 }
