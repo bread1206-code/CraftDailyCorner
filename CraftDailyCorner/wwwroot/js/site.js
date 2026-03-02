@@ -564,3 +564,181 @@ function notifyError(message) {
 
     setTimeout(() => el.remove(), 3000);
 }
+
+/* ==================================================
+ * 6) 追蹤創作者（ AJAX 送出 + 動畫）
+ * ================================================== */
+document.addEventListener("DOMContentLoaded", function () {
+initFollowButtons();
+});
+
+function initFollowButtons() {
+    document.querySelectorAll(".follow-form").forEach(form => {
+        form.addEventListener("submit", async function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            const btn = form.querySelector(".follow-btn");
+            if (!btn) return;
+
+            // ✅ 鎖連點
+            if (btn.classList.contains("loading")) return;
+            btn.classList.add("loading");
+            btn.disabled = true;
+            btn.setAttribute("aria-busy", "true");
+
+            try {
+                const url = form.getAttribute("action") || "/Follow/Toggle";
+                const formData = new FormData(form);
+
+                const res = await fetch(url, {
+                    method: "POST",
+                    headers: {
+                        "X-Requested-With": "XMLHttpRequest"
+                    },
+                    body: formData
+                });
+
+                // 未登入（看你專案設定：可能 401 或 302）
+                if (res.status === 401) {
+                    openLoginModal?.();
+                    return;
+                }
+                // 若被導去 login（302 變成回 HTML）
+                const contentType = res.headers.get("content-type") || "";
+                if (!contentType.includes("application/json")) {
+                    // 常見：被導向登入頁 or 錯誤頁
+                    alert("操作失敗，請重新登入或稍後再試");
+                    return;
+                }
+
+                if (!res.ok) {
+                    alert("操作失敗，請稍後再試");
+                    return;
+                }
+
+                const result = await res.json();
+                updateFollowButtonUI(form, result.isFollowing, result.followerCount);
+
+                // ✅ 只在「追蹤成功」播放動畫
+                if (result.isFollowing) {
+                    playFollowLogoHeartbeatAndFirework(form);
+                }
+
+            } catch (err) {
+                console.error("follow fetch error:", err);
+                alert("系統錯誤，請稍後再試");
+            } finally {
+                // ✅ 解鎖（網路結束就解鎖，不必等動畫）
+                btn.classList.remove("loading");
+                btn.disabled = false;
+                btn.setAttribute("aria-busy", "false");
+            }
+        });
+    });
+}
+
+function updateFollowButtonUI(form, isFollowing, followerCount) {
+    const btn = form.querySelector(".follow-btn");
+    const textEl = form.querySelector(".follow-text");
+    const countEl = form.querySelector(".follow-count");
+
+    if (countEl) countEl.textContent = String(followerCount ?? 0);
+
+    if (!btn || !textEl) return;
+
+    if (isFollowing) {
+        btn.classList.remove("btn-dark");
+        btn.classList.add("btn-outline-dark");
+        textEl.textContent = "已追蹤";
+    } else {
+        btn.classList.remove("btn-outline-dark");
+        btn.classList.add("btn-dark");
+        textEl.textContent = "追蹤";
+    }
+}
+
+// === 動畫：Logo 心跳 2 次（停 1 秒）+ 愛心煙火（炸開後往下掉） ===
+function playFollowLogoHeartbeatAndFirework(form) {
+    const btn = form.querySelector(".follow-btn");
+    if (!btn) return;
+
+    // 避免動畫疊加（同一顆按鈕）
+    if (btn.dataset.animating === "1") return;
+    btn.dataset.animating = "1";
+
+    // 取 logo：優先 data-logo；沒給就找頁面上的圓形頭像 img
+    let logoUrl = form.dataset.logo;
+    if (!logoUrl) {
+        const profileAvatar = document.querySelector('img.rounded-circle');
+        logoUrl = profileAvatar?.getAttribute("src") || "/Photos/03CreatorBrand/Medium/default.png";
+    }
+
+    //  建立「全畫面中央」動畫層（掛 body）
+    let stage = document.getElementById("follow-anim-stage");
+    if (!stage) {
+        stage = document.createElement("div");
+        stage.id = "follow-anim-stage";
+        document.body.appendChild(stage);
+    }
+
+    // 1) Logo 心跳泡泡（在畫面中央）
+    const pulse = document.createElement("div");
+    pulse.className = "follow-logo-pulse follow-center";
+    pulse.innerHTML = `<img src="${logoUrl}" alt="brand" />`;
+    stage.appendChild(pulse);
+
+    // 2) 心跳結束 -> 炸愛心（煙火往下掉）
+    const explodeTimer = setTimeout(() => {
+        burstHeartsFirework(stage, 30); // 想更澎湃可 24~30
+    }, 2200);
+
+    // 3) 清理
+    const cleanupTimer = setTimeout(() => {
+        pulse.remove();
+        btn.dataset.animating = "0";
+    }, 2200 + 2200); // 愛心動畫變慢了，清理時間也拉長
+
+    // 防止離頁或 DOM 變化造成計時器殘留
+    const obs = new MutationObserver(() => {
+        if (!document.body.contains(btn)) {
+            clearTimeout(explodeTimer);
+            clearTimeout(cleanupTimer);
+            obs.disconnect();
+        }
+    });
+    obs.observe(document.body, { childList: true, subtree: true });
+}
+
+//  爆炸愛心：anchor 改成 stage（全畫面中央）
+function burstHeartsFirework(stageEl, count = 22) {
+    const layer = document.createElement("div");
+    layer.className = "follow-heart-layer follow-center";
+    stageEl.appendChild(layer);
+
+    for (let i = 0; i < count; i++) {
+        const heart = document.createElement("i");
+        heart.className = "bi bi-heart-fill follow-heart";
+
+        // 水平炸更開一點
+        const dx = (Math.random() * 2 - 1) * (80 + Math.random() * 140); // -220~220
+
+        // 先往上（負），再往下掉更遠
+        const up = -(70 + Math.random() * 160); // -70~-230
+        const fall = 320 + Math.random() * 360; // +320~+680（更遠）
+
+        const scale = 0.8 + Math.random() * 1.2; // 顆粒略大
+        const delay = Math.random() * 220;       // 延遲拉長
+
+        heart.style.setProperty("--dx", `${dx.toFixed(1)}px`);
+        heart.style.setProperty("--up", `${up.toFixed(1)}px`);
+        heart.style.setProperty("--fall", `${fall.toFixed(1)}px`);
+        heart.style.setProperty("--sc", scale.toFixed(2));
+        heart.style.animationDelay = `${delay}ms`;
+
+        layer.appendChild(heart);
+    }
+
+    // 慢一點 → 清理時間拉長
+    setTimeout(() => layer.remove(), 2600);
+}

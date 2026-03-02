@@ -784,3 +784,162 @@ body {
         transition: none !important;
     }
 }
+
+/*追蹤創作者*/
+/* =========================================================
+   FOLLOW ANIMATION (Full-screen Center)
+   - Logo heartbeat x2, pause 1s, heartbeat x2
+   - Logo 4x size (52px -> 208px)
+   - Hearts burst then fall farther + slower (firework)
+   ========================================================= */
+
+/* 全畫面動畫舞台（掛在 body，用 JS 建立 #follow-anim-stage） */
+#follow-anim-stage {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 9999;
+}
+
+/* 通用：置中定位 */
+.follow-center {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+}
+
+/* 鎖連點：可選視覺（按鈕本身） */
+.follow-btn.loading {
+    opacity: .75;
+    cursor: not-allowed;
+}
+
+/* =========================
+   1) Logo Heartbeat (4x)
+   ========================= */
+
+/* Logo 心跳容器（會同時帶 follow-center） */
+.follow-logo-pulse {
+    pointer-events: none;
+    z-index: 30;
+}
+
+    /* Logo 圓形（放大 4 倍） */
+    .follow-logo-pulse img {
+        width: 208px; /* 52px * 4 */
+        height: 208px; /* 52px * 4 */
+        border-radius: 50%;
+        object-fit: cover;
+        background: #fff;
+        box-shadow: 0 18px 60px rgba(0,0,0,.28);
+        border: 4px solid rgba(255,255,255,.95);
+        /* 兩段心跳：跳兩下 -> 停 1 秒 -> 跳兩下 */
+        animation: followLogoHeartbeatSequence 2.2s ease-in-out forwards;
+    }
+
+/* 2.2s 序列：0~0.6s 兩下 / 0.6~1.6s 停頓 / 1.6~2.2s 兩下 */
+@keyframes followLogoHeartbeatSequence {
+    0% {
+        transform: scale(1);
+    }
+    /* 第一段：兩下 */
+    10% {
+        transform: scale(1.18);
+    }
+
+    20% {
+        transform: scale(1);
+    }
+
+    30% {
+        transform: scale(1.18);
+    }
+
+    40% {
+        transform: scale(1);
+    }
+    /* 停頓約 1 秒 */
+    72% {
+        transform: scale(1);
+    }
+    /* 第二段：兩下 */
+    80% {
+        transform: scale(1.18);
+    }
+
+    88% {
+        transform: scale(1);
+    }
+
+    94% {
+        transform: scale(1.18);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+/* =======================================
+   2) Hearts Firework (farther + slower)
+   ======================================= */
+
+/* 愛心粒子層（會同時帶 follow-center） */
+.follow-heart-layer {
+    width: 1px;
+    height: 1px;
+    pointer-events: none;
+    z-index: 20;
+}
+
+/* 單顆愛心粒子 */
+.follow-heart {
+    position: absolute;
+    left: 0;
+    top: 0;
+    opacity: 0;
+    transform: translate(0, 0) scale(0.2);
+    /* 慢一點：2400ms */
+    animation: followHeartFirework 2400ms cubic-bezier(.2,.8,.2,1) forwards;
+    /* 顏色：可換成你想要的主題色 */
+    color: #ff4d6d;
+    filter: drop-shadow(0 10px 14px rgba(0,0,0,.14));
+}
+
+/*
+  用 JS 設定的 CSS 變數：
+  --dx   水平炸開
+  --up   先往上
+  --fall 往下掉更遠
+  --sc   大小
+*/
+@keyframes followHeartFirework {
+    0% {
+        opacity: 0;
+        transform: translate(0, 0) scale(0.2);
+    }
+
+    12% {
+        opacity: 1;
+        transform: translate(0, 0) scale(var(--sc));
+    }
+    /* 先炸開往上 */
+    45% {
+        opacity: 1;
+        transform: translate(var(--dx), var(--up)) scale(var(--sc));
+    }
+    /* 再往下掉（煙火墜落） */
+    100% {
+        opacity: 0;
+        transform: translate(var(--dx), calc(var(--up) + var(--fall))) scale(calc(var(--sc) * 0.9));
+    }
+}
+
+/* 無障礙：偏好減少動畫時，直接停用 */
+@media (prefers-reduced-motion: reduce) {
+    .follow-logo-pulse img,
+    .follow-heart {
+        animation: none !important;
+    }
+}

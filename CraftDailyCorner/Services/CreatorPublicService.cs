@@ -178,7 +178,7 @@ namespace CraftDailyCorner.Services.Creator
                     .IsFollowingAsync(creatorId, memberId);
             }
 
-            return new VMCreatorPublicProfile
+            var vm= new VMCreatorPublicProfile
             {
                 CreatorID = creator.CreatorID,
                 DisplayName = creator.DisplayName,
@@ -199,6 +199,8 @@ namespace CraftDailyCorner.Services.Creator
                     FollowerCount = followerCount
                 }
             };
+            vm.FollowInfo.LogoUrl = vm.CreatorImagePath;
+            return vm;
         }
         public async Task<VMCreatorIndex> GetCreatorIndexAsync(string? keyword, int page)
         {

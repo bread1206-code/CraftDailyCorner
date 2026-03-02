@@ -15,17 +15,26 @@ namespace CraftDailyCorner.Controllers.Front
             _followService = followService;
         }
 
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Toggle(string creatorId)
         {
             var memberId = User.GetMemberId();
-            var loginCreatorId = User.GetCreatorId();
+            await _followService.ToggleAsync(creatorId, memberId, User.GetCreatorId());
 
-            await _followService.ToggleAsync(creatorId, memberId, loginCreatorId);
+            var isFollowing = await _followService.IsFollowingAsync(creatorId, memberId);
+            var followerCount = await _followService.GetFollowerCountAsync(creatorId);
 
-            return Redirect(Request.Headers["Referer"].ToString());
+            // AJAX：回 JSON
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            {
+                return Json(new { isFollowing, followerCount });
+            }
+
+            // 非 AJAX：維持原本導回上一頁
+            return Redirect(Request.Headers.Referer.ToString());
         }
-        
+
     }
 }
