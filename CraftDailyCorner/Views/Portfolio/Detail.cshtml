@@ -29,15 +29,18 @@
             </div>
 
             <div class="d-flex align-items-center gap-2">
-                @if (!Model.IsOwner)
+                 @if (User.Identity?.IsAuthenticated == true)
                 {
-                    <partial name="_ReportButtonPartial"
-                             model="new VMReport
-                             {
-                                 ReportType = ReportTargetType.Portfolio,
-                                 TargetID = Model.PortfolioID
-                             }" />
-                                }
+                    @if (!Model.IsOwner)
+                    {
+                        <partial name="_ReportButtonPartial"
+                            model="new VMReport
+                            {
+                                ReportType = ReportTargetType.Portfolio,
+                                TargetID = Model.PortfolioID
+                            }" />
+                    }
+                }
             </div>
 
         </div>

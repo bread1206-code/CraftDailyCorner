@@ -586,3 +586,201 @@ body {
     transform: translateY(-6px);
     box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12);
 }
+
+/*登入動畫*/
+/* ===== Login animation overlay (shared) ===== */
+.login-anim-overlay {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 4000;
+    pointer-events: none;
+    opacity: 0;
+    background: rgba(255,255,255,0.55);
+    backdrop-filter: blur(6px);
+    transition: opacity .15s ease;
+}
+
+    .login-anim-overlay.show {
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+/* Center containers */
+.login-anim-envelope, .login-anim-balloon {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Big icon */
+.login-anim-icon {
+    font-size: 100px;
+    line-height: 1;
+    filter: drop-shadow(0 8px 16px rgba(0,0,0,.18));
+}
+
+/* ===== (1) Envelope zoom + stamp ===== */
+.login-anim-envelope.play {
+    animation: envelopeZoom 0.8s cubic-bezier(.2,.9,.2,1) forwards;
+}
+
+@keyframes envelopeZoom {
+    0% {
+        transform: scale(0.2);
+        opacity: 0;
+    }
+
+    20% {
+        opacity: 1;
+    }
+
+    100% {
+        transform: scale(12);
+        opacity: 1;
+    }
+    /* 12 基本可覆蓋大部分螢幕 */
+}
+
+.login-anim-envelope .login-stamp {
+    position: absolute;
+    right: -10px;
+    bottom: 0px;
+    padding: 10px 14px;
+    border: 3px solid rgba(220,53,69,.85); /* bootstrap danger tone */
+    color: rgba(220,53,69,.95);
+    font-weight: 800;
+    letter-spacing: 2px;
+    border-radius: 10px;
+    transform: rotate(-12deg) scale(0.2);
+    opacity: 0;
+    background: rgba(255,255,255,.7);
+}
+
+.login-anim-envelope.stamp .login-stamp {
+    animation: stampIn .25s ease-out forwards, stampShake .35s .25s ease-in-out;
+}
+
+@keyframes stampIn {
+    to {
+        transform: rotate(-12deg) scale(1);
+        opacity: 1;
+    }
+}
+
+@keyframes stampShake {
+    0%,100% {
+        transform: rotate(-12deg) scale(1);
+    }
+
+    30% {
+        transform: rotate(-14deg) scale(1.02);
+    }
+
+    60% {
+        transform: rotate(-10deg) scale(0.98);
+    }
+}
+
+/* ===== (2) Balloon float up + pop + gifts burst ===== */
+.login-anim-balloon.play {
+    animation: balloonUp 0.9s cubic-bezier(.2,.8,.2,1) forwards;
+}
+
+@keyframes balloonUp {
+    0% {
+        transform: translateY(70vh) scale(0.8);
+        opacity: 0;
+    }
+
+    15% {
+        opacity: 1;
+    }
+
+    100% {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+    }
+}
+
+/* Pop ring */
+.balloon-pop-ring {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    border-radius: 999px;
+    border: 3px solid rgba(13,110,253,.45); /* bootstrap primary tone */
+    opacity: 0;
+    transform: scale(0.2);
+}
+
+.login-anim-balloon.pop .balloon-pop-ring {
+    animation: ringPop .35s ease-out forwards;
+}
+
+@keyframes ringPop {
+    0% {
+        opacity: .0;
+        transform: scale(.2);
+    }
+
+    30% {
+        opacity: .8;
+    }
+
+    100% {
+        opacity: 0;
+        transform: scale(8);
+    }
+}
+
+/* Balloon disappears at pop */
+.login-anim-balloon.pop .login-anim-icon {
+    animation: balloonDisappear .15s ease forwards;
+}
+
+@keyframes balloonDisappear {
+    to {
+        transform: scale(0.6);
+        opacity: 0;
+    }
+}
+
+/* Gifts (burst) */
+.login-anim-balloon .gift {
+    position: absolute;
+    font-size: 60px;
+    opacity: 0;
+    transform: translate(0,0) scale(0.5);
+}
+
+/* 只放大氣球 */
+.login-anim-balloon .login-anim-icon {
+    font-size: 300px;
+}
+
+.login-anim-balloon.pop .gift {
+    opacity: 1;
+}
+
+.login-anim-balloon .gift.burst {
+    animation: giftDynamic 0.9s ease-out forwards;
+}
+
+@keyframes giftDynamic {
+    to {
+        transform: translate(var(--x), var(--y)) scale(1);
+        opacity: 0;
+    }
+}
+
+/* Accessibility: reduced motion */
+@media (prefers-reduced-motion: reduce) {
+    .login-anim-overlay, .login-anim-envelope, .login-anim-balloon, .login-stamp, .gift, .balloon-pop-ring {
+        animation: none !important;
+        transition: none !important;
+    }
+}

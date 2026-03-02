@@ -186,7 +186,7 @@ public class CreatorOrderService : ICreatorOrderService
         {
             order.Shipment = new Shipment
             {
-                TrackingNo = trackingNo,
+                TrackingNo = trackingNo.Trim(),
                 StatusID = 2,
                 OrderID = order.OrderID,
                 ShippedAt = DateTime.Now
@@ -194,7 +194,7 @@ public class CreatorOrderService : ICreatorOrderService
         }
         else
         {
-            order.Shipment.TrackingNo = trackingNo;
+            order.Shipment.TrackingNo = trackingNo.Trim();
             order.Shipment.StatusID = 2;
             order.Shipment.ShippedAt = DateTime.Now;
         }

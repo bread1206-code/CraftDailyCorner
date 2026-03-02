@@ -60,14 +60,25 @@
                                 <h6 class="card-title text-truncate mb-1 pe-2">
                                     @item.ProductName
                                 </h6>
-
+                            @if (User.Identity?.IsAuthenticated == true)
+                            {
                                 <button type="button"
-                                    class="btn btn-sm p-0 border-0 bg-transparent favorite-btn focus-none"
+                                        class="btn btn-sm p-0 border-0 bg-transparent favorite-btn focus-none"
                                         data-product-id="@item.ProductID"
                                         data-is-favorite="@item.IsFavorite.ToString().ToLower()"
                                         onclick="event.preventDefault(); event.stopPropagation();">
                                     <i class="bi @(item.IsFavorite ? "bi-heart-fill text-danger" : "bi-heart text-muted") fs-5"></i>
                                 </button>
+                            }
+                            else
+                            {
+                                <button type="button"
+                                        class="btn btn-sm p-0 border-0 bg-transparent focus-none"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#loginModal">
+                                    <i class="bi @(item.IsFavorite ? "bi-heart-fill text-danger" : "bi-heart text-muted") fs-5"></i>
+                                </button>
+                            }
                             </div>
 
                             <p class="text-danger fw-bold mb-1">

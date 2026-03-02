@@ -276,16 +276,5 @@ namespace CraftDailyCorner.Services
             }
         }
 
-        //private void ClearCartByCreator(string memberId, string creatorId)
-        //{
-        //    var cart = _context.Carts.FirstOrDefault(c => c.MemberID == memberId);
-        //    if (cart == null) return;
-
-        //    var itemsToRemove = _context.CartItems
-        //        .Include(ci => ci.Product)
-        //        .Where(ci => ci.CartID == cart.CartID && ci.Product.CreatorID == creatorId);
-
-        //    _context.CartItems.RemoveRange(itemsToRemove);
-        //}
     }
 }

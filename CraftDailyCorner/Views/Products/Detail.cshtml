@@ -92,16 +92,31 @@
                             <h2 class="fw-bold">@Model.ProductName</h2>
                         </div>
                         <div class="col-auto">
-                            <button id="favoriteBtn"
-                                    class="btn btn-outline-danger fs-5 favorite-btn focus-none"
-                                    data-product-id="@Model.ProductId"
-                                    data-is-favorite="@Model.IsFavorite.ToString().ToLower()">
+                            @if (User.Identity?.IsAuthenticated == true)
+                            {
+                                <!--收藏-->
+                                <button id="favoriteBtn"
+                                        class="btn btn-outline-danger fs-5 favorite-btn focus-none"
+                                        data-product-id="@Model.ProductId"
+                                        data-is-favorite="@Model.IsFavorite.ToString().ToLower()">
 
-                                <i class="bi @(Model.IsFavorite ? "bi-heart-fill" : "bi-heart")"></i>
-                                <span class="ms-1">
-                                    @(Model.IsFavorite ? "已收藏" : "收藏")
-                                </span>
-                            </button>
+                                    <i class="bi @(Model.IsFavorite ? "bi-heart-fill" : "bi-heart")"></i>
+                                    <span class="ms-1">
+                                        @(Model.IsFavorite ? "已收藏" : "收藏")
+                                    </span>
+                                </button>
+                            }
+                            else
+                            {
+                                <button type="button"
+                                        class="btn btn-outline-danger fs-5 focus-none"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#loginModal">
+                                    <i class="bi @(Model.IsFavorite ? "bi-heart-fill" : "bi-heart")"></i>
+                                    收藏
+                                </button>
+                            }
+
                         </div>
                     </div>
 
@@ -126,17 +141,21 @@
                     <div class="d-flex justify-content-between align-items-center mb-3">
 
                         <h5 class="fw-bold mb-0">商品介紹</h5>
-
-                        @if (!Model.IsOwner)
+                        @if (User.Identity?.IsAuthenticated == true)
                         {
-                            <partial name="_ReportButtonPartial"
-                                     model="new VMReport
-                                     {
-                                         ReportType = ReportTargetType.Product,
-                                         TargetID = Model.ProductId
-                                     }" />
+                            <!--檢舉-->
+                            @if (!Model.IsOwner)
+                            {
+                                <span>
+                                    <partial name="_ReportButtonPartial"
+                                             model="new VMReport
+                                             {
+                                                 ReportType = ReportTargetType.Product,
+                                                 TargetID = Model.ProductId
+                                             }" />
+                        </span>
                                                 }
-
+                        }
                     </div>
                     <p class="text-content">@Model.Description</p>
 
