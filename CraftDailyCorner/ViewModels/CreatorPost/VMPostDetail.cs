@@ -17,6 +17,7 @@ namespace CraftDailyCorner.ViewModels.CreatorPost
 
         [Display(Name = "創作者")]
         public string CreatorName { get; set; } = null!;
+        public string CreatorID { get; set; } = null!;
 
         [Display(Name = "發佈時間")]
         public DateTime CreatedAt { get; set; }

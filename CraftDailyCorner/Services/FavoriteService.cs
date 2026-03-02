@@ -1,11 +1,12 @@
 ﻿using CraftDailyCorner.Models;
+using CraftDailyCorner.Services.Interface;
 using CraftDailyCorner.ViewModels.Member;
 using CraftDailyCorner.ViewModels.Product;
 using Microsoft.EntityFrameworkCore;
 
 namespace CraftDailyCorner.Services
 {
-    public class FavoriteService
+    public class FavoriteService : IFavoriteService
     {
         private readonly CraftDailyCornerContext _context;
 

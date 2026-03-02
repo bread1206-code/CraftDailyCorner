@@ -1,4 +1,5 @@
 ﻿using CraftDailyCorner.Models;
+using CraftDailyCorner.Services.Interface;
 using CraftDailyCorner.ViewModels.Member;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Data.SqlClient;
@@ -6,11 +7,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CraftDailyCorner.Services
 {
-    public class MemberService
+    public class AccountService : IAccountService
     {
         private readonly CraftDailyCornerContext _context;
 
-        public MemberService(CraftDailyCornerContext context)
+        public AccountService(CraftDailyCornerContext context)
         {
             _context = context;
         }

@@ -5,7 +5,8 @@
         public VMPostIndexQuery Query { get; set; } = new();
 
         public List<VMPostListItem> Posts { get; set; } = new();
-
+        public string CreatorID { get; set; } = null!;
+        public string CreatorName { get; set; } = null!;
         public int TotalCount { get; set; }
 
         public int TotalPages =>

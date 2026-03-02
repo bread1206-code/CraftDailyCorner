@@ -1,5 +1,6 @@
 ﻿using CraftDailyCorner.Models;
 using CraftDailyCorner.Services;
+using CraftDailyCorner.Services.Interface;
 using CraftDailyCorner.ViewModels.Member;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
@@ -15,15 +16,25 @@ namespace CraftDailyCorner.Controllers
     public class AccountController : Controller
     {
         private readonly CraftDailyCornerContext _context;
-        private readonly MemberService _memberService;
+        private readonly IAccountService _accountService;
 
-        public AccountController(CraftDailyCornerContext context, MemberService memberService)
+        public AccountController(CraftDailyCornerContext context, IAccountService accountService)
         {
             _context = context;
-            _memberService = memberService;
+            _accountService = accountService;
         }
         public IActionResult Login(string? returnUrl = null)
         {
+            // 如果已經登入，直接導回首頁或 returnUrl
+            if (User.Identity != null && User.Identity.IsAuthenticated)
+            {
+                if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+                {
+                    return Redirect(returnUrl);
+                }
+                return RedirectToAction("Index", "Home");
+            }
+
             ViewData["ReturnUrl"] = returnUrl;
             return View();
         }
@@ -78,6 +89,10 @@ namespace CraftDailyCorner.Controllers
         //註冊功能
         public IActionResult Register()
         {
+            if (User.Identity != null && User.Identity.IsAuthenticated)
+            {
+                return RedirectToAction("Index", "Home");
+            }
             return View();
         }
 
@@ -117,7 +132,7 @@ namespace CraftDailyCorner.Controllers
             }
 
             // 建立會員
-            string newMemberId = await _memberService.RegisterMemberAsync(model);
+            string newMemberId = await _accountService.RegisterMemberAsync(model);
 
             // 自動登入
             await SignInMemberAsync(newMemberId);

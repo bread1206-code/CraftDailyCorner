@@ -26,7 +26,8 @@ namespace CraftDailyCorner.ViewComponents
                 Title = p.Title,
                 ImageUrl = p.ImageUrl,
                 CreatedAt= p.CreatedAt,
-                DisplayName = p.CreatorProfile.DisplayName
+                DisplayName = p.CreatorProfile.DisplayName,
+                CreatorID = p.CreatorID
 
 
             })

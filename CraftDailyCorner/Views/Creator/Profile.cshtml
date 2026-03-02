@@ -147,12 +147,8 @@
                                     @portfolio.Preview
                                 </div>
 
-                                <!-- 第3行：作者 + 日期（靠右） -->
+                                <!-- 第3行：日期（靠右） -->
                                 <div class="text-muted small text-end mt-auto">
-                                    @portfolio.CreatorName
-
-                                    <span class="mx-2">•</span>
-
                                     @(portfolio.CreatedAt.ToLocalTime().ToString("yyyy/MM/dd"))
                                 </div>
 
@@ -214,23 +210,8 @@
 
                             <p class="text-danger fw-bold mb-1">
                                 NT$ @Math.Floor(item.Price)
-                            </p>
-
                         </div>
-
                     </div>
-                    @*  <!-- Tags -->
-                <div class="card-footer bg-white border-0 pt-0">
-                    @foreach (var tag in item.ProductTags.Select(pt => pt.Tag))
-                    {
-                        <a asp-controller="Products"
-                            asp-action="Index"
-                            asp-route-tagId="@tag.TagID"
-                            class="badge bg-secondary text-decoration-none me-1">
-                            @tag.TagName
-                        </a>
-                    }
-                </div> *@
                 </div>
             }
         </div>

@@ -1,4 +1,5 @@
 ﻿using CraftDailyCorner.Services;
+using CraftDailyCorner.Services.Interface;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -10,9 +11,9 @@ namespace CraftDailyCorner.Controllers
     [Route("api/favorite")]
     public class FavoriteController : ControllerBase
     {
-        private readonly FavoriteService _favoriteService;
+        private readonly IFavoriteService _favoriteService;
 
-        public FavoriteController(FavoriteService favoriteService)
+        public FavoriteController(IFavoriteService favoriteService)
         {
             _favoriteService = favoriteService;
         }

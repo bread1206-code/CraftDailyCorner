@@ -1,8 +1,8 @@
 ﻿using CraftDailyCorner.Extensions;
 using CraftDailyCorner.Services;
-using CraftDailyCorner.Services.Creator;
 using CraftDailyCorner.Services.Interface;
-using CraftDailyCorner.ViewModels.Member;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -12,32 +12,28 @@ namespace CraftDailyCorner.Controllers
     [Authorize]
     public class MemberController : Controller
     {
-        private readonly MemberCenterService _memberCenterService;
-        private readonly IImageUploadService _imageUploadService;
-        private readonly FavoriteService _favoriteService;
+        private readonly IMemberCenterService _memberCenterService;
+        private readonly IFavoriteService _favoriteService;
         private readonly IFollowService _followService;
 
-        public MemberController(MemberCenterService memberCenterService, IImageUploadService imageUploadService, 
-            FavoriteService favoriteService, IFollowService followService)
+        public MemberController(
+            IMemberCenterService memberCenterService,
+            IFavoriteService favoriteService,
+            IFollowService followService)
         {
             _memberCenterService = memberCenterService;
-            _imageUploadService = imageUploadService;
             _favoriteService = favoriteService;
             _followService = followService;
         }
 
-        //會員中心首頁
         // GET: /Member
         public IActionResult Index()
         {
             var memberId = User.GetMemberId();
-
-            var vm = _memberCenterService.GetMemberDashboard(memberId);
-
+            var vm = _memberCenterService.GetDashboard(memberId);
             return View(vm);
         }
 
-        // 個人資料
         // GET: /Member/Profile
         [HttpGet]
         public IActionResult Profile()
@@ -47,53 +43,51 @@ namespace CraftDailyCorner.Controllers
             return View(vm);
         }
 
-        // 個人資料送出
         // POST: /Member/Profile
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Profile(VMEditProfile vm)
+        public async Task<IActionResult> ProfileAsync(CraftDailyCorner.ViewModels.Member.VMEditProfile vm)
         {
             if (!ModelState.IsValid)
                 return View(vm);
 
             var memberId = User.GetMemberId();
-
-            if (vm.AvatarFile != null && vm.AvatarFile.Length > 0)
+            //手機重複檢查
+            try
             {
-                // 有舊圖就沿用，沒有才產生新的 GUID
-                var fileKey = string.IsNullOrEmpty(vm.ImageUrl)
-                    ? Guid.NewGuid().ToString()
-                    : vm.ImageUrl;
-
-                _imageUploadService.UploadImage(
-                    file: vm.AvatarFile,
-                    seedSourcePath: null,
-                    folderName: "01Member",
-                    sizes: ImageSizePresets.Member,
-                    entityId: fileKey
-                );
-
-                vm.ImageUrl = fileKey;
+                _memberCenterService.UpdateProfile(memberId, vm);
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("Phone", ex.Message);
+                return View(vm);
             }
 
-            _memberCenterService.UpdateProfile(vm);
+
+            var claims = User.Claims
+            .Where(c => c.Type != ClaimTypes.Name) // 移除舊的 Name
+            .ToList();
+
+            claims.Add(new Claim(ClaimTypes.Name, vm.DisplayName));
+            var identity = new ClaimsIdentity(claims, "CraftDailyCornerLogin");
+            var principal = new ClaimsPrincipal(identity);
+
+            // 重新簽入（刷新 Cookie）
+            await HttpContext.SignInAsync("CraftDailyCornerLogin", principal);
 
             TempData["Success"] = "個人資料已更新";
             return RedirectToAction(nameof(Profile));
         }
 
-        // 我的收藏頁面
-        [Authorize]
+        // GET: /Member/Favorites
         public IActionResult Favorites()
         {
             var memberId = User.GetMemberId();
-
             var favorites = _favoriteService.GetMyFavorites(memberId);
-
             return View(favorites);
         }
 
-        // 我的追蹤頁面
+        // GET: /Member/Follows
         public async Task<IActionResult> Follows()
         {
             var memberId = User.GetMemberId();

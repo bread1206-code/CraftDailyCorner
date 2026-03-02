@@ -22,7 +22,7 @@
                                 <div class="card-body p-0">
                                     <div class="fw-bold hotpost-title text-center"><i class="bi bi-filter-right"></i>@Html.DisplayFor(modelItem => item.Title)<i class="bi bi-filter-left"></i></div>
                                     <div class="fw-bold hotpost-Author text-end mx-2">
-                                        <a href="#" class="text-black">
+                                        <a asp-controller="Creator" asp-action="Profile" asp-route-id="@item.CreatorID" class="text-decoration-none text-success">
                                             @Html.DisplayFor(modelItem => item.DisplayName)
                                         </a>
                                         <div>@Html.DisplayFor(modelItem => item.CreatedAt)</div>

@@ -53,6 +53,7 @@ namespace CraftDailyCorner.Services.Creator
                     Title = p.Title,
                     CreatedAt = p.CreatedAt,
                     CreatorName = p.CreatorProfile.DisplayName,
+                    CreatorID = p.CreatorID,
                     ItemCount = p.PortfolioItems.Count(),
 
                     CoverImageUrl = p.PortfolioItems

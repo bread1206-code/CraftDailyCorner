@@ -6,6 +6,7 @@ namespace CraftDailyCorner.ViewModels.CreatorPost
     public class VMPostListItem
     {
         public string PostID { get; set; } = null!;
+        public string CreatorID { get; set; } = null!;
         public string CreatorName { get; set; } = null!;
 
         [Display(Name = "標題")]

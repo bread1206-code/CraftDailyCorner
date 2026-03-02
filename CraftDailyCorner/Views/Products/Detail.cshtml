@@ -125,7 +125,7 @@
                         創作者：
                         @if (!string.IsNullOrEmpty(Model.CreatorName))
                         {
-                            <a href="#" class="text-decoration-none">
+                            <a asp-controller="Creator" asp-action="Profile" asp-route-id="@Model.CreatorID" class="text-decoration-none">
                                 @Model.CreatorName
                             </a>
                         }

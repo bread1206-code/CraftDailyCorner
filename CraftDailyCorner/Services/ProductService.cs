@@ -151,7 +151,7 @@ namespace CraftDailyCorner.Services
                     .Select(i => i.ImageUrl)
                     .ToList(),
 
-                CreatorId = product.CreatorProfile?.CreatorID,
+                CreatorID = product.CreatorProfile?.CreatorID,
                 CreatorName = product.CreatorProfile?.DisplayName,
 
                 Categories = product.ProductCategories

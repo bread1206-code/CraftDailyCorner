@@ -26,7 +26,7 @@ namespace CraftDailyCorner.ViewModels.Product
 
         // 創作者
         public string? CreatorName { get; set; }
-        public string? CreatorId { get; set; }
+        public string? CreatorID { get; set; }
 
         // 分類 / Tag
         public List<Category> Categories { get; set; } = new();

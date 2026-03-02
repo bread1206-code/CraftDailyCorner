@@ -12,6 +12,7 @@ namespace CraftDailyCorner.ViewModels.CreatorPortfolio.Front
 
         [Display(Name = "創作者")]
         public string CreatorName { get; set; } = null!;
+        public string CreatorID { get; set; } = null!;
 
         [Display(Name = "建立時間")]
         public DateTime CreatedAt { get; set; }

@@ -11,9 +11,9 @@
     }
 }
 
-<form id="loginForm" method="post">
+<form method="post">
     @Html.AntiForgeryToken()
-    <input type="hidden" name="returnUrl" value="" />
+    <input type="hidden" name="returnUrl" value="@ViewData["ReturnUrl"]" />
 
     <!-- 驗證總錯誤 -->
     <div asp-validation-summary="ModelOnly"
@@ -62,7 +62,7 @@
     <div class="d-grid">
         <button type="button"
                 class="btn btn-primary"
-                onclick="ajaxLogin()">
+                onclick="ajaxLogin(this.form)">
             登入
         </button>
     </div>

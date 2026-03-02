@@ -51,6 +51,8 @@ namespace CraftDailyCorner.Services.Creator
                     PostID = p.PostID,
                     Title = p.Title,
                     ImageUrl = p.ImageUrl,
+                    CreatorID = p.CreatorProfile.CreatorID,
+                    CreatorName = p.CreatorProfile.DisplayName,
                     Visibility = p.Visibility,
                     CreatedAt = p.CreatedAt,
                     UpdatedAt = p.UpdatedAt,
@@ -82,7 +84,9 @@ namespace CraftDailyCorner.Services.Creator
             {
                 Query = query,
                 Posts = posts,
-                TotalCount = totalCount
+                TotalCount = totalCount,
+                CreatorID = posts.FirstOrDefault()?.CreatorID ?? "",
+                CreatorName = posts.FirstOrDefault()?.CreatorName ?? ""
             };
         }
 
@@ -120,7 +124,8 @@ namespace CraftDailyCorner.Services.Creator
                 Title = post.Title, 
                 Content = post.Content, 
                 ImageUrl = post.ImageUrl, 
-                CreatorName = post.CreatorName, 
+                CreatorName = post.CreatorName,
+                CreatorID = post.OwnerId,
                 CreatedAt = post.CreatedAt, 
                 UpdatedAt = post.UpdatedAt, 
                 IsOwner = currentMemberId != null &&

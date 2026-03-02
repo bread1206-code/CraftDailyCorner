@@ -13,6 +13,7 @@ namespace CraftDailyCorner.ViewModels.Homepage
         [DisplayFormat(DataFormatString = "{0:yy/MM/dd}")]
         public DateTime CreatedAt { get; set; }
 
+        public string CreatorID { get; set; } = null!;
         public string DisplayName { get; set; } = null!;
     }
 }

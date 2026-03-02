@@ -188,8 +188,8 @@ function prepareLoginModal() {
 }
 
 // AJAX 登入
-function ajaxLogin() {
-    const form = $('#loginForm');
+function ajaxLogin(formElement) {
+    const form = formElement ? $(formElement) : $('#loginForm');
 
     // 前端驗證
     if (!form.valid()) return;
@@ -207,12 +207,18 @@ function ajaxLogin() {
         })
         .then(res => {
             if (!res.success) {
-                showLoginError(res.message);
+                const errorSpan = form.find('#loginError'); 
+                if (errorSpan.length > 0) {
+                    errorSpan.text(res.message).removeClass('d-none');
+                } else {
+                    // 如果找不到就 fallback 到原本的 ID
+                    showLoginError(res.message);
+                }
                 return;
             }
 
             onLoginSuccess();
-            playLoginSuccessAnimation("envelope");
+            playLoginSuccessAnimation("envelope");//balloon//envelope
         })
         .catch(() => {
             showLoginError('系統錯誤，請稍後再試');
@@ -417,7 +423,7 @@ function createGiftBurst(container, count = 20) {
 
         // 隨機方向
         const angle = Math.random() * 2 * Math.PI;
-        const distance = 150 + Math.random() * 200;
+        const distance = 250 + Math.random() * 200;
 
         const x = Math.cos(angle) * distance;
         const y = Math.sin(angle) * distance;

@@ -1,22 +1,26 @@
 ﻿using CraftDailyCorner.Models;
+using CraftDailyCorner.Services.Interface;
 using CraftDailyCorner.ViewModels.Member;
 using Microsoft.EntityFrameworkCore;
 
 namespace CraftDailyCorner.Services
 {
-    public class MemberCenterService
+    public class MemberCenterService : IMemberCenterService
     {
         private readonly CraftDailyCornerContext _context;
+        private readonly IImageUploadService _imageUploadService;
 
-        public MemberCenterService(CraftDailyCornerContext context)
+        public MemberCenterService(
+            CraftDailyCornerContext context,
+            IImageUploadService imageUploadService)
         {
             _context = context;
+            _imageUploadService = imageUploadService;
         }
 
-        public VMMemberDashboard GetMemberDashboard(string memberId)
+        public VMMemberDashboard GetDashboard(string memberId)
         {
             memberId = memberId.Trim();
-
             var member = GetMemberWithPrivacy(memberId);
 
             // ===== 最新申請 =====
@@ -35,61 +39,66 @@ namespace CraftDailyCorner.Services
 
             return new VMMemberDashboard
             {
-                // 會員識別
                 DisplayName = member.DisplayName,
                 ImageUrl = member.ImageUrl ?? string.Empty,
                 CreatedAt = member.CreatedAt,
                 IsCreator = isCreator,
                 CreatorApplicationStatusCode = applicationStatusCode,
 
-                // 訂單
                 PendingPaymentCount = _context.Orders
-                    .Count(o =>
-                        o.MemberID == memberId &&
-                        o.StatusID == 1),
+                    .Count(o => o.MemberID == memberId && o.StatusID == 1),
 
                 OrderCount = _context.Orders
-                    .Count(o =>
-                        o.MemberID == memberId &&
-                        o.StatusID != 1 &&
-                        o.StatusID != 5),
+                    .Count(o => o.MemberID == memberId && o.StatusID != 1 && o.StatusID != 5),
 
                 AllOrderCount = _context.Orders
                     .Count(o => o.MemberID == memberId),
 
-                // 付款
                 PaymentCount = _context.Payments
                     .Count(p => p.Order.MemberID == memberId),
 
-                // 收藏
                 FavoriteCount = _context.FavoriteProducts
                     .Count(fp => fp.MemberID == memberId),
 
-                // 追蹤
                 FollowingCount = _context.FollowCreators
                     .Count(f => f.MemberID == memberId)
             };
         }
+
         public VMEditProfile GetProfile(string memberId)
         {
-            // 取得會員基本資料（包含隱私設定）
             var member = GetMemberWithPrivacy(memberId);
 
             return new VMEditProfile
             {
                 MemberID = member.MemberID,
                 DisplayName = member.DisplayName,
-                Email = member.Privacy?.Email ?? string.Empty,//若取得null則改用""(空字串)
+                Email = member.Privacy?.Email ?? string.Empty,
                 Phone = member.Privacy?.Phone ?? string.Empty,
                 ImageUrl = member.ImageUrl ?? string.Empty,
             };
         }
 
-        public void UpdateProfile(VMEditProfile vm)
+        public void UpdateProfile(string memberId, VMEditProfile vm)
         {
-            // 取得會員基本資料（包含隱私設定）
-            var member = GetMemberWithPrivacy(vm.MemberID);
+            memberId = memberId.Trim();
 
+            // 防止使用者改到別人的 MemberID（即使畫面上帶了 hidden）
+            vm.MemberID = memberId;
+
+            var member = GetMemberWithPrivacy(memberId);
+            //手機重複檢查
+            if (!string.IsNullOrWhiteSpace(vm.Phone))
+            {
+                var phoneExists = _context.Privacies
+                    .Any(p => p.Phone == vm.Phone
+                           && p.MemberID != memberId);
+
+                if (phoneExists)
+                {
+                    throw new Exception("此手機號碼已被使用");
+                }
+            }
             member.DisplayName = vm.DisplayName;
 
             if (member.Privacy != null)
@@ -98,8 +107,28 @@ namespace CraftDailyCorner.Services
                 member.Privacy.Phone = vm.Phone;
             }
 
+            // ===== 頭像上傳邏輯：從 Controller 搬進來 =====
+            if (vm.AvatarFile != null && vm.AvatarFile.Length > 0)
+            {
+                var fileKey = string.IsNullOrEmpty(member.ImageUrl)
+                    ? Guid.NewGuid().ToString()
+                    : member.ImageUrl;
+
+                _imageUploadService.UploadImage(
+                    file: vm.AvatarFile,
+                    seedSourcePath: null,
+                    folderName: "01Member",
+                    sizes: ImageSizePresets.Member,
+                    entityId: fileKey
+                );
+
+                member.ImageUrl = fileKey;
+                vm.ImageUrl = fileKey; // 如果你 View 會回顯用得到
+            }
+
             _context.SaveChanges();
         }
+
         private Member GetMemberWithPrivacy(string memberId)
         {
             var member = _context.Members
@@ -112,5 +141,4 @@ namespace CraftDailyCorner.Services
             return member;
         }
     }
-    
 }

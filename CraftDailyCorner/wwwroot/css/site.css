@@ -639,7 +639,7 @@ body {
     }
 
     100% {
-        transform: scale(12);
+        transform: scale(6);
         opacity: 1;
     }
     /* 12 基本可覆蓋大部分螢幕 */
@@ -752,7 +752,7 @@ body {
 /* Gifts (burst) */
 .login-anim-balloon .gift {
     position: absolute;
-    font-size: 60px;
+    font-size: 80px;
     opacity: 0;
     transform: translate(0,0) scale(0.5);
 }

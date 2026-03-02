@@ -44,7 +44,10 @@
         </div>
     </div>
     <div class="d-flex justify-content-end align-items-center text-muted small mt-2">
-        <span>@Model.CreatorName</span>
+        <a asp-controller="Creator" asp-action="Profile" asp-route-id="@Model.CreatorID"
+            class="text-decoration-none text-success">
+            @Model.CreatorName
+        </a>
         <i class="bi bi-caret-right-fill mx-2"></i>
         <span>@Model.CreatedAt.ToLocalTime().ToString("yyyy/MM/dd")</span>
     </div>

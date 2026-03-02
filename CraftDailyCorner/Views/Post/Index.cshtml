@@ -79,6 +79,14 @@
 
                                 <!-- 第3行：留言數量 + 日期（靠右） -->
                                 <div class="text-muted small text-end mt-auto">
+                                    <a asp-controller="Creator" asp-action="Profile" asp-route-id="@item.CreatorID"
+                                       class="text-decoration-none text-success">
+                                        <i class="bi bi-person-fill"> </i>
+                                        <span>
+                                            @item.CreatorName
+                                        </span>
+                                    </a>
+                                    <span class="mx-2">•</span>
                                     <i class="bi bi-chat-left-dots"></i>
                                     @item.CommentCount 則留言
 
