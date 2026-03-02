@@ -11,16 +11,13 @@ public class CreatorPortfolioItemService
 {
     private readonly CraftDailyCornerContext _context;
     private readonly IImageUploadService _imageUploadService;
-    private readonly IImageFileService _imageFileService;
 
     public CreatorPortfolioItemService(
     CraftDailyCornerContext context,
-    IImageUploadService imageUploadService,
-    IImageFileService imageFileService)
+    IImageUploadService imageUploadService)
     {
         _context = context;
         _imageUploadService = imageUploadService;
-        _imageFileService = imageFileService;
     }
     private const int MaxImageCount = 25;//上限25張圖片
     public async Task UploadAsync(
@@ -37,18 +34,20 @@ public class CreatorPortfolioItemService
         if (portfolio == null)
             throw new Exception("找不到作品集或無權限");
 
-        // 目前已有圖片數量
+        // 目前已有圖片數量（只算未刪除）
         var currentCount = await _context.PortfolioItems
-            .CountAsync(i => i.PortfolioID == portfolioId);
+            .CountAsync(i => i.PortfolioID == portfolioId && !i.IsDeleted);
+
+        
 
         // 檢查是否超過上限
         if (currentCount + files.Count > MaxImageCount)
             throw new Exception($"作品集最多只能上傳 {MaxImageCount} 張圖片");
 
+        // 下一個排序（只看未刪除，且保底從 0 起算 → +1 後就是 1）
         var maxSort = await _context.PortfolioItems
-            .Where(i => i.PortfolioID == portfolioId)
-            .Select(i => (int?)i.SortOrder)
-            .MaxAsync() ?? 0;
+            .Where(i => i.PortfolioID == portfolioId && !i.IsDeleted)
+            .MaxAsync(i => (byte?)i.SortOrder) ?? (byte)0;
 
         foreach (var file in files)
         {
@@ -59,13 +58,16 @@ public class CreatorPortfolioItemService
                 ImageSizePresets.Portfolio
             );
 
+            maxSort = (byte)(maxSort + 1);
+
             _context.PortfolioItems.Add(new PortfolioItem
             {
                 PortfolioID = portfolioId,
                 ImageUrl = imageKey,
-                SortOrder = (byte)(++maxSort),
+                SortOrder = maxSort,          // 從 1 開始
                 CreatedAt = DateTime.Now,
-                UpdatedAt = DateTime.Now
+                UpdatedAt = DateTime.Now,
+                IsDeleted = false
             });
         }
 
@@ -113,6 +115,8 @@ public class CreatorPortfolioItemService
             item.Portfolio.CreatorID != creatorId)
             throw new Exception("找不到圖片或無權限");
 
+        if (sortOrder < 1)
+            throw new Exception("排序值不可小於 1");
         item.SortOrder = sortOrder;
         item.UpdatedAt = DateTime.Now;
 

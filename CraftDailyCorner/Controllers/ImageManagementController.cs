@@ -57,23 +57,6 @@ public class ImageManagementController : Controller
     // Delete
     // =============================
 
-    //[HttpPost("Delete")]
-    //[ValidateAntiForgeryToken]
-    //public async Task<IActionResult> Delete(
-    //    string entityId,
-    //    string entityType,
-    //    long imageId)
-    //{
-    //    var creatorId = User.GetCreatorId();
-
-    //    var service = GetService(entityType);
-
-    //    await service.DeleteWithValidationAsync(
-    //        imageId,
-    //        creatorId);
-
-    //    return await ReloadPartial(entityId, entityType);
-    //}
     [HttpPost("Delete")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(

@@ -7,6 +7,7 @@ using CraftDailyCorner.Services;
 using CraftDailyCorner.Services.Creator;
 using CraftDailyCorner.Services.Interface;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Http.Features;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -116,7 +117,15 @@ builder.Services.AddAntiforgery(options =>
 {
     options.HeaderName = "RequestVerificationToken";
 });
-
+//提高上傳容量
+builder.Services.Configure<FormOptions>(options =>
+{
+    options.MultipartBodyLengthLimit = 1000 * 1024 * 1024; // 1000MB (整包表單)
+});
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.Limits.MaxRequestBodySize = 1000 * 1024 * 1024; // 100MB
+});
 
 
 var app = builder.Build();
