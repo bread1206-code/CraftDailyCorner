@@ -62,7 +62,10 @@
                                              class="rounded border" />
 
                                         <div class="fw-semibold">
-                                            @item.ProductName
+                                            <a asp-controller="Products" asp-action="Detail" asp-route-id="@item.ProductID"
+                                               class="text-decoration-none">
+                                                @item.ProductName
+                                            </a>
                                         </div>
                                     </div>
                                 </td>

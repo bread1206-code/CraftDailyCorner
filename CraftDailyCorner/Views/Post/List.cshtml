@@ -59,7 +59,10 @@
                                 </td>
 
                                 <td>
-                                    <div class="fw-semibold">@item.Title</div>
+                                    <a asp-controller="Post" asp-action="Detail" asp-route-id="@item.PostID"
+                                       class="text-decoration-none">
+                                        @item.Title
+                                    </a>
                                     <div class="text-muted small">
                                         建立於 @item.CreatedAt.ToString("yyyy/MM/dd")
                                     </div>

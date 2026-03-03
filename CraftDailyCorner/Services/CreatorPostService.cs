@@ -140,6 +140,7 @@ namespace CraftDailyCorner.Services.Creator
         public async Task<bool> CanViewPostAsync(string postId, string? memberId)
         {
             var post = await _context.CreatorPosts
+                .Include(c=>c.CreatorProfile)
                 .FirstOrDefaultAsync(p =>
                     p.PostID == postId &&
                     p.StatusID == 1);
@@ -151,7 +152,7 @@ namespace CraftDailyCorner.Services.Creator
                 return true;
 
             // 創作者自己可看
-            if (memberId != null && post.CreatorID == memberId)
+            if (memberId != null && post.CreatorProfile.MemberID == memberId)
                 return true;
 
             if (post.Visibility == CreatorPostVisibility.Private)

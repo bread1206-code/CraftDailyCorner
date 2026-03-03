@@ -60,7 +60,11 @@
                                              style="width:60px;height:60px;object-fit:cover;" />
 
                                         <div>
-                                            <div class="fw-semibold">@item.Title</div>
+                                            <a asp-controller="Portfolio" asp-action="Detail" asp-route-id="@item.PortfolioID"
+                                               class="text-decoration-none">
+                                                @item.Title
+                                            </a>
+
                                             <div class="text-muted small">
                                                 建立於 @item.CreatedAt.ToString("yyyy/MM/dd")
                                             </div>
