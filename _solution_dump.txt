@@ -1,5 +1,4 @@
 ﻿
-
 ==================================================
 FILE: .gitignore
 ==================================================
@@ -367,11 +366,6 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
-
-==================================================
-FILE: _solution_dump.txt
-==================================================
-
 
 ==================================================
 FILE: CraftDailyCorner.sln
@@ -1433,6 +1427,7 @@ using CraftDailyCorner.DTOs;
 using CraftDailyCorner.Extensions;
 using CraftDailyCorner.Services;
 using CraftDailyCorner.Services.Interface;
+using CraftDailyCorner.ViewModels.Creator;
 using CraftDailyCorner.ViewModels.CreatorApplication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -1446,17 +1441,20 @@ namespace CraftDailyCorner.Controllers.Front
         private readonly ICreatorDashboardService _dashboardService;
         private readonly IImageUploadService _imageUploadService;
         private readonly ICreatorPublicService _creatorPublicService;
+        private readonly ICreatorProfileService _creatorProfileService;
 
         public CreatorController(
             ICreatorApplicationService applicationService,
             ICreatorDashboardService dashboardService,
             IImageUploadService imageUploadService,
-            ICreatorPublicService creatorPublicService)
+            ICreatorPublicService creatorPublicService,
+            ICreatorProfileService creatorProfileService)
         {
             _applicationService = applicationService;
             _dashboardService = dashboardService;
             _imageUploadService = imageUploadService;
             _creatorPublicService = creatorPublicService;
+            _creatorProfileService = creatorProfileService;
         }
 
         //創作者申請
@@ -1488,7 +1486,7 @@ namespace CraftDailyCorner.Controllers.Front
                 imageKey = _imageUploadService.UploadImage(
                     vm.PortfolioSample,
                     null,
-                    "CreatorApplication",
+                    "02CreatorApplication",
                     ImageSizePresets.CreatorApplication
                 );
             }
@@ -1549,6 +1547,46 @@ namespace CraftDailyCorner.Controllers.Front
         {
             var vm = await _creatorPublicService.GetCreatorIndexAsync(keyword, page);
             return View(vm);
+        }
+
+        // 創作者品牌資料編輯
+
+        [Authorize(Roles = "02")]
+        [HttpGet]
+        public async Task<IActionResult> BrandEdit()
+        {
+            var creatorId = User.GetCreatorId();
+            if (string.IsNullOrEmpty(creatorId)) return Unauthorized();
+
+            var vm = await _creatorProfileService.GetBrandEditAsync(creatorId);
+            if (vm == null) return NotFound();
+
+            return View(vm);
+        }
+
+        [Authorize(Roles = "02")]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> BrandEdit(VMCreatorBrandEdit vm)
+        {
+            var creatorId = User.GetCreatorId();
+            if (string.IsNullOrEmpty(creatorId)) return Unauthorized();
+
+            // 防止被改 DisplayName：就算前端被改也無效（service 不更新它）
+            if (!ModelState.IsValid)
+                return View(vm);
+
+            try
+            {
+                await _creatorProfileService.UpdateBrandAsync(creatorId, vm);
+                TempData["Success"] = "品牌資料已更新";
+                return RedirectToAction(nameof(BrandEdit));
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("", ex.Message);
+                return View(vm);
+            }
         }
     }
 }
@@ -2155,6 +2193,7 @@ FILE: CraftDailyCorner\Controllers\MemberController.cs
 using CraftDailyCorner.Extensions;
 using CraftDailyCorner.Services;
 using CraftDailyCorner.Services.Interface;
+using CraftDailyCorner.ViewModels.Member;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
@@ -2169,15 +2208,18 @@ namespace CraftDailyCorner.Controllers
         private readonly IMemberCenterService _memberCenterService;
         private readonly IFavoriteService _favoriteService;
         private readonly IFollowService _followService;
+        private readonly IMemberSecurityService _memberSecurityService;
 
         public MemberController(
             IMemberCenterService memberCenterService,
             IFavoriteService favoriteService,
-            IFollowService followService)
+            IFollowService followService,
+            IMemberSecurityService memberSecurityService)
         {
             _memberCenterService = memberCenterService;
             _favoriteService = favoriteService;
             _followService = followService;
+            _memberSecurityService = memberSecurityService;
         }
 
         // GET: /Member
@@ -2247,6 +2289,40 @@ namespace CraftDailyCorner.Controllers
             var memberId = User.GetMemberId();
             var list = await _followService.GetMyFollowingAsync(memberId);
             return View(list);
+        }
+
+        // Change Password
+
+        [HttpGet]
+        public IActionResult ChangePassword()
+        {
+            return View(new VMChangePassword());
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ChangePassword(VMChangePassword vm)
+        {
+            if (!ModelState.IsValid)
+                return View(vm);
+
+            var memberId = User.GetMemberId();
+            if (string.IsNullOrEmpty(memberId))
+                return Unauthorized();
+
+            var (ok, message) = await _memberSecurityService.ChangePasswordAsync(
+                memberId,
+                vm.CurrentPassword,
+                vm.NewPassword);
+
+            if (!ok)
+            {
+                ModelState.AddModelError(string.Empty, message);
+                return View(vm);
+            }
+
+            TempData["Success"] = message;
+            return RedirectToAction(nameof(ChangePassword));
         }
     }
 }
@@ -4105,7 +4181,7 @@ namespace CraftDailyCorner.ImageManagementCore.ViewModels
 }
 
 ==================================================
-FILE: CraftDailyCorner\Migrations\20260303005703_InitialCreate.cs
+FILE: CraftDailyCorner\Migrations\20260303065913_InitialCreate.cs
 ==================================================
 
 using System;
@@ -5991,7 +6067,7 @@ namespace CraftDailyCorner.Migrations
 
 
 ==================================================
-FILE: CraftDailyCorner\Migrations\20260303005703_InitialCreate.Designer.cs
+FILE: CraftDailyCorner\Migrations\20260303065913_InitialCreate.Designer.cs
 ==================================================
 
 // <auto-generated />
@@ -6008,7 +6084,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CraftDailyCorner.Migrations
 {
     [DbContext(typeof(CraftDailyCornerContext))]
-    [Migration("20260303005703_InitialCreate")]
+    [Migration("20260303065913_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -14371,11 +14447,12 @@ using CraftDailyCorner.Models;
 using CraftDailyCorner.Seed;
 using CraftDailyCorner.Seed.Datas;
 using CraftDailyCorner.Services;
+using CraftDailyCorner.Services.BackgroundServices;
 using CraftDailyCorner.Services.Creator;
 using CraftDailyCorner.Services.Interface;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Http.Features;
-using CraftDailyCorner.Services.BackgroundServices;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14407,6 +14484,9 @@ builder.Services.AddScoped<ICreatorAnalyticsService, CreatorAnalyticsService>();
 builder.Services.AddScoped<IAdminDashboardService, AdminDashboardService>();
 builder.Services.AddScoped<IAdminSidebarService, AdminSidebarService>();
 builder.Services.AddScoped<IReactionService, ReactionService>();
+builder.Services.AddScoped<IMemberSecurityService, MemberSecurityService>();
+builder.Services.AddScoped<IPasswordHasher<Privacy>, PasswordHasher<Privacy>>();
+builder.Services.AddScoped<ICreatorProfileService, CreatorProfileService>();
 
 builder.Services.AddHostedService<SoftDeleteCleanupBackgroundService>();
 builder.Services.AddHostedService<OrderAutoCompleteHostedBackgroundService>();
@@ -19854,7 +19934,8 @@ namespace CraftDailyCorner.Services.Creator
                         {
                             ItemID = i.ItemID,
                             ImageUrl = i.ImageUrl
-                        }).ToList()
+                        }).ToList(),
+                    p.CreatorID
                 })
                 .FirstOrDefaultAsync();
 
@@ -19874,7 +19955,8 @@ namespace CraftDailyCorner.Services.Creator
                 CreatorName = data.CreatorName,
                 IsOwner = currentMemberId != null && data.OwnerId == currentMemberId,
                 Items = data.Items,
-                ReactionButton = reactionVm
+                ReactionButton = reactionVm,
+                CreatorID = data.CreatorID
             };
         }
 
@@ -20352,7 +20434,8 @@ namespace CraftDailyCorner.Services.Creator
                   CreatorName = p.CreatorProfile.DisplayName, 
                   p.CreatedAt, 
                   p.UpdatedAt, 
-                  OwnerId = p.CreatorProfile.MemberID 
+                  OwnerId = p.CreatorProfile.MemberID,
+                  p.CreatorID
                 })
                 .FirstOrDefaultAsync(); 
             
@@ -20371,7 +20454,7 @@ namespace CraftDailyCorner.Services.Creator
                 Content = post.Content, 
                 ImageUrl = post.ImageUrl, 
                 CreatorName = post.CreatorName,
-                CreatorID = post.OwnerId,
+                CreatorID = post.CreatorID,
                 CreatedAt = post.CreatedAt, 
                 UpdatedAt = post.UpdatedAt, 
                 IsOwner = currentMemberId != null &&
@@ -21015,6 +21098,81 @@ namespace CraftDailyCorner.Services
 
             return outputParam.Value?.ToString()
                    ?? throw new Exception("無法取得商品編號");
+        }
+    }
+}
+
+==================================================
+FILE: CraftDailyCorner\Services\CreatorProfileService.cs
+==================================================
+
+using CraftDailyCorner.Models;
+using CraftDailyCorner.Services.Interface;
+using CraftDailyCorner.ViewModels.Creator;
+using Microsoft.EntityFrameworkCore;
+
+namespace CraftDailyCorner.Services.Creator
+{
+    public class CreatorProfileService : ICreatorProfileService
+    {
+        private readonly CraftDailyCornerContext _context;
+        private readonly IImageUploadService _imageUploadService;
+
+        public CreatorProfileService(
+            CraftDailyCornerContext context,
+            IImageUploadService imageUploadService)
+        {
+            _context = context;
+            _imageUploadService = imageUploadService;
+        }
+
+        public async Task<VMCreatorBrandEdit?> GetBrandEditAsync(string creatorId)
+        {
+            var entity = await _context.CreatorProfiles
+                .AsNoTracking()
+                .FirstOrDefaultAsync(c => c.CreatorID == creatorId);
+
+            if (entity == null) return null;
+
+            return new VMCreatorBrandEdit
+            {
+                CreatorID = entity.CreatorID,
+                DisplayName = entity.DisplayName, // 唯讀
+                ImageUrl = entity.ImageUrl,
+                Intro = entity.Intro,
+                BankCode = entity.BankCode,
+                BankAccount = entity.BankAccount
+            };
+        }
+
+        public async Task UpdateBrandAsync(string creatorId, VMCreatorBrandEdit vm)
+        {
+            var entity = await _context.CreatorProfiles
+                .FirstOrDefaultAsync(c => c.CreatorID == creatorId);
+
+            if (entity == null)
+                throw new Exception("找不到創作者資料");
+
+
+            entity.Intro = (vm.Intro ?? string.Empty).Trim();
+            entity.BankCode = (vm.BankCode ?? string.Empty).Trim();
+            entity.BankAccount = (vm.BankAccount ?? string.Empty).Trim();
+
+            // 有上傳才更新圖
+            if (vm.BrandImage != null && vm.BrandImage.Length > 0)
+            {
+                var imageKey = _imageUploadService.UploadImage(
+                    vm.BrandImage,
+                    null,                   
+                    "03CreatorBrand",
+                    ImageSizePresets.Creator, 
+                    entity.ImageUrl          
+                );
+
+                entity.ImageUrl = imageKey;
+            }
+
+            await _context.SaveChangesAsync();
         }
     }
 }
@@ -21695,33 +21853,33 @@ namespace CraftDailyCorner.Services
         public static List<ImageSizeOption> CreatorApplication =>
             new()
             {
-            new ImageSizeOption { FolderName = "Thumbnail", Width = 100, Height = 100 },
-            new ImageSizeOption { FolderName = "Large", Width = 800, Height = 800 }
+            new ImageSizeOption { FolderName = "Thumbnail", Width = 100, Height = 56 },
+            new ImageSizeOption { FolderName = "Large", Width = 800, Height = 450 }
             };
         public static List<ImageSizeOption> Creator =>
             new()
             {
             new ImageSizeOption { FolderName = "Medium", Width = 300, Height = 300 },
-            new ImageSizeOption { FolderName = "Large", Width = 800, Height = 800 }
+            new ImageSizeOption { FolderName = "Large", Width = 800, Height = 450 }
             };
 
         public static List<ImageSizeOption> Product =>
             new()
             {
             new ImageSizeOption { FolderName = "Medium", Width = 300, Height = 300 },
-            new ImageSizeOption { FolderName = "Large", Width = 800, Height = 800 }
+            new ImageSizeOption { FolderName = "Large", Width = 800, Height = 450 }
             };
         public static List<ImageSizeOption> Post =>
             new()
             {
             new ImageSizeOption { FolderName = "Medium", Width = 300, Height = 300 },
-            new ImageSizeOption { FolderName = "Large", Width = 800, Height = 800 }
+            new ImageSizeOption { FolderName = "Large", Width = 800, Height = 450 }
             };
         public static List<ImageSizeOption> Portfolio =>
             new ()
             {
-            new ImageSizeOption { FolderName = "Medium", Width = 400, Height = 200 },
-            new ImageSizeOption { FolderName = "Large", Width = 800, Height = 400 }
+            new ImageSizeOption { FolderName = "Medium", Width = 300, Height = 300 },
+            new ImageSizeOption { FolderName = "Large", Width = 800, Height = 450 }
             };
         public static List<ImageSizeOption> Logo =>
             new()
@@ -22110,6 +22268,22 @@ namespace CraftDailyCorner.Services.Interface
 }
 
 ==================================================
+FILE: CraftDailyCorner\Services\Interface\ICreatorProfileService.cs
+==================================================
+
+using CraftDailyCorner.ViewModels.Creator;
+
+namespace CraftDailyCorner.Services.Interface
+{
+    public interface ICreatorProfileService
+    {
+        Task<VMCreatorBrandEdit?> GetBrandEditAsync(string creatorId);
+        Task UpdateBrandAsync(string creatorId, VMCreatorBrandEdit vm);
+    }
+}
+
+
+==================================================
 FILE: CraftDailyCorner\Services\Interface\ICreatorPublicService.cs
 ==================================================
 
@@ -22238,6 +22412,21 @@ namespace CraftDailyCorner.Services.Interface
         VMEditProfile GetProfile(string memberId);
 
         void UpdateProfile(string memberId, VMEditProfile vm);
+    }
+}
+
+==================================================
+FILE: CraftDailyCorner\Services\Interface\IMemberSecurityService.cs
+==================================================
+
+namespace CraftDailyCorner.Services.Interface
+{
+    public interface IMemberSecurityService
+    {
+        /// <summary>
+        /// 修改會員密碼（需驗證目前密碼）
+        /// </summary>
+        Task<(bool ok, string message)> ChangePasswordAsync(string memberId, string currentPassword, string newPassword);
     }
 }
 
@@ -22459,6 +22648,62 @@ namespace CraftDailyCorner.Services
                 throw new Exception("會員不存在");
 
             return member;
+        }
+    }
+}
+
+==================================================
+FILE: CraftDailyCorner\Services\MemberSecurityService.cs
+==================================================
+
+using CraftDailyCorner.Models;
+using CraftDailyCorner.Services.Interface;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+
+namespace CraftDailyCorner.Services
+{
+    public class MemberSecurityService : IMemberSecurityService
+    {
+        private readonly CraftDailyCornerContext _context;
+        private readonly IPasswordHasher<Privacy> _passwordHasher;
+
+        public MemberSecurityService(
+            CraftDailyCornerContext context,
+            IPasswordHasher<Privacy> passwordHasher)
+        {
+            _context = context;
+            _passwordHasher = passwordHasher;
+        }
+
+        public async Task<(bool ok, string message)> ChangePasswordAsync(
+            string memberId,
+            string currentPassword,
+            string newPassword)
+        {
+            var privacy = await _context.Privacies
+                .FirstOrDefaultAsync(p => p.MemberID == memberId);
+
+            if (privacy == null)
+                return (false, "找不到會員隱私資料");
+
+            var verify = _passwordHasher.VerifyHashedPassword(
+                privacy,
+                privacy.PasswordHash,
+                currentPassword);
+
+            if (verify == PasswordVerificationResult.Failed)
+                return (false, "目前密碼錯誤");
+
+            if (currentPassword == newPassword)
+                return (false, "新密碼不可與舊密碼相同");
+
+            privacy.PasswordHash =
+                _passwordHasher.HashPassword(privacy, newPassword);
+
+            await _context.SaveChangesAsync();
+
+            return (true, "密碼修改成功");
         }
     }
 }
@@ -24115,6 +24360,49 @@ namespace CraftDailyCorner.ViewModels.Cart
 
 
 ==================================================
+FILE: CraftDailyCorner\ViewModels\Creator\VMCreatorBrandEdit.cs
+==================================================
+
+using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Http;
+
+namespace CraftDailyCorner.ViewModels.Creator
+{
+    public class VMCreatorBrandEdit
+    {
+        // 唯讀顯示用
+        public string CreatorID { get; set; } = string.Empty;
+
+        [Display(Name = "品牌名稱")]
+        public string DisplayName { get; set; } = string.Empty;
+
+        // 現有圖片 key（DB 存的那個）
+        public string? ImageUrl { get; set; }
+
+        // 顯示圖片用（/Photos/...）
+        public string CurrentImagePath =>
+            string.IsNullOrWhiteSpace(ImageUrl)
+                ? "/Photos/03CreatorBrand/Medium/default.png"
+                : $"/Photos/03CreatorBrand/Medium/{ImageUrl}.png";
+
+        [Display(Name = "品牌圖片")]
+        public IFormFile? BrandImage { get; set; }
+
+        [Display(Name = "創作者簡介")]
+        [StringLength(500, ErrorMessage = "簡介最多 500 字")]
+        public string? Intro { get; set; }
+
+        [Display(Name = "銀行代碼")]
+        [StringLength(10, ErrorMessage = "銀行代碼最多 10 碼")]
+        public string? BankCode { get; set; }
+
+        [Display(Name = "銀行帳號")]
+        [StringLength(30, ErrorMessage = "銀行帳號最多 30 碼")]
+        public string? BankAccount { get; set; }
+    }
+}
+
+==================================================
 FILE: CraftDailyCorner\ViewModels\Creator\VMCreatorDashboard.cs
 ==================================================
 
@@ -24974,6 +25262,7 @@ namespace CraftDailyCorner.ViewModels.CreatorPortfolio.Front
         public string Title { get; set; } = null!;
         public string? Description { get; set; }
         public string CreatorName { get; set; } = null!;
+        public string CreatorID { get; set; } = null!;
         public DateTime CreatedAt { get; set; }
         public bool IsOwner { get; set; }
 
@@ -25714,6 +26003,35 @@ namespace CraftDailyCorner.ViewModels.Homepage
     }
 }
 
+
+==================================================
+FILE: CraftDailyCorner\ViewModels\Member\VMChangePassword.cs
+==================================================
+
+using System.ComponentModel.DataAnnotations;
+
+namespace CraftDailyCorner.ViewModels.Member
+{
+    public class VMChangePassword
+    {
+        [Required(ErrorMessage = "請輸入目前密碼")]
+        [DataType(DataType.Password)]
+        [Display(Name = "目前密碼")]
+        public string CurrentPassword { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "請輸入新密碼")]
+        [StringLength(20, MinimumLength = 8, ErrorMessage = "新密碼長度需介於 8~20 字元")]
+        [DataType(DataType.Password)]
+        [Display(Name = "新密碼")]
+        public string NewPassword { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "請再次輸入新密碼")]
+        [DataType(DataType.Password)]
+        [Display(Name = "確認新密碼")]
+        [Compare(nameof(NewPassword), ErrorMessage = "兩次輸入的新密碼不一致")]
+        public string ConfirmNewPassword { get; set; } = string.Empty;
+    }
+}
 
 ==================================================
 FILE: CraftDailyCorner\ViewModels\Member\VMEditProfile.cs
@@ -27029,6 +27347,158 @@ FILE: CraftDailyCorner\Views\Creator\ApplySuccess.cshtml
 </div>
 
 ==================================================
+FILE: CraftDailyCorner\Views\Creator\BrandEdit.cshtml
+==================================================
+
+@model CraftDailyCorner.ViewModels.Creator.VMCreatorBrandEdit
+
+@{
+    ViewData["Title"] = "編輯品牌資料";
+}
+
+<div class="container py-4" style="max-width:900px;">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold mb-1">編輯品牌資料</h2>
+            <p class="text-muted mb-0">品牌名稱為唯讀，僅可更新圖片 / 簡介 / 銀行資訊</p>
+        </div>
+
+        <a asp-controller="Creator" asp-action="Dashboard" class="btn btn-outline-secondary">
+            回創作者中心
+        </a>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success">@TempData["Success"]</div>
+    }
+
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-4">
+
+            <form asp-action="BrandEdit"
+                  method="post"
+                  enctype="multipart/form-data">
+
+                @Html.AntiForgeryToken()
+
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                <!-- 品牌圖片（可預覽） -->
+                <div class="mb-4">
+                    <label class="form-label fw-semibold">品牌圖片</label>
+
+                    <div class="brand-upload">
+                        <img id="brandPreview"
+                             src="@Model.CurrentImagePath"
+                             class="brand-preview shadow-sm"
+                             alt="brand preview" />
+
+                        <div class="mt-3 d-flex flex-wrap gap-2">
+                            <input asp-for="BrandImage"
+                                   class="form-control"
+                                   type="file"
+                                   accept="image/*"
+                                   id="brandImageInput" />
+                        </div>
+
+                        <div class="form-text">
+                            支援 jpg / jpeg / png，上傳後會自動轉成 png。
+                        </div>
+                    </div>
+
+                    <span asp-validation-for="BrandImage" class="text-danger"></span>
+                </div>
+
+                <!-- 品牌名稱（唯讀） -->
+                <div class="mb-4">
+                    <label class="form-label fw-semibold">品牌名稱（不可變更）</label>
+                    <input class="form-control"
+                           value="@Model.DisplayName"
+                           readonly />
+                </div>
+
+                <!-- 創作者簡介 -->
+                <div class="mb-4">
+                    <label asp-for="Intro" class="form-label fw-semibold"></label>
+                    <textarea asp-for="Intro"
+                              class="form-control"
+                              rows="5"
+                              placeholder="寫一些你的創作理念 / 風格 / 經歷..."></textarea>
+                    <span asp-validation-for="Intro" class="text-danger"></span>
+                </div>
+
+                <!-- 銀行資訊 -->
+                <div class="row g-3 mb-4">
+                    <div class="col-md-4">
+                        <label asp-for="BankCode" class="form-label fw-semibold"></label>
+                        <input asp-for="BankCode" class="form-control" placeholder="例如：822" />
+                        <span asp-validation-for="BankCode" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-8">
+                        <label asp-for="BankAccount" class="form-label fw-semibold"></label>
+                        <input asp-for="BankAccount" class="form-control" placeholder="請輸入帳號" />
+                        <span asp-validation-for="BankAccount" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-end gap-2">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-save"></i> 儲存變更
+                    </button>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .brand-upload {
+            border: 1px dashed #d0d7de;
+            border-radius: 12px;
+            padding: 16px;
+            background: #fafafa;
+        }
+
+        .brand-preview {
+            width: 160px;
+            height: 160px;
+            border-radius: 16px;
+            object-fit: cover;
+            background: #fff;
+            border: 1px solid rgba(0,0,0,.08);
+        }
+    </style>
+}
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        (function () {
+            const input = document.getElementById("brandImageInput");
+            const img = document.getElementById("brandPreview");
+
+            if (!input || !img) return;
+
+            input.addEventListener("change", function () {
+                const file = input.files && input.files[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onload = e => {
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            });
+        })();
+    </script>
+}
+
+==================================================
 FILE: CraftDailyCorner\Views\Creator\Dashboard.cshtml
 ==================================================
 
@@ -27069,6 +27539,13 @@ FILE: CraftDailyCorner\Views\Creator\Dashboard.cshtml
                     創作起始日：@Model.StartDate.ToString("yyyy/MM/dd")
                     <span class="mx-2">｜</span>
                     成為創作者於：@Model.CreatedAt.ToString("yyyy/MM/dd")
+                </div>
+                <div>
+                    <a asp-controller="Creator"
+                       asp-action="BrandEdit"
+                       class="btn btn-outline-secondary btn-sm mt-3">
+                        編輯品牌資料
+                    </a>
                 </div>
             </div>
         </div>
@@ -29507,6 +29984,70 @@ FILE: CraftDailyCorner\Views\Home\Privacy.cshtml
 
 
 ==================================================
+FILE: CraftDailyCorner\Views\Member\ChangePassword.cshtml
+==================================================
+
+@model CraftDailyCorner.ViewModels.Member.VMChangePassword
+
+@{
+    ViewData["Title"] = "修改密碼";
+}
+
+<div class="container py-5" style="max-width:720px;">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold mb-1">修改密碼</h2>
+            <p class="text-muted mb-0">請輸入目前密碼並設定新密碼</p>
+        </div>
+        <a asp-action="Index" class="btn btn-outline-secondary">回會員中心</a>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success">@TempData["Success"]</div>
+    }
+
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-4">
+
+            @Html.ValidationSummary(false, "", new { @class = "text-danger mb-3" })
+
+            <form asp-action="ChangePassword" method="post">
+                @Html.AntiForgeryToken()
+
+                <div class="mb-3">
+                    <label asp-for="CurrentPassword" class="form-label"></label>
+                    <input asp-for="CurrentPassword" class="form-control" autocomplete="current-password" />
+                    <span asp-validation-for="CurrentPassword" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="NewPassword" class="form-label"></label>
+                    <input asp-for="NewPassword" class="form-control" autocomplete="new-password" />
+                    <span asp-validation-for="NewPassword" class="text-danger"></span>
+                    <div class="form-text">建議至少 8 碼，含英數混合更安全</div>
+                </div>
+
+                <div class="mb-4">
+                    <label asp-for="ConfirmNewPassword" class="form-label"></label>
+                    <input asp-for="ConfirmNewPassword" class="form-control" autocomplete="new-password" />
+                    <span asp-validation-for="ConfirmNewPassword" class="text-danger"></span>
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100">
+                    更新密碼
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
+
+==================================================
 FILE: CraftDailyCorner\Views\Member\Favorites.cshtml
 ==================================================
 
@@ -29789,7 +30330,7 @@ FILE: CraftDailyCorner\Views\Member\Index.cshtml
                            class="btn btn-sm btn-outline-secondary mt-2">
                             編輯個人資料
                         </a>
-                        <a asp-controller="Auth" asp-action="ChangePassword" class="btn  btn-sm btn-outline-secondary mt-2">
+                        <a asp-controller="Member" asp-action="ChangePassword" class="btn  btn-sm btn-outline-secondary mt-2">
                             修改密碼
                         </a>
                     </div>
@@ -31329,7 +31870,11 @@ FILE: CraftDailyCorner\Views\Portfolio\Detail.cshtml
                 @Model.Description              
             </div>
             <div class="small text-secondary">
-                @Model.CreatorName · @Model.CreatedAt.ToString("yyyy/MM/dd")
+                <a asp-controller="Creator" asp-action="Profile" asp-route-id="@Model.CreatorID"
+                   class="text-decoration-none text-success">
+                    @Model.CreatorName
+                </a>
+                · @Model.CreatedAt.ToString("yyyy/MM/dd")
             </div>
         </div>
         
