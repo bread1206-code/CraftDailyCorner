@@ -19,6 +19,9 @@ namespace CraftDailyCorner.Models
         [Display(Name ="出貨時間")]
         public DateTime? ShippedAt { get; set; }
 
+        [Display(Name ="收貨時間")]
+        public DateTime? DeliveredAt { get; set; }
+
         [StringLength(12, MinimumLength = 12)]
         [Column(TypeName = "nchar(12)")]
         [Display(Name = "訂單編號")]

@@ -120,11 +120,11 @@ builder.Services.AddAntiforgery(options =>
 //提高上傳容量
 builder.Services.Configure<FormOptions>(options =>
 {
-    options.MultipartBodyLengthLimit = 1000 * 1024 * 1024; // 1000MB (整包表單)
+    options.MultipartBodyLengthLimit = 200 * 1024 * 1024; // 200MB (整包表單)
 });
 builder.WebHost.ConfigureKestrel(options =>
 {
-    options.Limits.MaxRequestBodySize = 1000 * 1024 * 1024; // 100MB
+    options.Limits.MaxRequestBodySize = 200 * 1024 * 1024; // 200MB
 });
 
 
