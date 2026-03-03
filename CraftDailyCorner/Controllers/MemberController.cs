@@ -1,6 +1,7 @@
 ﻿using CraftDailyCorner.Extensions;
 using CraftDailyCorner.Services;
 using CraftDailyCorner.Services.Interface;
+using CraftDailyCorner.ViewModels.Member;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
@@ -15,15 +16,18 @@ namespace CraftDailyCorner.Controllers
         private readonly IMemberCenterService _memberCenterService;
         private readonly IFavoriteService _favoriteService;
         private readonly IFollowService _followService;
+        private readonly IMemberSecurityService _memberSecurityService;
 
         public MemberController(
             IMemberCenterService memberCenterService,
             IFavoriteService favoriteService,
-            IFollowService followService)
+            IFollowService followService,
+            IMemberSecurityService memberSecurityService)
         {
             _memberCenterService = memberCenterService;
             _favoriteService = favoriteService;
             _followService = followService;
+            _memberSecurityService = memberSecurityService;
         }
 
         // GET: /Member
@@ -93,6 +97,40 @@ namespace CraftDailyCorner.Controllers
             var memberId = User.GetMemberId();
             var list = await _followService.GetMyFollowingAsync(memberId);
             return View(list);
+        }
+
+        // Change Password
+
+        [HttpGet]
+        public IActionResult ChangePassword()
+        {
+            return View(new VMChangePassword());
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ChangePassword(VMChangePassword vm)
+        {
+            if (!ModelState.IsValid)
+                return View(vm);
+
+            var memberId = User.GetMemberId();
+            if (string.IsNullOrEmpty(memberId))
+                return Unauthorized();
+
+            var (ok, message) = await _memberSecurityService.ChangePasswordAsync(
+                memberId,
+                vm.CurrentPassword,
+                vm.NewPassword);
+
+            if (!ok)
+            {
+                ModelState.AddModelError(string.Empty, message);
+                return View(vm);
+            }
+
+            TempData["Success"] = message;
+            return RedirectToAction(nameof(ChangePassword));
         }
     }
 }
