@@ -106,7 +106,8 @@ namespace CraftDailyCorner.Services.Creator
                   CreatorName = p.CreatorProfile.DisplayName, 
                   p.CreatedAt, 
                   p.UpdatedAt, 
-                  OwnerId = p.CreatorProfile.MemberID 
+                  OwnerId = p.CreatorProfile.MemberID,
+                  p.CreatorID
                 })
                 .FirstOrDefaultAsync(); 
             
@@ -125,7 +126,7 @@ namespace CraftDailyCorner.Services.Creator
                 Content = post.Content, 
                 ImageUrl = post.ImageUrl, 
                 CreatorName = post.CreatorName,
-                CreatorID = post.OwnerId,
+                CreatorID = post.CreatorID,
                 CreatedAt = post.CreatedAt, 
                 UpdatedAt = post.UpdatedAt, 
                 IsOwner = currentMemberId != null &&

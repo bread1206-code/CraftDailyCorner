@@ -118,7 +118,8 @@ namespace CraftDailyCorner.Services.Creator
                         {
                             ItemID = i.ItemID,
                             ImageUrl = i.ImageUrl
-                        }).ToList()
+                        }).ToList(),
+                    p.CreatorID
                 })
                 .FirstOrDefaultAsync();
 
@@ -138,7 +139,8 @@ namespace CraftDailyCorner.Services.Creator
                 CreatorName = data.CreatorName,
                 IsOwner = currentMemberId != null && data.OwnerId == currentMemberId,
                 Items = data.Items,
-                ReactionButton = reactionVm
+                ReactionButton = reactionVm,
+                CreatorID = data.CreatorID
             };
         }
 

@@ -1,0 +1,147 @@
+﻿@model CraftDailyCorner.ViewModels.Creator.VMCreatorBrandEdit
+
+@{
+    ViewData["Title"] = "編輯品牌資料";
+}
+
+<div class="container py-4" style="max-width:900px;">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold mb-1">編輯品牌資料</h2>
+            <p class="text-muted mb-0">品牌名稱為唯讀，僅可更新圖片 / 簡介 / 銀行資訊</p>
+        </div>
+
+        <a asp-controller="Creator" asp-action="Dashboard" class="btn btn-outline-secondary">
+            回創作者中心
+        </a>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success">@TempData["Success"]</div>
+    }
+
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-4">
+
+            <form asp-action="BrandEdit"
+                  method="post"
+                  enctype="multipart/form-data">
+
+                @Html.AntiForgeryToken()
+
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                <!-- 品牌圖片（可預覽） -->
+                <div class="mb-4">
+                    <label class="form-label fw-semibold">品牌圖片</label>
+
+                    <div class="brand-upload">
+                        <img id="brandPreview"
+                             src="@Model.CurrentImagePath"
+                             class="brand-preview shadow-sm"
+                             alt="brand preview" />
+
+                        <div class="mt-3 d-flex flex-wrap gap-2">
+                            <input asp-for="BrandImage"
+                                   class="form-control"
+                                   type="file"
+                                   accept="image/*"
+                                   id="brandImageInput" />
+                        </div>
+
+                        <div class="form-text">
+                            支援 jpg / jpeg / png，上傳後會自動轉成 png。
+                        </div>
+                    </div>
+
+                    <span asp-validation-for="BrandImage" class="text-danger"></span>
+                </div>
+
+                <!-- 品牌名稱（唯讀） -->
+                <div class="mb-4">
+                    <label class="form-label fw-semibold">品牌名稱（不可變更）</label>
+                    <input class="form-control"
+                           value="@Model.DisplayName"
+                           readonly />
+                </div>
+
+                <!-- 創作者簡介 -->
+                <div class="mb-4">
+                    <label asp-for="Intro" class="form-label fw-semibold"></label>
+                    <textarea asp-for="Intro"
+                              class="form-control"
+                              rows="5"
+                              placeholder="寫一些你的創作理念 / 風格 / 經歷..."></textarea>
+                    <span asp-validation-for="Intro" class="text-danger"></span>
+                </div>
+
+                <!-- 銀行資訊 -->
+                <div class="row g-3 mb-4">
+                    <div class="col-md-4">
+                        <label asp-for="BankCode" class="form-label fw-semibold"></label>
+                        <input asp-for="BankCode" class="form-control" placeholder="例如：822" />
+                        <span asp-validation-for="BankCode" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-8">
+                        <label asp-for="BankAccount" class="form-label fw-semibold"></label>
+                        <input asp-for="BankAccount" class="form-control" placeholder="請輸入帳號" />
+                        <span asp-validation-for="BankAccount" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-end gap-2">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-save"></i> 儲存變更
+                    </button>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .brand-upload {
+            border: 1px dashed #d0d7de;
+            border-radius: 12px;
+            padding: 16px;
+            background: #fafafa;
+        }
+
+        .brand-preview {
+            width: 160px;
+            height: 160px;
+            border-radius: 16px;
+            object-fit: cover;
+            background: #fff;
+            border: 1px solid rgba(0,0,0,.08);
+        }
+    </style>
+}
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        (function () {
+            const input = document.getElementById("brandImageInput");
+            const img = document.getElementById("brandPreview");
+
+            if (!input || !img) return;
+
+            input.addEventListener("change", function () {
+                const file = input.files && input.files[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onload = e => {
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            });
+        })();
+    </script>
+}

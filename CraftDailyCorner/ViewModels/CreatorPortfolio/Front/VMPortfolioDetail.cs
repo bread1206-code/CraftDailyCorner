@@ -8,6 +8,7 @@ namespace CraftDailyCorner.ViewModels.CreatorPortfolio.Front
         public string Title { get; set; } = null!;
         public string? Description { get; set; }
         public string CreatorName { get; set; } = null!;
+        public string CreatorID { get; set; } = null!;
         public DateTime CreatedAt { get; set; }
         public bool IsOwner { get; set; }
 

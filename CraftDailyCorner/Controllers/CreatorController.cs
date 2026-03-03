@@ -2,6 +2,7 @@
 using CraftDailyCorner.Extensions;
 using CraftDailyCorner.Services;
 using CraftDailyCorner.Services.Interface;
+using CraftDailyCorner.ViewModels.Creator;
 using CraftDailyCorner.ViewModels.CreatorApplication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -15,17 +16,20 @@ namespace CraftDailyCorner.Controllers.Front
         private readonly ICreatorDashboardService _dashboardService;
         private readonly IImageUploadService _imageUploadService;
         private readonly ICreatorPublicService _creatorPublicService;
+        private readonly ICreatorProfileService _creatorProfileService;
 
         public CreatorController(
             ICreatorApplicationService applicationService,
             ICreatorDashboardService dashboardService,
             IImageUploadService imageUploadService,
-            ICreatorPublicService creatorPublicService)
+            ICreatorPublicService creatorPublicService,
+            ICreatorProfileService creatorProfileService)
         {
             _applicationService = applicationService;
             _dashboardService = dashboardService;
             _imageUploadService = imageUploadService;
             _creatorPublicService = creatorPublicService;
+            _creatorProfileService = creatorProfileService;
         }
 
         //創作者申請
@@ -57,7 +61,7 @@ namespace CraftDailyCorner.Controllers.Front
                 imageKey = _imageUploadService.UploadImage(
                     vm.PortfolioSample,
                     null,
-                    "CreatorApplication",
+                    "02CreatorApplication",
                     ImageSizePresets.CreatorApplication
                 );
             }
@@ -118,6 +122,46 @@ namespace CraftDailyCorner.Controllers.Front
         {
             var vm = await _creatorPublicService.GetCreatorIndexAsync(keyword, page);
             return View(vm);
+        }
+
+        // 創作者品牌資料編輯
+
+        [Authorize(Roles = "02")]
+        [HttpGet]
+        public async Task<IActionResult> BrandEdit()
+        {
+            var creatorId = User.GetCreatorId();
+            if (string.IsNullOrEmpty(creatorId)) return Unauthorized();
+
+            var vm = await _creatorProfileService.GetBrandEditAsync(creatorId);
+            if (vm == null) return NotFound();
+
+            return View(vm);
+        }
+
+        [Authorize(Roles = "02")]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> BrandEdit(VMCreatorBrandEdit vm)
+        {
+            var creatorId = User.GetCreatorId();
+            if (string.IsNullOrEmpty(creatorId)) return Unauthorized();
+
+            // 防止被改 DisplayName：就算前端被改也無效（service 不更新它）
+            if (!ModelState.IsValid)
+                return View(vm);
+
+            try
+            {
+                await _creatorProfileService.UpdateBrandAsync(creatorId, vm);
+                TempData["Success"] = "品牌資料已更新";
+                return RedirectToAction(nameof(BrandEdit));
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("", ex.Message);
+                return View(vm);
+            }
         }
     }
 }
