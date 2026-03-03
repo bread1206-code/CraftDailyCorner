@@ -133,6 +133,8 @@ public class ImageManagementController : Controller
         {
             EntityId = entityId,
             EntityType = entityType,
+            MaxImageCount = service.MaxImageCount,
+            HintMessage = service.HintMessage,
             Images = images.Select(x => new VMImageItem
             {
                 ImageId = x.ImageID,

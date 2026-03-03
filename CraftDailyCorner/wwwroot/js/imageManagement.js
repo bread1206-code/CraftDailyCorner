@@ -1,10 +1,15 @@
-﻿function initImageManagement() {
+﻿// wwwroot/js/imageManagement.js
+function initImageManagement() {
 
     const container = document.getElementById("imageManagement");
     if (!container) return;
 
     const entityId = container.dataset.entityId;
     const entityType = container.dataset.entityType;
+
+    // 讀取上限（由後端 VM 帶入 data-max-count；若沒值 = 不限制）
+    const maxCountAttr = container.dataset.maxCount;
+    const maxCount = maxCountAttr ? parseInt(maxCountAttr, 10) : null;
 
     const imageList = container.querySelector("#imageList");
     if (!imageList) return;
@@ -40,11 +45,10 @@
 
             items.forEach((item, index) => {
 
-                const imageId = parseInt(item.dataset.imageId);
+                const imageId = parseInt(item.dataset.imageId, 10);
                 orderedIds.push(imageId);
 
                 // ===== 即時更新 UI =====
-
                 const infoArea = item.querySelector(".card-body");
                 if (!infoArea) return;
 
@@ -52,7 +56,6 @@
                 const sortLabel = infoArea.querySelector(".sortLabel");
 
                 if (index === 0) {
-
                     // 第一張 → 封面
                     if (sortLabel) sortLabel.remove();
 
@@ -65,9 +68,7 @@
                             `<span class="badge bg-success mb-2">封面</span>`
                         );
                     }
-
                 } else {
-
                     if (badge) badge.remove();
 
                     if (sortLabel) {
@@ -82,19 +83,15 @@
             });
 
             // ===== 使用 FormData 傳送 =====
-
             const formData = new FormData();
             formData.append("entityId", entityId);
             formData.append("entityType", entityType);
 
-            orderedIds.forEach(id => {
-                formData.append("orderedIds", id);
-            });
+            orderedIds.forEach(id => formData.append("orderedIds", id));
 
             formData.append("__RequestVerificationToken", antiForgeryToken);
 
             try {
-
                 const response = await fetch("/ImageManagement/UpdateSort", {
                     method: "POST",
                     body: formData
@@ -103,14 +100,12 @@
                 if (!response.ok) {
                     alert("排序儲存失敗，請重新整理頁面");
                 }
-
             } catch (error) {
                 console.error(error);
                 alert("排序發生錯誤");
             }
         }
     });
-    
 
     // ==================================================
     // 刪除圖片（不重載 container）
@@ -123,11 +118,13 @@
 
         const items = imageList.querySelectorAll(".imageItem");
 
+        // 至少保留一張（通用文案，不寫死商品）
         if (items.length <= 1) {
-            alert("商品至少需要一張圖片");
+            alert("至少需要一張圖片");
             return;
         }
-            const imageId = button.dataset.imageId;
+
+        const imageId = button.dataset.imageId;
         const isQuickMode = quickToggle?.checked;
 
         if (!isQuickMode) {
@@ -149,17 +146,13 @@
                 body: formData
             });
 
-            //if (!response.ok) {
-            //    alert("刪除失敗");
-            //    button.disabled = false;
-            //    return;
-            //}
             if (!response.ok) {
                 const msg = await response.text();
-                alert(msg);
+                alert(msg || "刪除失敗");
                 button.disabled = false;
                 return;
             }
+
             const html = await response.text();
 
             // 只更新圖片列表
@@ -172,7 +165,7 @@
                 imageList.innerHTML = newImageList.innerHTML;
             }
 
-            //刪除後立即重新排序 UI
+            // 刪除後立即重新排序 UI
             refreshSortUI();
 
         } catch (error) {
@@ -208,12 +201,14 @@
                 return;
             }
 
-            if (currentImages + selectedFiles > 10) {
-                alert("商品圖片最多 10 張");
+            // 由 data-max-count 決定（Portfolio=25 / Product=10）
+            if (maxCount && (currentImages + selectedFiles > maxCount)) {
+                alert(`圖片最多 ${maxCount} 張`);
                 return;
             }
 
             uploadBtn.disabled = true;
+
             // 顯示 Loading
             if (window.LoadingOverlay) {
                 LoadingOverlay.show("圖片上傳中，請稍候...");
@@ -223,6 +218,7 @@
             formData.append("entityId", entityId);
             formData.append("entityType", entityType);
 
+            // 加入檔案
             for (let i = 0; i < selectedFiles; i++) {
                 formData.append("files", fileInput.files[i]);
             }
@@ -237,7 +233,8 @@
                 });
 
                 if (!response.ok) {
-                    alert("上傳失敗");
+                    const msg = await response.text();
+                    alert(msg || "上傳失敗");
                     return;
                 }
 
@@ -277,12 +274,8 @@
     // ==================================================
 
     function refreshSortUI() {
-
         const items = [...imageList.querySelectorAll(".imageItem")];
-
-        items.forEach((item, index) => {
-            updateSortUI(item, index);
-        });
+        items.forEach((item, index) => updateSortUI(item, index));
     }
 
     function updateSortUI(item, index) {

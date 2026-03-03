@@ -19,14 +19,14 @@ namespace CraftDailyCorner.Seed.Datas
                     new PortfolioItem
                     {
                         ImageUrl = imageGuids[0],
-                        SortOrder = 0,
+                        SortOrder = 1,
                         CreatedAt = DateTime.Now,
                         UpdatedAt = DateTime.Now,
                         PortfolioID = prtfolioGuids[0]
                     },new PortfolioItem
                     {
                         ImageUrl = imageGuids[1],
-                        SortOrder = 1,
+                        SortOrder = 2,
                         CreatedAt = DateTime.Now,
                         UpdatedAt = DateTime.Now,
                         PortfolioID = prtfolioGuids[0]

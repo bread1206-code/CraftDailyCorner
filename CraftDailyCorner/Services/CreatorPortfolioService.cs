@@ -307,7 +307,7 @@ namespace CraftDailyCorner.Services.Creator
                 .OrderBy(i => i.SortOrder)
                 .ToListAsync();
 
-            byte order = 0;
+            byte order = 1;
 
             foreach (var item in items)
             {

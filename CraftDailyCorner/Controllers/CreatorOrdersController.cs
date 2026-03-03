@@ -62,14 +62,23 @@ public class CreatorOrdersController : Controller
 
     // 出貨（Processing → Shipped）
     [HttpPost]
-    public async Task<IActionResult> Ship(string orderId,string trackingNo)
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Ship(string orderId, string trackingNo)
     {
+        if (string.IsNullOrWhiteSpace(trackingNo))
+        {
+            TempData["Error"] = "請輸入物流編號";
+            return RedirectToAction(nameof(Detail), new { id = orderId });
+        }
+
         var result = await _orderService
             .ShipAndGetNextAsync(CreatorId, orderId, trackingNo);
 
         if (!result.Success)
-            return RedirectToAction(nameof(Index),
-                new { status = "processing" });
+        {
+            TempData["Error"] = result.ErrorMessage ?? "出貨失敗";
+            return RedirectToAction(nameof(Detail), new { id = orderId });
+        }
 
         if (!string.IsNullOrEmpty(result.NextOrderId))
             return RedirectToAction(nameof(Detail),

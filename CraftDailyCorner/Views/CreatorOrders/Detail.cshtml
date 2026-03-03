@@ -1,6 +1,11 @@
 ﻿@using CraftDailyCorner.ViewModels.CreatorOrder
 @model VMCreatorOrderDetail
-
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["Error"]
+    </div>
+}
 @{
     ViewData["Title"] = "訂單明細";
 }
@@ -143,8 +148,15 @@
                             <input type="text"
                                    name="TrackingNo"
                                    class="form-control"
-                                   placeholder="請輸入物流編號"
-                                   required />
+                                   placeholder="請輸入物流編號，例如 SH202603030001"
+                                   required
+                                   maxlength="14"
+                                   pattern="^SH\d{12}$"
+                                   title="格式需為 SH + 12 碼數字（例如 SH202603030001）" />
+
+                            <div class="invalid-feedback">
+                                物流編號格式不正確，請輸入 SH + 12 碼數字。
+                            </div>
                         </div>
 
                         <div class="col-md-3">

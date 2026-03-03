@@ -2,6 +2,7 @@
 using CraftDailyCorner.ViewModels.Creator;
 using CraftDailyCorner.ViewModels.CreatorOrder;
 using Microsoft.EntityFrameworkCore;
+using System.Text.RegularExpressions;
 
 public class CreatorOrderService : ICreatorOrderService
 {
@@ -177,7 +178,28 @@ public class CreatorOrderService : ICreatorOrderService
 
         if (order == null)
             return new ShipResult { Success = false };
+        // =====  格式驗證 =====
+        if (!Regex.IsMatch(trackingNo.Trim(), @"^SH\d{12}$"))
+        {
+            return new ShipResult
+            {
+                Success = false,
+                ErrorMessage = "物流編號格式錯誤（需為 SH + 12 碼數字）"
+            };
+        }
 
+        // =====  重複檢查 =====
+        var exists = await _context.Shipments
+            .AnyAsync(s => s.TrackingNo == trackingNo.Trim());
+
+        if (exists)
+        {
+            return new ShipResult
+            {
+                Success = false,
+                ErrorMessage = "此物流編號已被使用，請確認是否輸入錯誤"
+            };
+        }
         //更新為 Shipped
         order.StatusID = 4;
         order.UpdatedAt = DateTime.Now;
@@ -203,14 +225,11 @@ public class CreatorOrderService : ICreatorOrderService
 
         //查下一張 Processing
         var nextOrderId = await _context.Orders
-            .Include(o => o.OrderDetails)
-                .ThenInclude(d => d.Product)
             .Where(o =>
                 o.StatusID == 3 &&
-                o.CreatedAt < order.CreatedAt &&
                 o.OrderDetails.Any(d =>
                     d.Product.CreatorID == creatorId))
-            .OrderByDescending(o => o.CreatedAt)
+                .OrderBy(o => o.CreatedAt)
             .Select(o => o.OrderID)
             .FirstOrDefaultAsync();
 
