@@ -1,0 +1,164 @@
+﻿@model CraftDailyCorner.Areas.Admin.ViewModels.CreatorReview.VMAdminCreatorReviewDetail
+
+@{
+    ViewData["Title"] = "申請詳情";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container-fluid">
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success">@TempData["Success"]</div>
+    }
+    @if (TempData["Warning"] != null)
+    {
+        <div class="alert alert-warning">@TempData["Warning"]</div>
+    }
+
+    <div class="d-flex justify-content-between align-items-end mb-4">
+        <div>
+            <h2 class="fw-bold mb-1 text-light">申請詳情</h2>
+            <div class="text-secondary">#@Model.ApplicationID</div>
+        </div>
+
+        <a class="btn btn-outline-secondary"
+           asp-area="Admin"
+           asp-controller="CreatorReview"
+           asp-action="Index">
+            <i class="bi bi-arrow-left"></i> 返回列表
+        </a>
+    </div>
+
+    <div class="row g-4">
+
+        <div class="col-lg-7">
+            <div class="card shadow-sm border-0">
+                <div class="card-body">
+
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div class="fw-semibold text-light">申請內容</div>
+                        @{
+                            var badge = Model.StatusID == 1 ? "bg-danger"
+                            : Model.StatusID == 2 ? "bg-success"
+                            : "bg-secondary";
+                        }
+                        <span class="badge @badge">@Model.StatusName</span>
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="text-secondary small mb-1">申請名稱</div>
+                        <div class="fs-5 fw-bold text-light">@Model.BrandName</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="text-secondary small mb-1">自我介紹</div>
+                        <div class="text-light" style="white-space:pre-wrap;">@(Model.BrandIntro ?? "（未填）")</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="text-secondary small mb-1">作品預覽</div>
+                        @if (!string.IsNullOrWhiteSpace(Model.PortfolioUrl))
+                        {
+                            <img src=@($"/Photos/02CreatorApplication/Large/{Model.PortfolioUrl}.png") alt="作品預覽" class="img-fluid mb-2" />                        }
+                        else
+                        {
+                            <div class="text-secondary">（未填）</div>
+                        }
+                    </div>
+
+                    <hr class="border-secondary" />
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="text-secondary small mb-1">銀行代碼</div>
+                            <div class="text-light">@((Model.BankCode ?? "（未填）"))</div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="text-secondary small mb-1">銀行帳號</div>
+                            <div class="text-light">@((Model.BankAccount ?? "（未填）"))</div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-5">
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-body">
+                    <div class="fw-semibold text-light mb-3">申請者資訊</div>
+
+                    <div class="mb-2">
+                        <div class="text-secondary small">會員</div>
+                        <div class="text-light fw-semibold">@Model.MemberName</div>
+                        <div class="text-secondary small">@Model.MemberID</div>
+                    </div>
+
+                    <div class="mb-2">
+                        <div class="text-secondary small">Email / Phone</div>
+                        <div class="text-light">@Model.Email</div>
+                        <div class="text-light">@Model.Phone</div>
+                    </div>
+
+                    <hr class="border-secondary" />
+
+                    <div class="mb-2">
+                        <div class="text-secondary small">申請時間</div>
+                        <div class="text-light">@Model.AppliedAt.ToString("yyyy/MM/dd HH:mm")</div>
+                    </div>
+
+                    <div class="mb-2">
+                        <div class="text-secondary small">審核時間</div>
+                        <div class="text-light">@((Model.ReviewedAt?.ToString("yyyy/MM/dd HH:mm")) ?? "（尚未審核）")</div>
+                    </div>
+
+                    <div class="mb-0">
+                        <div class="text-secondary small">審核備註</div>
+                        <div class="text-light" style="white-space:pre-wrap;">@(Model.ReviewNote ?? "（無）")</div>
+                    </div>
+                </div>
+            </div>
+
+            @if (Model.StatusID == 1)
+            {
+                <div class="card shadow-sm border-0">
+                    <div class="card-body">
+                        <div class="fw-semibold text-light mb-3">審核操作</div>
+
+                        <form asp-area="Admin"
+                              asp-controller="CreatorReview"
+                              asp-action="Approve"
+                              method="post" class="mb-3">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="id" value="@Model.ApplicationID" />
+
+                            <label class="form-label text-secondary">通過備註（可留空）</label>
+                            <textarea name="reviewNote" class="form-control bg-dark text-light border-secondary" rows="3"></textarea>
+
+                            <button class="btn btn-success w-100 mt-3">
+                                <i class="bi bi-check2-circle"></i> 通過申請
+                            </button>
+                        </form>
+
+                        <form asp-area="Admin"
+                              asp-controller="CreatorReview"
+                              asp-action="Reject"
+                              method="post">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="id" value="@Model.ApplicationID" />
+
+                            <label class="form-label text-secondary">未通過原因（必填）</label>
+                            <textarea name="reviewNote" class="form-control bg-dark text-light border-secondary" rows="3" required></textarea>
+
+                            <button class="btn btn-outline-danger w-100 mt-3">
+                                <i class="bi bi-x-circle"></i> 駁回申請
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            }
+        </div>
+
+    </div>
+</div>

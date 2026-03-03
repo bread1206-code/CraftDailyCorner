@@ -23,7 +23,7 @@ namespace CraftDailyCorner.Models
 
         [Required]
         [Column(TypeName = "nvarchar(max)")]
-        [Display(Name = "創作者簡介")]
+        [Display(Name = "品牌簡介")]
         public string Intro { get; set; } = null!;
 
         [Required]

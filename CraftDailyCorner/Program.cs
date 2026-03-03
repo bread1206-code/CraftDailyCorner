@@ -44,6 +44,8 @@ builder.Services.AddScoped<IReactionService, ReactionService>();
 builder.Services.AddScoped<IMemberSecurityService, MemberSecurityService>();
 builder.Services.AddScoped<IPasswordHasher<Privacy>, PasswordHasher<Privacy>>();
 builder.Services.AddScoped<ICreatorProfileService, CreatorProfileService>();
+builder.Services.AddScoped<IAdminCreatorReviewService, AdminCreatorReviewService>();
+
 
 builder.Services.AddHostedService<SoftDeleteCleanupBackgroundService>();
 builder.Services.AddHostedService<OrderAutoCompleteHostedBackgroundService>();

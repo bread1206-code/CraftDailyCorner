@@ -1,0 +1,82 @@
+﻿@model CraftDailyCorner.Areas.Admin.ViewModels.CreatorReview.VMAdminCreatorReviewIndex
+
+@{
+    ViewData["Title"] = "創作者審核";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container-fluid">
+
+    <div class="d-flex justify-content-between align-items-end mb-4">
+        <div>
+            <h2 class="fw-bold mb-1 text-light">創作者審核</h2>
+            <div class="text-secondary">管理創作者申請（待審核優先）</div>
+        </div>
+        <span class="badge bg-danger @(Model.Items.Count(x => x.StatusID == 1) == 0 ? "d-none" : "")">
+            待審核 @Model.Items.Count(x => x.StatusID == 1)
+        </span>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-0">
+
+            @if (!Model.Items.Any())
+            {
+                <div class="p-4 text-center text-secondary">
+                    <i class="bi bi-inbox fs-2"></i>
+                    <div class="mt-2">目前沒有任何申請資料</div>
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-dark table-hover align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th style="width:120px;">申請ID</th>
+                                <th>會員</th>
+                                <th>申請名稱</th>
+                                <th style="width:180px;">申請時間</th>
+                                <th style="width:140px;">狀態</th>
+                                <th style="width:120px;"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var x in Model.Items)
+                            {
+                                var badge = x.StatusID == 1 ? "bg-danger"
+                                : x.StatusID == 2 ? "bg-success"
+                                : "bg-secondary";
+
+                                <tr class="@(x.StatusID == 1 ? "table-active" : "")">
+                                    <td>#@x.ApplicationID</td>
+                                    <td>
+                                        <div class="fw-semibold">@x.MemberName</div>
+                                        <div class="small text-secondary">@x.Email / @x.Phone</div>
+                                        <div class="small text-secondary">@x.MemberID</div>
+                                    </td>
+                                    <td class="fw-semibold">@x.DisplayName</td>
+                                    <td>@x.AppliedAt.ToString("yyyy/MM/dd HH:mm")</td>
+                                    <td>
+                                        <span class="badge @badge">@x.StatusName</span>
+                                    </td>
+                                    <td class="text-end">
+                                        <a class="btn btn-sm btn-outline-light"
+                                           asp-area="Admin"
+                                           asp-controller="CreatorReview"
+                                           asp-action="Detail"
+                                           asp-route-id="@x.ApplicationID">
+                                            查看
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+
+        </div>
+    </div>
+
+</div>

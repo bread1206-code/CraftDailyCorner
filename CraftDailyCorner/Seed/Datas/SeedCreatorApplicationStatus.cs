@@ -38,7 +38,15 @@ namespace CraftDailyCorner.Seed.Datas
                     StatusCode = "Rejected",
                     StatusName = "已拒絕",
                     Description = "申請被拒絕",
-                    IsActive = false
+                    IsActive = true
+                },
+                new CreatorApplicationStatus
+                {
+                    StatusID = 4,
+                    StatusCode = "Confirm",
+                    StatusName = "已確認",
+                    Description = "拒絕原因已確認",
+                    IsActive = true
                 }
             );
 
