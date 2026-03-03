@@ -909,6 +909,7 @@ namespace CraftDailyCorner.Migrations
                     TrackingNo = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     StatusID = table.Column<byte>(type: "tinyint", nullable: false),
                     ShippedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    DeliveredAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     OrderID = table.Column<string>(type: "nchar(12)", maxLength: 12, nullable: false)
                 },
                 constraints: table =>

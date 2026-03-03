@@ -24,5 +24,11 @@ namespace CraftDailyCorner.ViewModels.Member
 
         // ===== 付款紀錄 =====
         public VMOrderPaymentList OrderPayments { get; set; } = new();
+
+        // ===== 物流資料 =====
+        public int? ShipmentStatusID { get; set; }
+        public string? TrackingNo { get; set; }
+        public DateTime? ShippedAt { get; set; }
+        public DateTime? DeliveredAt { get; set; }
     }
 }

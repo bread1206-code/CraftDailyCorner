@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CraftDailyCorner.Migrations
 {
     [DbContext(typeof(CraftDailyCornerContext))]
-    [Migration("20260303001953_InitialCreate")]
+    [Migration("20260303005703_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -1721,6 +1721,9 @@ namespace CraftDailyCorner.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ShipmentID"));
+
+                    b.Property<DateTime?>("DeliveredAt")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("OrderID")
                         .IsRequired()

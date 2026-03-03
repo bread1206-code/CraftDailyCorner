@@ -1719,6 +1719,9 @@ namespace CraftDailyCorner.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ShipmentID"));
 
+                    b.Property<DateTime?>("DeliveredAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("OrderID")
                         .IsRequired()
                         .HasMaxLength(12)

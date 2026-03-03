@@ -1,4 +1,5 @@
-﻿using CraftDailyCorner.Services;
+﻿using CraftDailyCorner.Extensions;
+using CraftDailyCorner.Services;
 using CraftDailyCorner.ViewModels.Order;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -22,7 +23,7 @@ namespace CraftDailyCorner.Controllers
         //我的訂單列表
         public IActionResult Index(string statusCode)
         {
-            var memberId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var memberId = User.GetMemberId();
             var orders = _orderService.GetMyOrders(memberId!, statusCode);
 
             return View(orders);
@@ -33,7 +34,7 @@ namespace CraftDailyCorner.Controllers
         //訂單詳細內容
         public IActionResult Detail(string orderId)
         {
-            var memberId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var memberId = User.GetMemberId();
 
             var order = _orderService.GetOrderDetail(orderId, memberId!);
             if (order == null)
@@ -45,7 +46,7 @@ namespace CraftDailyCorner.Controllers
         // GET: /Orders/Checkout
         public IActionResult Checkout(string creatorId)
         {
-            var memberId = GetMemberId();
+            var memberId = User.GetMemberId();
             if (string.IsNullOrEmpty(creatorId)) return RedirectToAction("Index", "Cart");
 
             // 取得該創作者的商品清單
@@ -69,9 +70,10 @@ namespace CraftDailyCorner.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Create(VMCreateOrderRequest request)
         {
+            var memberId = User.GetMemberId();
             if (!ModelState.IsValid)
             {
-                var memberId = GetMemberId();
+                
                 // 驗證失敗重新載入時，也要帶回該創作者的商品
                 var allItems = _cartService.GetCartItemsForCheckout(memberId);
                 var filteredItems = allItems.Where(i => i.Product.CreatorId == request.CreatorId).ToList();
@@ -89,7 +91,7 @@ namespace CraftDailyCorner.Controllers
             }
 
             // ⭐ 這裡傳入第三個參數 request.CreatorId
-            var result = _orderService.CreateOrder(GetMemberId(), request, request.CreatorId);
+            var result = _orderService.CreateOrder(memberId, request, request.CreatorId);
 
             if (!result.Success)
             {
@@ -119,7 +121,7 @@ namespace CraftDailyCorner.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Cancel(string orderId)
         {
-            var memberId = GetMemberId();
+            var memberId = User.GetMemberId();
             var result = _orderService.CancelOrder(orderId, memberId);
 
             if (result.Success)
@@ -134,16 +136,29 @@ namespace CraftDailyCorner.Controllers
                 return RedirectToAction(nameof(Detail), new { orderId = orderId });
             }
         }
-        // Private
-
-        private string GetMemberId()
+        // 模擬會員取貨：配送中(訂單狀態=4)才允許
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult ConfirmPickup(string orderId)
         {
-            var memberId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var memberId = User.GetMemberId();
+            var result = _orderService.ConfirmPickup(orderId, memberId);
 
-            if (string.IsNullOrEmpty(memberId))
-                throw new UnauthorizedAccessException("找不到會員識別資訊");
-
-            return memberId;
+            TempData[result.Success ? "Success" : "Error"] = result.Message;
+            return RedirectToAction(nameof(Detail), new { orderId });
         }
+
+        // 會員完成訂單：已送達(Shipment狀態=3)才允許
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult CompleteOrder(string orderId)
+        {
+            var memberId = User.GetMemberId();
+            var result = _orderService.CompleteOrder(orderId, memberId);
+
+            TempData[result.Success ? "Success" : "Error"] = result.Message;
+            return RedirectToAction(nameof(Detail), new { orderId });
+        }
+
     }
 }

@@ -151,6 +151,8 @@ namespace CraftDailyCorner.Services
             var order = _context.Orders
                 .AsNoTracking()
                 .Include(o => o.OrderStatus)
+                .Include(o => o.Shipment)
+                    .ThenInclude(s => s.ShipmentStatus)
                 .Include(o => o.OrderDetails!)
                     .ThenInclude(od => od.Product)
                         .ThenInclude(p => p.CreatorProfile)
@@ -201,7 +203,12 @@ namespace CraftDailyCorner.Services
                 {
                     OrderID = order.OrderID,
                     Payments = payments
-                }
+                },
+
+                ShipmentStatusID = order.Shipment?.StatusID,
+                TrackingNo = order.Shipment?.TrackingNo,
+                ShippedAt = order.Shipment?.ShippedAt,
+                DeliveredAt = order.Shipment?.DeliveredAt
             };
         }
 
@@ -275,6 +282,75 @@ namespace CraftDailyCorner.Services
                 return (false, "系統錯誤，無法取消訂單");
             }
         }
+        //模擬物流
+        public (bool Success, string Message) ConfirmPickup(string orderId, string memberId)
+        {
+            using var tx = _context.Database.BeginTransaction();
+            try
+            {
+                var order = _context.Orders
+                    .Include(o => o.Shipment)
+                    .FirstOrDefault(o => o.OrderID == orderId && o.MemberID == memberId);
 
+                if (order == null) return (false, "找不到該訂單");
+
+                // 必須配送中
+                if (order.StatusID != 4)
+                    return (false, "目前訂單狀態不可取貨（僅限配送中）");
+
+                if (order.Shipment == null)
+                    return (false, "找不到物流資訊，無法取貨");
+
+                // Shipment 更新：已送達(3) + DeliveredAt
+                order.Shipment.StatusID = 3;
+                order.Shipment.DeliveredAt = DateTime.Now;
+
+                // 同步更新 Order 狀態 與 UpdatedAt
+                order.StatusID = 5;
+                order.UpdatedAt = DateTime.Now;
+
+                _context.SaveChanges();
+                tx.Commit();
+                return (true, "已更新為『已送達』，請點擊完成訂單");
+            }
+            catch
+            {
+                tx.Rollback();
+                return (false, "系統錯誤，取貨失敗");
+            }
+        }
+
+        public (bool Success, string Message) CompleteOrder(string orderId, string memberId)
+        {
+            using var tx = _context.Database.BeginTransaction();
+            try
+            {
+                var order = _context.Orders
+                    .Include(o => o.Shipment)
+                    .FirstOrDefault(o => o.OrderID == orderId && o.MemberID == memberId);
+
+                if (order == null) return (false, "找不到該訂單");
+
+                // 已取消不可完成
+                if (order.StatusID == 6) return (false, "此訂單已取消");
+
+                // 必須已送達（Shipment=3）
+                if (order.Shipment == null || order.Shipment.StatusID != 3)
+                    return (false, "尚未送達，無法完成訂單");
+
+                // Order 更新：完成(5)
+                order.StatusID = 5;
+                order.UpdatedAt = DateTime.Now;
+
+                _context.SaveChanges();
+                tx.Commit();
+                return (true, "訂單已完成，感謝您的購買！");
+            }
+            catch
+            {
+                tx.Rollback();
+                return (false, "系統錯誤，完成訂單失敗");
+            }
+        }
     }
 }

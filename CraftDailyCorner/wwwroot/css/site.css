@@ -943,3 +943,55 @@ body {
         animation: none !important;
     }
 }
+
+/*一般會員訂單*/
+/* ===== 卡片型按鈕 ===== */
+.order-card-btn {
+    width: 260px;
+    height: 180px;
+    border-radius: 28px;
+    border: 4px solid;
+    background: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    cursor: pointer;
+    transition: all .15s ease;
+    text-align: center;
+    font-weight: 700;
+}
+
+    /* hover 浮起效果 */
+    .order-card-btn:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 14px 30px rgba(0,0,0,0.15);
+    }
+
+    .order-card-btn:active {
+        transform: translateY(-1px);
+    }
+
+    /* icon */
+    .order-card-btn .card-icon {
+        font-size: 46px;
+    }
+
+    .order-card-btn .card-text {
+        font-size: 20px;
+    }
+
+/* 藍色版 */
+.order-card-blue {
+    border-color: #0d6efd;
+    color: #0d6efd;
+    background-color: var(--bs-body-bg);
+}
+
+/* 綠色版（完成訂單可共用） */
+.order-card-green {
+    border-color: #198754;
+    color: #198754;
+    background-color: var(--bs-body-bg);
+}

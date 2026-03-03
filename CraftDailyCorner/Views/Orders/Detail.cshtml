@@ -9,8 +9,8 @@
         1 => 1, // 待付款
         2 => 2, // 已付款
         3 => 3, // 準備中
-        4 => 4, // 已出貨
-        5 => 5, // 已完成
+        4 => (Model.ShipmentStatusID == 3 ? 5 : 4), // 已出貨  //判斷是否已取貨
+        5 => 5, // 完成
         6 => 6, // 取消
         _ => 0
     };
@@ -56,7 +56,7 @@
         "已付款" => "bg-success",   // 綠色
         "準備中" => "bg-success",   
         "已出貨" => "bg-warning",   // 黃色
-        "已完成" => "bg-primary",   // 藍色
+        "完成" => "bg-primary",   // 藍色
         _ => "bg-secondary"
     };
 }
@@ -129,10 +129,19 @@
         </div>
     }
     <!-- ===== 訂單基本資訊 ===== -->
+    @{
+        // 只要進入配送中，就切成 4/4/4 並顯示右側動作區
+        bool showAction = (Model.StatusID == 4);
+
+        string colInfo = showAction ? "col-md-4" : "col-md-6";
+    }
+
     <div class="card mb-4 shadow-sm">
         <div class="card-body">
-            <div class="row gy-3">
-                <div class="col-md-6">
+            <div class="row gy-3 align-items-stretch">
+
+                <!-- 訂單資訊 -->
+                <div class="@colInfo">
                     <div class="fw-semibold">訂單編號</div>
                     <div class="text-muted">@Model.OrderID</div>
 
@@ -145,9 +154,17 @@
                     <span class="badge @statusBadgeClass">
                         @Model.StatusText
                     </span>
+
+                    @if (Model.DeliveredAt != null)
+                    {
+                        <div class="text-muted small mt-2">
+                            收貨時間：@Model.DeliveredAt?.ToString("yyyy/MM/dd HH:mm")
+                        </div>
+                    }
                 </div>
 
-                <div class="col-md-6">
+                <!-- 收件資訊 -->
+                <div class="@colInfo">
                     <div class="fw-semibold">收件人</div>
                     <div class="text-muted">@Model.ReceiverName</div>
 
@@ -158,6 +175,51 @@
                     <div class="text-muted">@Model.ShippingAddress</div>
                 </div>
 
+                <!-- 動作區：只有特定條件才出現 -->
+                @if (showAction)
+                {
+                    <div class="col-md-4 d-flex justify-content-md-end">
+                        <div class="d-flex flex-column gap-2 w-100">
+
+                            @* 配送中才顯示「取貨」 *@
+                            @if (Model.StatusID == 4 && Model.ShipmentStatusID != 3)
+                            {
+                                <form asp-action="ConfirmPickup" method="post" class="d-flex justify-content-end">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="orderId" value="@Model.OrderID" />
+
+                                    <button type="submit" class="order-card-btn order-card-blue">
+                                        <div class="card-icon">
+                                            <i class="bi bi-box-seam"></i>
+                                        </div>
+                                        <div class="card-text">
+                                            取貨（模擬）
+                                        </div>
+                                    </button>
+                                </form>
+                            }
+
+                            @* 已送達才顯示「完成訂單」 *@
+                            @if (Model.StatusID == 4 && Model.ShipmentStatusID == 3)
+                            {
+                                <form asp-action="CompleteOrder" method="post" class="d-flex justify-content-end">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="orderId" value="@Model.OrderID" />
+
+                                    <button type="submit" class="order-card-btn order-card-green">
+                                        <div class="card-icon">
+                                            <i class="bi bi-check2-circle me-1"></i>
+                                        </div>
+                                        <div class="card-text">
+                                            完成訂單
+                                        </div>
+                                    </button>
+                                </form>
+                            }
+
+                        </div>
+                    </div>
+                }
 
             </div>
         </div>

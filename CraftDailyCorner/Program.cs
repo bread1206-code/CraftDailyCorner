@@ -8,6 +8,7 @@ using CraftDailyCorner.Services.Creator;
 using CraftDailyCorner.Services.Interface;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Http.Features;
+using CraftDailyCorner.Services.BackgroundServices;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -41,6 +42,7 @@ builder.Services.AddScoped<IAdminSidebarService, AdminSidebarService>();
 builder.Services.AddScoped<IReactionService, ReactionService>();
 
 builder.Services.AddHostedService<SoftDeleteCleanupBackgroundService>();
+builder.Services.AddHostedService<OrderAutoCompleteHostedBackgroundService>();
 builder.Services.AddScoped <SeedRunner>();
 builder.Services.AddScoped <SeedMember>();
 builder.Services.AddScoped <SeedPrivacy>();

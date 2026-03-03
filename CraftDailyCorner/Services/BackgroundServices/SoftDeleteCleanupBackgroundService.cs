@@ -1,6 +1,6 @@
 ﻿using CraftDailyCorner.Services.Interface;
 
-namespace CraftDailyCorner.Services
+namespace CraftDailyCorner.Services.BackgroundServices
 {
     public class SoftDeleteCleanupBackgroundService : BackgroundService
     {
@@ -24,7 +24,7 @@ namespace CraftDailyCorner.Services
                 {
                     await task.CleanupAsync(scope.ServiceProvider);
                 }
-
+                //每 24 小時執行一次清理
                 await Task.Delay(TimeSpan.FromHours(24), stoppingToken);
             }
         }
