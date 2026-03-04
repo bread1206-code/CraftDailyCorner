@@ -20,14 +20,14 @@ namespace CraftDailyCorner.Areas.Admin.Controllers
         // mode:
         // - pending：待審核
         // - history：歷史資料 + MemberID 搜尋
-        public async Task<IActionResult> Index(string mode = "pending", string? memberId = null)
+        public async Task<IActionResult> Index(string mode = "pending", string? memberId = null, int page = 1)
         {
-            var vm = await _reviewService.GetIndexAsync(mode, memberId);
+            var vm = await _reviewService.GetIndexAsync(mode, memberId, page);
 
             if (vm.Mode == "history")
                 return View("History", vm);
 
-            return View(vm); // Index.cshtml（pending）
+            return View(vm);
         }
 
         public async Task<IActionResult> Detail(int id)
@@ -36,8 +36,6 @@ namespace CraftDailyCorner.Areas.Admin.Controllers
             if (vm == null) return NotFound();
             return View(vm);
         }
-
-        // ===== Update: 保持現狀（不動） =====
 
         [HttpPost]
         [ValidateAntiForgeryToken]

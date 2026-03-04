@@ -1,14 +1,9 @@
 ﻿using CraftDailyCorner.Models;
-using CraftDailyCorner.Services;
 using CraftDailyCorner.Services.Interface;
 using CraftDailyCorner.ViewModels.Member;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using System.Data;
-using System.Security.Claims;
 using System.Text.Json;
 
 namespace CraftDailyCorner.Controllers
@@ -17,21 +12,26 @@ namespace CraftDailyCorner.Controllers
     {
         private readonly CraftDailyCornerContext _context;
         private readonly IAccountService _accountService;
+        private readonly IAuthService _authService;
 
-        public AccountController(CraftDailyCornerContext context, IAccountService accountService)
+        public AccountController(
+            CraftDailyCornerContext context,
+            IAccountService accountService,
+            IAuthService authService)
         {
             _context = context;
             _accountService = accountService;
+            _authService = authService;
         }
+
         public IActionResult Login(string? returnUrl = null)
         {
             // 如果已經登入，直接導回首頁或 returnUrl
             if (User.Identity != null && User.Identity.IsAuthenticated)
             {
                 if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
-                {
                     return Redirect(returnUrl);
-                }
+
                 return RedirectToAction("Index", "Home");
             }
 
@@ -55,8 +55,8 @@ namespace CraftDailyCorner.Controllers
             if (result == PasswordVerificationResult.Failed)
                 return Json(new { success = false, message = "帳號或密碼錯誤" });
 
-            
-            await SignInMemberAsync(user.MemberID);
+            // ✅ 改用 AuthService
+            await _authService.SignInMemberAsync(HttpContext, user.MemberID);
 
             // RememberAccount 邏輯保留
             if (login.RememberAccount)
@@ -81,18 +81,19 @@ namespace CraftDailyCorner.Controllers
         [Authorize]
         public async Task<IActionResult> Logout()
         {
-            await HttpContext.SignOutAsync("CraftDailyCornerLogin"); //清除 Cookie
+            // ✅ 改用 AuthService
+            await _authService.SignOutAsync(HttpContext);
             return RedirectToAction("Index", "Home");
         }
 
-
-        //註冊功能
+        // =============================
+        // Register
+        // =============================
         public IActionResult Register()
         {
             if (User.Identity != null && User.Identity.IsAuthenticated)
-            {
                 return RedirectToAction("Index", "Home");
-            }
+
             return View();
         }
 
@@ -118,7 +119,6 @@ namespace CraftDailyCorner.Controllers
                 {
                     success = false,
                     errors = new { Email = "此 Email 已被註冊" }
-                    //加入這個設定，保持 "Email" 不會變成 "email"
                 }, new JsonSerializerOptions { PropertyNamingPolicy = null });
             }
 
@@ -134,13 +134,15 @@ namespace CraftDailyCorner.Controllers
             // 建立會員
             string newMemberId = await _accountService.RegisterMemberAsync(model);
 
-            // 自動登入
-            await SignInMemberAsync(newMemberId);
+            // 自動登入（✅ 改用 AuthService）
+            await _authService.SignInMemberAsync(HttpContext, newMemberId);
 
             return Json(new { success = true });
         }
 
-        //忘記密碼
+        // =============================
+        // Forget Password
+        // =============================
         public IActionResult ForgetPassword()
         {
             return View();
@@ -154,12 +156,10 @@ namespace CraftDailyCorner.Controllers
             var user = _context.Privacies.FirstOrDefault(u => u.Email == vm.Email);
             if (user == null)
             {
-                // 安全考量，不暴露Email是否存在
                 TempData["Message"] = "已發送重設密碼 Email，請檢查收件匣";
                 return RedirectToAction("Login");
             }
 
-            // 產生 Token
             var token = Guid.NewGuid().ToString("N") + "-" + Random.Shared.Next(1000, 9999);
             var expiry = DateTime.Now.AddHours(1);
 
@@ -173,21 +173,18 @@ namespace CraftDailyCorner.Controllers
             _context.PasswordResetTokens.Add(resetToken);
             await _context.SaveChangesAsync();
 
-            // 寄送 Email 
             var resetLink = Url.Action("ResetPassword", "Account", new { token = token }, Request.Scheme);
-            // SendEmail(vm.Email, "重設密碼", $"請點擊此連結重設密碼：{resetLink}");
 
             TempData["Message"] = "已發送重設密碼 Email，請檢查收件匣";
-            TempData["ResetLink"] = resetLink;//測試用，實際不應顯示在畫面上
+            TempData["ResetLink"] = resetLink; // 測試用
             return RedirectToAction("ForgetPasswordConfirmation");
         }
-        //確認頁面
+
         public IActionResult ForgetPasswordConfirmation()
         {
             return View();
         }
 
-        //重設密碼
         public IActionResult ResetPassword(string token)
         {
             if (string.IsNullOrEmpty(token)) return RedirectToAction("Login");
@@ -217,11 +214,9 @@ namespace CraftDailyCorner.Controllers
                 return View(vm);
             }
 
-            // Hash 新密碼
             var hasher = new PasswordHasher<Privacy>();
             user.PasswordHash = hasher.HashPassword(user, vm.NewPassword);
 
-            // 標記 Token 已使用
             resetToken.Used = true;
 
             await _context.SaveChangesAsync();
@@ -229,59 +224,5 @@ namespace CraftDailyCorner.Controllers
             TempData["Message"] = "密碼已重設成功，請重新登入";
             return RedirectToAction("Login");
         }
-        private async Task SignInMemberAsync(string memberId)
-        {
-            // 1️ 取得顯示名稱
-            var displayName = _context.Members
-                .Where(m => m.MemberID == memberId)
-                .Select(m => m.DisplayName)
-                .FirstOrDefault() ?? "使用者";
-
-            // 2️ 取得角色
-
-            var roles = (
-                from mr in _context.MemberRoles.AsNoTracking()
-                join r in _context.Roles.AsNoTracking()
-                    on mr.RoleID equals r.RoleID
-                where mr.MemberID == memberId
-                select r.RoleID
-            ).Distinct().ToList();//RoleID "01"一般會員     "02"創作者     "03"管理者
-
-            if (!roles.Any())
-            {
-                roles.Add("01"); // 預設為一般會員
-            }
-
-            // 3️ 建立 Claims
-            var claims = new List<Claim>
-            {
-                new Claim(ClaimTypes.NameIdentifier, memberId),
-                new Claim(ClaimTypes.Name, displayName)
-                
-            };
-            foreach (var role in roles)
-            {
-                claims.Add(new Claim(ClaimTypes.Role, role));
-            }
-            // 4如果是創作者，加入 CreatorID Claim
-            if (roles.Contains("02"))
-            {
-                var creatorId = _context.CreatorProfiles
-                    .Where(c => c.MemberID == memberId)
-                    .Select(c => c.CreatorID)
-                    .FirstOrDefault();
-
-                if (!string.IsNullOrEmpty(creatorId))
-                {
-                    claims.Add(new Claim("CreatorID", creatorId));
-                }
-            }
-            // 5 登入
-            var identity = new ClaimsIdentity(claims, "CraftDailyCornerLogin");
-            var principal = new ClaimsPrincipal(identity);
-
-            await HttpContext.SignInAsync("CraftDailyCornerLogin", principal);
-        }
-
     }
 }

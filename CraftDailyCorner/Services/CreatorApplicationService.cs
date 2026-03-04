@@ -2,17 +2,21 @@
 using CraftDailyCorner.Models;
 using CraftDailyCorner.Services.Interface;
 using CraftDailyCorner.ViewModels.CreatorApplication;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using System.Data;
 
 namespace CraftDailyCorner.Services.Creator
 {
     public class CreatorApplicationService : ICreatorApplicationService
     {
         private readonly CraftDailyCornerContext _context;
+        private readonly IImageUploadService _imageUploadService;
 
-        public CreatorApplicationService(CraftDailyCornerContext context)
+        public CreatorApplicationService(CraftDailyCornerContext context, IImageUploadService imageUploadService)
         {
             _context = context;
+            _imageUploadService = imageUploadService;
         }
 
         //取得申請頁應顯示的畫面
@@ -105,6 +109,194 @@ namespace CraftDailyCorner.Services.Creator
                 .Where(ca => ca.MemberID == memberId)
                 .OrderByDescending(ca => ca.AppliedAt)
                 .FirstOrDefaultAsync();
+        }
+
+        public async Task<VMApprovedConfirm?> GetApprovedConfirmAsync(string memberId, int? applicationId = null)
+        {
+            // 已是創作者就不該走這頁
+            var isCreator = await _context.CreatorProfiles.AnyAsync(c => c.MemberID == memberId);
+            if (isCreator) return null;
+
+            var query = _context.CreatorApplications.AsNoTracking()
+                .Where(x => x.MemberID == memberId);
+
+            if (applicationId.HasValue)
+                query = query.Where(x => x.ApplicationID == applicationId.Value);
+
+            var app = await query
+                .OrderByDescending(x => x.AppliedAt)
+                .FirstOrDefaultAsync();
+
+            if (app == null) return null;
+
+            // 必須是「已通過」(StatusID=2) 才能填資料建立 CreatorProfile
+            if (app.StatusID != 2) return null;
+
+            return new VMApprovedConfirm
+            {
+                ApplicationID = app.ApplicationID,
+                BrandName = app.BrandName ?? string.Empty,
+                BrandIntro = app.BrandIntro ?? string.Empty,
+                StartDate = app.StartDate,
+                BankCode = "",
+                BankAccount = ""
+            };
+        }
+
+        public async Task SubmitApprovedConfirmAsync(string memberId, VMApprovedConfirm vm)
+        {
+            // 基本防呆
+            if (vm.BrandImageFile == null || vm.BrandImageFile.Length == 0)
+                throw new Exception("請上傳品牌圖片");
+            if (string.IsNullOrWhiteSpace(vm.BankCode))
+                throw new Exception("請填寫銀行代碼");
+            if (string.IsNullOrWhiteSpace(vm.BankAccount))
+                throw new Exception("請填寫銀行帳號");
+
+            // 申請必須存在且屬於自己
+            var app = await _context.CreatorApplications
+                .FirstOrDefaultAsync(x => x.ApplicationID == vm.ApplicationID && x.MemberID == memberId);
+
+            if (app == null)
+                throw new Exception("找不到申請資料");
+
+            if (app.StatusID != 2)
+                throw new Exception("此申請狀態不可確認");
+
+            // 已是創作者就不能重複建立
+            var existing = await _context.CreatorProfiles
+                .FirstOrDefaultAsync(c => c.MemberID == memberId);
+
+            if (existing != null)
+                throw new Exception("你已是創作者，無需再次確認");
+
+            using var tx = await _context.Database.BeginTransactionAsync();
+
+            try
+            {
+                // 產生 CreatorID
+                var creatorId = GetNewCreatorID();
+
+                var imageKey = _imageUploadService.UploadImage(
+                    vm.BrandImageFile,
+                    null,
+                    "03CreatorBrand",
+                    ImageSizePresets.Creator
+                );
+
+                // 建立 CreatorProfile
+                _context.CreatorProfiles.Add(new CreatorProfile
+                {
+                    CreatorID = creatorId,
+                    MemberID = memberId,
+                    BrandName = (app.BrandName ?? string.Empty).Trim(),
+                    BrandIntro = (app.BrandIntro ?? string.Empty).Trim(),
+                    BankCode = vm.BankCode.Trim(),
+                    BankAccount = vm.BankAccount.Trim(),
+                    StatusID = 1,                 // 依你 Seed：1=啟用（若你的 CreatorProfileStatus 定義不同請改）
+                    ImageUrl = imageKey ?? "default",
+                    CreatedAt = DateTime.Now
+                });
+
+                // 若你「管理者審核通過」時沒有掛 Role(02)，在這裡補一次最保險
+                var hasRole = await _context.MemberRoles
+                    .AnyAsync(r => r.MemberID == memberId && r.RoleID == "02");
+
+                if (!hasRole)
+                {
+                    _context.MemberRoles.Add(new MemberRole
+                    {
+                        MemberID = memberId,
+                        RoleID = "02",
+                        AssignedAt = DateTime.Now
+                    });
+
+                    var operatorId = string.IsNullOrWhiteSpace(app.ReviewedBy) ? null : app.ReviewedBy;
+
+                    _context.MemberRoleHistories.Add(new MemberRoleHistory
+                    {
+                        Action = (MemberRoleHistoryAction)1,          // 1=Add（依你 Seed 寫法）
+                        OperatedAt = DateTime.Now,
+                        MemberID = memberId,
+                        RoleID = "02",
+                        OperatedBy = (MemberRoleHistoryOperated)1,    // 1=Admin/System 視你 Seed
+                        OperatorMemberID = operatorId
+                    });
+                }
+
+                // 更新申請狀態 => Confirm(StatusID=4)
+                app.StatusID = 4;
+                await _context.SaveChangesAsync();
+
+                await tx.CommitAsync();
+            }
+            catch
+            {
+                await tx.RollbackAsync();
+                throw;
+            }
+        }
+
+        public async Task<VMRejectedConfirm?> GetRejectedConfirmAsync(string memberId, int? applicationId = null)
+        {
+            var query = _context.CreatorApplications.AsNoTracking()
+                .Where(x => x.MemberID == memberId);
+
+            if (applicationId.HasValue)
+                query = query.Where(x => x.ApplicationID == applicationId.Value);
+
+            var app = await query
+                .OrderByDescending(x => x.AppliedAt)
+                .FirstOrDefaultAsync();
+
+            if (app == null) return null;
+
+            // 必須是「已拒絕」(StatusID=3) 才能進入此頁確認
+            if (app.StatusID != 3) return null;
+
+            return new VMRejectedConfirm
+            {
+                ApplicationID = app.ApplicationID,
+                BrandName = app.BrandName ?? string.Empty,
+                ReviewNote = app.ReviewNote ?? string.Empty
+            };
+        }
+
+        public async Task SubmitRejectedConfirmAsync(string memberId, int applicationId)
+        {
+            var app = await _context.CreatorApplications
+                .FirstOrDefaultAsync(x => x.ApplicationID == applicationId && x.MemberID == memberId);
+
+            if (app == null)
+                throw new Exception("找不到申請資料");
+
+            if (app.StatusID != 3)
+                throw new Exception("此申請狀態不可確認");
+
+            app.StatusID = 4; // Confirm
+            await _context.SaveChangesAsync();
+        }
+        private string GetNewCreatorID()
+        {
+            var outputParam = new SqlParameter
+            {
+                ParameterName = "@NewCreatorID",
+                SqlDbType = SqlDbType.Char,
+                Size = 6,
+                Direction = ParameterDirection.Output
+            };
+
+            _context.Database.ExecuteSqlRaw(
+                "EXEC getCreatedCreatorID @NewCreatorID OUTPUT",
+                outputParam
+            );
+
+            var newId = (outputParam.Value?.ToString() ?? "").Trim();
+
+            if (string.IsNullOrWhiteSpace(newId))
+                throw new Exception("產生創作者編號失敗");
+
+            return newId;
         }
     }
 }

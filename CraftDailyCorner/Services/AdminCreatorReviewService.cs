@@ -14,22 +14,24 @@ namespace CraftDailyCorner.Services
             _context = context;
         }
 
-        public async Task<VMAdminCreatorReviewIndex> GetIndexAsync(string mode, string? memberId = null)
+        public async Task<VMAdminCreatorReviewIndex> GetIndexAsync(string mode, string? memberId = null, int page = 1)
         {
             mode = (mode ?? "pending").Trim().ToLower();
 
+            const int pageSize = 8;
+            page = page <= 0 ? 1 : page;
+
             var query = _context.CreatorApplications
                 .AsNoTracking()
-                .Include(x => x.Member)
-                    .ThenInclude(m => m.Privacy)
+                .Include(x => x.Member).ThenInclude(m => m.Privacy)
                 .Include(x => x.CreatorApplicationStatus)
                 .AsQueryable();
 
             if (mode == "history")
             {
-                //  有輸入 MemberID：顯示該會員所有申請資料（含 pending / confirm 等）
                 if (!string.IsNullOrWhiteSpace(memberId))
                 {
+                    //有輸入 MemberID：顯示該會員所有申請（含 pending / confirm 等）
                     memberId = memberId.Trim();
 
                     query = query
@@ -38,21 +40,50 @@ namespace CraftDailyCorner.Services
                 }
                 else
                 {
-                    // ✅ 無輸入 MemberID：只顯示「已通過/已拒絕」
+                    //無輸入 MemberID：只顯示「已通過 / 已拒絕 / 已確認」
                     query = query
-                        .Where(x => x.StatusID == 2 || x.StatusID == 3)
+                        .Where(x => x.StatusID == 2 || x.StatusID == 3 || x.StatusID == 4)
                         .OrderByDescending(x => x.ReviewedAt ?? x.AppliedAt);
                 }
-            }
-            else
-            {
-                // ✅ 待審核頁：只顯示待審核
-                query = query
-                    .Where(x => x.StatusID == 1)
-                    .OrderByDescending(x => x.AppliedAt);
+
+                // ===== 分頁：先算總筆數，再 Skip/Take =====
+                var total = await query.CountAsync();
+
+                var apps = await query
+                    .Skip((page - 1) * pageSize)
+                    .Take(pageSize)
+                    .Select(x => new VMAdminCreatorReviewListItem
+                    {
+                        ApplicationID = x.ApplicationID,
+                        MemberID = x.MemberID,
+                        MemberName = x.Member.DisplayName,
+                        Email = x.Member.Privacy.Email,
+                        Phone = x.Member.Privacy.Phone,
+                        BrandName = x.BrandName,
+                        AppliedAt = x.AppliedAt,
+                        StatusID = x.StatusID,
+                        StatusName = x.CreatorApplicationStatus.StatusName
+                    })
+                    .ToListAsync();
+
+                return new VMAdminCreatorReviewIndex
+                {
+                    Mode = mode,
+                    SearchMemberId = memberId,
+                    Items = apps,
+                    Page = page,
+                    PageSize = pageSize,
+                    TotalCount = total
+                };
             }
 
-            var apps = await query
+            // ===== pending：不分頁（或你也可以順便分頁）=====
+            query = query
+                .Where(x => x.StatusID == 1)
+                .OrderBy(x => x.AppliedAt)
+                .ThenBy(x => x.ApplicationID);
+
+            var pendingApps = await query
                 .Select(x => new VMAdminCreatorReviewListItem
                 {
                     ApplicationID = x.ApplicationID,
@@ -71,7 +102,10 @@ namespace CraftDailyCorner.Services
             {
                 Mode = mode,
                 SearchMemberId = memberId,
-                Items = apps
+                Items = pendingApps,
+                Page = 1,
+                PageSize = pageSize,
+                TotalCount = pendingApps.Count
             };
         }
 
@@ -161,7 +195,7 @@ namespace CraftDailyCorner.Services
 
             await _context.SaveChangesAsync();
         }
-        //  新增：下一筆待審核（同樣排除審核者自己的申請）
+        //下一筆待審核（同樣排除審核者自己的申請）
         public async Task<int?> GetNextPendingIdAsync(int currentApplicationId, string adminMemberId)
         {
             // 先抓目前這筆的排序基準
@@ -181,10 +215,10 @@ namespace CraftDailyCorner.Services
                 .Where(x =>
                     x.StatusID == 1 &&
                     x.MemberID != adminMemberId &&               // 排除自己的申請
-                    (x.AppliedAt < current.AppliedAt ||
+                    (x.AppliedAt > current.AppliedAt ||
                     (x.AppliedAt == current.AppliedAt && x.ApplicationID < current.ApplicationID)))
-                .OrderByDescending(x => x.AppliedAt)
-                .ThenByDescending(x => x.ApplicationID)
+                .OrderBy(x => x.AppliedAt)
+                .ThenBy(x => x.ApplicationID)
                 .Select(x => (int?)x.ApplicationID)
                 .FirstOrDefaultAsync();
 

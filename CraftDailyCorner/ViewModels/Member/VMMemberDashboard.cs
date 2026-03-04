@@ -22,5 +22,6 @@
         // 狀態用
         public bool IsCreator { get; set; }
         public string? CreatorApplicationStatusCode { get; set; }
+        public string? CreatorApplicationId { get; set; }
     }
 }

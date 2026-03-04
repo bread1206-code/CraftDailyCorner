@@ -156,3 +156,9 @@
 .text-label {
     color: #9ca3af;
 }
+
+/*創作者申請歷史，MemberID 搜尋框  提示字顏色*/
+input[name="memberId"]::placeholder {
+    color: #9aa4af;
+    opacity: 1;
+}

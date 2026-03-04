@@ -45,7 +45,7 @@ namespace CraftDailyCorner.Seed.Datas
                     StatusID = 4,
                     StatusCode = "Confirm",
                     StatusName = "已確認",
-                    Description = "拒絕原因已確認",
+                    Description = "申請者已確認申請結果",
                     IsActive = true
                 }
             );

@@ -17,5 +17,12 @@ namespace CraftDailyCorner.Services.Interface
 
         //取得會員最新一筆申請（後台或管理用途）
         Task<CreatorApplication?> GetLatestByMemberAsync(string memberId);
+
+        // ===== 審核後確認流程 =====
+        Task<VMApprovedConfirm?> GetApprovedConfirmAsync(string memberId, int? applicationId = null);
+        Task SubmitApprovedConfirmAsync(string memberId, VMApprovedConfirm vm);
+
+        Task<VMRejectedConfirm?> GetRejectedConfirmAsync(string memberId, int? applicationId = null);
+        Task SubmitRejectedConfirmAsync(string memberId, int applicationId);
     }
 }
