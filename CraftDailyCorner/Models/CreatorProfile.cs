@@ -17,14 +17,14 @@ namespace CraftDailyCorner.Models
         public string ImageUrl { get; set; } = null!;
 
         [Required]
-        [StringLength(40, MinimumLength = 1)]
+        [StringLength(20, MinimumLength = 1)]
         [Display(Name = "品牌名稱")]
-        public string DisplayName { get; set; } = null!;
+        public string BrandName { get; set; } = null!;
 
         [Required]
         [Column(TypeName = "nvarchar(max)")]
         [Display(Name = "品牌簡介")]
-        public string Intro { get; set; } = null!;
+        public string BrandIntro { get; set; } = null!;
 
         [Required]
         [Display(Name = "創作起始日")]

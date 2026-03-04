@@ -9,7 +9,7 @@ namespace CraftDailyCorner.ViewModels.Creator
         public string CreatorID { get; set; } = string.Empty;
 
         [Display(Name = "品牌名稱")]
-        public string DisplayName { get; set; } = string.Empty;
+        public string BrandName { get; set; } = string.Empty;
 
         // 現有圖片 key（DB 存的那個）
         public string? ImageUrl { get; set; }
@@ -23,9 +23,9 @@ namespace CraftDailyCorner.ViewModels.Creator
         [Display(Name = "品牌圖片")]
         public IFormFile? BrandImage { get; set; }
 
-        [Display(Name = "創作者簡介")]
+        [Display(Name = "品牌簡介")]
         [StringLength(500, ErrorMessage = "簡介最多 500 字")]
-        public string? Intro { get; set; }
+        public string? BrandIntro { get; set; }
 
         [Display(Name = "銀行代碼")]
         [StringLength(10, ErrorMessage = "銀行代碼最多 10 碼")]

@@ -9,13 +9,13 @@ namespace CraftDailyCorner.ViewModels.Creator
         public string CreatorID { get; set; } = null!;
 
         [Display(Name = "創作者名稱")]
-        public string DisplayName { get; set; } = null!;
+        public string BrandName { get; set; } = null!;
 
         [Display(Name = "頭像")]
         public string ImageUrl { get; set; } = null!;
 
         [Display(Name = "創作者簡介")]
-        public string Intro { get; set; } = null!;
+        public string BrandIntro { get; set; } = null!;
 
         [Display(Name = "創作起始日")]
         public DateTime StartDate { get; set; }

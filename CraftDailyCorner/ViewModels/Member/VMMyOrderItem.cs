@@ -8,7 +8,7 @@
         public int Price { get; set; }                   // 快照（整數）
         public int Quantity { get; set; }
 
-        public string CreatorName { get; set; } = null!;
+        public string BrandName { get; set; } = null!;
         public int SubTotal => Price * Quantity;
     }
 }

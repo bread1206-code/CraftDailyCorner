@@ -18,8 +18,8 @@ namespace CraftDailyCorner.Seed.Datas
                 {
                     new CreatorApplication
                     {
-                        DisplayName = "木匠大師",
-                        Intro = "我是阿拓。",
+                        BrandName = "木匠大師",
+                        BrandIntro = "我是阿拓。",
                         PortfolioSampleUrl = imageGuids[0],
                         StartDate = new DateTime(2020, 01, 01),
                         StatusID = 3,
@@ -30,8 +30,8 @@ namespace CraftDailyCorner.Seed.Datas
                         ReviewedBy = "M0000001"
                     }, new CreatorApplication
                     {
-                        DisplayName = "木匠大師",
-                        Intro = "我是阿拓。這雙手除了與木材對話，別無長處。" +
+                        BrandName = "木匠大師",
+                        BrandIntro = "我是阿拓。這雙手除了與木材對話，別無長處。" +
                         "我專注於打磨帶有溫潤手感的木牌項鍊，也雕琢能盛裝回憶的榫接置物盒。" +
                         "每一道木紋都是時間的贈禮，我用鑿刀留住森林的氣息，" +
                         "只為將這份靜謐的陪伴，送到你的掌心。",
@@ -45,8 +45,8 @@ namespace CraftDailyCorner.Seed.Datas
                         ReviewedBy = "M0000001"
                     }, new CreatorApplication
                     {
-                        DisplayName = "墨尋",
-                        Intro = "我是墨尋，一生只在黑白之間修行。" +
+                        BrandName = "墨尋",
+                        BrandIntro = "我是墨尋，一生只在黑白之間修行。" +
                         "除了書寫紅紙黑字的春聯與氣勢磅礴的詩詞掛軸，我也將筆墨染上手工摺扇，捕捉流動的清風。" +
                         "我筆下的每一點一畫，不求驚世駭俗，只願在墨香散去前，為你這浮躁的世間留下一抹安定的神韻。",
                         PortfolioSampleUrl = imageGuids[2],
@@ -55,7 +55,7 @@ namespace CraftDailyCorner.Seed.Datas
                         AppliedAt = new DateTime(2025, 12, 01),
                         ReviewedAt = new DateTime(2025, 12, 03),
                         ReviewNote = null,
-                        MemberID = "M0000004",
+                        MemberID = "M0000005",
                         ReviewedBy = "M0000001"
                     }
                 };

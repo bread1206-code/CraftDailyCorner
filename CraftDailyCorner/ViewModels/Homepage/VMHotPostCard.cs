@@ -14,6 +14,6 @@ namespace CraftDailyCorner.ViewModels.Homepage
         public DateTime CreatedAt { get; set; }
 
         public string CreatorID { get; set; } = null!;
-        public string DisplayName { get; set; } = null!;
+        public string BrandName { get; set; } = null!;
     }
 }

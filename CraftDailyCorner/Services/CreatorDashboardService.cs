@@ -29,9 +29,9 @@ namespace CraftDailyCorner.Services.Creator
                 .Select(c => new
                 {
                     c.CreatorID,
-                    c.DisplayName,
+                    c.BrandName,
                     c.ImageUrl,
-                    c.Intro,
+                    c.BrandIntro,
                     c.StartDate,
                     c.CreatedAt
                 })
@@ -92,9 +92,9 @@ namespace CraftDailyCorner.Services.Creator
             return new VMCreatorDashboard
             {
                 CreatorID = creator.CreatorID,
-                DisplayName = creator.DisplayName,
+                BrandName = creator.BrandName,
                 ImageUrl = creator.ImageUrl,
-                Intro = creator.Intro,
+                BrandIntro = creator.BrandIntro,
                 StartDate = creator.StartDate,
                 CreatedAt = creator.CreatedAt,
 

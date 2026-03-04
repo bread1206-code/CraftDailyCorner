@@ -18,6 +18,6 @@ namespace CraftDailyCorner.ViewModels.Homepage
         [Display(Name = "圖片")]
         public string? CoverImage { get; set; }
         [Display(Name = "創作者")]
-        public string CreatorName { get; set; } = null!;
+        public string BrandName { get; set; } = null!;
     }
 }

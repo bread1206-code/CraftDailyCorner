@@ -7,7 +7,7 @@ namespace CraftDailyCorner.ViewModels.CreatorPost
     {
         public string PostID { get; set; } = null!;
         public string CreatorID { get; set; } = null!;
-        public string CreatorName { get; set; } = null!;
+        public string BrandName { get; set; } = null!;
 
         [Display(Name = "標題")]
         public string Title { get; set; } = null!;

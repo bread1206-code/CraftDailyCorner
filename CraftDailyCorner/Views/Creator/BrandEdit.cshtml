@@ -63,18 +63,18 @@
                 <div class="mb-4">
                     <label class="form-label fw-semibold">品牌名稱（不可變更）</label>
                     <input class="form-control"
-                           value="@Model.DisplayName"
+                           value="@Model.BrandName"
                            readonly />
                 </div>
 
                 <!-- 創作者簡介 -->
                 <div class="mb-4">
-                    <label asp-for="Intro" class="form-label fw-semibold"></label>
-                    <textarea asp-for="Intro"
+                    <label asp-for="BrandIntro" class="form-label fw-semibold"></label>
+                    <textarea asp-for="BrandIntro"
                               class="form-control"
                               rows="5"
                               placeholder="寫一些你的創作理念 / 風格 / 經歷..."></textarea>
-                    <span asp-validation-for="Intro" class="text-danger"></span>
+                    <span asp-validation-for="BrandIntro" class="text-danger"></span>
                 </div>
 
                 <!-- 銀行資訊 -->

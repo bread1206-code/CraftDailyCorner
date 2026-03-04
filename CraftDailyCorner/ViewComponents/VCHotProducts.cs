@@ -30,7 +30,7 @@ namespace CraftDailyCorner.ViewComponents
                 .OrderBy(i=>i.SortOrder)
                 .Select(i => i.ImageUrl)
                 .FirstOrDefault(),
-                CreatorName = p.CreatorProfile.DisplayName
+                BrandName = p.CreatorProfile.BrandName
             })
             .Take(4)
             .OrderByDescending(x => x.FavoriteCount)

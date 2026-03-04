@@ -74,8 +74,8 @@ namespace CraftDailyCorner.Controllers.Front
             await _applicationService.CreateAsync(new CreatorApplicationCreateDTO
             {
                 MemberId = User.GetMemberId(),
-                DisplayName = vm.DisplayName,
-                Intro = vm.Intro,
+                BrandName = vm.BrandName,
+                BrandIntro = vm.BrandIntro,
                 PortfolioSampleUrl = imageKey,
                 StartDate = vm.StartDate
             });

@@ -35,9 +35,9 @@ namespace CraftDailyCorner.Services.Creator
                 .Select(c => new
                 {
                     c.CreatorID,
-                    c.DisplayName,
+                    c.BrandName,
                     c.ImageUrl,
-                    c.Intro,
+                    c.BrandIntro,
                     c.StartDate,
 
                     // ================= POSTS =================
@@ -52,7 +52,7 @@ namespace CraftDailyCorner.Services.Creator
                             Title = p.Title,
                             ImageUrl = p.ImageUrl,
                             CreatedAt = p.CreatedAt,
-                            CreatorName = c.DisplayName,
+                            BrandName = c.BrandName,
 
                             CommentCount = 0,
                             Preview = "",
@@ -97,7 +97,7 @@ namespace CraftDailyCorner.Services.Creator
                             PortfolioID = p.PortfolioID,
                             Title = p.Title,
                             CreatedAt = p.CreatedAt,
-                            CreatorName = c.DisplayName,
+                            CreatorName = c.BrandName,
                             ItemCount = p.PortfolioItems.Count(),
                             CoverImageUrl = p.PortfolioItems
                                 .OrderBy(i => i.SortOrder)
@@ -181,9 +181,9 @@ namespace CraftDailyCorner.Services.Creator
             var vm= new VMCreatorPublicProfile
             {
                 CreatorID = creator.CreatorID,
-                DisplayName = creator.DisplayName,
+                BrandName = creator.BrandName,
                 ImageUrl = creator.ImageUrl,
-                Intro = creator.Intro,
+                BrandIntro = creator.BrandIntro,
                 StartDate = creator.StartDate,
 
                 IsOwner = isOwner,
@@ -212,8 +212,8 @@ namespace CraftDailyCorner.Services.Creator
             if (!string.IsNullOrWhiteSpace(keyword))
             {
                 query = query.Where(c =>
-                    c.DisplayName.Contains(keyword) ||
-                    c.Intro.Contains(keyword));
+                    c.BrandName.Contains(keyword) ||
+                    c.BrandIntro.Contains(keyword));
             }
 
             // PageSize 建議在 VM 預設 9；這裡也可以固定
@@ -231,9 +231,9 @@ namespace CraftDailyCorner.Services.Creator
                 .Select(c => new VMCreatorIndexItem
                 {
                     CreatorID = c.CreatorID,
-                    DisplayName = c.DisplayName,
+                    BrandName = c.BrandName,
                     ImageUrl = c.ImageUrl,
-                    Intro = c.Intro,
+                    BrandIntro = c.BrandIntro,
                     CreatedAt = c.CreatedAt,
                     FollowerCount = _context.FollowCreators.Count(f => f.CreatorID == c.CreatorID)
                 })

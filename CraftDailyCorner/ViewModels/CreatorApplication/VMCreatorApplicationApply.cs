@@ -8,12 +8,12 @@ namespace CraftDailyCorner.ViewModels.CreatorApplication
         [Required(ErrorMessage = "請輸入品牌名稱")]
         [StringLength(20, ErrorMessage = "品牌名稱不可超過 20 字")]
         [Display(Name = "品牌名稱")]
-        public string DisplayName { get; set; } = null!;
+        public string BrandName { get; set; } = null!;
 
-        [Required(ErrorMessage = "請輸入創作者簡介")]
-        [StringLength(1000, ErrorMessage = "創作者簡介不可超過 1000 字")]
-        [Display(Name = "創作者簡介")]
-        public string Intro { get; set; } = null!;
+        [Required(ErrorMessage = "請輸入品牌簡介")]
+        [StringLength(1000, ErrorMessage = "品牌簡介不可超過 1000 字")]
+        [Display(Name = "品牌簡介")]
+        public string BrandIntro { get; set; } = null!;
 
         [Required(ErrorMessage = "請上傳作品範例圖片")]
         [Display(Name = "作品範例圖片")]

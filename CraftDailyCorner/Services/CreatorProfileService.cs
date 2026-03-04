@@ -29,9 +29,9 @@ namespace CraftDailyCorner.Services.Creator
             return new VMCreatorBrandEdit
             {
                 CreatorID = entity.CreatorID,
-                DisplayName = entity.DisplayName, // 唯讀
+                BrandName = entity.BrandName, // 唯讀
                 ImageUrl = entity.ImageUrl,
-                Intro = entity.Intro,
+                BrandIntro = entity.BrandIntro,
                 BankCode = entity.BankCode,
                 BankAccount = entity.BankAccount
             };
@@ -46,7 +46,7 @@ namespace CraftDailyCorner.Services.Creator
                 throw new Exception("找不到創作者資料");
 
 
-            entity.Intro = (vm.Intro ?? string.Empty).Trim();
+            entity.BrandIntro = (vm.BrandIntro ?? string.Empty).Trim();
             entity.BankCode = (vm.BankCode ?? string.Empty).Trim();
             entity.BankAccount = (vm.BankAccount ?? string.Empty).Trim();
 

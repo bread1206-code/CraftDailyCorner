@@ -65,7 +65,7 @@ namespace CraftDailyCorner.Services
                 {
                     //創作者基本資訊
                     CreatorId = f.CreatorID,
-                    CreatorName = f.CreatorProfile.DisplayName,
+                    BrandName = f.CreatorProfile.BrandName,
                     CreatorLogo = f.CreatorProfile.ImageUrl,
 
                     //最新商品

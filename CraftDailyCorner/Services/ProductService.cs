@@ -152,7 +152,7 @@ namespace CraftDailyCorner.Services
                     .ToList(),
 
                 CreatorID = product.CreatorProfile?.CreatorID,
-                CreatorName = product.CreatorProfile?.DisplayName,
+                CreatorName = product.CreatorProfile?.BrandName,
 
                 Categories = product.ProductCategories
                     .Select(pc => pc.Category)

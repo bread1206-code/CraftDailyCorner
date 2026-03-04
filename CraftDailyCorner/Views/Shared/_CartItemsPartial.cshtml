@@ -12,7 +12,7 @@ else
 {
     <div id="cart-items-container">
         @* 按創作者分組 *@
-        @foreach (var group in Model.GroupBy(x => new { x.CreatorId, x.CreatorName }))
+        @foreach (var group in Model.GroupBy(x => new { x.CreatorId, x.BrandName }))
         {
             <div class="creator-group mb-4 border rounded">
                 <div class="card-header bg-light d-flex align-items-center">
@@ -20,7 +20,7 @@ else
                            data-creator-id="@group.Key.CreatorId"
                            id="check-@group.Key.CreatorId" />
                     <label class="fw-bold mb-0" for="check-@group.Key.CreatorId">
-                        創作者：@group.Key.CreatorName
+                        創作者：@group.Key.BrandName
                     </label>
                 </div>
 

@@ -14,7 +14,8 @@
             </a>
         </li>
 
-        <li class="nav-item mb-3">
+        <!-- 創作者審核：待審核 -->
+        <li class="nav-item mb-1">
             <a asp-area="Admin"
                asp-controller="CreatorReview"
                asp-action="Index"
@@ -27,6 +28,17 @@
                       class="badge bg-danger @(Model.PendingCreators == 0 ? "d-none" : "")">
                     @Model.PendingCreators
                 </span>
+            </a>
+        </li>
+
+        <!-- ✅ 新增：歷史資料入口（字體更小） -->
+        <li class="nav-item mb-3 ms-4">
+            <a asp-area="Admin"
+               asp-controller="CreatorReview"
+               asp-action="Index"
+               asp-route-mode="history"
+               class="nav-link text-light small opacity-75 py-1">
+                查看歷史資料
             </a>
         </li>
 

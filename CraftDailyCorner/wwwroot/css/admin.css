@@ -138,3 +138,21 @@
         background-color: #0f172a;
         color: #fff;
     }
+
+/* 深色工程模式文字系統 */
+
+.text-light {
+    color: #f8fafc !important;
+}
+
+.text-secondary {
+    color: #cbd5e1 !important;
+}
+
+.text-muted {
+    color: #94a3b8 !important;
+}
+
+.text-label {
+    color: #9ca3af;
+}

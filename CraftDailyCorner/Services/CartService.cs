@@ -139,7 +139,7 @@ namespace CraftDailyCorner.Services
                     Price = ci.Product.Price,
                     Quantity = ci.Quantity,
                     CreatorId = ci.Product.CreatorProfile!.CreatorID, // 填入 ID
-                    CreatorName = ci.Product.CreatorProfile.DisplayName, // 填入名稱
+                    BrandName = ci.Product.CreatorProfile.BrandName, // 填入名稱
                     ImageUrl = ci.Product.ProductImages
                         .Where(i => i.StatusID == 1)
                         .OrderBy(i => i.SortOrder)
@@ -188,7 +188,7 @@ namespace CraftDailyCorner.Services
                             .Select(i => i.ImageUrl)
                             .FirstOrDefault(),
                         CreatorId = ci.Product.CreatorProfile!.CreatorID,
-                        CreatorName = ci.Product.CreatorProfile.DisplayName
+                        BrandName = ci.Product.CreatorProfile.BrandName
                     }
                 })
                 .ToList();

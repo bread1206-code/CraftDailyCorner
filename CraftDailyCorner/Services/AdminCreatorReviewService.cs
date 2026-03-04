@@ -14,14 +14,45 @@ namespace CraftDailyCorner.Services
             _context = context;
         }
 
-        public async Task<VMAdminCreatorReviewIndex> GetIndexAsync()
+        public async Task<VMAdminCreatorReviewIndex> GetIndexAsync(string mode, string? memberId = null)
         {
-            var apps = await _context.CreatorApplications
+            mode = (mode ?? "pending").Trim().ToLower();
+
+            var query = _context.CreatorApplications
                 .AsNoTracking()
                 .Include(x => x.Member)
+                    .ThenInclude(m => m.Privacy)
                 .Include(x => x.CreatorApplicationStatus)
-                .OrderBy(x => x.StatusID)             // 待審核排最前
-                .ThenByDescending(x => x.AppliedAt)   // 同狀態最新在前
+                .AsQueryable();
+
+            if (mode == "history")
+            {
+                //  有輸入 MemberID：顯示該會員所有申請資料（含 pending / confirm 等）
+                if (!string.IsNullOrWhiteSpace(memberId))
+                {
+                    memberId = memberId.Trim();
+
+                    query = query
+                        .Where(x => x.MemberID == memberId)
+                        .OrderByDescending(x => x.AppliedAt);
+                }
+                else
+                {
+                    // ✅ 無輸入 MemberID：只顯示「已通過/已拒絕」
+                    query = query
+                        .Where(x => x.StatusID == 2 || x.StatusID == 3)
+                        .OrderByDescending(x => x.ReviewedAt ?? x.AppliedAt);
+                }
+            }
+            else
+            {
+                // ✅ 待審核頁：只顯示待審核
+                query = query
+                    .Where(x => x.StatusID == 1)
+                    .OrderByDescending(x => x.AppliedAt);
+            }
+
+            var apps = await query
                 .Select(x => new VMAdminCreatorReviewListItem
                 {
                     ApplicationID = x.ApplicationID,
@@ -29,7 +60,7 @@ namespace CraftDailyCorner.Services
                     MemberName = x.Member.DisplayName,
                     Email = x.Member.Privacy.Email,
                     Phone = x.Member.Privacy.Phone,
-                    DisplayName = x.DisplayName,
+                    BrandName = x.BrandName,
                     AppliedAt = x.AppliedAt,
                     StatusID = x.StatusID,
                     StatusName = x.CreatorApplicationStatus.StatusName
@@ -38,6 +69,8 @@ namespace CraftDailyCorner.Services
 
             return new VMAdminCreatorReviewIndex
             {
+                Mode = mode,
+                SearchMemberId = memberId,
                 Items = apps
             };
         }
@@ -47,6 +80,7 @@ namespace CraftDailyCorner.Services
             var app = await _context.CreatorApplications
                 .AsNoTracking()
                 .Include(x => x.Member)
+                    .ThenInclude(m => m.Privacy)
                 .Include(x => x.CreatorApplicationStatus)
                 .Include(x => x.Reviewer)
                 .FirstOrDefaultAsync(x => x.ApplicationID == applicationId);
@@ -56,28 +90,34 @@ namespace CraftDailyCorner.Services
             return new VMAdminCreatorReviewDetail
             {
                 ApplicationID = app.ApplicationID,
-                MemberID = app.MemberID,
-                MemberName = app.Member?.DisplayName ?? "(未知會員)",
-                BrandName = app.DisplayName,
-                BrandIntro = app.Intro,
-                StartDate = app.StartDate,
-                PortfolioUrl = app.PortfolioSampleUrl,
 
                 StatusID = app.StatusID,
-                StatusName = app.CreatorApplicationStatus?.StatusName ?? "(未知狀態)",
+                StatusName = app.CreatorApplicationStatus?.StatusName ?? "（未知狀態）",
+
+                AppliedAt = app.AppliedAt,
+
+                MemberID = app.MemberID,
+                MemberName = app.Member?.DisplayName ?? "（未知會員）",
+                Email = app.Member?.Privacy?.Email,
+                Phone = app.Member?.Privacy?.Phone,
+
+                BrandName = app.BrandName,
+                BrandIntro = app.BrandIntro,
+                PortfolioUrl = app.PortfolioSampleUrl,
+                StartDate = app.StartDate,
 
                 ReviewedAt = app.ReviewedAt,
-                ReviewerName = app.Reviewer?.DisplayName,     // ✅ 允許 null
-                ReviewNote = app.ReviewNote              // ✅ 允許 null
+                ReviewedBy = app.ReviewedBy,
+                ReviewerName = app.Reviewer?.DisplayName,
+                ReviewNote = app.ReviewNote
             };
         }
 
+        // ===== Update: 保持現狀（不動） =====
+
         public async Task ApproveAsync(int applicationId, string adminMemberId, string? reviewNote)
         {
-            using var tx = await _context.Database.BeginTransactionAsync();
-
             var app = await _context.CreatorApplications
-                .Include(x => x.Member)
                 .FirstOrDefaultAsync(x => x.ApplicationID == applicationId);
 
             if (app == null)
@@ -86,55 +126,15 @@ namespace CraftDailyCorner.Services
             if (app.StatusID != 1)
                 throw new Exception("此申請已審核，無法重複操作");
 
-            // 產生 CreatorID：C00001, C00002...
-            var newCreatorId = await GenerateNextCreatorIdAsync();
+            if (app.MemberID == adminMemberId)
+                throw new Exception("禁止審核自己的創作者申請");
 
-            // 建立 CreatorProfile（你的 Seed 也有 CreatorProfile 概念）
-            _context.CreatorProfiles.Add(new CreatorProfile
-            {
-                CreatorID = newCreatorId,
-                MemberID = app.MemberID,
-                DisplayName = app.DisplayName,
-                Intro = app.Intro ?? string.Empty,
-                BankCode = ("" ?? string.Empty).Trim(),
-                BankAccount = ("" ?? string.Empty).Trim(),
-                StatusID = 1, //1 = 啟用
-                ImageUrl = "default", // 沒上傳品牌圖就用預設（你前台也有 default.png 的慣例）
-                CreatedAt = DateTime.Now
-            });
-
-            // 掛上 Creator 角色（02）
-            var hasRole = await _context.MemberRoles
-                .AnyAsync(r => r.MemberID == app.MemberID && r.RoleID == "02");
-
-            if (!hasRole)
-            {
-                _context.MemberRoles.Add(new MemberRole
-                {
-                    MemberID = app.MemberID,
-                    RoleID = "02",
-                    AssignedAt = DateTime.Now
-                });
-
-                _context.MemberRoleHistories.Add(new MemberRoleHistory
-                {
-                    Action = (MemberRoleHistoryAction)1,          // 1 = Add（依你 Seed 的寫法）
-                    OperatedAt = DateTime.Now,
-                    MemberID = app.MemberID,
-                    RoleID = "02",
-                    OperatedBy = (MemberRoleHistoryOperated)1,    // 1 = Admin（依你 Seed 的寫法）
-                    OperatorMemberID = adminMemberId
-                });
-            }
-
-            // 更新申請狀態
-            app.StatusID = 2; // 2 = 通過（依你 Seed：另有 3 = 未通過）
+            app.StatusID = 2; // Approved
             app.ReviewedAt = DateTime.Now;
             app.ReviewedBy = adminMemberId;
             app.ReviewNote = (reviewNote ?? string.Empty).Trim();
 
             await _context.SaveChangesAsync();
-            await tx.CommitAsync();
         }
 
         public async Task RejectAsync(int applicationId, string adminMemberId, string reviewNote)
@@ -148,35 +148,47 @@ namespace CraftDailyCorner.Services
             if (app.StatusID != 1)
                 throw new Exception("此申請已審核，無法重複操作");
 
+            if (app.MemberID == adminMemberId)
+                throw new Exception("禁止審核自己的創作者申請");
+
             if (string.IsNullOrWhiteSpace(reviewNote))
                 throw new Exception("請填寫未通過原因");
 
-            app.StatusID = 3; // 3 = 未通過
+            app.StatusID = 3; // Rejected
             app.ReviewedAt = DateTime.Now;
             app.ReviewedBy = adminMemberId;
             app.ReviewNote = reviewNote.Trim();
 
             await _context.SaveChangesAsync();
         }
-
-        private async Task<string> GenerateNextCreatorIdAsync()
+        //  新增：下一筆待審核（同樣排除審核者自己的申請）
+        public async Task<int?> GetNextPendingIdAsync(int currentApplicationId, string adminMemberId)
         {
-            // 取最大 CreatorID（格式：C00001）
-            var lastId = await _context.CreatorProfiles
+            // 先抓目前這筆的排序基準
+            var current = await _context.CreatorApplications
                 .AsNoTracking()
-                .OrderByDescending(c => c.CreatorID)
-                .Select(c => c.CreatorID)
+                .Where(x => x.ApplicationID == currentApplicationId)
+                .Select(x => new { x.ApplicationID, x.AppliedAt })
                 .FirstOrDefaultAsync();
 
-            var nextNumber = 1;
+            if (current == null)
+                return null;
 
-            if (!string.IsNullOrWhiteSpace(lastId) && lastId.Length == 6 && lastId.StartsWith("C"))
-            {
-                if (int.TryParse(lastId.Substring(1), out var n))
-                    nextNumber = n + 1;
-            }
+            // 依「AppliedAt DESC, ApplicationID DESC」視為隊列順序
+            // 找「下一筆」= 排序上比目前更後面的那一筆
+            var nextId = await _context.CreatorApplications
+                .AsNoTracking()
+                .Where(x =>
+                    x.StatusID == 1 &&
+                    x.MemberID != adminMemberId &&               // 排除自己的申請
+                    (x.AppliedAt < current.AppliedAt ||
+                    (x.AppliedAt == current.AppliedAt && x.ApplicationID < current.ApplicationID)))
+                .OrderByDescending(x => x.AppliedAt)
+                .ThenByDescending(x => x.ApplicationID)
+                .Select(x => (int?)x.ApplicationID)
+                .FirstOrDefaultAsync();
 
-            return "C" + nextNumber.ToString("D5");
+            return nextId;
         }
     }
 }

@@ -1,7 +1,7 @@
 ﻿@model CraftDailyCorner.Areas.Admin.ViewModels.CreatorReview.VMAdminCreatorReviewIndex
 
 @{
-    ViewData["Title"] = "創作者審核";
+    ViewData["Title"] = "創作者審核（待審核）";
     Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
 }
 
@@ -10,10 +10,11 @@
     <div class="d-flex justify-content-between align-items-end mb-4">
         <div>
             <h2 class="fw-bold mb-1 text-light">創作者審核</h2>
-            <div class="text-secondary">管理創作者申請（待審核優先）</div>
+            <div class="text-light opacity-75">待審核申請清單</div>
         </div>
-        <span class="badge bg-danger @(Model.Items.Count(x => x.StatusID == 1) == 0 ? "d-none" : "")">
-            待審核 @Model.Items.Count(x => x.StatusID == 1)
+
+        <span class="badge bg-danger @(Model.Items.Count == 0 ? "d-none" : "")">
+            待審核 @Model.Items.Count
         </span>
     </div>
 
@@ -22,9 +23,9 @@
 
             @if (!Model.Items.Any())
             {
-                <div class="p-4 text-center text-secondary">
+                <div class="p-4 text-center text-light opacity-75">
                     <i class="bi bi-inbox fs-2"></i>
-                    <div class="mt-2">目前沒有任何申請資料</div>
+                    <div class="mt-2">目前沒有待審核申請</div>
                 </div>
             }
             else
@@ -44,21 +45,17 @@
                         <tbody>
                             @foreach (var x in Model.Items)
                             {
-                                var badge = x.StatusID == 1 ? "bg-danger"
-                                : x.StatusID == 2 ? "bg-success"
-                                : "bg-secondary";
-
-                                <tr class="@(x.StatusID == 1 ? "table-active" : "")">
+                                <tr class="table-active">
                                     <td>#@x.ApplicationID</td>
                                     <td>
                                         <div class="fw-semibold">@x.MemberName</div>
-                                        <div class="small text-secondary">@x.Email / @x.Phone</div>
-                                        <div class="small text-secondary">@x.MemberID</div>
+                                        <div class="small text-light opacity-75">@x.Email / @x.Phone</div>
+                                        <div class="small text-light opacity-75">@x.MemberID</div>
                                     </td>
-                                    <td class="fw-semibold">@x.DisplayName</td>
+                                    <td class="fw-semibold">@x.BrandName</td>
                                     <td>@x.AppliedAt.ToString("yyyy/MM/dd HH:mm")</td>
                                     <td>
-                                        <span class="badge @badge">@x.StatusName</span>
+                                        <span class="badge bg-danger">@x.StatusName</span>
                                     </td>
                                     <td class="text-end">
                                         <a class="btn btn-sm btn-outline-light"

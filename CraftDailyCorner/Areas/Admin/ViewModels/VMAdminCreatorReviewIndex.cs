@@ -2,6 +2,12 @@
 {
     public class VMAdminCreatorReviewIndex
     {
+        // "pending" / "history"
+        public string Mode { get; set; } = "pending";
+
+        // History 搜尋用（MemberID）
+        public string? SearchMemberId { get; set; }
+
         public List<VMAdminCreatorReviewListItem> Items { get; set; } = new();
     }
 
@@ -14,7 +20,7 @@
         public string Email { get; set; } = null!;
         public string Phone { get; set; } = null!;
 
-        public string DisplayName { get; set; } = null!;
+        public string BrandName { get; set; } = null!;
         public DateTime AppliedAt { get; set; }
 
         public byte StatusID { get; set; }

@@ -10,8 +10,8 @@ namespace CraftDailyCorner.ViewModels.Member
         //創作者ID
         public string CreatorId { get; set; } = null!;
 
-        //創作者顯示名稱
-        public string CreatorName { get; set; } = null!;
+        //品牌名稱
+        public string BrandName { get; set; } = null!;
 
         //創作者Logo圖片Key (GUID)
         public string? CreatorLogo { get; set; }

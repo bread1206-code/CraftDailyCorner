@@ -17,10 +17,17 @@ namespace CraftDailyCorner.Areas.Admin.Controllers
             _reviewService = reviewService;
         }
 
-        public async Task<IActionResult> Index()
+        // mode:
+        // - pending：待審核
+        // - history：歷史資料 + MemberID 搜尋
+        public async Task<IActionResult> Index(string mode = "pending", string? memberId = null)
         {
-            var vm = await _reviewService.GetIndexAsync();
-            return View(vm);
+            var vm = await _reviewService.GetIndexAsync(mode, memberId);
+
+            if (vm.Mode == "history")
+                return View("History", vm);
+
+            return View(vm); // Index.cshtml（pending）
         }
 
         public async Task<IActionResult> Detail(int id)
@@ -30,12 +37,14 @@ namespace CraftDailyCorner.Areas.Admin.Controllers
             return View(vm);
         }
 
+        // ===== Update: 保持現狀（不動） =====
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Approve(int id, string? reviewNote)
         {
             await _reviewService.ApproveAsync(id, User.GetMemberId(), reviewNote);
-            TempData["Success"] = "已通過創作者申請，並完成建立 CreatorProfile / 掛上 Creator 角色。";
+            TempData["Success"] = "已通過創作者申請。";
             return RedirectToAction(nameof(Detail), new { id });
         }
 
@@ -46,6 +55,21 @@ namespace CraftDailyCorner.Areas.Admin.Controllers
             await _reviewService.RejectAsync(id, User.GetMemberId(), reviewNote);
             TempData["Warning"] = "已駁回創作者申請。";
             return RedirectToAction(nameof(Detail), new { id });
+        }
+
+        //新增：下一筆待審核（提高效率，不用回 Index）
+        [HttpGet]
+        public async Task<IActionResult> Next(int id)
+        {
+            var adminMemberId = User.GetMemberId();
+
+            var nextId = await _reviewService.GetNextPendingIdAsync(id, adminMemberId);
+
+            if (nextId.HasValue)
+                return RedirectToAction(nameof(Detail), new { id = nextId.Value });
+
+            // 沒有下一筆 -> 回列表
+            return RedirectToAction(nameof(Index));
         }
     }
 }

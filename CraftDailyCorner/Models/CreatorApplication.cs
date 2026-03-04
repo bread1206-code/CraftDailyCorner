@@ -12,12 +12,12 @@ namespace CraftDailyCorner.Models
         [Required]
         [StringLength(20,MinimumLength =1)]
         [Display(Name = "品牌名稱")]
-        public string DisplayName { get; set; } = null!;
+        public string BrandName { get; set; } = null!;
 
         [Required]
         [Display(Name = "品牌簡介")]
         [Column(TypeName = "nvarchar(max)")]
-        public string Intro { get; set; } = null!;
+        public string BrandIntro { get; set; } = null!;
 
         [Required]
         [StringLength(36,MinimumLength =36)]

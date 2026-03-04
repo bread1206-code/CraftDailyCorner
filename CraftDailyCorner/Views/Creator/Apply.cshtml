@@ -25,26 +25,26 @@
                     <div asp-validation-summary="ModelOnly" class="alert alert-danger border-0 rounded-3 mb-4"></div>
 
                     <div class="mb-4">
-                        <label asp-for="DisplayName" class="form-label">
+                        <label asp-for="BrandName" class="form-label">
                             <span class="step-indicator">1</span>品牌名稱
                         </label>
                         <div class="input-group">
                             <span class="input-group-text bg-white border-end-0 text-muted">
                                 <i class="bi bi-shop"></i>
                             </span>
-                            <input asp-for="DisplayName" class="form-control border-start-0 ps-0" placeholder="例如：日日好陶" />
+                            <input asp-for="BrandName" class="form-control border-start-0 ps-0" placeholder="例如：日日好陶" />
                         </div>
-                        <span asp-validation-for="DisplayName" class="text-danger small mt-1 d-block"></span>
+                        <span asp-validation-for="BrandName" class="text-danger small mt-1 d-block"></span>
                     </div>
 
                     <div class="mb-4">
-                        <label asp-for="Intro" class="form-label">
-                            <span class="step-indicator">2</span>關於你的創作
+                        <label asp-for="BrandIntro" class="form-label">
+                            <span class="step-indicator">2</span>關於你的品牌
                         </label>
-                        <textarea asp-for="Intro" class="form-control" rows="5"
+                        <textarea asp-for="BrandIntro" class="form-control" rows="5"
                                   placeholder="請和我們分享你的品牌故事、創作靈感或是材質特色...（這將會顯示在你的創作者首頁）"></textarea>
                         <div class="form-text text-end">建議 50 - 200 字，溫暖的文字更能打動人心。</div>
-                        <span asp-validation-for="Intro" class="text-danger small d-block"></span>
+                        <span asp-validation-for="BrandIntro" class="text-danger small d-block"></span>
                     </div>
 
                     <div class="mb-4">

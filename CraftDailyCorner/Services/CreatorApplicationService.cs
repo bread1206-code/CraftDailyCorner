@@ -40,14 +40,14 @@ namespace CraftDailyCorner.Services.Creator
                 case "Pending":
                     return new VMCreatorApplicationPending
                     {
-                        DisplayName = latest.DisplayName,
+                        DisplayName = latest.BrandName,
                         AppliedAt = latest.AppliedAt
                     };
 
                 case "Approved":
                     return new VMCreatorApplicationApproved
                     {
-                        DisplayName = latest.DisplayName,
+                        DisplayName = latest.BrandName,
                         ReviewedAt = latest.ReviewedAt ?? latest.AppliedAt
                     };
 
@@ -85,8 +85,8 @@ namespace CraftDailyCorner.Services.Creator
             var entity = new CreatorApplication
             {
                 MemberID = dto.MemberId,
-                DisplayName = dto.DisplayName,
-                Intro = dto.Intro,
+                BrandName = dto.BrandName,
+                BrandIntro = dto.BrandIntro,
                 PortfolioSampleUrl = dto.PortfolioSampleUrl,
                 StartDate = dto.StartDate,
                 AppliedAt = DateTime.Now,

@@ -196,7 +196,7 @@ namespace CraftDailyCorner.Services
                         ProductName = od.ProductNameSnapshot,   // 快照
                         Price = (int)Math.Floor(od.PriceSnapshot),
                         Quantity = od.Quantity,
-                        CreatorName = od.Product.CreatorProfile!.DisplayName
+                        BrandName = od.Product.CreatorProfile!.BrandName
                     })
                     .ToList(),
                 OrderPayments = new VMOrderPaymentList

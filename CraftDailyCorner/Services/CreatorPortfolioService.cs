@@ -52,7 +52,7 @@ namespace CraftDailyCorner.Services.Creator
                     PortfolioID = p.PortfolioID,
                     Title = p.Title,
                     CreatedAt = p.CreatedAt,
-                    CreatorName = p.CreatorProfile.DisplayName,
+                    CreatorName = p.CreatorProfile.BrandName,
                     CreatorID = p.CreatorID,
                     ItemCount = p.PortfolioItems.Count(),
 
@@ -110,7 +110,7 @@ namespace CraftDailyCorner.Services.Creator
                     p.Title,
                     p.Description,
                     p.CreatedAt,
-                    CreatorName = p.CreatorProfile.DisplayName,
+                    CreatorName = p.CreatorProfile.BrandName,
                     OwnerId = p.CreatorProfile.MemberID,
                     Items = p.PortfolioItems
                         .OrderBy(i => i.SortOrder)
