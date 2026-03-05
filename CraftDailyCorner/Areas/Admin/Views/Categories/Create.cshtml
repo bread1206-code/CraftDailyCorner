@@ -1,0 +1,79 @@
+﻿@model CraftDailyCorner.Areas.Admin.ViewModels.Category.VMAdminCategoryUpsert
+
+@{
+    ViewData["Title"] = "新增分類";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container-fluid">
+
+    <div class="d-flex justify-content-between align-items-end mb-4">
+        <div>
+            <h2 class="fw-bold mb-1 text-light">新增分類</h2>
+            <div class="text-light opacity-75">可新增大分類或小分類（選擇上層即為小分類）</div>
+        </div>
+
+        <a class="btn btn-outline-light"
+           asp-area="Admin"
+           asp-controller="Categories"
+           asp-action="Index">
+            返回列表
+        </a>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-body">
+
+            <form asp-area="Admin"
+                  asp-controller="Categories"
+                  asp-action="Create"
+                  method="post">
+                @Html.AntiForgeryToken()
+
+                <div class="mb-3">
+                    <label asp-for="CategoryName" class="form-label text-light"></label>
+                    <input asp-for="CategoryName" class="form-control" />
+                    <span asp-validation-for="CategoryName" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="ParentCategoryID" class="form-label text-light"></label>
+                    <select asp-for="ParentCategoryID"
+                            asp-items="Model.ParentCategoryOptions"
+                            class="form-select">
+                    </select>
+                    <div class="form-text text-light opacity-75">
+                        選「（建立/設為大分類）」代表 ParentCategoryID = null。
+                    </div>
+                </div>
+
+                <div class="form-check form-switch mb-4">
+                    <input asp-for="IsActive" class="form-check-input" />
+                    <label asp-for="IsActive" class="form-check-label text-light"></label>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-check2-circle me-1"></i> 新增
+                    </button>
+
+                    <a class="btn btn-outline-light"
+                       asp-area="Admin"
+                       asp-controller="Categories"
+                       asp-action="Index">
+                        取消
+                    </a>
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
