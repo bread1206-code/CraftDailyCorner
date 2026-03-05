@@ -1,0 +1,53 @@
+﻿@model CraftDailyCorner.Areas.Admin.ViewModels.Tag.VMAdminTagEdit
+
+@{
+    ViewData["Title"] = "編輯標籤";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container-fluid">
+
+    <div class="d-flex justify-content-between align-items-end mb-4">
+        <div>
+            <h2 class="fw-bold mb-1 text-light">編輯標籤</h2>
+            <div class="text-light opacity-75">修改標籤名稱</div>
+        </div>
+
+        <a class="btn btn-outline-secondary"
+           asp-area="Admin"
+           asp-controller="Tag"
+           asp-action="Index">
+            返回列表
+        </a>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-body">
+
+            <form asp-area="Admin" asp-controller="Tag" asp-action="Edit" method="post">
+                @Html.AntiForgeryToken()
+
+                <input type="hidden" asp-for="TagID" />
+
+                <div class="mb-3">
+                    <label asp-for="TagName" class="form-label text-light"></label>
+                    <input asp-for="TagName"
+                           class="form-control bg-dark text-light border-secondary"
+                           placeholder="例如：木作、皮革、手作禮物" />
+                    <span asp-validation-for="TagName" class="text-warning small"></span>
+                </div>
+
+                <div asp-validation-summary="ModelOnly" class="text-warning small mb-3"></div>
+
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-save2 me-1"></i> 儲存變更
+                </button>
+            </form>
+
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

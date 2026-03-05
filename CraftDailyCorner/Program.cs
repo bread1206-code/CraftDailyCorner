@@ -48,6 +48,7 @@ builder.Services.AddScoped<IAdminCreatorReviewService, AdminCreatorReviewService
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IAdminViolationService, AdminViolationService>();
 builder.Services.AddScoped<IAdminCategoryService, AdminCategoryService>();
+builder.Services.AddScoped<IAdminTagService, AdminTagService>();
 
 builder.Services.AddHostedService<SoftDeleteCleanupBackgroundService>();
 builder.Services.AddHostedService<OrderAutoCompleteHostedBackgroundService>();

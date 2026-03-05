@@ -1,0 +1,95 @@
+﻿@model CraftDailyCorner.Areas.Admin.ViewModels.Tag.VMAdminTagIndex
+
+@{
+    ViewData["Title"] = "標籤管理";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container-fluid">
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success">@TempData["Success"]</div>
+    }
+
+    <div class="d-flex justify-content-between align-items-end mb-4">
+        <div>
+            <h2 class="fw-bold mb-1 text-light">標籤管理</h2>
+            <div class="text-light opacity-75">新增 / 修改 / 啟用與禁用標籤</div>
+        </div>
+
+        <a class="btn btn-primary"
+           asp-area="Admin"
+           asp-controller="Tag"
+           asp-action="Create">
+            <i class="bi bi-plus-circle me-1"></i> 新增標籤
+        </a>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-0">
+
+            @if (Model.Items == null || !Model.Items.Any())
+            {
+                <div class="p-4 text-secondary">
+                    目前尚無標籤資料
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-dark table-hover align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th style="width:120px;">TagID</th>
+                                <th>標籤名稱</th>
+                                <th style="width:120px;">狀態</th>
+                                <th style="width:220px;" class="text-end"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var x in Model.Items)
+                            {
+                                var badge = x.IsActive ? "bg-success" : "bg-secondary";
+                                var btnText = x.IsActive ? "禁用" : "啟用";
+                                var btnClass = x.IsActive ? "btn-outline-warning" : "btn-outline-success";
+
+                                <tr>
+                                    <td>#@x.TagID</td>
+                                    <td class="fw-semibold">@x.TagName</td>
+                                    <td>
+                                        <span class="badge @badge">
+                                            @(x.IsActive ? "啟用" : "禁用")
+                                        </span>
+                                    </td>
+                                    <td class="text-end">
+                                        <a class="btn btn-sm btn-outline-light"
+                                           asp-area="Admin"
+                                           asp-controller="Tag"
+                                           asp-action="Edit"
+                                           asp-route-id="@x.TagID">
+                                            編輯
+                                        </a>
+
+                                        <form class="d-inline"
+                                              asp-area="Admin"
+                                              asp-controller="Tag"
+                                              asp-action="Toggle"
+                                              asp-route-id="@x.TagID"
+                                              method="post">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="btn btn-sm @btnClass">
+                                                @btnText
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+
+        </div>
+    </div>
+</div>
