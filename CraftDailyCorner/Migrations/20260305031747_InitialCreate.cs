@@ -696,6 +696,46 @@ namespace CraftDailyCorner.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Reports",
+                columns: table => new
+                {
+                    ReportID = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    ReportType = table.Column<byte>(type: "tinyint", nullable: false),
+                    TargetID = table.Column<string>(type: "nvarchar(36)", maxLength: 36, nullable: false),
+                    ReasonCode = table.Column<int>(type: "int", maxLength: 20, nullable: false),
+                    Reason = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    MemberID = table.Column<string>(type: "nchar(8)", nullable: false),
+                    StatusID = table.Column<byte>(type: "tinyint", nullable: false),
+                    ReviewedBy = table.Column<string>(type: "nchar(8)", nullable: true),
+                    ReviewedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    AdminNote = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Reports", x => x.ReportID);
+                    table.ForeignKey(
+                        name: "FK_Reports_Members_MemberID",
+                        column: x => x.MemberID,
+                        principalTable: "Members",
+                        principalColumn: "MemberID",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Reports_Members_ReviewedBy",
+                        column: x => x.ReviewedBy,
+                        principalTable: "Members",
+                        principalColumn: "MemberID",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Reports_ReportStatuses_StatusID",
+                        column: x => x.StatusID,
+                        principalTable: "ReportStatuses",
+                        principalColumn: "StatusID",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "AutoReplyTemplates",
                 columns: table => new
                 {
@@ -1218,51 +1258,6 @@ namespace CraftDailyCorner.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Reports",
-                columns: table => new
-                {
-                    ReportID = table.Column<long>(type: "bigint", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    ReportType = table.Column<byte>(type: "tinyint", nullable: false),
-                    TargetID = table.Column<string>(type: "nvarchar(36)", maxLength: 36, nullable: false),
-                    ReasonCode = table.Column<int>(type: "int", maxLength: 20, nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: true),
-                    MemberID = table.Column<string>(type: "nchar(8)", nullable: false),
-                    StatusID = table.Column<byte>(type: "tinyint", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    ReviewedBy = table.Column<string>(type: "nchar(8)", nullable: true),
-                    ReviewedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    PostCommentCommentID = table.Column<string>(type: "nchar(36)", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Reports", x => x.ReportID);
-                    table.ForeignKey(
-                        name: "FK_Reports_Members_MemberID",
-                        column: x => x.MemberID,
-                        principalTable: "Members",
-                        principalColumn: "MemberID",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_Reports_Members_ReviewedBy",
-                        column: x => x.ReviewedBy,
-                        principalTable: "Members",
-                        principalColumn: "MemberID",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_Reports_PostComments_PostCommentCommentID",
-                        column: x => x.PostCommentCommentID,
-                        principalTable: "PostComments",
-                        principalColumn: "CommentID");
-                    table.ForeignKey(
-                        name: "FK_Reports_ReportStatuses_StatusID",
-                        column: x => x.StatusID,
-                        principalTable: "ReportStatuses",
-                        principalColumn: "StatusID",
-                        onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "InventoryAlerts",
                 columns: table => new
                 {
@@ -1660,11 +1655,6 @@ namespace CraftDailyCorner.Migrations
                 column: "MemberID");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Reports_PostCommentCommentID",
-                table: "Reports",
-                column: "PostCommentCommentID");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Reports_ReportType_TargetID_MemberID",
                 table: "Reports",
                 columns: new[] { "ReportType", "TargetID", "MemberID" },
@@ -1769,6 +1759,9 @@ namespace CraftDailyCorner.Migrations
                 name: "PortfolioItems");
 
             migrationBuilder.DropTable(
+                name: "PostComments");
+
+            migrationBuilder.DropTable(
                 name: "Privacies");
 
             migrationBuilder.DropTable(
@@ -1826,6 +1819,9 @@ namespace CraftDailyCorner.Migrations
                 name: "Portfolios");
 
             migrationBuilder.DropTable(
+                name: "CreatorPosts");
+
+            migrationBuilder.DropTable(
                 name: "Categories");
 
             migrationBuilder.DropTable(
@@ -1833,9 +1829,6 @@ namespace CraftDailyCorner.Migrations
 
             migrationBuilder.DropTable(
                 name: "Tags");
-
-            migrationBuilder.DropTable(
-                name: "PostComments");
 
             migrationBuilder.DropTable(
                 name: "ReportStatuses");
@@ -1853,19 +1846,16 @@ namespace CraftDailyCorner.Migrations
                 name: "PortfolioStatuses");
 
             migrationBuilder.DropTable(
-                name: "CreatorPosts");
+                name: "CreatorPostStatuses");
 
             migrationBuilder.DropTable(
                 name: "OrderStatuses");
 
             migrationBuilder.DropTable(
-                name: "ProductStatuses");
-
-            migrationBuilder.DropTable(
-                name: "CreatorPostStatuses");
-
-            migrationBuilder.DropTable(
                 name: "CreatorProfiles");
+
+            migrationBuilder.DropTable(
+                name: "ProductStatuses");
 
             migrationBuilder.DropTable(
                 name: "CreatorProfileStatuses");

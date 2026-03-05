@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CraftDailyCorner.Migrations
 {
     [DbContext(typeof(CraftDailyCornerContext))]
-    [Migration("20260305002502_InitialCreate")]
+    [Migration("20260305031747_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -1613,19 +1613,20 @@ namespace CraftDailyCorner.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("ReportID"));
 
+                    b.Property<string>("AdminNote")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
-
-                    b.Property<string>("Description")
-                        .HasMaxLength(300)
-                        .HasColumnType("nvarchar(300)");
 
                     b.Property<string>("MemberID")
                         .IsRequired()
                         .HasColumnType("nchar(8)");
 
-                    b.Property<string>("PostCommentCommentID")
-                        .HasColumnType("nchar(36)");
+                    b.Property<string>("Reason")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
 
                     b.Property<int>("ReasonCode")
                         .HasMaxLength(20)
@@ -1651,8 +1652,6 @@ namespace CraftDailyCorner.Migrations
                     b.HasKey("ReportID");
 
                     b.HasIndex("MemberID");
-
-                    b.HasIndex("PostCommentCommentID");
 
                     b.HasIndex("ReviewedBy");
 
@@ -2407,10 +2406,6 @@ namespace CraftDailyCorner.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("CraftDailyCorner.Models.PostComment", null)
-                        .WithMany("PostCommentReports")
-                        .HasForeignKey("PostCommentCommentID");
-
                     b.HasOne("CraftDailyCorner.Models.Member", "Reviewer")
                         .WithMany("ReportsReviewed")
                         .HasForeignKey("ReviewedBy")
@@ -2608,11 +2603,6 @@ namespace CraftDailyCorner.Migrations
             modelBuilder.Entity("CraftDailyCorner.Models.PortfolioStatus", b =>
                 {
                     b.Navigation("Portfolios");
-                });
-
-            modelBuilder.Entity("CraftDailyCorner.Models.PostComment", b =>
-                {
-                    b.Navigation("PostCommentReports");
                 });
 
             modelBuilder.Entity("CraftDailyCorner.Models.Product", b =>

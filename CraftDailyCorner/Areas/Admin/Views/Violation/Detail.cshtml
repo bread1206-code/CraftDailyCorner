@@ -1,0 +1,344 @@
+﻿@using CraftDailyCorner.Extensions 
+@using CraftDailyCorner.Models.Enums
+@model CraftDailyCorner.Areas.Admin.ViewModels.Violation.VMAdminViolationDetail
+
+
+@{
+    ViewData["Title"] = "檢舉詳情";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    var isSelfReport = Model.ReporterMemberID == User.GetMemberId();
+}
+
+<div class="container-fluid">
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success">@TempData["Success"]</div>
+    }
+    @if (TempData["Warning"] != null)
+    {
+        <div class="alert alert-warning">@TempData["Warning"]</div>
+    }
+
+    <div class="d-flex justify-content-between align-items-end mb-4">
+        <div>
+            <h2 class="fw-bold mb-1 text-light">檢舉詳情</h2>
+            <div class="text-secondary">#@Model.ReportID</div>
+        </div>
+
+        <a class="btn btn-outline-secondary"
+           asp-area="Admin"
+           asp-controller="Violation"
+           asp-action="Index">
+            返回列表
+        </a>
+    </div>
+
+    <div class="row g-4">
+
+        <!-- 左：檢舉內容 -->
+        <div class="col-lg-7">
+            <div class="card shadow-sm border-0">
+                <div class="card-body">
+
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div class="fw-semibold text-light">檢舉內容</div>
+                        @{
+                            var badge = Model.StatusID == 1 ? "bg-danger"
+                            : Model.StatusID == 2 ? "bg-danger"
+                            : Model.StatusID == 3 ? "bg-success"
+                            : "bg-secondary";
+                        }
+                        <span class="badge @badge">@Model.StatusName</span>
+                    </div>
+
+                    <hr />
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="text-secondary small mb-1">建立時間</div>
+                            <div class="text-light fw-semibold">@Model.CreatedAt.ToString("yyyy/MM/dd HH:mm")</div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="text-secondary small mb-1">檢舉原因</div>
+                            <div class="text-light fw-semibold">@Model.ReasonName</div>
+
+                            @if (Model.Reason == (int)ReportReason.Other && !string.IsNullOrWhiteSpace(Model.UserReasonText))
+                            {
+                                <div class="mt-2 p-3 rounded border border-secondary bg-dark text-light"
+                                     style="white-space:pre-wrap;">
+                                    @Model.UserReasonText
+                                </div>
+                            }
+                        </div>
+                    </div>
+
+                    <hr />
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+
+                            <div class="mb-3">
+                                <div class="text-secondary small mb-1">檢舉人</div>
+                                <div class="text-light fw-semibold">@Model.ReporterName</div>
+                                <div class="text-secondary small">@Model.ReporterMemberID</div>
+
+                                @if (!string.IsNullOrWhiteSpace(Model.ReporterEmail) || !string.IsNullOrWhiteSpace(Model.ReporterPhone))
+                                {
+                                    <div class="text-secondary small mt-1">
+                                        @if (!string.IsNullOrWhiteSpace(Model.ReporterEmail))
+                                        {
+                                            <span>@Model.ReporterEmail</span>
+                                        }
+                                        @if (!string.IsNullOrWhiteSpace(Model.ReporterPhone))
+                                        {
+                                            <span> @Model.ReporterPhone</span>
+                                        }
+                                    </div>
+                                }
+                            </div>
+
+                            <div class="mb-3">
+                                <div class="text-secondary small mb-1">被檢舉目標</div>
+                                <div class="text-light fw-semibold">@Model.TargetTypeName</div>
+                                <div class="text-secondary small">@Model.TargetID</div>
+                            </div>
+
+                            <div class="mb-0">
+                                <div class="text-secondary small mb-1">擁有者</div>
+                                @if (!string.IsNullOrEmpty(Model.TargetOwnerID))
+                                {
+                                    <div class="text-light fw-semibold">@Model.TargetOwnerName</div>
+                                    <div class="text-secondary small">@Model.TargetOwnerID</div>
+                                }
+                                else
+                                {
+                                    <div class="text-light opacity-75">（未知）</div>
+                                }
+                            </div>
+
+                        </div>
+
+                        <div class="col-md-6">
+                            <!-- ✅ 前往目標（另開新分頁） -->
+                            @if (!string.IsNullOrWhiteSpace(Model.TargetUrl))
+                            {
+                                <div class="mb-3">
+                                    <div class="text-secondary small mb-2">快速前往</div>
+                                    <a class="btn btn-outline-info w-100"
+                                       href="@Model.TargetUrl"
+                                       target="_blank"
+                                       rel="noopener noreferrer">
+                                        <i class="bi bi-box-arrow-up-right me-1"></i> 前往被檢舉目標（新分頁）
+                                    </a>
+                                    <div class="text-secondary small mt-2">
+                                        ※ 會另開新分頁，不影響目前審核流程
+                                    </div>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="text-secondary small">
+                                    目前無法產生目標連結（可能缺少路由資訊或目標已不存在）
+                                </div>
+                            }
+
+                            <!-- （可選）如果你 VM 之後加 TargetTitle/TargetSnippet，可在這裡顯示摘要 -->
+                            @* 
+                            @if (!string.IsNullOrWhiteSpace(Model.TargetTitle) || !string.IsNullOrWhiteSpace(Model.TargetSnippet))
+                            {
+                                <div class="mt-3 p-3 rounded border border-secondary bg-dark">
+                                    @if (!string.IsNullOrWhiteSpace(Model.TargetTitle))
+                                    {
+                                        <div class="fw-semibold text-light">@Model.TargetTitle</div>
+                                    }
+                                    @if (!string.IsNullOrWhiteSpace(Model.TargetSnippet))
+                                    {
+                                        <div class="text-light opacity-75 mt-2" style="white-space:pre-wrap;">
+                                            @Model.TargetSnippet
+                                        </div>
+                                    }
+                                </div>
+                            }
+                            *@
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- 右：審核操作 -->
+        <div class="col-lg-5">
+            <div class="card shadow-sm border-0">
+                <div class="card-body">
+                    <div class="fw-semibold text-light mb-2">審核操作</div>
+                    <div class="text-secondary small mb-3">請判斷是否違規，系統會依你選擇更新檢舉狀態與目標狀態。</div>
+
+                    @if (Model.StatusID == 1 && !isSelfReport)
+                    {
+                        <!-- ✅ 共用備註 textarea（兩個按鈕都會送出） -->
+                        <div class="mb-3">
+                            <label for="adminNote" class="text-secondary small mb-1">
+                                管理者備註
+                                <span id="noteRequiredHint" class="text-danger ms-1 d-none">（判定違規必填）</span>
+                            </label>
+
+                            <textarea id="adminNote"
+                                  class="form-control bg-dark text-light border-secondary"
+                                  rows="4"
+                                  placeholder="例如：違規原因判定依據、補充說明..."></textarea>
+                            <!-- 注意：textarea 會用 JS 同步到另一個 form -->
+                            <div class="text-secondary small mt-2">
+                                ※ 判定違規時必填；判定正常可選填（仍會一起送出）
+                            </div>
+                        </div>
+
+                        <form id="formMarkViolation"
+                              asp-area="Admin"
+                              asp-controller="Violation"
+                              asp-action="MarkViolation"
+                              method="post"
+                              class="mb-2">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="id" value="@Model.ReportID" />
+                            <input type="hidden" name="adminNote" id="adminNoteHiddenViolation" value="" />
+
+                            <button type="submit"
+                                    class="btn btn-danger w-100"
+                                    id="btnMarkViolation">
+                                <i class="bi bi-shield-exclamation me-1"></i> 判定違規
+                            </button>
+                        </form>
+
+                        <form id="formMarkNormal"
+                              asp-area="Admin"
+                              asp-controller="Violation"
+                              asp-action="MarkNormal"
+                              method="post">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="id" value="@Model.ReportID" />
+                            <input type="hidden" name="adminNote" id="adminNoteHiddenNormal" value="" />
+
+                            <button type="submit"
+                                    class="btn btn-outline-success w-100"
+                                    id="btnMarkNormal">
+                                <i class="bi bi-check2-circle me-1"></i> 判定正常（無違規）
+                            </button>
+                        </form>
+
+                        <script>
+                            (function () {
+                                const textarea = document.getElementById("adminNote");
+                                const hiddenViolation = document.getElementById("adminNoteHiddenViolation");
+                                const hiddenNormal = document.getElementById("adminNoteHiddenNormal");
+
+                                const formViolation = document.getElementById("formMarkViolation");
+                                const formNormal = document.getElementById("formMarkNormal");
+
+                                const hint = document.getElementById("noteRequiredHint");
+
+                                function sync() {
+                                    const v = textarea.value || "";
+                                    hiddenViolation.value = v;
+                                    hiddenNormal.value = v;
+                                }
+
+                                textarea.addEventListener("input", function (e) {
+                                sync();
+                                if ((textarea.value || "").trim()) {
+                                    textarea.classList.remove("is-invalid");
+                                    hint.classList.add("d-none");
+                                }
+                            });
+                                sync();
+
+                                // ✅ 判定違規：備註必填
+                                formViolation.addEventListener("submit", function (e) {
+                                    sync();
+                                    const note = (textarea.value || "").trim();
+
+                                    if (!note) {
+                                        e.preventDefault();
+                                        hint.classList.remove("d-none");
+                                        textarea.classList.add("is-invalid");
+                                        textarea.focus();
+                                        return;
+                                    }
+
+                                    hint.classList.add("d-none");
+                                    textarea.classList.remove("is-invalid");
+                                });
+
+                                // 判定正常：可選填（但仍同步送出）
+                                formNormal.addEventListener("submit", function () {
+                                    sync();
+                                    hint.classList.add("d-none");
+                                    textarea.classList.remove("is-invalid");
+                                });
+
+                                // 點違規按鈕時顯示提示
+                                document.getElementById("btnMarkViolation").addEventListener("click", function () {
+                                    hint.classList.remove("d-none");
+                                });
+
+                                // 點正常按鈕時隱藏提示
+                                document.getElementById("btnMarkNormal").addEventListener("click", function () {
+                                    hint.classList.add("d-none");
+                                });
+                            })();
+                        </script>
+                    }
+                    else if (Model.StatusID == 1 && isSelfReport)
+                    {
+                        <div class="alert alert-warning mb-0">
+                            你不能審核自己提交的檢舉。
+                        </div>
+
+                        <button class="btn btn-danger w-100 mt-3" disabled>
+                            <i class="bi bi-shield-exclamation me-1"></i> 判定違規
+                        </button>
+
+                        <button class="btn btn-outline-success w-100 mt-2" disabled>
+                            <i class="bi bi-check2-circle me-1"></i> 判定正常（無違規）
+                        </button>
+                    }
+                    else
+                    {
+                        <div class="text-secondary">
+                            此檢舉已完成審核，無法再次操作。
+                        </div>
+
+                        @if (!string.IsNullOrWhiteSpace(Model.AdminNote))
+                        {
+                            <div class="mt-3 p-3 rounded border border-secondary">
+                                <div class="text-secondary small mb-1">管理者備註</div>
+                                <div class="text-light" style="white-space:pre-wrap;">@Model.AdminNote</div>
+                            </div>
+                        }
+                    }
+
+                </div>
+            </div>
+
+            <!-- 下一筆待審核 -->
+            <div class="card shadow-sm border-0 mt-4">
+                <div class="card-body">
+                    <a asp-area="Admin"
+                       asp-controller="Violation"
+                       asp-action="Next"
+                       asp-route-id="@Model.ReportID"
+                       class="btn btn-outline-info w-100">
+                        <i class="bi bi-skip-forward-circle me-1"></i> 下一筆待審核
+                    </a>
+
+                    <div class="text-secondary small mt-2">
+                        若已沒有下一筆待審核，會自動返回列表
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>

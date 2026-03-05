@@ -27,16 +27,18 @@ namespace CraftDailyCorner.Models
 
         //補充說明（只有選其他才填）
         [StringLength(200)]
-        public string? Description { get; set; }
+        public string? Reason { get; set; }
 
+        //建立時間
+        public DateTime CreatedAt { get; set; } = DateTime.Now;
 
         [Display(Name = "檢舉者ID")]
         [Column(TypeName = "nchar(8)")]
         public string MemberID { get; set; } = null!;
+
         [Display(Name = "檢舉狀態ID")]
         public byte StatusID { get; set; }
-        //建立時間
-        public DateTime CreatedAt { get; set; } = DateTime.Now;
+        
 
         [Display(Name = "處理者")]
         [Column(TypeName = "nchar(8)")]
@@ -44,7 +46,9 @@ namespace CraftDailyCorner.Models
         [Display(Name = "處理時間")]
         public DateTime? ReviewedAt { get; set; }
 
-
+        [StringLength(200)]
+        [Display(Name = "管理者備註")]
+        public string? AdminNote { get; set; }
         public virtual ReportStatus? ReportStatus { get; set; }
 
         // 檢舉人

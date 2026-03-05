@@ -16,6 +16,6 @@ namespace CraftDailyCorner.DTOs
         public ReportReason ReasonCode { get; set; }
 
         [StringLength(200, ErrorMessage = "原因不可超過 200 字")]
-        public string? Description { get; set; }
+        public string? Reason { get; set; }
     }
 }

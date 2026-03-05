@@ -10,6 +10,10 @@
 
 <div class="container-fluid">
 
+    @if (TempData["Danger"] != null)
+    {
+        <div class="alert alert-danger">@TempData["Danger"]</div>
+    }
     @if (TempData["Success"] != null)
     {
         <div class="alert alert-success">@TempData["Success"]</div>

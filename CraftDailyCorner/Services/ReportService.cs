@@ -69,7 +69,7 @@ namespace CraftDailyCorner.Services
                 TargetID = dto.TargetID,    // 被檢舉目標ID
                 MemberID = reporterId,  // 檢舉人
                 ReasonCode = dto.ReasonCode,
-                Description = dto.Description,
+                Reason = dto.Reason,
                 StatusID = 1,
                 CreatedAt = DateTime.Now
             };

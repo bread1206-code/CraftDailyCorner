@@ -995,3 +995,42 @@ body {
     color: #198754;
     background-color: var(--bs-body-bg);
 }
+
+/*審核違規留言*/
+/* 讓錨點定位時不會被固定 navbar 擋住（可調整 80~120） */
+.comment-item {
+    scroll-margin-top: 96px;
+}
+
+/* 高亮外框 + 淡淡底色 */
+.comment-highlight {
+    position: relative;
+    border-radius: 10px;
+    outline: 2px solid rgba(13, 202, 240, 0.9); /* bootstrap info */
+    box-shadow: 0 0 0 6px rgba(13, 202, 240, 0.12);
+    background: rgba(13, 202, 240, 0.06);
+}
+
+    /* 閃光動畫：由亮到淡 */
+    .comment-highlight.flash {
+        animation: commentFlash 1.6s ease-out 0s 1;
+    }
+
+@keyframes commentFlash {
+    0% {
+        box-shadow: 0 0 0 0 rgba(13, 202, 240, 0.55);
+        outline-color: rgba(13, 202, 240, 1);
+        background: rgba(13, 202, 240, 0.18);
+    }
+
+    60% {
+        box-shadow: 0 0 0 10px rgba(13, 202, 240, 0.18);
+        background: rgba(13, 202, 240, 0.10);
+    }
+
+    100% {
+        box-shadow: 0 0 0 6px rgba(13, 202, 240, 0.12);
+        outline-color: rgba(13, 202, 240, 0.75);
+        background: rgba(13, 202, 240, 0.06);
+    }
+}

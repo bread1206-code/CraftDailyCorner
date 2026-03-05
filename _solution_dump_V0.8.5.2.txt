@@ -622,6 +622,81 @@ namespace CraftDailyCorner.Areas.Admin.Controllers
 }
 
 ==================================================
+FILE: CraftDailyCorner\Areas\Admin\Controllers\ViolationController.cs
+==================================================
+
+using CraftDailyCorner.Areas.Admin.ViewModels.Violation;
+using CraftDailyCorner.Extensions;
+using CraftDailyCorner.Services.Interface;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+
+namespace CraftDailyCorner.Areas.Admin.Controllers
+{
+    [Area("Admin")]
+    [Authorize(Roles = "03")]
+    public class ViolationController : Controller
+    {
+        private readonly IAdminViolationService _service;
+
+        public ViolationController(IAdminViolationService service)
+        {
+            _service = service;
+        }
+
+        // mode:
+        // - pending：待審核
+        // - history：歷史資料 + MemberID 搜尋
+        public async Task<IActionResult> Index(string mode = "pending", string? memberId = null, int page = 1)
+        {
+            var vm = await _service.GetIndexAsync(mode, memberId, page);
+
+            if (vm.Mode == "history")
+                return View("History", vm);
+
+            return View(vm);
+        }
+
+        public async Task<IActionResult> Detail(int id)
+        {
+            var vm = await _service.GetDetailAsync(id);
+            if (vm == null) return NotFound();
+            return View(vm);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> MarkViolation(int id, string? adminNote)
+        {
+            await _service.MarkViolationAsync(id, User.GetMemberId(), adminNote);
+            TempData["Success"] = "已判定為違規，並已更新目標狀態。";
+            return RedirectToAction(nameof(Detail), new { id });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> MarkNormal(int id, string? adminNote)
+        {
+            await _service.MarkNormalAsync(id, User.GetMemberId(), adminNote);
+            TempData["Warning"] = "已判定為正常（無違規）。";
+            return RedirectToAction(nameof(Detail), new { id });
+        }
+
+        // 下一筆待審核（提高效率，不用回 Index）
+        [HttpGet]
+        public async Task<IActionResult> Next(long id)
+        {
+            var nextId = await _service.GetNextPendingIdAsync(id);
+
+            if (nextId.HasValue)
+                return RedirectToAction(nameof(Detail), new { id = nextId.Value });
+
+            return RedirectToAction(nameof(Index));
+        }
+    }
+}
+
+==================================================
 FILE: CraftDailyCorner\Areas\Admin\ViewComponents\VCAdminSidebar.cs
 ==================================================
 
@@ -645,6 +720,97 @@ namespace CraftDailyCorner.Areas.Admin.ViewComponents
             var vm = await _sidebarService.GetSidebarDataAsync();
             return View(vm);
         }
+    }
+}
+
+==================================================
+FILE: CraftDailyCorner\Areas\Admin\ViewModels\Violation\VMAdminViolationDetail.cs
+==================================================
+
+namespace CraftDailyCorner.Areas.Admin.ViewModels.Violation
+{
+    public class VMAdminViolationDetail
+    {
+        public long ReportID { get; set; }
+
+        public byte StatusID { get; set; }
+        public string StatusName { get; set; } = null!;
+
+        public DateTime CreatedAt { get; set; }
+
+        // 檢舉人
+        public string ReporterMemberID { get; set; } = null!;
+        public string ReporterName { get; set; } = null!;
+        public string? ReporterEmail { get; set; }
+        public string? ReporterPhone { get; set; }
+
+        // 目標（被檢舉內容）
+        public byte TargetType { get; set; }
+        public string TargetTypeName { get; set; } = null!;
+        public string TargetID { get; set; } = null!;
+        public string? UserReasonText { get; set; }
+
+        // 被檢舉者（由 Target 推得）
+        public string? TargetOwnerID { get; set; }
+        public string? TargetOwnerName { get; set; }
+
+        // 檢舉原因
+        public int Reason { get; set; }
+        public string ReasonName { get; set; } = null!;
+
+        // 管理者備註（若你 Report 表沒有欄位，View 仍可先用，不顯示即可）
+        public string? AdminNote { get; set; }
+    }
+}
+
+==================================================
+FILE: CraftDailyCorner\Areas\Admin\ViewModels\Violation\VMAdminViolationIndex.cs
+==================================================
+
+namespace CraftDailyCorner.Areas.Admin.ViewModels.Violation
+{
+    public class VMAdminViolationIndex
+    {
+        // "pending" / "history"
+        public string Mode { get; set; } = "pending";
+
+        // History 搜尋用（MemberID：檢舉人或被檢舉者任一命中都顯示）
+        public string? SearchMemberId { get; set; }
+
+        // 分頁資訊
+        public int Page { get; set; } = 1;
+        public int PageSize { get; set; } = 8;
+        public int TotalCount { get; set; }
+        public int TotalPages => (int)Math.Ceiling((double)TotalCount / PageSize);
+
+        public List<VMAdminViolationListItem> Items { get; set; } = new();
+    }
+
+    public class VMAdminViolationListItem
+    {
+        public long ReportID { get; set; }
+
+        public byte StatusID { get; set; }
+        public string StatusName { get; set; } = null!;
+
+        public DateTime CreatedAt { get; set; }
+
+        // 檢舉人
+        public string ReporterMemberID { get; set; } = null!;
+        public string ReporterName { get; set; } = null!;
+
+        // 被檢舉人（由 Target 推得的擁有者）
+        public string? TargetOwnerID { get; set; }
+        public string? TargetOwnerName { get; set; }
+
+        // 目標
+        public byte TargetType { get; set; }
+        public string TargetTypeName { get; set; } = null!;
+        public string TargetID { get; set; } = null!;
+
+        // 原因
+        public int Reason { get; set; }
+        public string ReasonName { get; set; } = null!;
     }
 }
 
@@ -1679,6 +1845,525 @@ FILE: CraftDailyCorner\Areas\Admin\Views\Shared\Components\VCAdminSidebar\Defaul
         </li>
 
     </ul>
+
+</div>
+
+==================================================
+FILE: CraftDailyCorner\Areas\Admin\Views\Violation\Detail.cshtml
+==================================================
+
+@using CraftDailyCorner.Models.Enums
+@model CraftDailyCorner.Areas.Admin.ViewModels.Violation.VMAdminViolationDetail
+
+@{
+    ViewData["Title"] = "檢舉詳情";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container-fluid">
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success">@TempData["Success"]</div>
+    }
+    @if (TempData["Warning"] != null)
+    {
+        <div class="alert alert-warning">@TempData["Warning"]</div>
+    }
+
+    <div class="d-flex justify-content-between align-items-end mb-4">
+        <div>
+            <h2 class="fw-bold mb-1 text-light">檢舉詳情</h2>
+            <div class="text-secondary">#@Model.ReportID</div>
+        </div>
+
+        <a class="btn btn-outline-secondary"
+           asp-area="Admin"
+           asp-controller="Violation"
+           asp-action="Index">
+            返回列表
+        </a>
+    </div>
+
+    <div class="row g-4">
+
+        <!-- 左：檢舉內容 -->
+        <div class="col-lg-7">
+            <div class="card shadow-sm border-0">
+                <div class="card-body">
+
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div class="fw-semibold text-light">檢舉內容</div>
+                        @{
+                            var badge = Model.StatusID == 1 ? "bg-danger"
+                            : Model.StatusID == 2 ? "bg-danger"
+                            : Model.StatusID == 3 ? "bg-success"
+                            : "bg-secondary";
+                        }
+                        <span class="badge @badge">@Model.StatusName</span>
+                    </div>
+
+                    <hr />
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="text-secondary small mb-1">建立時間</div>
+                            <div class="text-light fw-semibold">@Model.CreatedAt.ToString("yyyy/MM/dd HH:mm")</div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="text-secondary small mb-1">檢舉原因</div>
+                            <div class="text-light fw-semibold">@Model.ReasonName</div>
+
+                            @if (Model.Reason == (int)ReportReason.Other && !string.IsNullOrWhiteSpace(Model.UserReasonText))
+                            {
+                                <div class="mt-2 p-3 rounded border border-secondary bg-dark text-light"
+                                     style="white-space:pre-wrap;">
+                                    @Model.UserReasonText
+                                </div>
+                            }
+                        </div>
+                    </div>
+
+                    <hr />
+
+                    <div class="mb-3">
+                        <div class="text-secondary small mb-1">檢舉人</div>
+                        <div class="text-light fw-semibold">@Model.ReporterName</div>
+                        <div class="text-secondary small">@Model.ReporterMemberID</div>
+
+                        @if (!string.IsNullOrWhiteSpace(Model.ReporterEmail) || !string.IsNullOrWhiteSpace(Model.ReporterPhone))
+                        {
+                            <div class="text-secondary small mt-1">
+                                @if (!string.IsNullOrWhiteSpace(Model.ReporterEmail))
+                                {
+                                    <span>@Model.ReporterEmail</span>
+                                }
+                                @if (!string.IsNullOrWhiteSpace(Model.ReporterPhone))
+                                {
+                                    <span> / @Model.ReporterPhone</span>
+                                }
+                            </div>
+                        }
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="text-secondary small mb-1">被檢舉目標</div>
+                        <div class="text-light fw-semibold">@Model.TargetTypeName</div>
+                        <div class="text-secondary small">@Model.TargetID</div>
+                    </div>
+
+                    <div class="mb-0">
+                        <div class="text-secondary small mb-1">被檢舉者（由目標推得）</div>
+                        @if (!string.IsNullOrEmpty(Model.TargetOwnerID))
+                        {
+                            <div class="text-light fw-semibold">@Model.TargetOwnerName</div>
+                            <div class="text-secondary small">@Model.TargetOwnerID</div>
+                        }
+                        else
+                        {
+                            <div class="text-light opacity-75">（未知）</div>
+                        }
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- 右：審核操作 -->
+        <div class="col-lg-5">
+
+            <div class="card shadow-sm border-0">
+                <div class="card-body">
+
+                    <div class="fw-semibold text-light mb-2">審核操作</div>
+                    <div class="text-secondary small mb-3">請判斷是否違規，系統會依你選擇更新檢舉狀態與目標狀態。</div>
+
+                    @if (Model.StatusID == 1)
+                    {
+                        <div class="mb-3">
+                            <label class="text-secondary small mb-1">管理者備註（選填）</label>
+                            <textarea form="formViolation"
+                                  name="adminNote"
+                                  class="form-control bg-dark text-light border-secondary"
+                                  rows="4"
+                                  placeholder="例如：違規原因判定依據、補充說明..."></textarea>
+                        </div>
+
+                        <form id="formViolation"
+                              asp-area="Admin"
+                              asp-controller="Violation"
+                              asp-action="MarkViolation"
+                              method="post">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="id" value="@Model.ReportID" />
+
+                            <button type="submit" class="btn btn-danger w-100">
+                                <i class="bi bi-shield-exclamation me-1"></i> 判定違規
+                            </button>
+                        </form>
+
+                        <form class="mt-2"
+                              asp-area="Admin"
+                              asp-controller="Violation"
+                              asp-action="MarkNormal"
+                              method="post">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="id" value="@Model.ReportID" />
+                            <input type="hidden" name="adminNote" value="" />
+
+                            <button type="submit" class="btn btn-outline-success w-100">
+                                <i class="bi bi-check2-circle me-1"></i> 判定正常（無違規）
+                            </button>
+
+                            <div class="text-secondary small mt-2">
+                                ※ 若要帶入備註，請先填上方備註，再點「判定違規」。<br />
+                                （若你也希望「判定正常」能帶備註，我第 3 批可以幫你改成共用 textarea。）
+                            </div>
+                        </form>
+                    }
+                    else
+                    {
+                        <div class="text-secondary">
+                            此檢舉已完成審核，無法再次操作。
+                        </div>
+
+                        @if (!string.IsNullOrWhiteSpace(Model.AdminNote))
+                        {
+                            <div class="mt-3 p-3 rounded border border-secondary">
+                                <div class="text-secondary small mb-1">管理者備註</div>
+                                <div class="text-light" style="white-space:pre-wrap;">@Model.AdminNote</div>
+                            </div>
+                        }
+                    }
+
+                </div>
+            </div>
+
+            <!-- 下一筆待審核 -->
+            <div class="card shadow-sm border-0 mt-4">
+                <div class="card-body">
+                    <a asp-area="Admin"
+                       asp-controller="Violation"
+                       asp-action="Next"
+                       asp-route-id="@Model.ReportID"
+                       class="btn btn-outline-info w-100">
+                        <i class="bi bi-skip-forward-circle me-1"></i> 下一筆待審核
+                    </a>
+
+                    <div class="text-secondary small mt-2">
+                        若已沒有下一筆待審核，會自動返回列表
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+==================================================
+FILE: CraftDailyCorner\Areas\Admin\Views\Violation\History.cshtml
+==================================================
+
+@model CraftDailyCorner.Areas.Admin.ViewModels.Violation.VMAdminViolationIndex
+
+@{
+    ViewData["Title"] = "違規管理（歷史資料）";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container-fluid">
+
+    <div class="d-flex justify-content-between align-items-end mb-4">
+        <div>
+            <h2 class="fw-bold mb-1 text-light">違規管理</h2>
+            <div class="text-light opacity-75">歷史檢舉資料（已判定）</div>
+        </div>
+
+        <div class="d-flex align-items-center gap-2">
+            <form class="d-flex gap-2"
+                  method="get"
+                  asp-area="Admin"
+                  asp-controller="Violation"
+                  asp-action="Index">
+                <input type="hidden" name="mode" value="history" />
+
+                <input name="memberId"
+                       value="@Model.SearchMemberId"
+                       class="form-control form-control-sm bg-dark text-light border-secondary"
+                       placeholder="輸入 MemberID 查詢（檢舉人/被檢舉者）"
+                       style="width:320px;" />
+
+                <button type="submit" class="btn btn-sm btn-outline-light">
+                    <i class="bi bi-search"></i> 搜尋
+                </button>
+
+                <a class="btn btn-sm btn-outline-secondary"
+                   asp-area="Admin"
+                   asp-controller="Violation"
+                   asp-action="Index"
+                   asp-route-mode="history">
+                    清除
+                </a>
+            </form>
+
+            <a class="btn btn-sm btn-outline-info"
+               asp-area="Admin"
+               asp-controller="Violation"
+               asp-action="Index"
+               asp-route-mode="pending">
+                回待審核
+            </a>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-0">
+
+            @if (!Model.Items.Any())
+            {
+                <div class="p-4 text-center text-light opacity-75">
+                    <i class="bi bi-inbox fs-2"></i>
+                    <div class="mt-2">沒有符合條件的歷史資料</div>
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-dark table-hover align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th style="width:120px;">檢舉ID</th>
+                                <th>檢舉人</th>
+                                <th>被檢舉者</th>
+                                <th style="width:220px;">目標</th>
+                                <th style="width:160px;">原因</th>
+                                <th style="width:140px;">結果</th>
+                                <th style="width:180px;">時間</th>
+                                <th style="width:120px;"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var x in Model.Items)
+                            {
+                                var badge = x.StatusID == 2 ? "bg-danger"
+                                : x.StatusID == 3 ? "bg-success"
+                                : "bg-secondary";
+
+                                <tr>
+                                    <td>#@x.ReportID</td>
+                                    <td>
+                                        <div class="fw-semibold">@x.ReporterName</div>
+                                        <div class="small text-light opacity-75">@x.ReporterMemberID</div>
+                                    </td>
+                                    <td>
+                                        @if (!string.IsNullOrEmpty(x.TargetOwnerID))
+                                        {
+                                            <div class="fw-semibold">@x.TargetOwnerName</div>
+                                            <div class="small text-light opacity-75">@x.TargetOwnerID</div>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-light opacity-75">（未知）</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <div class="fw-semibold">@x.TargetTypeName</div>
+                                        <div class="small text-light opacity-75">@x.TargetID</div>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-secondary">@x.ReasonName</span>
+                                    </td>
+                                    <td>
+                                        <span class="badge @badge">@x.StatusName</span>
+                                    </td>
+                                    <td>@x.CreatedAt.ToString("yyyy/MM/dd HH:mm")</td>
+                                    <td class="text-end">
+                                        <a class="btn btn-sm btn-outline-light"
+                                           asp-area="Admin"
+                                           asp-controller="Violation"
+                                           asp-action="Detail"
+                                           asp-route-id="@x.ReportID">
+                                            查看
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- 分頁 -->
+                @if (Model.TotalPages > 1)
+                {
+                    <div class="p-3 border-top border-secondary d-flex justify-content-between align-items-center">
+                        <div class="text-secondary small">
+                            第 @Model.Page / @Model.TotalPages 頁，共 @Model.TotalCount 筆
+                        </div>
+
+                        <nav>
+                            <ul class="pagination pagination-sm mb-0">
+                                @{
+                                    var prev = Model.Page - 1;
+                                    var next = Model.Page + 1;
+                                    string memberId = Model.SearchMemberId ?? "";
+                                }
+
+                                <li class="page-item @(Model.Page <= 1 ? "disabled" : "")">
+                                    <a class="page-link bg-dark text-light border-secondary"
+                                       asp-area="Admin"
+                                       asp-controller="Violation"
+                                       asp-action="Index"
+                                       asp-route-mode="history"
+                                       asp-route-memberId="@memberId"
+                                       asp-route-page="@prev">
+                                        上一頁
+                                    </a>
+                                </li>
+
+                                @for (int p = 1; p <= Model.TotalPages; p++)
+                                {
+                                    <li class="page-item @(p == Model.Page ? "active" : "")">
+                                        <a class="page-link bg-dark text-light border-secondary"
+                                           asp-area="Admin"
+                                           asp-controller="Violation"
+                                           asp-action="Index"
+                                           asp-route-mode="history"
+                                           asp-route-memberId="@memberId"
+                                           asp-route-page="@p">
+                                            @p
+                                        </a>
+                                    </li>
+                                }
+
+                                <li class="page-item @(Model.Page >= Model.TotalPages ? "disabled" : "")">
+                                    <a class="page-link bg-dark text-light border-secondary"
+                                       asp-area="Admin"
+                                       asp-controller="Violation"
+                                       asp-action="Index"
+                                       asp-route-mode="history"
+                                       asp-route-memberId="@memberId"
+                                       asp-route-page="@next">
+                                        下一頁
+                                    </a>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+                }
+            }
+
+        </div>
+    </div>
+
+</div>
+
+==================================================
+FILE: CraftDailyCorner\Areas\Admin\Views\Violation\Index.cshtml
+==================================================
+
+@model CraftDailyCorner.Areas.Admin.ViewModels.Violation.VMAdminViolationIndex
+
+@{
+    ViewData["Title"] = "違規管理";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container-fluid">
+
+    <div class="d-flex justify-content-between align-items-end mb-4">
+        <div>
+            <h2 class="fw-bold mb-1 text-light">違規管理</h2>
+            <div class="text-light opacity-75">待審核檢舉清單</div>
+        </div>
+
+        <div class="d-flex align-items-center gap-2">
+            <a class="btn btn-sm btn-outline-secondary"
+               asp-area="Admin"
+               asp-controller="Violation"
+               asp-action="Index"
+               asp-route-mode="history">
+                查看歷史資料
+            </a>
+
+            <span class="badge bg-danger @(Model.Items.Count == 0 ? "d-none" : "")">
+                待審核 @Model.Items.Count
+            </span>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-0">
+
+            @if (!Model.Items.Any())
+            {
+                <div class="p-4 text-center text-light opacity-75">
+                    <i class="bi bi-inbox fs-2"></i>
+                    <div class="mt-2">目前沒有待審核檢舉</div>
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-dark table-hover align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th style="width:120px;">檢舉ID</th>
+                                <th>檢舉人</th>
+                                <th>被檢舉者</th>
+                                <th style="width:220px;">目標</th>
+                                <th style="width:160px;">原因</th>
+                                <th style="width:180px;">時間</th>
+                                <th style="width:120px;"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var x in Model.Items)
+                            {
+                                <tr class="table-active">
+                                    <td>#@x.ReportID</td>
+                                    <td>
+                                        <div class="fw-semibold">@x.ReporterName</div>
+                                        <div class="small text-light opacity-75">@x.ReporterMemberID</div>
+                                    </td>
+                                    <td>
+                                        @if (!string.IsNullOrEmpty(x.TargetOwnerID))
+                                        {
+                                            <div class="fw-semibold">@x.TargetOwnerName</div>
+                                            <div class="small text-light opacity-75">@x.TargetOwnerID</div>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-light opacity-75">（未知）</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <div class="fw-semibold">@x.TargetTypeName</div>
+                                        <div class="small text-light opacity-75">@x.TargetID</div>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-secondary">@x.ReasonName</span>
+                                    </td>
+                                    <td>@x.CreatedAt.ToString("yyyy/MM/dd HH:mm")</td>
+                                    <td class="text-end">
+                                        <a class="btn btn-sm btn-outline-light"
+                                           asp-area="Admin"
+                                           asp-controller="Violation"
+                                           asp-action="Detail"
+                                           asp-route-id="@x.ReportID">
+                                            查看
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+
+        </div>
+    </div>
 
 </div>
 
@@ -4313,7 +4998,7 @@ namespace CraftDailyCorner.DTOs
         public ReportReason ReasonCode { get; set; }
 
         [StringLength(200, ErrorMessage = "原因不可超過 200 字")]
-        public string? Description { get; set; }
+        public string? Reason { get; set; }
     }
 }
 
@@ -5068,7 +5753,7 @@ namespace CraftDailyCorner.ImageManagementCore.ViewModels
 }
 
 ==================================================
-FILE: CraftDailyCorner\Migrations\20260305002502_InitialCreate.cs
+FILE: CraftDailyCorner\Migrations\20260305031747_InitialCreate.cs
 ==================================================
 
 using System;
@@ -5769,6 +6454,46 @@ namespace CraftDailyCorner.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Reports",
+                columns: table => new
+                {
+                    ReportID = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    ReportType = table.Column<byte>(type: "tinyint", nullable: false),
+                    TargetID = table.Column<string>(type: "nvarchar(36)", maxLength: 36, nullable: false),
+                    ReasonCode = table.Column<int>(type: "int", maxLength: 20, nullable: false),
+                    Reason = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    MemberID = table.Column<string>(type: "nchar(8)", nullable: false),
+                    StatusID = table.Column<byte>(type: "tinyint", nullable: false),
+                    ReviewedBy = table.Column<string>(type: "nchar(8)", nullable: true),
+                    ReviewedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    AdminNote = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Reports", x => x.ReportID);
+                    table.ForeignKey(
+                        name: "FK_Reports_Members_MemberID",
+                        column: x => x.MemberID,
+                        principalTable: "Members",
+                        principalColumn: "MemberID",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Reports_Members_ReviewedBy",
+                        column: x => x.ReviewedBy,
+                        principalTable: "Members",
+                        principalColumn: "MemberID",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Reports_ReportStatuses_StatusID",
+                        column: x => x.StatusID,
+                        principalTable: "ReportStatuses",
+                        principalColumn: "StatusID",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "AutoReplyTemplates",
                 columns: table => new
                 {
@@ -6291,51 +7016,6 @@ namespace CraftDailyCorner.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Reports",
-                columns: table => new
-                {
-                    ReportID = table.Column<long>(type: "bigint", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    ReportType = table.Column<byte>(type: "tinyint", nullable: false),
-                    TargetID = table.Column<string>(type: "nvarchar(36)", maxLength: 36, nullable: false),
-                    ReasonCode = table.Column<int>(type: "int", maxLength: 20, nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: true),
-                    MemberID = table.Column<string>(type: "nchar(8)", nullable: false),
-                    StatusID = table.Column<byte>(type: "tinyint", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    ReviewedBy = table.Column<string>(type: "nchar(8)", nullable: true),
-                    ReviewedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    PostCommentCommentID = table.Column<string>(type: "nchar(36)", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Reports", x => x.ReportID);
-                    table.ForeignKey(
-                        name: "FK_Reports_Members_MemberID",
-                        column: x => x.MemberID,
-                        principalTable: "Members",
-                        principalColumn: "MemberID",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_Reports_Members_ReviewedBy",
-                        column: x => x.ReviewedBy,
-                        principalTable: "Members",
-                        principalColumn: "MemberID",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_Reports_PostComments_PostCommentCommentID",
-                        column: x => x.PostCommentCommentID,
-                        principalTable: "PostComments",
-                        principalColumn: "CommentID");
-                    table.ForeignKey(
-                        name: "FK_Reports_ReportStatuses_StatusID",
-                        column: x => x.StatusID,
-                        principalTable: "ReportStatuses",
-                        principalColumn: "StatusID",
-                        onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "InventoryAlerts",
                 columns: table => new
                 {
@@ -6733,11 +7413,6 @@ namespace CraftDailyCorner.Migrations
                 column: "MemberID");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Reports_PostCommentCommentID",
-                table: "Reports",
-                column: "PostCommentCommentID");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Reports_ReportType_TargetID_MemberID",
                 table: "Reports",
                 columns: new[] { "ReportType", "TargetID", "MemberID" },
@@ -6842,6 +7517,9 @@ namespace CraftDailyCorner.Migrations
                 name: "PortfolioItems");
 
             migrationBuilder.DropTable(
+                name: "PostComments");
+
+            migrationBuilder.DropTable(
                 name: "Privacies");
 
             migrationBuilder.DropTable(
@@ -6899,6 +7577,9 @@ namespace CraftDailyCorner.Migrations
                 name: "Portfolios");
 
             migrationBuilder.DropTable(
+                name: "CreatorPosts");
+
+            migrationBuilder.DropTable(
                 name: "Categories");
 
             migrationBuilder.DropTable(
@@ -6906,9 +7587,6 @@ namespace CraftDailyCorner.Migrations
 
             migrationBuilder.DropTable(
                 name: "Tags");
-
-            migrationBuilder.DropTable(
-                name: "PostComments");
 
             migrationBuilder.DropTable(
                 name: "ReportStatuses");
@@ -6926,19 +7604,16 @@ namespace CraftDailyCorner.Migrations
                 name: "PortfolioStatuses");
 
             migrationBuilder.DropTable(
-                name: "CreatorPosts");
+                name: "CreatorPostStatuses");
 
             migrationBuilder.DropTable(
                 name: "OrderStatuses");
 
             migrationBuilder.DropTable(
-                name: "ProductStatuses");
-
-            migrationBuilder.DropTable(
-                name: "CreatorPostStatuses");
-
-            migrationBuilder.DropTable(
                 name: "CreatorProfiles");
+
+            migrationBuilder.DropTable(
+                name: "ProductStatuses");
 
             migrationBuilder.DropTable(
                 name: "CreatorProfileStatuses");
@@ -6954,7 +7629,7 @@ namespace CraftDailyCorner.Migrations
 
 
 ==================================================
-FILE: CraftDailyCorner\Migrations\20260305002502_InitialCreate.Designer.cs
+FILE: CraftDailyCorner\Migrations\20260305031747_InitialCreate.Designer.cs
 ==================================================
 
 // <auto-generated />
@@ -6971,7 +7646,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CraftDailyCorner.Migrations
 {
     [DbContext(typeof(CraftDailyCornerContext))]
-    [Migration("20260305002502_InitialCreate")]
+    [Migration("20260305031747_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -8572,19 +9247,20 @@ namespace CraftDailyCorner.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("ReportID"));
 
+                    b.Property<string>("AdminNote")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
-
-                    b.Property<string>("Description")
-                        .HasMaxLength(300)
-                        .HasColumnType("nvarchar(300)");
 
                     b.Property<string>("MemberID")
                         .IsRequired()
                         .HasColumnType("nchar(8)");
 
-                    b.Property<string>("PostCommentCommentID")
-                        .HasColumnType("nchar(36)");
+                    b.Property<string>("Reason")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
 
                     b.Property<int>("ReasonCode")
                         .HasMaxLength(20)
@@ -8610,8 +9286,6 @@ namespace CraftDailyCorner.Migrations
                     b.HasKey("ReportID");
 
                     b.HasIndex("MemberID");
-
-                    b.HasIndex("PostCommentCommentID");
 
                     b.HasIndex("ReviewedBy");
 
@@ -9366,10 +10040,6 @@ namespace CraftDailyCorner.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("CraftDailyCorner.Models.PostComment", null)
-                        .WithMany("PostCommentReports")
-                        .HasForeignKey("PostCommentCommentID");
-
                     b.HasOne("CraftDailyCorner.Models.Member", "Reviewer")
                         .WithMany("ReportsReviewed")
                         .HasForeignKey("ReviewedBy")
@@ -9567,11 +10237,6 @@ namespace CraftDailyCorner.Migrations
             modelBuilder.Entity("CraftDailyCorner.Models.PortfolioStatus", b =>
                 {
                     b.Navigation("Portfolios");
-                });
-
-            modelBuilder.Entity("CraftDailyCorner.Models.PostComment", b =>
-                {
-                    b.Navigation("PostCommentReports");
                 });
 
             modelBuilder.Entity("CraftDailyCorner.Models.Product", b =>
@@ -11247,19 +11912,20 @@ namespace CraftDailyCorner.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("ReportID"));
 
+                    b.Property<string>("AdminNote")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
-
-                    b.Property<string>("Description")
-                        .HasMaxLength(300)
-                        .HasColumnType("nvarchar(300)");
 
                     b.Property<string>("MemberID")
                         .IsRequired()
                         .HasColumnType("nchar(8)");
 
-                    b.Property<string>("PostCommentCommentID")
-                        .HasColumnType("nchar(36)");
+                    b.Property<string>("Reason")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
 
                     b.Property<int>("ReasonCode")
                         .HasMaxLength(20)
@@ -11285,8 +11951,6 @@ namespace CraftDailyCorner.Migrations
                     b.HasKey("ReportID");
 
                     b.HasIndex("MemberID");
-
-                    b.HasIndex("PostCommentCommentID");
 
                     b.HasIndex("ReviewedBy");
 
@@ -12041,10 +12705,6 @@ namespace CraftDailyCorner.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("CraftDailyCorner.Models.PostComment", null)
-                        .WithMany("PostCommentReports")
-                        .HasForeignKey("PostCommentCommentID");
-
                     b.HasOne("CraftDailyCorner.Models.Member", "Reviewer")
                         .WithMany("ReportsReviewed")
                         .HasForeignKey("ReviewedBy")
@@ -12242,11 +12902,6 @@ namespace CraftDailyCorner.Migrations
             modelBuilder.Entity("CraftDailyCorner.Models.PortfolioStatus", b =>
                 {
                     b.Navigation("Portfolios");
-                });
-
-            modelBuilder.Entity("CraftDailyCorner.Models.PostComment", b =>
-                {
-                    b.Navigation("PostCommentReports");
                 });
 
             modelBuilder.Entity("CraftDailyCorner.Models.Product", b =>
@@ -15132,16 +15787,18 @@ namespace CraftDailyCorner.Models
 
         //補充說明（只有選其他才填）
         [StringLength(200)]
-        public string? Description { get; set; }
+        public string? Reason { get; set; }
 
+        //建立時間
+        public DateTime CreatedAt { get; set; } = DateTime.Now;
 
         [Display(Name = "檢舉者ID")]
         [Column(TypeName = "nchar(8)")]
         public string MemberID { get; set; } = null!;
+
         [Display(Name = "檢舉狀態ID")]
         public byte StatusID { get; set; }
-        //建立時間
-        public DateTime CreatedAt { get; set; } = DateTime.Now;
+        
 
         [Display(Name = "處理者")]
         [Column(TypeName = "nchar(8)")]
@@ -15149,7 +15806,9 @@ namespace CraftDailyCorner.Models
         [Display(Name = "處理時間")]
         public DateTime? ReviewedAt { get; set; }
 
-
+        [StringLength(200)]
+        [Display(Name = "管理者備註")]
+        public string? AdminNote { get; set; }
         public virtual ReportStatus? ReportStatus { get; set; }
 
         // 檢舉人
@@ -15377,6 +16036,7 @@ builder.Services.AddScoped<IPasswordHasher<Privacy>, PasswordHasher<Privacy>>();
 builder.Services.AddScoped<ICreatorProfileService, CreatorProfileService>();
 builder.Services.AddScoped<IAdminCreatorReviewService, AdminCreatorReviewService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IAdminViolationService, AdminViolationService>();
 
 builder.Services.AddHostedService<SoftDeleteCleanupBackgroundService>();
 builder.Services.AddHostedService<OrderAutoCompleteHostedBackgroundService>();
@@ -19336,6 +19996,377 @@ public class AdminSidebarService : IAdminSidebarService
             PendingCreators = pendingCreators,
             PendingViolations = pendingViolations
         };
+    }
+}
+
+==================================================
+FILE: CraftDailyCorner\Services\AdminViolationService.cs
+==================================================
+
+using CraftDailyCorner.Areas.Admin.ViewModels.Violation;
+using CraftDailyCorner.Models;
+using CraftDailyCorner.Models.Enums;
+using CraftDailyCorner.Models.enums;
+using CraftDailyCorner.Services.Interface;
+using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
+
+namespace CraftDailyCorner.Services
+{
+    public class AdminViolationService : IAdminViolationService
+    {
+        private readonly CraftDailyCornerContext _context;
+
+        // ReportStatus
+        private const byte REPORT_PENDING = 1;
+        private const byte REPORT_VIOLATION = 2;
+        private const byte REPORT_NORMAL = 3;
+
+        // 你指定的「違規後要更新目標狀態」
+        private const byte CREATOR_POST_VIOLATION_STATUS_ID = 2;
+        private const byte CREATOR_PROFILE_VIOLATION_STATUS_ID = 2;
+        private const byte PRODUCT_SUSPENDED_STATUS_ID = 4;
+
+        public AdminViolationService(CraftDailyCornerContext context)
+        {
+            _context = context;
+        }
+
+        public async Task<VMAdminViolationIndex> GetIndexAsync(string mode, string? memberId = null, int page = 1)
+        {
+            mode = (mode ?? "pending").Trim().ToLowerInvariant();
+
+            const int pageSize = 8;
+            page = page <= 0 ? 1 : page;
+
+            var baseQuery = _context.Reports
+                .AsNoTracking()
+                .Include(r => r.ReportStatus)
+                .Include(r => r.Reporter) // 檢舉人 (Report.MemberID)
+                .AsQueryable();
+
+            if (mode == "history")
+            {
+                // 歷史資料：Status != Pending
+                baseQuery = baseQuery.Where(r => r.StatusID != REPORT_PENDING);
+
+                // 右上角 MemberID 搜尋：命中「檢舉人」或「被檢舉者」
+                if (!string.IsNullOrWhiteSpace(memberId))
+                {
+                    var keyword = memberId.Trim();
+
+                    baseQuery = baseQuery.Where(r =>
+                        r.MemberID == keyword ||
+
+                        // ✅ ReportType / TargetID 才是正確欄位
+                        (r.ReportType == ReportTargetType.Post &&
+                            _context.CreatorPosts.Any(p => p.PostID == r.TargetID && p.CreatorID == keyword)) ||
+
+                        (r.ReportType == ReportTargetType.Product &&
+                            _context.Products.Any(p => p.ProductID == r.TargetID && p.CreatorID == keyword)) ||
+
+                        (r.ReportType == ReportTargetType.Portfolio &&
+                            _context.Portfolios.Any(p => p.PortfolioID == r.TargetID && p.CreatorID == keyword)) ||
+
+                        (r.ReportType == ReportTargetType.Comment &&
+                            _context.PostComments.Any(c => c.CommentID == r.TargetID && c.MemberID == keyword))
+                    );
+                }
+            }
+            else
+            {
+                // 待處理：Pending
+                baseQuery = baseQuery.Where(r => r.StatusID == REPORT_PENDING);
+            }
+
+            // 最舊優先
+            baseQuery = baseQuery.OrderBy(r => r.CreatedAt);
+
+            var total = await baseQuery.CountAsync();
+
+            var rows = await baseQuery
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .Select(r => new
+                {
+                    r.ReportID,
+                    r.StatusID,
+                    StatusName = r.ReportStatus.StatusName,
+                    r.CreatedAt,
+
+                    ReporterMemberId = r.MemberID,
+                    ReporterName = r.Reporter.DisplayName,
+
+                    TargetType = r.ReportType,
+                    r.TargetID,
+                    Reason = r.ReasonCode
+                })
+                .ToListAsync();
+
+            var items = new List<VMAdminViolationListItem>();
+
+            foreach (var r in rows)
+            {
+                var (ownerId, ownerName) = await GetTargetOwnerAsync(r.TargetType, r.TargetID);
+
+                items.Add(new VMAdminViolationListItem
+                {
+                    ReportID = r.ReportID,
+                    StatusID = r.StatusID,
+                    StatusName = r.StatusName,
+                    CreatedAt = r.CreatedAt,
+
+                    ReporterMemberID = r.ReporterMemberId,
+                    ReporterName = r.ReporterName,
+
+                    TargetOwnerID = ownerId,
+                    TargetOwnerName = ownerName,
+
+                    TargetType = (byte)r.TargetType,
+                    TargetTypeName = GetEnumDisplayName(r.TargetType),
+                    TargetID = r.TargetID,
+
+                    Reason = (int)r.Reason,
+                    ReasonName = GetEnumDisplayName(r.Reason)
+                });
+            }
+
+            return new VMAdminViolationIndex
+            {
+                Mode = mode == "history" ? "history" : "pending",
+                SearchMemberId = memberId,
+                Page = page,
+                PageSize = pageSize,
+                TotalCount = total,
+                Items = items
+            };
+        }
+
+        public async Task<VMAdminViolationDetail?> GetDetailAsync(long reportId)
+        {
+            long id = reportId;
+
+            var report = await _context.Reports
+                .AsNoTracking()
+                .Include(r => r.ReportStatus)
+                .Include(r => r.Reporter).ThenInclude(m => m.Privacy) 
+                .FirstOrDefaultAsync(r => r.ReportID == id);
+
+            if (report == null) return null;
+
+            var (ownerId, ownerName) = await GetTargetOwnerAsync(report.ReportType, report.TargetID);
+
+            return new VMAdminViolationDetail
+            {
+                ReportID = (int)report.ReportID,
+                StatusID = report.StatusID,
+                StatusName = report.ReportStatus.StatusName,
+                CreatedAt = report.CreatedAt,
+
+                ReporterMemberID = report.MemberID,
+                ReporterName = report.Reporter.DisplayName,
+                ReporterEmail = report.Reporter.Privacy?.Email,
+                ReporterPhone = report.Reporter.Privacy?.Phone,
+
+                TargetType = (byte)report.ReportType,
+                TargetTypeName = GetEnumDisplayName(report.ReportType),
+                TargetID = report.TargetID,
+                UserReasonText=report.Reason,
+
+                TargetOwnerID = ownerId,
+                TargetOwnerName = ownerName,
+
+                Reason = (int)report.ReasonCode,
+                ReasonName = GetEnumDisplayName(report.ReasonCode),
+
+                AdminNote = report.AdminNote
+            };
+        }
+
+        public async Task MarkViolationAsync(long reportId, string adminMemberId, string? adminNote)
+        {
+            using var tx = await _context.Database.BeginTransactionAsync();
+
+            long id = reportId;
+
+            var report = await _context.Reports
+                .FirstOrDefaultAsync(r => r.ReportID == id);
+
+            if (report == null) throw new Exception("找不到該檢舉事件。");
+
+            if (report.StatusID != REPORT_PENDING)
+                throw new Exception("此檢舉已完成審核，無法再次操作。");
+
+            report.StatusID = REPORT_VIOLATION;
+            report.AdminNote = (adminNote ?? string.Empty).Trim();
+            report.ReviewedAt = DateTime.Now;
+            report.ReviewedBy = adminMemberId;
+
+            await ApplyTargetViolationAsync(report.ReportType, report.TargetID);
+
+            await _context.SaveChangesAsync();
+            await tx.CommitAsync();
+        }
+
+        public async Task MarkNormalAsync(long reportId, string adminMemberId, string? adminNote)
+        {
+            long id = reportId;
+
+            var report = await _context.Reports
+                .FirstOrDefaultAsync(r => r.ReportID == id);
+
+            if (report == null) throw new Exception("找不到該檢舉事件。");
+
+            if (report.StatusID != REPORT_PENDING)
+                throw new Exception("此檢舉已完成審核，無法再次操作。");
+
+            report.StatusID = REPORT_NORMAL;
+            report.AdminNote = (adminNote ?? string.Empty).Trim();
+            report.ReviewedAt = DateTime.Now;
+            report.ReviewedBy = adminMemberId;
+
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task<long?> GetNextPendingIdAsync(long currentReportId)
+        {
+            var cur = await _context.Reports
+        .AsNoTracking()
+        .Where(r => r.ReportID == currentReportId)
+        .Select(r => new { r.ReportID, r.CreatedAt })
+        .FirstOrDefaultAsync();
+
+            if (cur == null) return null;
+
+            var next = await _context.Reports
+                .AsNoTracking()
+                .Where(r => r.StatusID == REPORT_PENDING)
+                .Where(r =>
+                    r.CreatedAt > cur.CreatedAt ||
+                    (r.CreatedAt == cur.CreatedAt && r.ReportID < cur.ReportID)
+                )
+                .OrderBy(r => r.CreatedAt)
+                .ThenBy(r => r.ReportID)
+                .Select(r => (long?)r.ReportID)
+                .FirstOrDefaultAsync();
+
+            return next;
+        }
+
+        // =============================
+        // private helpers
+        // =============================
+
+        private async Task ApplyTargetViolationAsync(ReportTargetType type, string targetId)
+        {
+            switch (type)
+            {
+                case ReportTargetType.Post:
+                    {
+                        var post = await _context.CreatorPosts.FirstOrDefaultAsync(x => x.PostID == targetId);
+                        if (post == null) throw new Exception("找不到被檢舉的日誌。");
+
+                        post.StatusID = CREATOR_POST_VIOLATION_STATUS_ID;
+                        return;
+                    }
+                case ReportTargetType.Product:
+                    {
+                        var product = await _context.Products.FirstOrDefaultAsync(x => x.ProductID == targetId);
+                        if (product == null) throw new Exception("找不到被檢舉的商品。");
+
+                        product.StatusID = PRODUCT_SUSPENDED_STATUS_ID;
+                        return;
+                    }
+                case ReportTargetType.Portfolio:
+                    {
+                        var portfolio = await _context.Portfolios.FirstOrDefaultAsync(x => x.PortfolioID == targetId);
+                        if (portfolio == null) throw new Exception("找不到被檢舉的作品集。");
+
+                        var profile = await _context.CreatorProfiles.FirstOrDefaultAsync(x => x.CreatorID == portfolio.CreatorID);
+                        if (profile == null) throw new Exception("找不到該作品集對應的創作者資料。");
+
+                        profile.StatusID = CREATOR_PROFILE_VIOLATION_STATUS_ID;
+                        return;
+                    }
+                case ReportTargetType.Comment:
+                    {
+                        var comment = await _context.PostComments.FirstOrDefaultAsync(x => x.CommentID == targetId);
+                        if (comment == null) throw new Exception("找不到被檢舉的留言。");
+
+                        comment.Status = (PostCommentStatus)1; // Violation
+                        return;
+                    }
+                default:
+                    throw new Exception("未知的檢舉類型。");
+            }
+        }
+
+        private async Task<(string? OwnerId, string? OwnerName)> GetTargetOwnerAsync(ReportTargetType type, string targetId)
+        {
+            switch (type)
+            {
+                case ReportTargetType.Comment:
+                    {
+                        var comment = await _context.PostComments
+                            .AsNoTracking()
+                            .Include(c => c.Member)
+                            .FirstOrDefaultAsync(c => c.CommentID == targetId);
+
+                        return comment == null ? (null, null) : (comment.MemberID, comment.Member?.DisplayName);
+                    }
+                case ReportTargetType.Post:
+                    {
+                        var post = await _context.CreatorPosts
+                            .AsNoTracking()
+                            .Include(p => p.CreatorProfile).ThenInclude(cp => cp.Member)
+                            .FirstOrDefaultAsync(p => p.PostID == targetId);
+
+                        if (post == null) return (null, null);
+
+                        return (post.CreatorID, post.CreatorProfile?.Member?.DisplayName);
+                    }
+                case ReportTargetType.Product:
+                    {
+                        var product = await _context.Products
+                            .AsNoTracking()
+                            .Include(p => p.CreatorProfile).ThenInclude(cp => cp.Member)
+                            .FirstOrDefaultAsync(p => p.ProductID == targetId);
+
+                        if (product == null) return (null, null);
+
+                        return (product.CreatorID, product.CreatorProfile?.Member?.DisplayName);
+                    }
+                case ReportTargetType.Portfolio:
+                    {
+                        var portfolio = await _context.Portfolios
+                            .AsNoTracking()
+                            .FirstOrDefaultAsync(p => p.PortfolioID == targetId);
+
+                        if (portfolio == null) return (null, null);
+
+                        var profile = await _context.CreatorProfiles
+                            .AsNoTracking()
+                            .Include(cp => cp.Member)
+                            .FirstOrDefaultAsync(cp => cp.CreatorID == portfolio.CreatorID);
+
+                        return profile == null
+                            ? (portfolio.CreatorID, null)
+                            : (profile.CreatorID, profile.Member?.DisplayName);
+                    }
+                default:
+                    return (null, null);
+            }
+        }
+
+        private static string GetEnumDisplayName<TEnum>(TEnum value) where TEnum : struct, Enum
+        {
+            var member = typeof(TEnum).GetMember(value.ToString()).FirstOrDefault();
+            var display = member?.GetCustomAttributes(typeof(DisplayAttribute), false)
+                .Cast<DisplayAttribute>()
+                .FirstOrDefault();
+
+            return display?.Name ?? value.ToString();
+        }
     }
 }
 
@@ -23509,6 +24540,34 @@ namespace CraftDailyCorner.Services.Interface
 
 
 ==================================================
+FILE: CraftDailyCorner\Services\Interface\IAdminViolationService.cs
+==================================================
+
+using CraftDailyCorner.Areas.Admin.ViewModels.Violation;
+
+namespace CraftDailyCorner.Services.Interface
+{
+    public interface IAdminViolationService
+    {
+        // mode:
+        // - pending：待審核（StatusID=1）
+        // - history：歷史資料（StatusID!=1） + MemberID 搜尋（檢舉人/被檢舉者）
+        Task<VMAdminViolationIndex> GetIndexAsync(string mode, string? memberId = null, int page = 1);
+
+        Task<VMAdminViolationDetail?> GetDetailAsync(long reportId);
+
+        // 1) 判斷事件違規 -> Report.StatusID=2 -> 更新目標狀態
+        Task MarkViolationAsync(long reportId, string adminMemberId, string? adminNote);
+
+        // 2) 判斷事件沒有違規 -> Report.StatusID=3
+        Task MarkNormalAsync(long reportId, string adminMemberId, string? adminNote);
+
+        // 下一筆待審核（提高效率）
+        Task<long?> GetNextPendingIdAsync(long currentReportId);
+    }
+}
+
+==================================================
 FILE: CraftDailyCorner\Services\Interface\IAuthService.cs
 ==================================================
 
@@ -25307,7 +26366,7 @@ namespace CraftDailyCorner.Services
                 TargetID = dto.TargetID,    // 被檢舉目標ID
                 MemberID = reporterId,  // 檢舉人
                 ReasonCode = dto.ReasonCode,
-                Description = dto.Description,
+                Reason = dto.Reason,
                 StatusID = 1,
                 CreatedAt = DateTime.Now
             };

@@ -742,3 +742,34 @@ function burstHeartsFirework(stageEl, count = 22) {
     // 慢一點 → 清理時間拉長
     setTimeout(() => layer.remove(), 2600);
 }
+
+
+/*審核違規留言 */
+document.addEventListener("DOMContentLoaded", function () {
+    const hash = window.location.hash;
+    if (!hash || !hash.startsWith("#comment-")) return;
+
+    const el = document.querySelector(hash);
+    if (!el) return;
+
+    // 先加 class，避免 scroll 時沒看到效果
+    el.classList.add("comment-highlight");
+
+    // 平滑捲到中間（如果你覺得太晃，把 behavior 改成 "auto"）
+    el.scrollIntoView({ behavior: "smooth", block: "center" });
+
+    // 觸發閃光（用 requestAnimationFrame 確保動畫會跑）
+    requestAnimationFrame(() => {
+        el.classList.add("flash");
+    });
+
+    // 2.5 秒後拿掉 flash，保留 highlight 再久一點（可自行調整）
+    setTimeout(() => {
+        el.classList.remove("flash");
+    }, 2500);
+
+    // 6 秒後也把 highlight 拿掉（如果你想一直亮著，把這段刪掉）
+    setTimeout(() => {
+        el.classList.remove("comment-highlight");
+    }, 6000);
+});
