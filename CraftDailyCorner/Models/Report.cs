@@ -16,7 +16,7 @@ namespace CraftDailyCorner.Models
         [Display(Name = "檢舉類型")]
         public ReportTargetType ReportType { get; set; } //類型（日誌、留言、商品、作品集）
 
-        // 目標ID
+        // 目標ID（日誌、留言、商品、作品集）
         [Required]
         [StringLength(36)]
         public string TargetID { get; set; } = null!;
@@ -26,7 +26,7 @@ namespace CraftDailyCorner.Models
         public ReportReason ReasonCode { get; set; }
 
         //補充說明（只有選其他才填）
-        [StringLength(300)]
+        [StringLength(200)]
         public string? Description { get; set; }
 
 

@@ -1,3 +1,4 @@
+
 public enum AutoReplyTemplateTriggerType : byte
 {
     OnMessage = 1,      // 收到任何訊息

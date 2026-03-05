@@ -31,7 +31,7 @@
             </a>
         </li>
 
-        <!-- ✅ 新增：歷史資料入口（字體更小） -->
+        <!--歷史資料入口（字體更小） -->
         <li class="nav-item mb-3 ms-4">
             <a asp-area="Admin"
                asp-controller="CreatorReview"
@@ -57,13 +57,30 @@
                 </span>
             </a>
         </li>
+        <li class="nav-item mb-3 ms-4">
+            <a asp-area="Admin"
+               asp-controller="Violation"
+               asp-action="Index"
+               asp-route-mode="history"
+               class="nav-link text-light small opacity-75 py-1">
+                查看歷史資料
+            </a>
+        </li>
+        <li class="nav-item mb-3">
+            <a class="nav-link text-light"
+               asp-area="Admin"
+               asp-controller="Category"
+               asp-action="Index">
+                <i class="bi bi-bookmarks"></i> 分類管理
+            </a>
+        </li>
 
         <li class="nav-item mb-3">
             <a class="nav-link text-light"
                asp-area="Admin"
                asp-controller="Category"
                asp-action="Index">
-                <i class="bi bi-tags me-2"></i> 分類管理
+                <i class="bi bi-tags me-2"></i> 標籤管理
             </a>
         </li>
 

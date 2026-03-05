@@ -39,6 +39,14 @@ namespace CraftDailyCorner.Seed.Datas
                     StatusName = "下架",
                     Description = "商品已下架",
                     IsActive = false
+                },
+                new ProductStatus
+                {
+                    StatusID = 4,
+                    StatusCode = "Suspended",
+                    StatusName = "停權",
+                    Description = "商品違規，已下架",
+                    IsActive = false
                 }
             );
 
