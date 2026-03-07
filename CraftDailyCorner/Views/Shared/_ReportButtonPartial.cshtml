@@ -1,13 +1,34 @@
 ﻿@using CraftDailyCorner.ViewModels.Report
 @model VMReport
 
-<button type="button"
-        class="btn btn-outline-secondary report-btn focus-none"
-        data-bs-toggle="modal"
-        data-bs-target="#reportModal-@Model.ReportType-@Model.TargetID">
+@if (Model.IsReportBanned)
+{
+    <div class="d-flex flex-wrap align-items-center">
+        <div class="ms-auto">
+            <button type="button"
+                    class="btn btn-outline-secondary report-btn focus-none"
+                    disabled
+                    title="你目前已被暫停檢舉功能">
+                <i class="bi bi-flag report-icon-outline"></i>
+                <i class="bi bi-flag-fill report-icon-fill"></i>
+            </button>
+        </div>
+        <div class="w-100 text-danger small mt-1 text-end">
+            檢舉功能已停權至 @Model.ReportBanUntil?.ToString("yyyy/MM/dd HH:mm")
+        </div>
 
-    <i class="bi bi-flag report-icon-outline"></i>
-    <i class="bi bi-flag-fill report-icon-fill"></i>
-</button>
+    </div>
+}
+else
+{
+    <button type="button"
+            class="btn btn-outline-secondary report-btn focus-none"
+            data-bs-toggle="modal"
+            data-bs-target="#reportModal-@Model.ReportType-@Model.TargetID">
 
-<partial name="_ReportModal" model="Model" />
+        <i class="bi bi-flag report-icon-outline"></i>
+        <i class="bi bi-flag-fill report-icon-fill"></i>
+    </button>
+
+    <partial name="_ReportModal" model="Model" />
+}

@@ -30,7 +30,8 @@ namespace CraftDailyCorner.Seed.Datas
                         BankAccount = " ",
                         StatusID = 1,
                         CreatedAt = DateTime.Now,
-                        MemberID = "M0000004"
+                        MemberID = "M0000004",
+                        UpdatedAt = DateTime.Now
                     }, new CreatorProfile
                     {
                         CreatorID = "C00002",
@@ -44,7 +45,8 @@ namespace CraftDailyCorner.Seed.Datas
                         BankAccount = " ",
                         StatusID = 1,
                         CreatedAt = DateTime.Now,
-                        MemberID = "M0000005"
+                        MemberID = "M0000005",
+                        UpdatedAt = DateTime.Now
                     }
                 };
                 _context.CreatorProfiles.AddRange(creatorProfiles);

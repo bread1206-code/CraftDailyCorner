@@ -211,7 +211,6 @@ namespace CraftDailyCorner.Controllers.Front
                 {
                     vm.BrandName = readonlyVm.BrandName;
                     vm.BrandIntro = readonlyVm.BrandIntro;
-                    vm.StartDate = readonlyVm.StartDate;
                 }
                 return View(vm);
             }

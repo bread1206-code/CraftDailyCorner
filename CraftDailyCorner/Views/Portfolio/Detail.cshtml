@@ -34,11 +34,13 @@
                     @if (!Model.IsOwner)
                     {
                         <partial name="_ReportButtonPartial"
-                            model="new VMReport
-                            {
-                                ReportType = ReportTargetType.Portfolio,
-                                TargetID = Model.PortfolioID
-                            }" />
+                                 model="new VMReport
+                                 {
+                                     ReportType = ReportTargetType.Portfolio,
+                                     TargetID = Model.PortfolioID,
+                                     IsReportBanned = Model.IsReportBanned,
+                                     ReportBanUntil = Model.ReportBanUntil
+                                 }" />
                     }
                 }
             </div>

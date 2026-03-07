@@ -151,10 +151,12 @@
                                              model="new VMReport
                                              {
                                                  ReportType = ReportTargetType.Product,
-                                                 TargetID = Model.ProductId
+                                                 TargetID = Model.ProductId,
+                                                 IsReportBanned = Model.IsReportBanned,
+                                                 ReportBanUntil = Model.ReportBanUntil
                                              }" />
-                        </span>
-                                                }
+                                </span>
+                            }
                         }
                     </div>
                     <p class="text-content">@Model.Description</p>

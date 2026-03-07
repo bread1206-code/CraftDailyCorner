@@ -33,7 +33,8 @@ namespace CraftDailyCorner.Services.Creator
                 ImageUrl = entity.ImageUrl,
                 BrandIntro = entity.BrandIntro,
                 BankCode = entity.BankCode,
-                BankAccount = entity.BankAccount
+                BankAccount = entity.BankAccount,
+                UpdatedAt = entity.UpdatedAt
             };
         }
 
@@ -45,7 +46,7 @@ namespace CraftDailyCorner.Services.Creator
             if (entity == null)
                 throw new Exception("找不到創作者資料");
 
-
+            entity.UpdatedAt = DateTime.Now;
             entity.BrandIntro = (vm.BrandIntro ?? string.Empty).Trim();
             entity.BankCode = (vm.BankCode ?? string.Empty).Trim();
             entity.BankAccount = (vm.BankAccount ?? string.Empty).Trim();

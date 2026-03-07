@@ -41,6 +41,9 @@ namespace CraftDailyCorner.ViewModels.Product
         public int DefaultQty => IsOutOfStock ? 0 : 1;
         // 新增：麵包屑導航
         public VMBreadcrumb Breadcrumb { get; set; } = new();
+        // 檢舉相關
+        public bool IsReportBanned { get; set; }
+        public DateTime? ReportBanUntil { get; set; }
     }
 
     }

@@ -56,17 +56,16 @@ namespace CraftDailyCorner.Areas.Admin.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> MarkNormal(int id, string? adminNote)
+        public async Task<IActionResult> MarkNormal(long id, string? adminNote, bool isMalicious = false)
         {
-            try
-            {
-                await _service.MarkNormalAsync(id, User.GetMemberId(), adminNote);
-                TempData["Success"] = "已判定為正常（無違規）。";
-            }
-            catch (ValidationException ex)
-            {
-                TempData["Warning"] = ex.Message;
-            }
+            var adminMemberId = User.GetMemberId();
+
+            await _service.MarkNormalAsync(id, adminMemberId, adminNote, isMalicious);
+
+            TempData["Success"] = isMalicious
+                ? "已判定為正常，並記錄一次惡意檢舉。"
+                : "已判定為正常（無違規）。";
+
             return RedirectToAction(nameof(Detail), new { id });
         }
 

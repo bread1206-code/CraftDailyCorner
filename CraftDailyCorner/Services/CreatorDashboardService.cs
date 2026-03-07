@@ -33,7 +33,8 @@ namespace CraftDailyCorner.Services.Creator
                     c.ImageUrl,
                     c.BrandIntro,
                     c.StartDate,
-                    c.CreatedAt
+                    c.CreatedAt,
+                    c.UpdatedAt
                 })
                 .FirstOrDefaultAsync();
 
@@ -97,6 +98,7 @@ namespace CraftDailyCorner.Services.Creator
                 BrandIntro = creator.BrandIntro,
                 StartDate = creator.StartDate,
                 CreatedAt = creator.CreatedAt,
+                UpdatedAt = creator.UpdatedAt,
 
                 ProductCount = productCount,
                 InventoryAlertCount = inventoryAlertCount,

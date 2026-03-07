@@ -128,11 +128,21 @@ namespace CraftDailyCorner.Services
             if (product == null) return null;
 
             bool isFavorite = false;
+            bool isReportBanned = false;
+            DateTime? reportBanUntil = null;
 
             if (!string.IsNullOrEmpty(memberId))
             {
                 isFavorite = _context.FavoriteProducts
                     .Any(f => f.MemberID == memberId && f.ProductID == productId);
+
+                reportBanUntil = _context.Members
+                    .Where(m => m.MemberID == memberId)
+                    .Select(m => m.ReportBanUntil)
+                    .FirstOrDefault();
+
+                isReportBanned = reportBanUntil.HasValue &&
+                                 reportBanUntil.Value > DateTime.Now;
             }
 
             return new VMProductDetail
@@ -164,8 +174,11 @@ namespace CraftDailyCorner.Services
 
                 IsFavorite = isFavorite,
                 IsOwner = memberId != null &&
-                              product.CreatorProfile.MemberID == memberId,
-                Breadcrumb = BuildProductDetailBreadcrumb(product)
+                          product.CreatorProfile.MemberID == memberId,
+                Breadcrumb = BuildProductDetailBreadcrumb(product),
+
+                IsReportBanned = isReportBanned,
+                ReportBanUntil = reportBanUntil
             };
         }
         // 建立商品列表頁的麵包屑導航

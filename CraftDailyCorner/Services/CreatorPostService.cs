@@ -94,45 +94,71 @@ namespace CraftDailyCorner.Services.Creator
         // 前台單篇
         // ===============================
         public async Task<VMPostDetail?> GetPostDetailAsync(
-            string postId, 
-            string? currentMemberId)
-        { var post = await _context.CreatorPosts
+                string postId,
+                string? currentMemberId)
+        {
+            var post = await _context.CreatorPosts
                 .Where(p => p.PostID == postId && p.StatusID == 1)
-                .Select(p => new 
-                { p.PostID,
-                  p.Title, 
-                  p.Content, 
-                  p.ImageUrl, 
-                  CreatorName = p.CreatorProfile.BrandName, 
-                  p.CreatedAt, 
-                  p.UpdatedAt, 
-                  OwnerId = p.CreatorProfile.MemberID,
-                  p.CreatorID
+                .Select(p => new
+                {
+                    p.PostID,
+                    p.Title,
+                    p.Content,
+                    p.ImageUrl,
+                    CreatorName = p.CreatorProfile.BrandName,
+                    p.CreatedAt,
+                    p.UpdatedAt,
+                    OwnerId = p.CreatorProfile.MemberID,
+                    p.CreatorID
                 })
-                .FirstOrDefaultAsync(); 
-            
-            if (post == null) return null; 
+                .FirstOrDefaultAsync();
+
+            if (post == null) return null;
 
             var reactionVm = await _reactionService
                 .GetButtonStateAsync(
-                currentMemberId, 
-                ReactionTargetType.CreatorPost, 
-                post.PostID); 
-            
-            return new VMPostDetail 
-            { 
-                PostID = post.PostID, 
-                Title = post.Title, 
-                Content = post.Content, 
-                ImageUrl = post.ImageUrl, 
+                    currentMemberId,
+                    ReactionTargetType.CreatorPost,
+                    post.PostID);
+
+            bool isReportBanned = false;
+            DateTime? reportBanUntil = null;
+
+            if (!string.IsNullOrWhiteSpace(currentMemberId))
+            {
+                var member = await _context.Members
+                    .AsNoTracking()
+                    .Where(m => m.MemberID == currentMemberId)
+                    .Select(m => new
+                    {
+                        m.ReportBanUntil
+                    })
+                    .FirstOrDefaultAsync();
+
+                if (member != null)
+                {
+                    reportBanUntil = member.ReportBanUntil;
+                    isReportBanned = member.ReportBanUntil.HasValue &&
+                                     member.ReportBanUntil.Value > DateTime.Now;
+                }
+            }
+
+            return new VMPostDetail
+            {
+                PostID = post.PostID,
+                Title = post.Title,
+                Content = post.Content,
+                ImageUrl = post.ImageUrl,
                 CreatorName = post.CreatorName,
                 CreatorID = post.CreatorID,
-                CreatedAt = post.CreatedAt, 
-                UpdatedAt = post.UpdatedAt, 
-                IsOwner = currentMemberId != null &&
-                        post.OwnerId == currentMemberId, 
-                ReactionButton = reactionVm 
-            }; 
+                CreatedAt = post.CreatedAt,
+                UpdatedAt = post.UpdatedAt,
+                IsOwner = currentMemberId != null && post.OwnerId == currentMemberId,
+                ReactionButton = reactionVm,
+
+                IsReportBanned = isReportBanned,
+                ReportBanUntil = reportBanUntil
+            };
         }
 
         // ===============================

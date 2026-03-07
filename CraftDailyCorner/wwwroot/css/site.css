@@ -1034,3 +1034,44 @@ body {
         background: rgba(13, 202, 240, 0.06);
     }
 }
+/* Navbar Logo */
+.Logo {
+    height: 44px;
+    width: auto;
+    object-fit: contain;
+}
+
+/* 搜尋框尺寸 */
+.navbar-search-form {
+    width: 100%;
+    max-width: 420px;
+}
+
+/* 手機 / 平板：展開後區塊更舒服 */
+@media (max-width: 991.98px) {
+    .navbar .navbar-nav {
+        align-items: stretch !important;
+    }
+
+    .navbar .nav-item,
+    .navbar .btn,
+    .navbar .nav-link {
+        width: 100%;
+    }
+
+    .navbar .dropdown-menu {
+        position: static;
+        float: none;
+        width: 100%;
+        margin-top: 0.25rem;
+        border-radius: 0.5rem;
+    }
+
+    .navbar-search-form {
+        max-width: 100%;
+    }
+
+        .navbar-search-form .form-control {
+            min-width: 0;
+        }
+}

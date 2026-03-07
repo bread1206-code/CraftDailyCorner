@@ -58,9 +58,9 @@ namespace CraftDailyCorner.Services.Creator
 
         //取得留言列表
         public async Task<List<VMPostCommentItem>> GetPostCommentsAsync(
-            string postId,
-            string? currentMemberId,
-            string? currentCreatorId)
+    string postId,
+    string? currentMemberId,
+    string? currentCreatorId)
         {
             var comments = await _context.PostComments
                 .Include(c => c.Member)
@@ -82,7 +82,22 @@ namespace CraftDailyCorner.Services.Creator
                 })
                 .ToListAsync();
 
-            //補上每則留言的 Reaction 狀態
+            DateTime? reportBanUntil = null;
+            bool isReportBanned = false;
+
+            if (!string.IsNullOrWhiteSpace(currentMemberId))
+            {
+                reportBanUntil = await _context.Members
+                    .AsNoTracking()
+                    .Where(m => m.MemberID == currentMemberId)
+                    .Select(m => m.ReportBanUntil)
+                    .FirstOrDefaultAsync();
+
+                isReportBanned = reportBanUntil.HasValue &&
+                                 reportBanUntil.Value > DateTime.Now;
+            }
+
+            // 補上每則留言的 Reaction 狀態 + 檢舉停權資訊
             foreach (var item in comments)
             {
                 item.ReactionButton = await _reactionService.GetButtonStateAsync(
@@ -90,6 +105,9 @@ namespace CraftDailyCorner.Services.Creator
                     ReactionTargetType.PostComment,
                     item.CommentID
                 );
+
+                item.ReportBanUntil = reportBanUntil;
+                item.IsReportBanned = isReportBanned;
             }
 
             return comments;
@@ -100,9 +118,9 @@ namespace CraftDailyCorner.Services.Creator
 
         //建構留言
         public async Task<VMPostCommentItem> BuildCommentViewModelAsync(
-            string commentId,
-            string? currentMemberId,
-            string? currentCreatorId)
+    string commentId,
+    string? currentMemberId,
+    string? currentCreatorId)
         {
             var vm = await _context.PostComments
                 .Include(c => c.Member)
@@ -126,6 +144,18 @@ namespace CraftDailyCorner.Services.Creator
                 ReactionTargetType.PostComment,
                 vm.CommentID
             );
+
+            if (!string.IsNullOrWhiteSpace(currentMemberId))
+            {
+                vm.ReportBanUntil = await _context.Members
+                    .AsNoTracking()
+                    .Where(m => m.MemberID == currentMemberId)
+                    .Select(m => m.ReportBanUntil)
+                    .FirstOrDefaultAsync();
+
+                vm.IsReportBanned = vm.ReportBanUntil.HasValue &&
+                                    vm.ReportBanUntil.Value > DateTime.Now;
+            }
 
             return vm;
         }

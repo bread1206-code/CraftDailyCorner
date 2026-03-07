@@ -97,7 +97,7 @@ namespace CraftDailyCorner.Services.Creator
         //前台 Detail
 
         public async Task<VMPortfolioDetail?> GetPublicPortfolioDetailAsync(
-                string portfolioId, string? currentMemberId)
+    string portfolioId, string? currentMemberId)
         {
             var data = await _context.Portfolios
                 .Where(p =>
@@ -130,6 +130,28 @@ namespace CraftDailyCorner.Services.Creator
                 ReactionTargetType.Portfolio,
                 data.PortfolioID);
 
+            bool isReportBanned = false;
+            DateTime? reportBanUntil = null;
+
+            if (!string.IsNullOrWhiteSpace(currentMemberId))
+            {
+                var member = await _context.Members
+                    .AsNoTracking()
+                    .Where(m => m.MemberID == currentMemberId)
+                    .Select(m => new
+                    {
+                        m.ReportBanUntil
+                    })
+                    .FirstOrDefaultAsync();
+
+                if (member != null)
+                {
+                    reportBanUntil = member.ReportBanUntil;
+                    isReportBanned = member.ReportBanUntil.HasValue &&
+                                     member.ReportBanUntil.Value > DateTime.Now;
+                }
+            }
+
             return new VMPortfolioDetail
             {
                 PortfolioID = data.PortfolioID,
@@ -140,7 +162,10 @@ namespace CraftDailyCorner.Services.Creator
                 IsOwner = currentMemberId != null && data.OwnerId == currentMemberId,
                 Items = data.Items,
                 ReactionButton = reactionVm,
-                CreatorID = data.CreatorID
+                CreatorID = data.CreatorID,
+
+                IsReportBanned = isReportBanned,
+                ReportBanUntil = reportBanUntil
             };
         }
 

@@ -23,6 +23,9 @@ namespace CraftDailyCorner.ViewModels.Creator
         [Display(Name = "加入時間")]
         public DateTime CreatedAt { get; set; }
 
+        [Display(Name = "更新時間")]
+        public DateTime UpdatedAt { get; set; } 
+
         //統計資料
 
         [Display(Name = "商品數量")]

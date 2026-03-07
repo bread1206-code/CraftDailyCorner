@@ -46,6 +46,9 @@ namespace CraftDailyCorner.Models
         [Display(Name = "建立時間")]
         public DateTime CreatedAt { get; set; }
 
+        [Display(Name = "更新時間")]
+        public DateTime UpdatedAt { get; set; }
+
         [StringLength(8,MinimumLength =8)]
         [Column(TypeName = "nchar(8)")]
         [Display(Name = "會員編號")]

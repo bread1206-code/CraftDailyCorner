@@ -191,11 +191,13 @@ namespace CraftDailyCorner.Services.Creator
                     MemberID = memberId,
                     BrandName = (app.BrandName ?? string.Empty).Trim(),
                     BrandIntro = (app.BrandIntro ?? string.Empty).Trim(),
+                    StartDate = app.StartDate,
                     BankCode = vm.BankCode.Trim(),
                     BankAccount = vm.BankAccount.Trim(),
                     StatusID = 1,                 // 依你 Seed：1=啟用（若你的 CreatorProfileStatus 定義不同請改）
                     ImageUrl = imageKey ?? "default",
-                    CreatedAt = DateTime.Now
+                    CreatedAt = DateTime.Now,
+                    UpdatedAt = DateTime.Now
                 });
 
                 // 若你「管理者審核通過」時沒有掛 Role(02)，在這裡補一次最保險

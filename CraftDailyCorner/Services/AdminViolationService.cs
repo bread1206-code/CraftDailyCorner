@@ -53,7 +53,6 @@ namespace CraftDailyCorner.Services
                     baseQuery = baseQuery.Where(r =>
                         r.MemberID == keyword ||
 
-                        // ✅ ReportType / TargetID 才是正確欄位
                         (r.ReportType == ReportTargetType.Post &&
                             _context.CreatorPosts.Any(p => p.PostID == r.TargetID && p.CreatorID == keyword)) ||
 
@@ -181,63 +180,84 @@ namespace CraftDailyCorner.Services
 
         public async Task MarkViolationAsync(long reportId, string adminMemberId, string? adminNote)
         {
-            // ✅ 後端必填驗證（避免跳過前端）
             adminNote = (adminNote ?? string.Empty).Trim();
+
             if (string.IsNullOrWhiteSpace(adminNote))
                 throw new ValidationException("判定違規時，管理者備註為必填。");
+
+            if (adminNote.Length > 200)
+                throw new ValidationException("管理者備註不可超過 200 字。");
 
             using var tx = await _context.Database.BeginTransactionAsync();
 
             var report = await _context.Reports
                 .FirstOrDefaultAsync(r => r.ReportID == reportId);
-            if (report.MemberID == adminMemberId)
-                throw new ValidationException("禁止審核自己提交的檢舉。");
-
-            if (adminNote.Length > 200)
-                throw new ValidationException("管理者備註不可超過 200 字。");
 
             if (report == null)
                 throw new Exception("找不到該檢舉事件。");
 
+            if (report.MemberID == adminMemberId)
+                throw new ValidationException("禁止審核自己提交的檢舉。");
+
             if (report.StatusID != REPORT_PENDING)
                 throw new Exception("此檢舉已完成審核，無法再次操作。");
 
-            // 1) 更新 Report 狀態為 Violation
             report.StatusID = REPORT_VIOLATION;
             report.AdminNote = adminNote;
             report.ReviewedAt = DateTime.Now;
             report.ReviewedBy = adminMemberId;
 
-            // 2) 更新目標狀態
             await ApplyTargetViolationAsync((ReportTargetType)report.ReportType, report.TargetID);
 
             await _context.SaveChangesAsync();
             await tx.CommitAsync();
         }
 
-        public async Task MarkNormalAsync(long reportId, string adminMemberId, string? adminNote)
+        public async Task MarkNormalAsync(long reportId, string adminMemberId, string? adminNote, bool isMalicious)
         {
-            long id = reportId;
-
-            var report = await _context.Reports
-                .FirstOrDefaultAsync(r => r.ReportID == id);
-            if (report.MemberID == adminMemberId)
-                throw new ValidationException("禁止審核自己提交的檢舉。");
-
-            if (report == null) throw new Exception("找不到該檢舉事件。");
+            adminNote = (adminNote ?? string.Empty).Trim();
 
             if (adminNote.Length > 200)
                 throw new ValidationException("管理者備註不可超過 200 字。");
+
+            using var tx = await _context.Database.BeginTransactionAsync();
+
+            var report = await _context.Reports
+                .FirstOrDefaultAsync(r => r.ReportID == reportId);
+
+            if (report == null)
+                throw new Exception("找不到該檢舉事件。");
+
+            if (report.MemberID == adminMemberId)
+                throw new ValidationException("禁止審核自己提交的檢舉。");
 
             if (report.StatusID != REPORT_PENDING)
                 throw new Exception("此檢舉已完成審核，無法再次操作。");
 
             report.StatusID = REPORT_NORMAL;
-            report.AdminNote = (adminNote ?? string.Empty).Trim();
+            report.AdminNote = adminNote;
             report.ReviewedAt = DateTime.Now;
             report.ReviewedBy = adminMemberId;
 
+            if (isMalicious)
+            {
+                var reporter = await _context.Members
+                    .FirstOrDefaultAsync(m => m.MemberID == report.MemberID);
+
+                if (reporter == null)
+                    throw new Exception("找不到檢舉會員資料。");
+
+                reporter.MaliciousReportCount += 1;
+
+                if (reporter.MaliciousReportCount > 0 &&
+                    reporter.MaliciousReportCount % 5 == 0)
+                {
+                    reporter.ReportBanUntil = DateTime.Now.AddHours(24);
+                }
+            }
+
             await _context.SaveChangesAsync();
+            await tx.CommitAsync();
         }
 
         public async Task<long?> GetNextPendingIdAsync(long currentReportId, string adminMemberId)

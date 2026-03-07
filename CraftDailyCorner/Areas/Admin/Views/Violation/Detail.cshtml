@@ -1,7 +1,6 @@
-﻿@using CraftDailyCorner.Extensions 
+﻿@using CraftDailyCorner.Extensions
 @using CraftDailyCorner.Models.Enums
 @model CraftDailyCorner.Areas.Admin.ViewModels.Violation.VMAdminViolationDetail
-
 
 @{
     ViewData["Title"] = "檢舉詳情";
@@ -121,7 +120,6 @@
                         </div>
 
                         <div class="col-md-6">
-                            <!-- ✅ 前往目標（另開新分頁） -->
                             @if (!string.IsNullOrWhiteSpace(Model.TargetUrl))
                             {
                                 <div class="mb-3">
@@ -143,25 +141,6 @@
                                     目前無法產生目標連結（可能缺少路由資訊或目標已不存在）
                                 </div>
                             }
-
-                            <!-- （可選）如果你 VM 之後加 TargetTitle/TargetSnippet，可在這裡顯示摘要 -->
-                            @* 
-                            @if (!string.IsNullOrWhiteSpace(Model.TargetTitle) || !string.IsNullOrWhiteSpace(Model.TargetSnippet))
-                            {
-                                <div class="mt-3 p-3 rounded border border-secondary bg-dark">
-                                    @if (!string.IsNullOrWhiteSpace(Model.TargetTitle))
-                                    {
-                                        <div class="fw-semibold text-light">@Model.TargetTitle</div>
-                                    }
-                                    @if (!string.IsNullOrWhiteSpace(Model.TargetSnippet))
-                                    {
-                                        <div class="text-light opacity-75 mt-2" style="white-space:pre-wrap;">
-                                            @Model.TargetSnippet
-                                        </div>
-                                    }
-                                </div>
-                            }
-                            *@
                         </div>
                     </div>
 
@@ -178,7 +157,6 @@
 
                     @if (Model.StatusID == 1 && !isSelfReport)
                     {
-                        <!-- ✅ 共用備註 textarea（兩個按鈕都會送出） -->
                         <div class="mb-3">
                             <label for="adminNote" class="text-secondary small mb-1">
                                 管理者備註
@@ -189,9 +167,25 @@
                                   class="form-control bg-dark text-light border-secondary"
                                   rows="4"
                                   placeholder="例如：違規原因判定依據、補充說明..."></textarea>
-                            <!-- 注意：textarea 會用 JS 同步到另一個 form -->
+
                             <div class="text-secondary small mt-2">
-                                ※ 判定違規時必填；判定正常可選填（仍會一起送出）
+                                ※ 判定違規時必填；判定正常可選填
+                            </div>
+                        </div>
+
+                        <!-- 判定正常：可勾選是否為惡意檢舉 -->
+                        <div class="form-check mb-3">
+                            <input class="form-check-input"
+                                   type="checkbox"
+                                   id="isMalicious"
+                                   form="formMarkNormal"
+                                   name="isMalicious"
+                                   value="true" />
+                            <label class="form-check-label text-light" for="isMalicious">
+                                此檢舉屬於惡意檢舉
+                            </label>
+                            <div class="text-secondary small mt-1">
+                                僅在檢舉內容明顯失實、濫用檢舉機制時勾選。
                             </div>
                         </div>
 
@@ -238,6 +232,7 @@
                                 const formNormal = document.getElementById("formMarkNormal");
 
                                 const hint = document.getElementById("noteRequiredHint");
+                                const maliciousCheckbox = document.getElementById("isMalicious");
 
                                 function sync() {
                                     const v = textarea.value || "";
@@ -245,16 +240,16 @@
                                     hiddenNormal.value = v;
                                 }
 
-                                textarea.addEventListener("input", function (e) {
-                                sync();
-                                if ((textarea.value || "").trim()) {
-                                    textarea.classList.remove("is-invalid");
-                                    hint.classList.add("d-none");
-                                }
-                            });
+                                textarea.addEventListener("input", function () {
+                                    sync();
+                                    if ((textarea.value || "").trim()) {
+                                        textarea.classList.remove("is-invalid");
+                                        hint.classList.add("d-none");
+                                    }
+                                });
+
                                 sync();
 
-                                // ✅ 判定違規：備註必填
                                 formViolation.addEventListener("submit", function (e) {
                                     sync();
                                     const note = (textarea.value || "").trim();
@@ -271,19 +266,16 @@
                                     textarea.classList.remove("is-invalid");
                                 });
 
-                                // 判定正常：可選填（但仍同步送出）
                                 formNormal.addEventListener("submit", function () {
                                     sync();
                                     hint.classList.add("d-none");
                                     textarea.classList.remove("is-invalid");
                                 });
 
-                                // 點違規按鈕時顯示提示
                                 document.getElementById("btnMarkViolation").addEventListener("click", function () {
                                     hint.classList.remove("d-none");
                                 });
 
-                                // 點正常按鈕時隱藏提示
                                 document.getElementById("btnMarkNormal").addEventListener("click", function () {
                                     hint.classList.add("d-none");
                                 });

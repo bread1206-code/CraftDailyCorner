@@ -60,65 +60,92 @@
     
 
     <!--登入後才能使用-->
-    <div class="text-end mb-4">
+    <div class="mb-4">
         @if (User.Identity?.IsAuthenticated == true)
         {
-            <!-- 留言按鈕 -->
-            <button class="btn btn-dark btn-sm focus-none requires-auth"
-                    data-bs-toggle="modal"
-                    data-bs-target="#commentModal">
-                留言
-            </button>
+            <div class="d-flex justify-content-end align-items-center flex-wrap gap-2">
+                <!-- 留言按鈕 -->
+                <button class="btn btn-dark btn-sm focus-none requires-auth"
+                        data-bs-toggle="modal"
+                        data-bs-target="#commentModal">
+                    留言
+                </button>
 
-            <!--心情反應按鈕-->
-            <span class="big-effect mx-2 requires-auth">
-                <partial name="_ReactionButtonPartial"
-                         model="Model.ReactionButton" />
-            </span>
-
-            <!--檢舉-->
-            @if (!Model.IsOwner)
-            {
-                <span class="requires-auth">
-                    <partial name="_ReportButtonPartial"
-                             model="new VMReport
-                             {
-                                 ReportType = ReportTargetType.Post,
-                                 TargetID = Model.PostID
-                             }" />
+                <!-- 心情反應按鈕 -->
+                <span class="big-effect requires-auth">
+                    <partial name="_ReactionButtonPartial"
+                             model="Model.ReactionButton" />
                 </span>
+
+                <!-- 檢舉 -->
+                @if (!Model.IsOwner)
+                {
+                    <span class="requires-auth">
+                        @if (Model.IsReportBanned)
+                        {
+                            <button type="button"
+                                    class="btn btn-outline-secondary report-btn focus-none"
+                                    disabled
+                                    title="你目前已被暫停檢舉功能">
+                                <i class="bi bi-flag report-icon-outline"></i>
+                                <i class="bi bi-flag-fill report-icon-fill"></i>
+                            </button>
+                        }
+                        else
+                        {
+                            <partial name="_ReportButtonPartial"
+                                     model="new VMReport
+                                     {
+                                         ReportType = ReportTargetType.Post,
+                                         TargetID = Model.PostID,
+                                         IsReportBanned = Model.IsReportBanned,
+                                         ReportBanUntil = Model.ReportBanUntil
+                                     }" />
+                                }
+                    </span>
+                }
+            </div>
+
+            @if (!Model.IsOwner && Model.IsReportBanned)
+            {
+                <div class="d-flex justify-content-end mt-1">
+                    <div class="text-danger small">
+                        <i class="bi bi-x-circle-fill me-1"></i>檢舉功能已停權至 @Model.ReportBanUntil?.ToString("yyyy/MM/dd HH:mm")
+                    </div>
+                </div>
             }
         }
         else
         {
-            <!-- 未登入：三個入口都存在，但都指向登入 Modal -->
-            <button class="btn btn-dark btn-sm focus-none"
-                    data-bs-toggle="modal"
-                    data-bs-target="#loginModal">
-                留言
-            </button>
-
-            <span class="big-effect mx-2">
-                <button type="button"
-                        class="btn btn-link text-secondary p-0 text-decoration-none focus-none"
-                        data-bs-toggle="modal"
-                        data-bs-target="#loginModal"
-                        aria-label="登入後可使用心情反應">
-                    <i class="bi bi-hand-thumbs-up-fill"></i>
-                    
-                </button>
-            </span>
-
-            @if (!Model.IsOwner)
-            {
-                <button type="button"
-                        class="btn btn-link text-secondary p-0 text-decoration-none focus-none"
+            <div class="d-flex justify-content-end align-items-center flex-wrap gap-2">
+                <!-- 未登入：三個入口都存在，但都指向登入 Modal -->
+                <button class="btn btn-dark btn-sm focus-none"
                         data-bs-toggle="modal"
                         data-bs-target="#loginModal">
-                    檢舉
+                    留言
                 </button>
-            }
-        } 
+
+                <span class="big-effect">
+                    <button type="button"
+                            class="btn btn-link text-secondary p-0 text-decoration-none focus-none"
+                            data-bs-toggle="modal"
+                            data-bs-target="#loginModal"
+                            aria-label="登入後可使用心情反應">
+                        <i class="bi bi-hand-thumbs-up-fill"></i>
+                    </button>
+                </span>
+
+                @if (!Model.IsOwner)
+                {
+                    <button type="button"
+                            class="btn btn-link text-secondary p-0 text-decoration-none focus-none"
+                            data-bs-toggle="modal"
+                            data-bs-target="#loginModal">
+                        檢舉
+                    </button>
+                }
+            </div>
+        }
     </div>
     <hr style="border-top: 2px dashed #6c757d" />
     

@@ -13,12 +13,13 @@ namespace CraftDailyCorner.ViewModels.Creator
 
         // 現有圖片 key（DB 存的那個）
         public string? ImageUrl { get; set; }
+        public DateTime UpdatedAt { get; set; }
 
         // 顯示圖片用（/Photos/...）
         public string CurrentImagePath =>
             string.IsNullOrWhiteSpace(ImageUrl)
-                ? "/Photos/03CreatorBrand/Medium/default.png"
-                : $"/Photos/03CreatorBrand/Medium/{ImageUrl}.png";
+                ? "/Photos/03CreatorBrand/Large/default.png"
+                : $"/Photos/03CreatorBrand/Large/{ImageUrl}.png?v={UpdatedAt.Ticks}";
 
         [Display(Name = "品牌圖片")]
         public IFormFile? BrandImage { get; set; }

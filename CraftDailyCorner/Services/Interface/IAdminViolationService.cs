@@ -15,7 +15,7 @@ namespace CraftDailyCorner.Services.Interface
         Task MarkViolationAsync(long reportId, string adminMemberId, string? adminNote);
 
         // 2) 判斷事件沒有違規 -> Report.StatusID=3
-        Task MarkNormalAsync(long reportId, string adminMemberId, string? adminNote);
+        Task MarkNormalAsync(long reportId, string adminMemberId, string? adminNote, bool isMalicious);
 
         // 下一筆待審核（提高效率）
         Task<long?> GetNextPendingIdAsync(long currentReportId, string v);

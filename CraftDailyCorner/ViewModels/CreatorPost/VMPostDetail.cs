@@ -38,5 +38,7 @@ namespace CraftDailyCorner.ViewModels.CreatorPost
         public bool IsOwner { get; set; }
         //心情反應按鈕
         public VMReactionButton ReactionButton { get; set; } = null!;
+        public bool IsReportBanned { get; set; }
+        public DateTime? ReportBanUntil { get; set; }
     }
 }
