@@ -3,7 +3,6 @@ using CraftDailyCorner.Services;
 using CraftDailyCorner.ViewModels.Order;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
 
 namespace CraftDailyCorner.Controllers
 {

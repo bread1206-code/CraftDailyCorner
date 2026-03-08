@@ -96,7 +96,7 @@ namespace CraftDailyCorner.Controllers
 
             return View();
         }
-
+        //註冊
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Register(VMRegister model)

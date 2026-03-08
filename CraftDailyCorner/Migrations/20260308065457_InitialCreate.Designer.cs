@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CraftDailyCorner.Migrations
 {
     [DbContext(typeof(CraftDailyCornerContext))]
-    [Migration("20260305111603_InitialCreate")]
+    [Migration("20260308065457_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -344,6 +344,9 @@ namespace CraftDailyCorner.Migrations
                     b.Property<byte>("StatusID")
                         .HasColumnType("tinyint");
 
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
                     b.HasKey("CreatorID");
 
                     b.HasIndex("MemberID")
@@ -582,6 +585,9 @@ namespace CraftDailyCorner.Migrations
 
                     b.Property<byte>("StatusID")
                         .HasColumnType("tinyint");
+
+                    b.Property<int>("ViolationCount")
+                        .HasColumnType("int");
 
                     b.HasKey("MemberID");
 

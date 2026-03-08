@@ -296,6 +296,7 @@ namespace CraftDailyCorner.Migrations
                     StatusID = table.Column<byte>(type: "tinyint", nullable: false),
                     MaliciousReportCount = table.Column<int>(type: "int", nullable: false),
                     ReportBanUntil = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    ViolationCount = table.Column<int>(type: "int", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
@@ -382,6 +383,7 @@ namespace CraftDailyCorner.Migrations
                     BankAccount = table.Column<string>(type: "nvarchar(14)", maxLength: 14, nullable: true),
                     StatusID = table.Column<byte>(type: "tinyint", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     MemberID = table.Column<string>(type: "nchar(8)", maxLength: 8, nullable: false)
                 },
                 constraints: table =>

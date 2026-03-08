@@ -24,7 +24,7 @@ namespace CraftDailyCorner.Seed.Datas
                     }, new MemberRole
                     {
                         MemberID = "M0000001",
-                        RoleID = "03",
+                        RoleID = "04",
                         AssignedAt = DateTime.Now
                     }, new MemberRole
                     {

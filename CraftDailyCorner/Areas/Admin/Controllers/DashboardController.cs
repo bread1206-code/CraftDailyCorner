@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace CraftDailyCorner.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    [Authorize(Roles = "03")] // 管理者
+    [Authorize(Roles = "03,04")] // 管理者
     public class DashboardController : Controller
     {
         private readonly IAdminDashboardService _dashboardService;

@@ -8,7 +8,7 @@ using System.ComponentModel.DataAnnotations;
 namespace CraftDailyCorner.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    [Authorize(Roles = "03")]
+    [Authorize(Roles = "03,04")]
     public class ViolationController : Controller
     {
         private readonly IAdminViolationService _service;

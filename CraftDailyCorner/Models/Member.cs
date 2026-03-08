@@ -32,6 +32,9 @@ namespace CraftDailyCorner.Models
         [Display(Name = "檢舉功能停權至")]
         public DateTime? ReportBanUntil { get; set; }
 
+        [Display(Name = "違規次數")]
+        public int ViolationCount { get; set; } = 0;
+
         [HiddenInput]
         [Display(Name ="建立時間")]
         public DateTime CreatedAt { get; set; }= DateTime.Now;

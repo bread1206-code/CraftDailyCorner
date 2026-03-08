@@ -1,4 +1,7 @@
-﻿/* ========================
+﻿html {
+    overflow-y: scroll;
+}
+/* ========================
    Base Dark Layout
 ======================== */
 
@@ -11,23 +14,7 @@
     min-height: 100vh;
 }
 
-.admin-sidebar {
-    width: 240px;
-    background-color: #111827;
-    border-right: 1px solid #1f2937;
-}
 
-    .admin-sidebar .nav-link {
-        color: #94a3b8;
-        border-radius: 8px;
-        padding: 10px 12px;
-        transition: all 0.2s ease;
-    }
-
-        .admin-sidebar .nav-link:hover {
-            background-color: #1e293b;
-            color: #ffffff;
-        }
 
 .admin-content {
     background-color: #0f172a;
@@ -162,3 +149,76 @@ input[name="memberId"]::placeholder {
     color: #9aa4af;
     opacity: 1;
 }
+/*admin-sidebar*/
+.admin-sidebar {
+    width: 240px;
+    background-color: #111827;
+    border-right: 1px solid #1f2937;
+}
+
+.admin-sidebar .nav-link {
+    color: #94a3b8;
+    border-radius: 8px;
+    padding: 10px 12px;
+    transition: all 0.2s ease;
+}
+
+.admin-sidebar .nav-link:hover {
+    background-color: #1e293b;
+    color: #ffffff;
+}
+
+.admin-sidebar .nav-link {
+    border-radius: 0.5rem;
+    transition: all 0.2s ease;
+}
+
+.admin-sidebar .admin-main-link {
+    padding: 0.65rem 0.9rem;
+}
+
+    .admin-sidebar .admin-main-link:hover,
+    .admin-sidebar .admin-sub-link:hover {
+        background-color: rgba(255, 255, 255, 0.08);
+        color: #fff !important;
+    }
+
+    .admin-sidebar .admin-main-link.active {
+        background-color: rgba(255, 255, 255, 0.14);
+        color: #fff !important;
+        font-weight: 600;
+    }
+
+.admin-sidebar .admin-sub-link.active {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #fff !important;
+    font-weight: 600;
+}
+
+.admin-sidebar .admin-main-wrap {
+    border-radius: 0.5rem;
+    padding-right: 0.75rem;
+    transition: all 0.2s ease;
+}
+
+    .admin-sidebar .admin-main-wrap.active {
+        background-color: rgba(255, 255, 255, 0.08);
+    }
+
+.admin-sidebar .admin-toggle {
+    min-width: 28px;
+    color: #fff !important;
+}
+
+    .admin-sidebar .admin-toggle i {
+        display: inline-block;
+        transition: transform 0.25s ease;
+    }
+
+    .admin-sidebar .admin-toggle.collapsed i {
+        transform: rotate(90deg);
+    }
+
+    .admin-sidebar .admin-toggle:not(.collapsed) i {
+        transform: rotate(0deg);
+    }

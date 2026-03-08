@@ -20,7 +20,7 @@ namespace CraftDailyCorner.Seed.Datas
                     {
                         RoleID = "01",
                         RoleName = "一般會員",
-                        Description = "可以使用大部分功能。"
+                        Description = "可以使用一般功能。"
                     }, new Role
                     {
                         RoleID = "02",
@@ -30,7 +30,12 @@ namespace CraftDailyCorner.Seed.Datas
                     {
                         RoleID = "03",
                         RoleName = "管理者",
-                        Description = "可以管理平台資料。"
+                        Description = "負責管理平台事務。"
+                    }, new Role
+                    {
+                        RoleID = "04",
+                        RoleName = "超級管理者",
+                        Description = "可以變更平台設定、給予管理者身分。"
                     }
                 };
                 _context.Roles.AddRange(roles);

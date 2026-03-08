@@ -156,7 +156,7 @@
 
                             <!-- 平板 / 小桌機 -->
                             <span class="d-xl-none">
-                                <i class="bi bi-person-video"></i>
+                                <i class="bi bi-person-square"></i>
                             </span>
 
                             <!-- 大桌機 -->
@@ -233,7 +233,7 @@
                                 </li>
                             }
 
-                            @if (User.IsInRole("03")) // 管理者
+                            @if (User.IsInRole("03") || User.IsInRole("04")) // 管理者
                             {
                                 <li>
                                     <a class="dropdown-item text-danger"

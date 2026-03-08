@@ -1,5 +1,29 @@
 ﻿@model CraftDailyCorner.Areas.Admin.ViewModels.VMAdminSidebar
 
+@{
+    var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+    var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
+    var currentMode = Context.Request.Query["mode"].ToString();
+
+    var isDashboardPage = currentController == "Dashboard";
+
+    var isMemberPage = currentController == "Members";
+    var isMemberIndexPage = currentController == "Members" && currentAction == "Index";
+
+    var isCreatorReviewPage = currentController == "CreatorReview";
+    var isCreatorReviewPendingPage = currentController == "CreatorReview" && string.IsNullOrWhiteSpace(currentMode);
+    var isCreatorReviewHistoryPage = currentController == "CreatorReview" && currentMode == "history";
+
+    var isViolationPage = currentController == "Violation";
+    var isViolationPendingPage = currentController == "Violation" && string.IsNullOrWhiteSpace(currentMode);
+    var isViolationHistoryPage = currentController == "Violation" && currentMode == "history";
+
+    var isCategoriesPage = currentController == "Categories";
+    var isTagPage = currentController == "Tag";
+    var isAnnouncementPage = currentController == "Announcement";
+    var isSystemSettingPage = currentController == "SystemSetting";
+}
+
 <div class="admin-sidebar p-3">
 
     <ul class="nav flex-column">
@@ -8,97 +32,182 @@
             <a asp-area="Admin"
                asp-controller="Dashboard"
                asp-action="Index"
-               class="nav-link text-light">
+               class="nav-link admin-main-link text-light @(isDashboardPage ? "active" : "")">
                 <i class="bi bi-speedometer2 me-2"></i>
-                儀表板
+                儀錶板
             </a>
         </li>
+
+        <!-- 會員管理 -->
+        <li class="nav-item mb-1">
+            <div class="d-flex align-items-center justify-content-between admin-main-wrap @(isMemberPage ? "active" : "")">
+                <a asp-area="Admin"
+                   asp-controller="Members"
+                   asp-action="Index"
+                   class="nav-link admin-main-link text-light flex-grow-1 @(isMemberPage ? "active" : "")">
+                    <i class="bi bi-person-bounding-box me-2"></i>會員管理
+                </a>
+
+                <button class="btn btn-link text-light text-decoration-none p-0 ms-2 admin-toggle @(isMemberPage ? "" : "collapsed")"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#collapseMembers"
+                        aria-expanded="@(isMemberPage ? "true" : "false")"
+                        aria-controls="collapseMembers">
+                    <i class="bi bi-caret-down-fill"></i>
+                </button>
+            </div>
+        </li>
+
+        <li class="nav-item mb-1">
+            <div id="collapseMembers"
+                 class="collapse @(isMemberPage ? "show" : "")">
+                <div class="ms-4">
+                    <!--查看會員資料 -->
+                    <a asp-area="Admin"
+                       asp-controller="Members"
+                       asp-action="Index"
+                       class="nav-link admin-sub-link text-light small opacity-75 py-1 @(isMemberIndexPage ? "active" : "")">
+                        查看會員資料
+                    </a>
+                </div>
+            </div>
+        </li>
+        @if (User.IsInRole("04"))
+        {
+            <li class="nav-item mb-3">
+                <div id="collapseMembers"
+                     class="collapse @(isMemberPage ? "show" : "")">
+                    <div class="ms-4">
+                        <!--查看會員資料 -->
+                        <a asp-area="Admin"
+                           asp-controller=""
+                           asp-action=""
+                           class="nav-link admin-sub-link text-light small opacity-75 py-1 @(isMemberIndexPage ? "active" : "")">
+                            管理管理者
+                        </a>
+                    </div>
+                </div>
+            </li>
+        }
 
         <!-- 創作者審核：待審核 -->
         <li class="nav-item mb-1">
-            <a asp-area="Admin"
-               asp-controller="CreatorReview"
-               asp-action="Index"
-               class="nav-link text-light d-flex justify-content-between align-items-center">
-                <span>
-                    <i class="bi bi-person-check me-2"></i>
-                    創作者審核
-                </span>
-                <span id="badgeCreators"
-                      class="badge bg-danger @(Model.PendingCreators == 0 ? "d-none" : "")">
-                    @Model.PendingCreators
-                </span>
-            </a>
-        </li>
+            <div class="d-flex align-items-center justify-content-between admin-main-wrap @(isCreatorReviewPage ? "active" : "")">
+                <a asp-area="Admin"
+                   asp-controller="CreatorReview"
+                   asp-action="Index"
+                   class="nav-link admin-main-link text-light flex-grow-1 d-flex justify-content-between align-items-center @(isCreatorReviewPage ? "active" : "")">
+                    <span>
+                        <i class="bi bi-person-check me-2"></i>創作者審核
+                    </span>
+                    <span id="badgeCreators"
+                          class="badge bg-danger @(Model.PendingCreators == 0 ? "d-none" : "")">
+                        @Model.PendingCreators
+                    </span>
+                </a>
 
-        <!--歷史資料入口（字體更小） -->
-        <li class="nav-item mb-3 ms-4">
-            <a asp-area="Admin"
-               asp-controller="CreatorReview"
-               asp-action="Index"
-               asp-route-mode="history"
-               class="nav-link text-light small opacity-75 py-1">
-                查看歷史資料
-            </a>
+                <button class="btn btn-link text-light text-decoration-none p-0 ms-2 admin-toggle @(isCreatorReviewPage ? "" : "collapsed")"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#collapseCreatorReview"
+                        aria-expanded="@(isCreatorReviewPage ? "true" : "false")"
+                        aria-controls="collapseCreatorReview">
+                    <i class="bi bi-caret-down-fill"></i>
+                </button>
+            </div>
         </li>
 
         <li class="nav-item mb-3">
-            <a asp-area="Admin"
-               asp-controller="Violation"
-               asp-action="Index"
-               class="nav-link text-light d-flex justify-content-between align-items-center">
-                <span>
-                    <i class="bi bi-exclamation-triangle me-2"></i>
-                    違規管理
-                </span>
-                <span id="badgeViolations"
-                      class="badge bg-danger @(Model.PendingViolations == 0 ? "d-none" : "")">
-                    @Model.PendingViolations
-                </span>
-            </a>
+            <div id="collapseCreatorReview"
+                 class="collapse @(isCreatorReviewPage ? "show" : "")">
+                <div class="ms-4">
+                    <!--歷史資料入口 -->
+                    <a asp-area="Admin"
+                       asp-controller="CreatorReview"
+                       asp-action="Index"
+                       asp-route-mode="history"
+                       class="nav-link admin-sub-link text-light small opacity-75 py-1 @(isCreatorReviewHistoryPage ? "active" : "")">
+                        查看歷史資料
+                    </a>
+                </div>
+            </div>
         </li>
-        <li class="nav-item mb-3 ms-4">
-            <a asp-area="Admin"
-               asp-controller="Violation"
-               asp-action="Index"
-               asp-route-mode="history"
-               class="nav-link text-light small opacity-75 py-1">
-                查看歷史資料
-            </a>
+        <!-- 違規管理：待審核 -->
+        <li class="nav-item mb-1">
+            <div class="d-flex align-items-center justify-content-between admin-main-wrap @(isViolationPage ? "active" : "")">
+                <a asp-area="Admin"
+                   asp-controller="Violation"
+                   asp-action="Index"
+                   class="nav-link admin-main-link text-light flex-grow-1 d-flex justify-content-between align-items-center @(isViolationPage ? "active" : "")">
+                    <span>
+                        <i class="bi bi-exclamation-triangle me-2"></i>違規管理
+                    </span>
+                    <span id="badgeViolations"
+                          class="badge bg-danger @(Model.PendingViolations == 0 ? "d-none" : "")">
+                        @Model.PendingViolations
+                    </span>
+                </a>
+
+                <button class="btn btn-link text-light text-decoration-none p-0 ms-2 admin-toggle @(isViolationPage ? "" : "collapsed")"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#collapseViolation"
+                        aria-expanded="@(isViolationPage ? "true" : "false")"
+                        aria-controls="collapseViolation">
+                    <i class="bi bi-caret-down-fill"></i>
+                </button>
+            </div>
         </li>
+
         <li class="nav-item mb-3">
-            <a class="nav-link text-light"
+            <div id="collapseViolation"
+                 class="collapse @(isViolationPage ? "show" : "")">
+                <div class="ms-4">
+                    <a asp-area="Admin"
+                       asp-controller="Violation"
+                       asp-action="Index"
+                       asp-route-mode="history"
+                       class="nav-link admin-sub-link text-light small opacity-75 py-1 @(isViolationHistoryPage ? "active" : "")">
+                        查看歷史資料
+                    </a>
+                </div>
+            </div>
+        </li>
+
+        <li class="nav-item mb-3">
+            <a class="nav-link admin-main-link text-light @(isCategoriesPage ? "active" : "")"
                asp-area="Admin"
                asp-controller="Categories"
                asp-action="Index">
-                <i class="bi bi-bookmarks"></i> 分類管理
+                <i class="bi bi-bookmarks me-2"></i>分類管理
             </a>
         </li>
 
         <li class="nav-item mb-3">
-            <a class="nav-link text-light"
+            <a class="nav-link admin-main-link text-light @(isTagPage ? "active" : "")"
                asp-area="Admin"
                asp-controller="Tag"
                asp-action="Index">
-                <i class="bi bi-tags me-2"></i> 標籤管理
+                <i class="bi bi-tags me-2"></i>標籤管理
             </a>
         </li>
 
         <li class="nav-item mb-3">
-            <a class="nav-link text-light"
+            <a class="nav-link admin-main-link text-light @(isAnnouncementPage ? "active" : "")"
                asp-area="Admin"
                asp-controller="Announcement"
                asp-action="Index">
-                <i class="bi bi-megaphone me-2"></i> 平台公告
+                <i class="bi bi-megaphone me-2"></i>平台公告
             </a>
         </li>
 
         <li class="nav-item">
-            <a class="nav-link text-light"
+            <a class="nav-link admin-main-link text-light @(isSystemSettingPage ? "active" : "")"
                asp-area="Admin"
                asp-controller="SystemSetting"
                asp-action="Index">
-                <i class="bi bi-gear me-2"></i> 系統設定
+                <i class="bi bi-gear me-2"></i>系統設定
             </a>
         </li>
 

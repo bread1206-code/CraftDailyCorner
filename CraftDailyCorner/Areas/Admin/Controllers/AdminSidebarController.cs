@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace CraftDailyCorner.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    [Authorize(Roles = "03")]
+    [Authorize(Roles = "03,04")]
     public class AdminSidebarController : Controller
     {
         private readonly IAdminSidebarService _sidebarService;

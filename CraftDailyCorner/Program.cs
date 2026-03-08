@@ -33,7 +33,6 @@ builder.Services.AddScoped<ISoftDeleteCleanupTask, SoftDeleteCleanupTask>();
 builder.Services.AddScoped<ISoftDeleteCleanupTask, CreatorPostCleanupTask>();
 builder.Services.AddScoped<IImageManagementService, ProductImageService>();
 builder.Services.AddScoped<IImageManagementService, PortfolioImageService>();
-builder.Services.AddScoped<ICreatorApplicationService, CreatorApplicationService>();
 builder.Services.AddScoped<ICreatorOrderService, CreatorOrderService>();
 builder.Services.AddScoped<ICreatorPickListService, CreatorPickListService>();
 builder.Services.AddScoped<ICreatorShipmentService, CreatorShipmentService>();

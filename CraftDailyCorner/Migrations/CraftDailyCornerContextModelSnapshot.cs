@@ -341,6 +341,9 @@ namespace CraftDailyCorner.Migrations
                     b.Property<byte>("StatusID")
                         .HasColumnType("tinyint");
 
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
                     b.HasKey("CreatorID");
 
                     b.HasIndex("MemberID")
@@ -579,6 +582,9 @@ namespace CraftDailyCorner.Migrations
 
                     b.Property<byte>("StatusID")
                         .HasColumnType("tinyint");
+
+                    b.Property<int>("ViolationCount")
+                        .HasColumnType("int");
 
                     b.HasKey("MemberID");
 

@@ -202,12 +202,29 @@ namespace CraftDailyCorner.Services
             if (report.StatusID != REPORT_PENDING)
                 throw new Exception("此檢舉已完成審核，無法再次操作。");
 
+            // 取得被檢舉目標的擁有者 MemberID
+            var violatorMemberId = await GetTargetOwnerMemberIdAsync(
+                    (ReportTargetType)report.ReportType,
+                    report.TargetID);
+
             report.StatusID = REPORT_VIOLATION;
             report.AdminNote = adminNote;
             report.ReviewedAt = DateTime.Now;
             report.ReviewedBy = adminMemberId;
-
+            
             await ApplyTargetViolationAsync((ReportTargetType)report.ReportType, report.TargetID);
+
+            // 違規次數 +1
+            if (!string.IsNullOrWhiteSpace(violatorMemberId))
+            {
+                var violator = await _context.Members
+                    .FirstOrDefaultAsync(m => m.MemberID == violatorMemberId);
+
+                if (violator == null)
+                    throw new Exception("找不到被判定違規的會員資料。");
+
+                violator.ViolationCount += 1;
+            }
 
             await _context.SaveChangesAsync();
             await tx.CommitAsync();
@@ -429,6 +446,51 @@ namespace CraftDailyCorner.Services
                     return string.IsNullOrWhiteSpace(postId)
                         ? null
                         : $"/Post/Detail/{postId}#comment-{targetId}";
+
+                default:
+                    return null;
+            }
+        }
+        //被檢舉目標的擁有者 MemberID
+        private async Task<string?> GetTargetOwnerMemberIdAsync(ReportTargetType type, string targetId)
+        {
+            switch (type)
+            {
+                case ReportTargetType.Comment:
+                    {
+                        return await _context.PostComments
+                            .AsNoTracking()
+                            .Where(c => c.CommentID == targetId)
+                            .Select(c => c.MemberID)
+                            .FirstOrDefaultAsync();
+                    }
+
+                case ReportTargetType.Post:
+                    {
+                        return await _context.CreatorPosts
+                            .AsNoTracking()
+                            .Where(p => p.PostID == targetId)
+                            .Select(p => p.CreatorProfile.MemberID)
+                            .FirstOrDefaultAsync();
+                    }
+
+                case ReportTargetType.Product:
+                    {
+                        return await _context.Products
+                            .AsNoTracking()
+                            .Where(p => p.ProductID == targetId)
+                            .Select(p => p.CreatorProfile.MemberID)
+                            .FirstOrDefaultAsync();
+                    }
+
+                case ReportTargetType.Portfolio:
+                    {
+                        return await _context.Portfolios
+                            .AsNoTracking()
+                            .Where(p => p.PortfolioID == targetId)
+                            .Select(p => p.CreatorProfile.MemberID)
+                            .FirstOrDefaultAsync();
+                    }
 
                 default:
                     return null;

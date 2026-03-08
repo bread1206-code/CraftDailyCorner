@@ -1,7 +1,6 @@
 ﻿using CraftDailyCorner.Extensions;
 using CraftDailyCorner.Services.Interface;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
 
 namespace CraftDailyCorner.ViewComponents
 {
