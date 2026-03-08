@@ -13,7 +13,7 @@ namespace CraftDailyCorner.Areas.Admin.ViewModels.Member
         [Display(Name = "帳號狀態")]
         public string StatusName { get; set; } = null!;
 
-        [Display(Name = "檢舉次數")]
+        [Display(Name = "惡意檢舉次數")]
         public int MaliciousReportCount { get; set; }
         [Display(Name = "檢舉封鎖至")]
         public DateTime? ReportBanUntil { get; set; }

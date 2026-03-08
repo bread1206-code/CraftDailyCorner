@@ -23,24 +23,31 @@
         @if (isHistory)
         {
             <div class="d-flex align-items-center gap-2">
-                <form class="d-flex gap-2"
-                      method="get"
+                <form method="get"
                       asp-area="Admin"
                       asp-controller="Violation"
-                      asp-action="Index">
+                      asp-action="Index"
+                      class="d-flex gap-2 align-items-center justify-content-center"
+                      style="min-width:520px;">
+
                     <input type="hidden" name="mode" value="history" />
 
-                    <input name="memberId"
-                           value="@Model.SearchMemberId"
-                           class="form-control form-control-sm bg-dark text-light border-secondary"
-                           placeholder="輸入 MemberID 查詢（檢舉人/被檢舉者）"
-                           style="width:320px;" />
+                    <div class="input-group" style="width:300px;">
+                        <span class="input-group-text bg-dark text-light border-secondary">
+                            <i class="bi bi-search"></i>
+                        </span>
 
-                    <button type="submit" class="btn btn-sm btn-outline-light">
-                        <i class="bi bi-search"></i> 搜尋
+                        <input name="memberId"
+                               value="@Model.SearchMemberId"
+                               class="form-control bg-dark text-light border-secondary"
+                               placeholder="輸入 MemberID 查詢（檢舉人/被檢舉者）" />
+                    </div>
+
+                    <button class="btn btn-outline-light" type="submit">
+                        搜尋
                     </button>
 
-                    <a class="btn btn-sm btn-outline-secondary"
+                    <a class="btn btn-outline-secondary @(string.IsNullOrWhiteSpace(Model.SearchMemberId) ? "invisible" : "")"
                        asp-area="Admin"
                        asp-controller="Violation"
                        asp-action="Index"
@@ -48,14 +55,6 @@
                         清除
                     </a>
                 </form>
-
-                <a class="btn btn-sm btn-outline-info"
-                   asp-area="Admin"
-                   asp-controller="Violation"
-                   asp-action="Index"
-                   asp-route-mode="pending">
-                    回待審核
-                </a>
             </div>
         }
         else
@@ -168,7 +167,7 @@
                 @if (isHistory && Model.TotalPages > 1)
                 {
                     <div class="p-3 border-top border-secondary d-flex justify-content-between align-items-center">
-                        <div class="text-secondary small">
+                        <div class="text-secondary opacity-75 small">
                             第 @Model.Page / @Model.TotalPages 頁，共 @Model.TotalCount 筆
                         </div>
 
