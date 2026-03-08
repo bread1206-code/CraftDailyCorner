@@ -5,12 +5,39 @@
 @{
     ViewData["Title"] = "會員登入";
 }
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-5 col-md-7">
+            <h1>@ViewData["Title"]</h1>
+            <p class="text-muted mb-0">歡迎回到 CraftDailyCorner</p>
+            <hr />
+            @if (TempData["Success"] != null)
+            {
+                <div class="alert alert-success">
+                    @TempData["Success"]
+                </div>
+            }
 
-<h1>@ViewData["Title"]</h1>
+            @if (TempData["Info"] != null)
+            {
+                <div class="alert alert-info">
+                    @TempData["Info"]
+                </div>
+            }
 
-<hr />
-<div>
-    @await Html.PartialAsync("_LoginPartial", new VMLogin())
+            @if (TempData["Warning"] != null)
+            {
+                <div class="alert alert-warning">
+                    @TempData["Warning"]
+                </div>
+            }
+            <div class="card shadow-sm border-0">
+                <div class="card-body p-4">
+                    <partial name="_LoginPartial" model="(Model ?? new VMLogin())" />
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 

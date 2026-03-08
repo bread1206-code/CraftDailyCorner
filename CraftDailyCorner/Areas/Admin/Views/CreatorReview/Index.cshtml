@@ -1,7 +1,12 @@
 ﻿@model CraftDailyCorner.Areas.Admin.ViewModels.CreatorReview.VMAdminCreatorReviewIndex
 
 @{
-    ViewData["Title"] = "創作者審核（待審核）";
+    var isHistory = Model.Mode == "history";
+
+    ViewData["Title"] = isHistory
+        ? "創作者審核（歷史資料）"
+        : "創作者審核（待審核）";
+
     Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
 }
 
@@ -10,12 +15,55 @@
     <div class="d-flex justify-content-between align-items-end mb-4">
         <div>
             <h2 class="fw-bold mb-1 text-light">創作者審核</h2>
-            <div class="text-light opacity-75">待審核申請清單</div>
+            <div class="text-light opacity-75">
+                @(isHistory
+                                ? "歷史資料（已通過 / 已拒絕 / 已確認）"
+                                : "待審核申請清單")
+            </div>
         </div>
 
-        <span class="badge bg-danger @(Model.Items.Count == 0 ? "d-none" : "")">
-            待審核 @Model.Items.Count
-        </span>
+        @if (isHistory)
+        {
+            <!-- 右上角搜尋框：MemberID -->
+            <form method="get"
+                  asp-area="Admin"
+                  asp-controller="CreatorReview"
+                  asp-action="Index"
+                  class="d-flex gap-2 align-items-center justify-content-center"
+                  style="min-width:520px;">
+
+                <input type="hidden" name="mode" value="history" />
+
+                <div class="input-group" style="width:300px;">
+                    <span class="input-group-text bg-dark text-light border-secondary">
+                        <i class="bi bi-search"></i>
+                    </span>
+
+                    <input name="memberId"
+                           value="@Model.SearchMemberId"
+                           class="form-control bg-dark text-light border-secondary"
+                           placeholder="輸入 MemberID" />
+                </div>
+
+                <button class="btn btn-outline-light" type="submit">
+                    搜尋
+                </button>
+
+                <a class="btn btn-outline-secondary @(string.IsNullOrWhiteSpace(Model.SearchMemberId) ? "invisible" : "")"
+                   asp-area="Admin"
+                   asp-controller="CreatorReview"
+                   asp-action="Index"
+                   asp-route-mode="history">
+                    清除
+                </a>
+            </form>
+        }
+        else
+        {
+            <span class="badge bg-danger @(Model.Items.Count == 0 ? "d-none" : "")">
+                待審核 @Model.Items.Count
+            </span>
+        }
     </div>
 
     <div class="card shadow-sm border-0">
@@ -25,7 +73,9 @@
             {
                 <div class="p-4 text-center text-light opacity-75">
                     <i class="bi bi-inbox fs-2"></i>
-                    <div class="mt-2">目前沒有待審核申請</div>
+                    <div class="mt-2">
+                        @(isHistory ? "查無資料" : "目前沒有待審核申請")
+                    </div>
                 </div>
             }
             else
@@ -45,7 +95,16 @@
                         <tbody>
                             @foreach (var x in Model.Items)
                             {
-                                <tr class="table-active">
+                                var rowClass = isHistory ? "" : "table-active";
+
+                                var badge = !isHistory
+                                ? "bg-danger"
+                                : x.StatusID == 2 ? "bg-success"
+                                : x.StatusID == 3 ? "bg-danger"
+                                : x.StatusID == 4 ? "bg-primary"
+                                : "bg-secondary";
+
+                                <tr class="@rowClass">
                                     <td>#@x.ApplicationID</td>
                                     <td>
                                         <div class="fw-semibold">@x.MemberName</div>
@@ -55,7 +114,7 @@
                                     <td class="fw-semibold">@x.BrandName</td>
                                     <td>@x.AppliedAt.ToString("yyyy/MM/dd HH:mm")</td>
                                     <td>
-                                        <span class="badge bg-danger">@x.StatusName</span>
+                                        <span class="badge @badge">@x.StatusName</span>
                                     </td>
                                     <td class="text-end">
                                         <a class="btn btn-sm btn-outline-light"
@@ -70,6 +129,60 @@
                             }
                         </tbody>
                     </table>
+                </div>
+            }
+
+            @if (isHistory && Model.TotalPages > 1)
+            {
+                <div class="p-3 border-top border-secondary d-flex justify-content-between align-items-center">
+                    <div class="text-light opacity-75 small">
+                        第 @Model.Page / @Model.TotalPages 頁，共 @Model.TotalCount 筆
+                    </div>
+
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination pagination-sm mb-0">
+
+                            <li class="page-item @(Model.Page <= 1 ? "disabled" : "")">
+                                <a class="page-link bg-dark text-light border-secondary"
+                                   asp-area="Admin"
+                                   asp-controller="CreatorReview"
+                                   asp-action="Index"
+                                   asp-route-mode="history"
+                                   asp-route-memberId="@Model.SearchMemberId"
+                                   asp-route-page="@(Model.Page - 1)">
+                                    上一頁
+                                </a>
+                            </li>
+
+                            @for (int p = 1; p <= Model.TotalPages; p++)
+                            {
+                                <li class="page-item @(p == Model.Page ? "active" : "")">
+                                    <a class="page-link bg-dark text-light border-secondary"
+                                       asp-area="Admin"
+                                       asp-controller="CreatorReview"
+                                       asp-action="Index"
+                                       asp-route-mode="history"
+                                       asp-route-memberId="@Model.SearchMemberId"
+                                       asp-route-page="@p">
+                                        @p
+                                    </a>
+                                </li>
+                            }
+
+                            <li class="page-item @(Model.Page >= Model.TotalPages ? "disabled" : "")">
+                                <a class="page-link bg-dark text-light border-secondary"
+                                   asp-area="Admin"
+                                   asp-controller="CreatorReview"
+                                   asp-action="Index"
+                                   asp-route-mode="history"
+                                   asp-route-memberId="@Model.SearchMemberId"
+                                   asp-route-page="@(Model.Page + 1)">
+                                    下一頁
+                                </a>
+                            </li>
+
+                        </ul>
+                    </nav>
                 </div>
             }
 

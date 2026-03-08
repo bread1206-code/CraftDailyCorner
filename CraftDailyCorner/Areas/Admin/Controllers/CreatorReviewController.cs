@@ -23,10 +23,6 @@ namespace CraftDailyCorner.Areas.Admin.Controllers
         public async Task<IActionResult> Index(string mode = "pending", string? memberId = null, int page = 1)
         {
             var vm = await _reviewService.GetIndexAsync(mode, memberId, page);
-
-            if (vm.Mode == "history")
-                return View("History", vm);
-
             return View(vm);
         }
 
@@ -55,7 +51,7 @@ namespace CraftDailyCorner.Areas.Admin.Controllers
             return RedirectToAction(nameof(Detail), new { id });
         }
 
-        //新增：下一筆待審核（提高效率，不用回 Index）
+        // 下一筆待審核（提高效率，不用回 Index）
         [HttpGet]
         public async Task<IActionResult> Next(int id)
         {

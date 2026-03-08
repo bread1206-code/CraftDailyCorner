@@ -24,10 +24,6 @@ namespace CraftDailyCorner.Areas.Admin.Controllers
         public async Task<IActionResult> Index(string mode = "pending", string? memberId = null, int page = 1)
         {
             var vm = await _service.GetIndexAsync(mode, memberId, page);
-
-            if (vm.Mode == "history")
-                return View("History", vm);
-
             return View(vm);
         }
 

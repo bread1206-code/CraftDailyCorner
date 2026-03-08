@@ -8,7 +8,13 @@
     var isDashboardPage = currentController == "Dashboard";
 
     var isMemberPage = currentController == "Members";
-    var isMemberIndexPage = currentController == "Members" && currentAction == "Index";
+
+    // Members 各子頁 active 判斷
+    var memberMode = string.IsNullOrWhiteSpace(currentMode) ? "all" : currentMode;
+
+    var isMemberAllPage = currentController == "Members" && currentAction == "Index" && memberMode == "all";
+    var isMemberCreatorPage = currentController == "Members" && currentAction == "Index" && memberMode == "creator";
+    var isMemberAdminPage = currentController == "Members" && currentAction == "Index" && memberMode == "admin";
 
     var isCreatorReviewPage = currentController == "CreatorReview";
     var isCreatorReviewPendingPage = currentController == "CreatorReview" && string.IsNullOrWhiteSpace(currentMode);
@@ -44,6 +50,7 @@
                 <a asp-area="Admin"
                    asp-controller="Members"
                    asp-action="Index"
+                   asp-route-mode="risk"
                    class="nav-link admin-main-link text-light flex-grow-1 @(isMemberPage ? "active" : "")">
                     <i class="bi bi-person-bounding-box me-2"></i>會員管理
                 </a>
@@ -67,30 +74,37 @@
                     <a asp-area="Admin"
                        asp-controller="Members"
                        asp-action="Index"
-                       class="nav-link admin-sub-link text-light small opacity-75 py-1 @(isMemberIndexPage ? "active" : "")">
+                       asp-route-mode="all"
+                       class="nav-link admin-sub-link text-light small opacity-75 py-1 @(isMemberAllPage ? "active" : "")">
                         查看會員資料
                     </a>
                 </div>
-            </div>
-        </li>
-        @if (User.IsInRole("04"))
-        {
-            <li class="nav-item mb-3">
-                <div id="collapseMembers"
-                     class="collapse @(isMemberPage ? "show" : "")">
+                <div class="ms-4">
+                    <!--查看創作者資料 -->
+                    <a asp-area="Admin"
+                       asp-controller="Members"
+                       asp-action="Index"
+                       asp-route-mode="creator"
+                       class="nav-link admin-sub-link text-light small opacity-75 py-1 @(isMemberCreatorPage ? "active" : "")">
+                        查看創作者資料
+                    </a>
+                </div>
+                @if (User.IsInRole("04"))
+                {
                     <div class="ms-4">
                         <!--查看會員資料 -->
                         <a asp-area="Admin"
-                           asp-controller=""
-                           asp-action=""
-                           class="nav-link admin-sub-link text-light small opacity-75 py-1 @(isMemberIndexPage ? "active" : "")">
+                           asp-controller="Members"
+                           asp-action="Index"
+                           asp-route-mode="admin"
+                           class="nav-link admin-sub-link text-light small opacity-75 py-1 @(isMemberAdminPage ? "active" : "")">
                             管理管理者
                         </a>
                     </div>
-                </div>
-            </li>
-        }
-
+                }
+            </div>
+        </li>
+        
         <!-- 創作者審核：待審核 -->
         <li class="nav-item mb-1">
             <div class="d-flex align-items-center justify-content-between admin-main-wrap @(isCreatorReviewPage ? "active" : "")">

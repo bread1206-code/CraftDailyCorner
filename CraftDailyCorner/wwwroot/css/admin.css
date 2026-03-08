@@ -12,12 +12,23 @@
 
 .admin-wrapper {
     min-height: 100vh;
+    display: flex;
 }
 
+/* 左側 Sidebar：固定寬度，不可被壓縮 */
+.admin-sidebar {
+    width: 280px;
+    min-width: 280px;
+    flex-shrink: 0;
+    background-color: #111827;
+    border-right: 1px solid #1f2937;
+}
 
-
+/* 右側內容：吃剩餘空間 */
 .admin-content {
     background-color: #0f172a;
+    flex: 1 1 auto;
+    min-width: 0;
 }
 
 .admin-topbar {

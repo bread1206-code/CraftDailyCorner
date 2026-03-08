@@ -36,7 +36,7 @@ namespace CraftDailyCorner.Controllers
             }
 
             ViewData["ReturnUrl"] = returnUrl;
-            return View();
+            return View(new VMLogin());
         }
 
         [HttpPost]
@@ -48,6 +48,16 @@ namespace CraftDailyCorner.Controllers
 
             if (user == null)
                 return Json(new { success = false, message = "帳號或密碼錯誤" });
+
+            var member = _context.Members
+                .FirstOrDefault(m => m.MemberID == user.MemberID);
+
+            if (member == null)
+                return Json(new { success = false, message = "找不到會員資料" });
+
+            // 會員停權不可登入
+            if (member.StatusID == 2)
+                return Json(new { success = false, message = "此帳號已被停權，無法登入" });
 
             var hasher = new PasswordHasher<Privacy>();
             var result = hasher.VerifyHashedPassword(user, user.PasswordHash, login.Password);
@@ -156,7 +166,7 @@ namespace CraftDailyCorner.Controllers
             var user = _context.Privacies.FirstOrDefault(u => u.Email == vm.Email);
             if (user == null)
             {
-                TempData["Message"] = "已發送重設密碼 Email，請檢查收件匣";
+                TempData["Info"] = "已發送重設密碼 Email，請檢查收件匣";
                 return RedirectToAction("Login");
             }
 
@@ -175,7 +185,7 @@ namespace CraftDailyCorner.Controllers
 
             var resetLink = Url.Action("ResetPassword", "Account", new { token = token }, Request.Scheme);
 
-            TempData["Message"] = "已發送重設密碼 Email，請檢查收件匣";
+            TempData["Info"] = "已發送重設密碼 Email，請檢查收件匣";
             TempData["ResetLink"] = resetLink; // 測試用
             return RedirectToAction("ForgetPasswordConfirmation");
         }
@@ -221,7 +231,7 @@ namespace CraftDailyCorner.Controllers
 
             await _context.SaveChangesAsync();
 
-            TempData["Message"] = "密碼已重設成功，請重新登入";
+            TempData["Success"] = "密碼已重設成功，請重新登入";
             return RedirectToAction("Login");
         }
     }

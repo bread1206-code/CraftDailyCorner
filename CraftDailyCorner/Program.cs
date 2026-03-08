@@ -1,3 +1,4 @@
+using CraftDailyCorner.Filters;
 using CraftDailyCorner.ImageManagementCore.Services;
 using CraftDailyCorner.ImageManagementCore.Services.Interfaces;
 using CraftDailyCorner.Models;
@@ -11,10 +12,16 @@ using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
+
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllersWithViews(options =>
+{
+    options.Filters.Add<SuspendedMemberGuardFilter>();
+});
+builder.Services.AddScoped<SuspendedMemberGuardFilter>();
 builder.Services.AddDbContext<CraftDailyCornerContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("CraftDailyCornerConnection")));
 builder.Services.AddScoped <IImageUploadService, ImageUploadService>();
@@ -48,6 +55,7 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IAdminViolationService, AdminViolationService>();
 builder.Services.AddScoped<IAdminCategoryService, AdminCategoryService>();
 builder.Services.AddScoped<IAdminTagService, AdminTagService>();
+builder.Services.AddScoped<IAdminMemberService, AdminMemberService>();
 
 builder.Services.AddHostedService<SoftDeleteCleanupBackgroundService>();
 builder.Services.AddHostedService<OrderAutoCompleteHostedBackgroundService>();

@@ -1,7 +1,12 @@
 ﻿@model CraftDailyCorner.Areas.Admin.ViewModels.Violation.VMAdminViolationIndex
 
 @{
-    ViewData["Title"] = "違規管理";
+    var isHistory = Model.Mode == "history";
+
+    ViewData["Title"] = isHistory
+        ? "違規管理（歷史資料）"
+        : "違規管理";
+
     Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
 }
 
@@ -10,22 +15,65 @@
     <div class="d-flex justify-content-between align-items-end mb-4">
         <div>
             <h2 class="fw-bold mb-1 text-light">違規管理</h2>
-            <div class="text-light opacity-75">待審核檢舉清單</div>
+            <div class="text-light opacity-75">
+                @(isHistory ? "歷史檢舉資料（已判定）" : "待審核檢舉清單")
+            </div>
         </div>
 
-        <div class="d-flex align-items-center gap-2">
-            <a class="btn btn-sm btn-outline-secondary"
-               asp-area="Admin"
-               asp-controller="Violation"
-               asp-action="Index"
-               asp-route-mode="history">
-                查看歷史資料
-            </a>
+        @if (isHistory)
+        {
+            <div class="d-flex align-items-center gap-2">
+                <form class="d-flex gap-2"
+                      method="get"
+                      asp-area="Admin"
+                      asp-controller="Violation"
+                      asp-action="Index">
+                    <input type="hidden" name="mode" value="history" />
 
-            <span class="badge bg-danger @(Model.Items.Count == 0 ? "d-none" : "")">
-                待審核 @Model.Items.Count
-            </span>
-        </div>
+                    <input name="memberId"
+                           value="@Model.SearchMemberId"
+                           class="form-control form-control-sm bg-dark text-light border-secondary"
+                           placeholder="輸入 MemberID 查詢（檢舉人/被檢舉者）"
+                           style="width:320px;" />
+
+                    <button type="submit" class="btn btn-sm btn-outline-light">
+                        <i class="bi bi-search"></i> 搜尋
+                    </button>
+
+                    <a class="btn btn-sm btn-outline-secondary"
+                       asp-area="Admin"
+                       asp-controller="Violation"
+                       asp-action="Index"
+                       asp-route-mode="history">
+                        清除
+                    </a>
+                </form>
+
+                <a class="btn btn-sm btn-outline-info"
+                   asp-area="Admin"
+                   asp-controller="Violation"
+                   asp-action="Index"
+                   asp-route-mode="pending">
+                    回待審核
+                </a>
+            </div>
+        }
+        else
+        {
+            <div class="d-flex align-items-center gap-2">
+                <a class="btn btn-sm btn-outline-secondary"
+                   asp-area="Admin"
+                   asp-controller="Violation"
+                   asp-action="Index"
+                   asp-route-mode="history">
+                    查看歷史資料
+                </a>
+
+                <span class="badge bg-danger @(Model.Items.Count == 0 ? "d-none" : "")">
+                    待審核 @Model.Items.Count
+                </span>
+            </div>
+        }
     </div>
 
     <div class="card shadow-sm border-0">
@@ -35,7 +83,9 @@
             {
                 <div class="p-4 text-center text-light opacity-75">
                     <i class="bi bi-inbox fs-2"></i>
-                    <div class="mt-2">目前沒有待審核檢舉</div>
+                    <div class="mt-2">
+                        @(isHistory ? "沒有符合條件的歷史資料" : "目前沒有待審核檢舉")
+                    </div>
                 </div>
             }
             else
@@ -49,6 +99,12 @@
                                 <th>被檢舉者</th>
                                 <th style="width:220px;">目標</th>
                                 <th style="width:160px;">原因</th>
+
+                                @if (isHistory)
+                                {
+                                    <th style="width:140px;">結果</th>
+                                }
+
                                 <th style="width:180px;">時間</th>
                                 <th style="width:120px;"></th>
                             </tr>
@@ -56,7 +112,12 @@
                         <tbody>
                             @foreach (var x in Model.Items)
                             {
-                                <tr class="table-active">
+                                var rowClass = isHistory ? "" : "table-active";
+                                var resultBadge = x.StatusID == 2 ? "bg-danger"
+                                : x.StatusID == 3 ? "bg-success"
+                                : "bg-secondary";
+
+                                <tr class="@rowClass">
                                     <td>#@x.ReportID</td>
                                     <td>
                                         <div class="fw-semibold">@x.ReporterName</div>
@@ -80,6 +141,14 @@
                                     <td>
                                         <span class="badge bg-secondary">@x.ReasonName</span>
                                     </td>
+
+                                    @if (isHistory)
+                                    {
+                                        <td>
+                                            <span class="badge @resultBadge">@x.StatusName</span>
+                                        </td>
+                                    }
+
                                     <td>@x.CreatedAt.ToString("yyyy/MM/dd HH:mm")</td>
                                     <td class="text-end">
                                         <a class="btn btn-sm btn-outline-light"
@@ -95,6 +164,64 @@
                         </tbody>
                     </table>
                 </div>
+
+                @if (isHistory && Model.TotalPages > 1)
+                {
+                    <div class="p-3 border-top border-secondary d-flex justify-content-between align-items-center">
+                        <div class="text-secondary small">
+                            第 @Model.Page / @Model.TotalPages 頁，共 @Model.TotalCount 筆
+                        </div>
+
+                        <nav>
+                            <ul class="pagination pagination-sm mb-0">
+                                @{
+                                    var prev = Model.Page - 1;
+                                    var next = Model.Page + 1;
+                                    string memberId = Model.SearchMemberId ?? "";
+                                }
+
+                                <li class="page-item @(Model.Page <= 1 ? "disabled" : "")">
+                                    <a class="page-link bg-dark text-light border-secondary"
+                                       asp-area="Admin"
+                                       asp-controller="Violation"
+                                       asp-action="Index"
+                                       asp-route-mode="history"
+                                       asp-route-memberId="@memberId"
+                                       asp-route-page="@prev">
+                                        上一頁
+                                    </a>
+                                </li>
+
+                                @for (int p = 1; p <= Model.TotalPages; p++)
+                                {
+                                    <li class="page-item @(p == Model.Page ? "active" : "")">
+                                        <a class="page-link bg-dark text-light border-secondary"
+                                           asp-area="Admin"
+                                           asp-controller="Violation"
+                                           asp-action="Index"
+                                           asp-route-mode="history"
+                                           asp-route-memberId="@memberId"
+                                           asp-route-page="@p">
+                                            @p
+                                        </a>
+                                    </li>
+                                }
+
+                                <li class="page-item @(Model.Page >= Model.TotalPages ? "disabled" : "")">
+                                    <a class="page-link bg-dark text-light border-secondary"
+                                       asp-area="Admin"
+                                       asp-controller="Violation"
+                                       asp-action="Index"
+                                       asp-route-mode="history"
+                                       asp-route-memberId="@memberId"
+                                       asp-route-page="@next">
+                                        下一頁
+                                    </a>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+                }
             }
 
         </div>

@@ -452,7 +452,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace CraftDailyCorner.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    [Authorize(Roles = "03")]
+    [Authorize(Roles = "03,04")]
     public class AdminSidebarController : Controller
     {
         private readonly IAdminSidebarService _sidebarService;
@@ -488,7 +488,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace CraftDailyCorner.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    [Authorize(Roles = "03")]
+    [Authorize(Roles = "03,04")]
     public class CategoriesController : Controller
     {
         private readonly IAdminCategoryService _service;
@@ -604,7 +604,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace CraftDailyCorner.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    [Authorize(Roles = "03")]
+    [Authorize(Roles = "03,04")]
     public class CreatorReviewController : Controller
     {
         private readonly IAdminCreatorReviewService _reviewService;
@@ -681,7 +681,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace CraftDailyCorner.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    [Authorize(Roles = "03")] // 管理者
+    [Authorize(Roles = "03,04")] // 管理者
     public class DashboardController : Controller
     {
         private readonly IAdminDashboardService _dashboardService;
@@ -748,7 +748,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace CraftDailyCorner.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    [Authorize(Roles = "03")]
+    [Authorize(Roles = "03,04")]
     public class TagController : Controller
     {
         private readonly IAdminTagService _tagService;
@@ -851,7 +851,7 @@ using System.ComponentModel.DataAnnotations;
 namespace CraftDailyCorner.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    [Authorize(Roles = "03")]
+    [Authorize(Roles = "03,04")]
     public class ViolationController : Controller
     {
         private readonly IAdminViolationService _service;
@@ -2469,7 +2469,7 @@ FILE: CraftDailyCorner\Areas\Admin\Views\Shared\Components\VCAdminSidebar\Defaul
             </div>
         </li>
 
-        <li class="nav-item mb-3">
+        <li class="nav-item mb-1">
             <div id="collapseMembers"
                  class="collapse @(isMemberPage ? "show" : "")">
                 <div class="ms-4">
@@ -2483,6 +2483,23 @@ FILE: CraftDailyCorner\Areas\Admin\Views\Shared\Components\VCAdminSidebar\Defaul
                 </div>
             </div>
         </li>
+        @if (User.IsInRole("04"))
+        {
+            <li class="nav-item mb-3">
+                <div id="collapseMembers"
+                     class="collapse @(isMemberPage ? "show" : "")">
+                    <div class="ms-4">
+                        <!--查看會員資料 -->
+                        <a asp-area="Admin"
+                           asp-controller=""
+                           asp-action=""
+                           class="nav-link admin-sub-link text-light small opacity-75 py-1 @(isMemberIndexPage ? "active" : "")">
+                            管理管理者
+                        </a>
+                    </div>
+                </div>
+            </li>
+        }
 
         <!-- 創作者審核：待審核 -->
         <li class="nav-item mb-1">
@@ -3570,7 +3587,7 @@ namespace CraftDailyCorner.Controllers
 
             return View();
         }
-
+        //註冊
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Register(VMRegister model)
@@ -4871,7 +4888,6 @@ using CraftDailyCorner.Services;
 using CraftDailyCorner.ViewModels.Order;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
 
 namespace CraftDailyCorner.Controllers
 {
@@ -6712,7 +6728,7 @@ namespace CraftDailyCorner.ImageManagementCore.ViewModels
 }
 
 ==================================================
-FILE: CraftDailyCorner\Migrations\20260305111603_InitialCreate.cs
+FILE: CraftDailyCorner\Migrations\20260308065457_InitialCreate.cs
 ==================================================
 
 using System;
@@ -7013,6 +7029,7 @@ namespace CraftDailyCorner.Migrations
                     StatusID = table.Column<byte>(type: "tinyint", nullable: false),
                     MaliciousReportCount = table.Column<int>(type: "int", nullable: false),
                     ReportBanUntil = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    ViolationCount = table.Column<int>(type: "int", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
@@ -7099,6 +7116,7 @@ namespace CraftDailyCorner.Migrations
                     BankAccount = table.Column<string>(type: "nvarchar(14)", maxLength: 14, nullable: true),
                     StatusID = table.Column<byte>(type: "tinyint", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     MemberID = table.Column<string>(type: "nchar(8)", maxLength: 8, nullable: false)
                 },
                 constraints: table =>
@@ -8588,7 +8606,7 @@ namespace CraftDailyCorner.Migrations
 
 
 ==================================================
-FILE: CraftDailyCorner\Migrations\20260305111603_InitialCreate.Designer.cs
+FILE: CraftDailyCorner\Migrations\20260308065457_InitialCreate.Designer.cs
 ==================================================
 
 // <auto-generated />
@@ -8605,7 +8623,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CraftDailyCorner.Migrations
 {
     [DbContext(typeof(CraftDailyCornerContext))]
-    [Migration("20260305111603_InitialCreate")]
+    [Migration("20260308065457_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -8937,6 +8955,9 @@ namespace CraftDailyCorner.Migrations
                     b.Property<byte>("StatusID")
                         .HasColumnType("tinyint");
 
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
                     b.HasKey("CreatorID");
 
                     b.HasIndex("MemberID")
@@ -9175,6 +9196,9 @@ namespace CraftDailyCorner.Migrations
 
                     b.Property<byte>("StatusID")
                         .HasColumnType("tinyint");
+
+                    b.Property<int>("ViolationCount")
+                        .HasColumnType("int");
 
                     b.HasKey("MemberID");
 
@@ -11602,6 +11626,9 @@ namespace CraftDailyCorner.Migrations
                     b.Property<byte>("StatusID")
                         .HasColumnType("tinyint");
 
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
                     b.HasKey("CreatorID");
 
                     b.HasIndex("MemberID")
@@ -11840,6 +11867,9 @@ namespace CraftDailyCorner.Migrations
 
                     b.Property<byte>("StatusID")
                         .HasColumnType("tinyint");
+
+                    b.Property<int>("ViolationCount")
+                        .HasColumnType("int");
 
                     b.HasKey("MemberID");
 
@@ -15530,6 +15560,9 @@ namespace CraftDailyCorner.Models
         [Display(Name = "檢舉功能停權至")]
         public DateTime? ReportBanUntil { get; set; }
 
+        [Display(Name = "違規次數")]
+        public int ViolationCount { get; set; } = 0;
+
         [HiddenInput]
         [Display(Name ="建立時間")]
         public DateTime CreatedAt { get; set; }= DateTime.Now;
@@ -18336,7 +18369,7 @@ namespace CraftDailyCorner.Seed.Datas
                     }, new MemberRole
                     {
                         MemberID = "M0000001",
-                        RoleID = "03",
+                        RoleID = "04",
                         AssignedAt = DateTime.Now
                     }, new MemberRole
                     {
@@ -19855,7 +19888,7 @@ namespace CraftDailyCorner.Seed.Datas
                     {
                         RoleID = "01",
                         RoleName = "一般會員",
-                        Description = "可以使用大部分功能。"
+                        Description = "可以使用一般功能。"
                     }, new Role
                     {
                         RoleID = "02",
@@ -19865,7 +19898,12 @@ namespace CraftDailyCorner.Seed.Datas
                     {
                         RoleID = "03",
                         RoleName = "管理者",
-                        Description = "可以管理平台資料。"
+                        Description = "負責管理平台事務。"
+                    }, new Role
+                    {
+                        RoleID = "04",
+                        RoleName = "超級管理者",
+                        Description = "可以變更平台設定、給予管理者身分。"
                     }
                 };
                 _context.Roles.AddRange(roles);
@@ -21530,12 +21568,29 @@ namespace CraftDailyCorner.Services
             if (report.StatusID != REPORT_PENDING)
                 throw new Exception("此檢舉已完成審核，無法再次操作。");
 
+            // 取得被檢舉目標的擁有者 MemberID
+            var violatorMemberId = await GetTargetOwnerMemberIdAsync(
+                    (ReportTargetType)report.ReportType,
+                    report.TargetID);
+
             report.StatusID = REPORT_VIOLATION;
             report.AdminNote = adminNote;
             report.ReviewedAt = DateTime.Now;
             report.ReviewedBy = adminMemberId;
-
+            
             await ApplyTargetViolationAsync((ReportTargetType)report.ReportType, report.TargetID);
+
+            // 違規次數 +1
+            if (!string.IsNullOrWhiteSpace(violatorMemberId))
+            {
+                var violator = await _context.Members
+                    .FirstOrDefaultAsync(m => m.MemberID == violatorMemberId);
+
+                if (violator == null)
+                    throw new Exception("找不到被判定違規的會員資料。");
+
+                violator.ViolationCount += 1;
+            }
 
             await _context.SaveChangesAsync();
             await tx.CommitAsync();
@@ -21757,6 +21812,51 @@ namespace CraftDailyCorner.Services
                     return string.IsNullOrWhiteSpace(postId)
                         ? null
                         : $"/Post/Detail/{postId}#comment-{targetId}";
+
+                default:
+                    return null;
+            }
+        }
+        //被檢舉目標的擁有者 MemberID
+        private async Task<string?> GetTargetOwnerMemberIdAsync(ReportTargetType type, string targetId)
+        {
+            switch (type)
+            {
+                case ReportTargetType.Comment:
+                    {
+                        return await _context.PostComments
+                            .AsNoTracking()
+                            .Where(c => c.CommentID == targetId)
+                            .Select(c => c.MemberID)
+                            .FirstOrDefaultAsync();
+                    }
+
+                case ReportTargetType.Post:
+                    {
+                        return await _context.CreatorPosts
+                            .AsNoTracking()
+                            .Where(p => p.PostID == targetId)
+                            .Select(p => p.CreatorProfile.MemberID)
+                            .FirstOrDefaultAsync();
+                    }
+
+                case ReportTargetType.Product:
+                    {
+                        return await _context.Products
+                            .AsNoTracking()
+                            .Where(p => p.ProductID == targetId)
+                            .Select(p => p.CreatorProfile.MemberID)
+                            .FirstOrDefaultAsync();
+                    }
+
+                case ReportTargetType.Portfolio:
+                    {
+                        return await _context.Portfolios
+                            .AsNoTracking()
+                            .Where(p => p.PortfolioID == targetId)
+                            .Select(p => p.CreatorProfile.MemberID)
+                            .FirstOrDefaultAsync();
+                    }
 
                 default:
                     return null;
@@ -28244,7 +28344,6 @@ FILE: CraftDailyCorner\ViewComponents\VCPostComment.cs
 using CraftDailyCorner.Extensions;
 using CraftDailyCorner.Services.Interface;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
 
 namespace CraftDailyCorner.ViewComponents
 {
@@ -38566,7 +38665,7 @@ FILE: CraftDailyCorner\Views\Shared\_NavbarPartial.cshtml
                                 </li>
                             }
 
-                            @if (User.IsInRole("03")) // 管理者
+                            @if (User.IsInRole("03") || User.IsInRole("04")) // 管理者
                             {
                                 <li>
                                     <a class="dropdown-item text-danger"
@@ -39420,6 +39519,9 @@ FILE: CraftDailyCorner\Views\Shared\Error.cshtml
 FILE: CraftDailyCorner\wwwroot\css\admin.css
 ==================================================
 
+html {
+    overflow-y: scroll;
+}
 /* ========================
    Base Dark Layout
 ======================== */
