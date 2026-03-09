@@ -21,14 +21,16 @@ namespace CraftDailyCorner.Seed.Datas
                         Content = "請問這個商品可以客製刻字嗎？",
                         CreatedAt = DateTime.Now,
                         ThreadID = 1,
-                        SenderID = "M0000002"
+                        SenderID = "M0000002",
+                        IsRead = true
                     },
                     new Message
                     {
                         Content = "可以的，請在備註說明想刻的內容。",
                         CreatedAt = DateTime.Now,
                         ThreadID = 1,
-                        SenderID = "M0000004"
+                        SenderID = "M0000004",
+                        IsRead = false
                     }
                 };
                 _context.Messages.AddRange(messages);

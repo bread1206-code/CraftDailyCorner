@@ -19,8 +19,11 @@ namespace CraftDailyCorner.Seed.Datas
                     new MessageThread
                     {
                         CreatedAt = DateTime.Now,
+                        LastMessageAt = DateTime.Now,
+                        LastMessagePreview = "可以的，請在備註說明想刻的內容。",
                         MemberID = "M0000002",
-                        CreatorID = "C00001"
+                        CreatorID = "C00001",
+                        ProductID = "P000000001"
                     }
                 };
                 _context.MessageThreads.AddRange(messageThreads);

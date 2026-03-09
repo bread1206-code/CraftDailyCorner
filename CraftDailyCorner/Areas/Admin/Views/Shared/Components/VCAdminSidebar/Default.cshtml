@@ -27,7 +27,8 @@
     var isCategoriesPage = currentController == "Categories";
     var isTagPage = currentController == "Tag";
     var isAnnouncementPage = currentController == "Announcement";
-    var isSystemSettingPage = currentController == "SystemSetting";
+    var isSystemSettingPage = currentController == "SystemSetting" || currentController == "HomepageBanner";
+    var isHomepageBannerPage = currentController == "HomepageBanner";
 }
 
 <div class="admin-sidebar p-3">
@@ -216,13 +217,38 @@
             </a>
         </li>
 
+        <li class="nav-item mb-1">
+            <div class="d-flex align-items-center justify-content-between admin-main-wrap @(isSystemSettingPage ? "active" : "")">
+                <a asp-area="Admin"
+                   asp-controller="SystemSetting"
+                   asp-action="Index"
+                   class="nav-link admin-main-link text-light flex-grow-1 @(isSystemSettingPage ? "active" : "")">
+                    <i class="bi bi-gear me-2"></i>系統設定
+                </a>
+
+                <button class="btn btn-link text-light text-decoration-none p-0 ms-2 admin-toggle @(isSystemSettingPage ? "" : "collapsed")"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#collapseSystemSetting"
+                        aria-expanded="@(isSystemSettingPage ? "true" : "false")"
+                        aria-controls="collapseSystemSetting">
+                    <i class="bi bi-caret-down-fill"></i>
+                </button>
+            </div>
+        </li>
+
         <li class="nav-item">
-            <a class="nav-link admin-main-link text-light @(isSystemSettingPage ? "active" : "")"
-               asp-area="Admin"
-               asp-controller="SystemSetting"
-               asp-action="Index">
-                <i class="bi bi-gear me-2"></i>系統設定
-            </a>
+            <div id="collapseSystemSetting"
+                 class="collapse @(isSystemSettingPage ? "show" : "")">
+                <div class="ms-4">
+                    <a asp-area="Admin"
+                       asp-controller="HomepageBanner"
+                       asp-action="Index"
+                       class="nav-link admin-sub-link text-light small opacity-75 py-1 @(isHomepageBannerPage ? "active" : "")">
+                        首頁輪播圖管理
+                    </a>
+                </div>
+            </div>
         </li>
 
     </ul>

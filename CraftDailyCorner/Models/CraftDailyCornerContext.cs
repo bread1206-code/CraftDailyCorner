@@ -348,6 +348,12 @@ namespace CraftDailyCorner.Models
                 .HasForeignKey(mt => mt.CreatorID)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            modelBuilder.Entity<MessageThread>()
+                .HasOne(t => t.Product)
+                .WithMany(p => p.MessageThreads)
+                .HasForeignKey(t => t.ProductID)
+                .OnDelete(DeleteBehavior.Restrict);
+
             modelBuilder.Entity<Message>()
                 .HasOne(m => m.MessageThread)
                 .WithMany(mt => mt.Messages)
@@ -649,6 +655,9 @@ namespace CraftDailyCorner.Models
                 .HasIndex(r => new { r.MemberID, r.TargetType, r.TargetID })
                 .IsUnique();
 
+            modelBuilder.Entity<MessageThread>()
+                .HasIndex(mt => new { mt.MemberID, mt.CreatorID, mt.ProductID })
+                .IsUnique();
             #endregion
 
             modelBuilder.Entity<PortfolioItem>()

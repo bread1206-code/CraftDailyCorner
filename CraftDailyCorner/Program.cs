@@ -56,6 +56,8 @@ builder.Services.AddScoped<IAdminViolationService, AdminViolationService>();
 builder.Services.AddScoped<IAdminCategoryService, AdminCategoryService>();
 builder.Services.AddScoped<IAdminTagService, AdminTagService>();
 builder.Services.AddScoped<IAdminMemberService, AdminMemberService>();
+builder.Services.AddScoped<IAdminHomepageBannerService, AdminHomepageBannerService>();
+builder.Services.AddScoped<IMessageService, MessageService>();
 
 builder.Services.AddHostedService<SoftDeleteCleanupBackgroundService>();
 builder.Services.AddHostedService<OrderAutoCompleteHostedBackgroundService>();

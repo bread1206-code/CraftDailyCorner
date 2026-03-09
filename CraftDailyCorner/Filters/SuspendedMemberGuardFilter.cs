@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.EntityFrameworkCore;
-
+//進入各個頁面時，檢查角色權限是否還存在
 namespace CraftDailyCorner.Filters
 {
     public class SuspendedMemberGuardFilter : IAsyncActionFilter

@@ -17,6 +17,9 @@ namespace CraftDailyCorner.Models
         [Display(Name = "建立時間")]
         public DateTime CreatedAt { get; set; }
 
+        [Display(Name = "是否已讀")]
+        public bool IsRead { get; set; } = false;
+
         [Display(Name = "連線編號")]
         public int ThreadID { get; set; }
 

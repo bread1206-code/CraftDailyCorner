@@ -1,0 +1,192 @@
+﻿@model CraftDailyCorner.Areas.Admin.ViewModels.HomepageBanner.VMAdminHomepageBannerUpsert
+
+@{
+    ViewData["Title"] = "編輯首頁輪播圖";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container-fluid">
+
+    <div class="d-flex justify-content-between align-items-end mb-4">
+        <div>
+            <h2 class="fw-bold mb-1 text-light">編輯首頁輪播圖</h2>
+            <div class="text-light opacity-75">修改標題、副標題與輪播圖片</div>
+        </div>
+
+        <a class="btn btn-outline-light"
+           asp-area="Admin"
+           asp-controller="HomepageBanner"
+           asp-action="Index">
+            返回列表
+        </a>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-body">
+
+            <form asp-area="Admin"
+                  asp-controller="HomepageBanner"
+                  asp-action="Edit"
+                  method="post"
+                  enctype="multipart/form-data">
+                @Html.AntiForgeryToken()
+
+                <input type="hidden" asp-for="BannerID" />
+                <input type="hidden" asp-for="CurrentImageUrl" />
+
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger mb-4"></div>
+
+                <div class="row g-4">
+
+                    <!-- 左側：表單 -->
+                    <div class="col-lg-6">
+                        <div class="mb-3">
+                            <label asp-for="Title" class="form-label text-light"></label>
+                            <input asp-for="Title"
+                                   class="form-control bg-dark text-light border-secondary"
+                                   placeholder="請輸入標題" />
+                            <span asp-validation-for="Title" class="text-warning small"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Subtitle" class="form-label text-light"></label>
+                            <input asp-for="Subtitle"
+                                   class="form-control bg-dark text-light border-secondary"
+                                   placeholder="請輸入副標題（可不填）" />
+                            <span asp-validation-for="Subtitle" class="text-warning small"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="ImageFile" class="form-label text-light"></label>
+                            <input asp-for="ImageFile"
+                                   type="file"
+                                   class="form-control bg-dark text-light border-secondary"
+                                   accept="image/*"
+                                   id="ImageFile" />
+                            <span asp-validation-for="ImageFile" class="text-warning small"></span>
+
+                            <div class="form-text text-light opacity-75 mt-2">
+                                不上傳新圖片則保留目前圖片。
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <div class="text-secondary small mb-2">目前狀態</div>
+                            @if (Model.StatusID == 1)
+                            {
+                                <span class="badge bg-success">啟用</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">停用</span>
+                            }
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-save2 me-1"></i> 儲存變更
+                            </button>
+
+                            <a class="btn btn-outline-light"
+                               asp-area="Admin"
+                               asp-controller="HomepageBanner"
+                               asp-action="Index">
+                                取消
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- 右側：圖片顯示 -->
+                    <div class="col-lg-6">
+                        <div class="border rounded p-3 h-100 bg-dark-subtle">
+                            <div class="fw-semibold text-light mb-3">
+                                <i class="bi bi-image me-2"></i>圖片預覽
+                            </div>
+
+                            <div class="row g-3">
+                                <!-- 目前圖片 -->
+                                <div class="col-12">
+                                    <div class="text-secondary small mb-2">目前圖片</div>
+
+                                    <div class="ratio ratio-16x9 border rounded overflow-hidden bg-dark">
+                                        @if (!string.IsNullOrWhiteSpace(Model.CurrentImageUrl))
+                                        {
+                                            <img src="@($"/Photos/08HomepageBanner/Other/{Model.CurrentImageUrl}.png")"
+                                                 alt="目前圖片"
+                                                 class="w-100 h-100"
+                                                 style="object-fit:cover;" />
+                                        }
+                                        else
+                                        {
+                                            <div class="d-flex align-items-center justify-content-center text-secondary">
+                                                目前沒有圖片
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+
+                                <!-- 新圖預覽 -->
+                                <div class="col-12">
+                                    <div class="text-secondary small mb-2">新圖片預覽</div>
+
+                                    <div class="ratio ratio-16x9 border rounded overflow-hidden bg-dark d-flex align-items-center justify-content-center">
+                                        <img id="ImagePreview"
+                                             src=""
+                                             alt="新圖片預覽"
+                                             class="w-100 h-100 d-none"
+                                             style="object-fit:cover;" />
+
+                                        <div id="PreviewPlaceholder"
+                                             class="text-secondary text-center px-3">
+                                            <i class="bi bi-card-image fs-1 d-block mb-2"></i>
+                                            尚未選擇新圖片
+                                        </div>
+                                    </div>
+
+                                    <div class="text-secondary small mt-2">
+                                        選擇新圖片後，這裡會先顯示預覽，不會立刻覆蓋目前圖片。
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        (function () {
+            const input = document.getElementById("ImageFile");
+            const preview = document.getElementById("ImagePreview");
+            const placeholder = document.getElementById("PreviewPlaceholder");
+
+            if (!input || !preview || !placeholder) return;
+
+            input.addEventListener("change", function () {
+                const file = input.files && input.files[0];
+
+                if (!file) {
+                    preview.src = "";
+                    preview.classList.add("d-none");
+                    placeholder.classList.remove("d-none");
+                    return;
+                }
+
+                const objectUrl = URL.createObjectURL(file);
+                preview.src = objectUrl;
+                preview.classList.remove("d-none");
+                placeholder.classList.add("d-none");
+            });
+        })();
+    </script>
+}

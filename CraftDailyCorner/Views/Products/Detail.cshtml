@@ -134,6 +134,16 @@
                             <span class="text-muted">未提供</span>
                         }
                     </p>
+                    <!--訊息功能-->
+                    <form asp-controller="Messages"
+                          asp-action="StartFromProduct"
+                          method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="productId" value="@Model.ProductId" />
+                        <button type="submit" class="btn btn-outline-primary">
+                            <i class="bi bi-chat-dots me-1"></i>
+                        </button>
+                    </form>
 
                     <hr />
 

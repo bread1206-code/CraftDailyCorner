@@ -431,7 +431,7 @@ FILE: CraftDailyCorner\appsettings.json
   },
   "AllowedHosts": "*",
   "ConnectionStrings": {
-    "CraftDailyCornerConnection": "Data Source=LAPTOP-LURC6ES5;Database=CraftDailyCorner;TrustServerCertificate=True;User ID=abc;Password=123"
+    "CraftDailyCornerConnection": "Data Source=C501A11;Database=CraftDailyCorner;TrustServerCertificate=True;User ID=abc;Password=123"
   }
 }
 //LAPTOP-LURC6ES5
@@ -620,10 +620,6 @@ namespace CraftDailyCorner.Areas.Admin.Controllers
         public async Task<IActionResult> Index(string mode = "pending", string? memberId = null, int page = 1)
         {
             var vm = await _reviewService.GetIndexAsync(mode, memberId, page);
-
-            if (vm.Mode == "history")
-                return View("History", vm);
-
             return View(vm);
         }
 
@@ -652,7 +648,7 @@ namespace CraftDailyCorner.Areas.Admin.Controllers
             return RedirectToAction(nameof(Detail), new { id });
         }
 
-        //新增：下一筆待審核（提高效率，不用回 Index）
+        // 下一筆待審核（提高效率，不用回 Index）
         [HttpGet]
         public async Task<IActionResult> Next(int id)
         {
@@ -732,6 +728,95 @@ namespace CraftDailyCorner.Areas.Admin.Controllers
                 success = true,
                 data
             });
+        }
+    }
+}
+
+==================================================
+FILE: CraftDailyCorner\Areas\Admin\Controllers\MembersController.cs
+==================================================
+
+using CraftDailyCorner.Extensions;
+using CraftDailyCorner.Services.Interface;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+
+namespace CraftDailyCorner.Areas.Admin.Controllers
+{
+    [Area("Admin")]
+    [Authorize(Roles = "03,04")]
+    public class MembersController : Controller
+    {
+        private readonly IAdminMemberService _service;
+
+        public MembersController(IAdminMemberService service)
+        {
+            _service = service;
+        }
+
+        // mode:
+        // - risk：會員管理（ViolationCount > 5）
+        // - all：查看會員資料（全部會員）
+        // - admin：管理管理者（僅 Role 04）
+        // - creator：查看創作者資料
+        public async Task<IActionResult> Index(string mode = "all", string? memberId = null, int page = 1)
+        {
+            mode = (mode ?? "all").Trim().ToLower();
+
+            if (mode == "admin" && !User.IsInRole("04"))
+                return Forbid();
+
+            var vm = await _service.GetIndexAsync(mode, memberId, page);
+            return View(vm);
+        }
+
+        public async Task<IActionResult> Detail(string id, string mode = "all")
+        {
+            mode = (mode ?? "all").Trim().ToLower();
+
+            if (mode == "admin" && !User.IsInRole("04"))
+                return Forbid();
+
+            var vm = await _service.GetDetailAsync(id, mode);
+            if (vm == null) return NotFound();
+
+            return View(vm);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Suspend(string id, string mode = "all")
+        {
+            var adminMemberId = User.GetMemberId();
+
+            var (ok, message) = await _service.SuspendAsync(id, adminMemberId);
+
+            if (!ok)
+            {
+                TempData["Warning"] = message ?? "停權失敗";
+                return RedirectToAction(nameof(Detail), new { id, mode });
+            }
+
+            TempData["Success"] = "會員已停權";
+            return RedirectToAction(nameof(Detail), new { id, mode });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Activate(string id, string mode = "all")
+        {
+            var adminMemberId = User.GetMemberId();
+
+            var (ok, message) = await _service.ActivateAsync(id, adminMemberId);
+
+            if (!ok)
+            {
+                TempData["Warning"] = message ?? "啟用失敗";
+                return RedirectToAction(nameof(Detail), new { id, mode });
+            }
+
+            TempData["Success"] = "會員已恢復啟用";
+            return RedirectToAction(nameof(Detail), new { id, mode });
         }
     }
 }
@@ -867,10 +952,6 @@ namespace CraftDailyCorner.Areas.Admin.Controllers
         public async Task<IActionResult> Index(string mode = "pending", string? memberId = null, int page = 1)
         {
             var vm = await _service.GetIndexAsync(mode, memberId, page);
-
-            if (vm.Mode == "history")
-                return View("History", vm);
-
             return View(vm);
         }
 
@@ -1092,6 +1173,105 @@ namespace CraftDailyCorner.Areas.Admin.ViewModels.CreatorReview
 
     }
 }
+
+==================================================
+FILE: CraftDailyCorner\Areas\Admin\ViewModels\Member\VMAdminMemberDetail.cs
+==================================================
+
+using System.ComponentModel.DataAnnotations;
+
+namespace CraftDailyCorner.Areas.Admin.ViewModels.Member
+{
+    public class VMAdminMemberDetail
+    {
+        [Display(Name = "會員編號")]
+        public string MemberID { get; set; } = null!;
+        [Display(Name = "暱稱")]
+        public string DisplayName { get; set; } = null!;
+
+        public byte StatusID { get; set; }
+        [Display(Name = "帳號狀態")]
+        public string StatusName { get; set; } = null!;
+
+        [Display(Name = "惡意檢舉次數")]
+        public int MaliciousReportCount { get; set; }
+        [Display(Name = "檢舉封鎖至")]
+        public DateTime? ReportBanUntil { get; set; }
+        [Display(Name = "違規次數")]
+        public int ViolationCount { get; set; }
+        [Display(Name = "建立時間")]
+        public DateTime CreatedAt { get; set; }
+
+        [Display(Name = "電子郵件")]
+        public string? Email { get; set; }
+        [Display(Name = "電話")]
+        public string? Phone { get; set; }
+
+        public List<string> RoleIDs { get; set; } = new();
+        public List<string> RoleNames { get; set; } = new();
+
+        // ===== 創作者資料 =====
+        [Display(Name = "創作者編號")]
+        public string? CreatorID { get; set; }
+        public byte? CreatorStatusID { get; set; }
+        [Display(Name = "創作者狀態")]
+        public string? CreatorStatusName { get; set; }
+        [Display(Name = "品牌名稱")]
+        public string? BrandName { get; set; }
+        [Display(Name = "品牌介紹")]
+        public string? BrandIntro { get; set; }
+        [Display(Name = "創作起始日")]
+        public DateTime? StartDate { get; set; }
+
+        public string? BankCode { get; set; }
+        public string? BankAccount { get; set; }
+        [Display(Name = "建立時間")]
+        public DateTime? CreatorCreatedAt { get; set; }
+        [Display(Name = "最後更新時間")]
+        public DateTime? UpdatedAt { get; set; }
+    }
+}
+
+==================================================
+FILE: CraftDailyCorner\Areas\Admin\ViewModels\Member\VMAdminMemberIndex.cs
+==================================================
+
+using System.ComponentModel.DataAnnotations;
+
+namespace CraftDailyCorner.Areas.Admin.ViewModels.Member
+{
+    public class VMAdminMemberIndex
+    {
+        // risk / all / admin
+        public string Mode { get; set; } = "all";
+        // 搜尋用（MemberID）
+        public string? SearchMemberId { get; set; }
+        // 分頁資訊
+        public int Page { get; set; } = 1;
+        public int PageSize { get; set; } = 8;
+        public int TotalCount { get; set; }
+        public int TotalPages => (int)Math.Ceiling((double)TotalCount / PageSize);
+        public List<VMAdminMemberListItem> Items { get; set; } = new();
+    }
+
+    public class VMAdminMemberListItem
+    {
+        [Display(Name = "會員編號")]
+        public string MemberID { get; set; } = null!;
+        [Display(Name = "暱稱")]
+        public string DisplayName { get; set; } = null!;
+        [Display(Name = "狀態")]
+        public byte StatusID { get; set; }
+        public string StatusName { get; set; } = null!;
+        public int ViolationCount { get; set; }
+        [Display(Name = "註冊時間")]
+        public DateTime CreatedAt { get; set; }
+        public string? CreatorID { get; set; }
+        public string? BrandName { get; set; }
+        public List<string> RoleIDs { get; set; } = new();
+    }
+}
+
 
 ==================================================
 FILE: CraftDailyCorner\Areas\Admin\ViewModels\Tag\VMAdminTagEdit.cs
@@ -1866,13 +2046,18 @@ FILE: CraftDailyCorner\Areas\Admin\Views\CreatorReview\Detail.cshtml
 </div>
 
 ==================================================
-FILE: CraftDailyCorner\Areas\Admin\Views\CreatorReview\History.cshtml
+FILE: CraftDailyCorner\Areas\Admin\Views\CreatorReview\Index.cshtml
 ==================================================
 
 @model CraftDailyCorner.Areas.Admin.ViewModels.CreatorReview.VMAdminCreatorReviewIndex
 
 @{
-    ViewData["Title"] = "創作者審核（歷史資料）";
+    var isHistory = Model.Mode == "history";
+
+    ViewData["Title"] = isHistory
+        ? "創作者審核（歷史資料）"
+        : "創作者審核（待審核）";
+
     Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
 }
 
@@ -1881,43 +2066,55 @@ FILE: CraftDailyCorner\Areas\Admin\Views\CreatorReview\History.cshtml
     <div class="d-flex justify-content-between align-items-end mb-4">
         <div>
             <h2 class="fw-bold mb-1 text-light">創作者審核</h2>
-            <div class="text-light opacity-75">歷史資料（已通過 / 已拒絕 / 已確認）</div>
+            <div class="text-light opacity-75">
+                @(isHistory
+                                ? "歷史資料（已通過 / 已拒絕 / 已確認）"
+                                : "待審核申請清單")
+            </div>
         </div>
 
-        <!-- 右上角搜尋框：MemberID -->
-        <form method="get"
-              asp-area="Admin"
-              asp-controller="CreatorReview"
-              asp-action="Index"
-              class="d-flex gap-2 align-items-center justify-content-center"
-              style="min-width:520px;">
+        @if (isHistory)
+        {
+            <!-- 右上角搜尋框：MemberID -->
+            <form method="get"
+                  asp-area="Admin"
+                  asp-controller="CreatorReview"
+                  asp-action="Index"
+                  class="d-flex gap-2 align-items-center justify-content-center"
+                  style="min-width:520px;">
 
-            <input type="hidden" name="mode" value="history" />
+                <input type="hidden" name="mode" value="history" />
 
-            <div class="input-group" style="width:300px;">
-                <span class="input-group-text bg-dark text-light border-secondary">
-                    <i class="bi bi-search"></i>
-                </span>
+                <div class="input-group" style="width:300px;">
+                    <span class="input-group-text bg-dark text-light border-secondary">
+                        <i class="bi bi-search"></i>
+                    </span>
 
-                <input name="memberId"
-                       value="@Model.SearchMemberId"
-                       class="form-control bg-dark text-light border-secondary"
-                       placeholder="輸入 MemberID" />
-            </div>
+                    <input name="memberId"
+                           value="@Model.SearchMemberId"
+                           class="form-control bg-dark text-light border-secondary"
+                           placeholder="輸入 MemberID" />
+                </div>
 
-            <button class="btn btn-outline-light" type="submit">
-                搜尋
-            </button>
+                <button class="btn btn-outline-light" type="submit">
+                    搜尋
+                </button>
 
-            <a class="btn btn-outline-secondary @(string.IsNullOrWhiteSpace(Model.SearchMemberId) ? "invisible" : "")"
-               asp-area="Admin"
-               asp-controller="CreatorReview"
-               asp-action="Index"
-               asp-route-mode="history">
-                清除
-            </a>
-
-        </form>
+                <a class="btn btn-outline-secondary @(string.IsNullOrWhiteSpace(Model.SearchMemberId) ? "invisible" : "")"
+                   asp-area="Admin"
+                   asp-controller="CreatorReview"
+                   asp-action="Index"
+                   asp-route-mode="history">
+                    清除
+                </a>
+            </form>
+        }
+        else
+        {
+            <span class="badge bg-danger @(Model.Items.Count == 0 ? "d-none" : "")">
+                待審核 @Model.Items.Count
+            </span>
+        }
     </div>
 
     <div class="card shadow-sm border-0">
@@ -1927,7 +2124,9 @@ FILE: CraftDailyCorner\Areas\Admin\Views\CreatorReview\History.cshtml
             {
                 <div class="p-4 text-center text-light opacity-75">
                     <i class="bi bi-inbox fs-2"></i>
-                    <div class="mt-2">查無資料</div>
+                    <div class="mt-2">
+                        @(isHistory ? "查無資料" : "目前沒有待審核申請")
+                    </div>
                 </div>
             }
             else
@@ -1947,12 +2146,16 @@ FILE: CraftDailyCorner\Areas\Admin\Views\CreatorReview\History.cshtml
                         <tbody>
                             @foreach (var x in Model.Items)
                             {
-                                var badge = x.StatusID == 2 ? "bg-success"
+                                var rowClass = isHistory ? "" : "table-active";
+
+                                var badge = !isHistory
+                                ? "bg-danger"
+                                : x.StatusID == 2 ? "bg-success"
                                 : x.StatusID == 3 ? "bg-danger"
                                 : x.StatusID == 4 ? "bg-primary"
                                 : "bg-secondary";
 
-                                <tr>
+                                <tr class="@rowClass">
                                     <td>#@x.ApplicationID</td>
                                     <td>
                                         <div class="fw-semibold">@x.MemberName</div>
@@ -1979,7 +2182,8 @@ FILE: CraftDailyCorner\Areas\Admin\Views\CreatorReview\History.cshtml
                     </table>
                 </div>
             }
-            @if (Model.TotalPages > 1)
+
+            @if (isHistory && Model.TotalPages > 1)
             {
                 <div class="p-3 border-top border-secondary d-flex justify-content-between align-items-center">
                     <div class="text-light opacity-75 small">
@@ -2030,89 +2234,6 @@ FILE: CraftDailyCorner\Areas\Admin\Views\CreatorReview\History.cshtml
 
                         </ul>
                     </nav>
-                </div>
-            }
-        </div>
-    </div>
-
-</div>
-
-==================================================
-FILE: CraftDailyCorner\Areas\Admin\Views\CreatorReview\Index.cshtml
-==================================================
-
-@model CraftDailyCorner.Areas.Admin.ViewModels.CreatorReview.VMAdminCreatorReviewIndex
-
-@{
-    ViewData["Title"] = "創作者審核（待審核）";
-    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
-}
-
-<div class="container-fluid">
-
-    <div class="d-flex justify-content-between align-items-end mb-4">
-        <div>
-            <h2 class="fw-bold mb-1 text-light">創作者審核</h2>
-            <div class="text-light opacity-75">待審核申請清單</div>
-        </div>
-
-        <span class="badge bg-danger @(Model.Items.Count == 0 ? "d-none" : "")">
-            待審核 @Model.Items.Count
-        </span>
-    </div>
-
-    <div class="card shadow-sm border-0">
-        <div class="card-body p-0">
-
-            @if (!Model.Items.Any())
-            {
-                <div class="p-4 text-center text-light opacity-75">
-                    <i class="bi bi-inbox fs-2"></i>
-                    <div class="mt-2">目前沒有待審核申請</div>
-                </div>
-            }
-            else
-            {
-                <div class="table-responsive">
-                    <table class="table table-dark table-hover align-middle mb-0">
-                        <thead>
-                            <tr>
-                                <th style="width:120px;">申請ID</th>
-                                <th>會員</th>
-                                <th>申請名稱</th>
-                                <th style="width:180px;">申請時間</th>
-                                <th style="width:140px;">狀態</th>
-                                <th style="width:120px;"></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var x in Model.Items)
-                            {
-                                <tr class="table-active">
-                                    <td>#@x.ApplicationID</td>
-                                    <td>
-                                        <div class="fw-semibold">@x.MemberName</div>
-                                        <div class="small text-light opacity-75">@x.Email / @x.Phone</div>
-                                        <div class="small text-light opacity-75">@x.MemberID</div>
-                                    </td>
-                                    <td class="fw-semibold">@x.BrandName</td>
-                                    <td>@x.AppliedAt.ToString("yyyy/MM/dd HH:mm")</td>
-                                    <td>
-                                        <span class="badge bg-danger">@x.StatusName</span>
-                                    </td>
-                                    <td class="text-end">
-                                        <a class="btn btn-sm btn-outline-light"
-                                           asp-area="Admin"
-                                           asp-controller="CreatorReview"
-                                           asp-action="Detail"
-                                           asp-route-id="@x.ApplicationID">
-                                            查看
-                                        </a>
-                                    </td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
                 </div>
             }
 
@@ -2292,6 +2413,631 @@ FILE: CraftDailyCorner\Areas\Admin\Views\Dashboard\Index.cshtml
 }
 
 ==================================================
+FILE: CraftDailyCorner\Areas\Admin\Views\Members\Detail.cshtml
+==================================================
+
+@using CraftDailyCorner.Extensions
+@model CraftDailyCorner.Areas.Admin.ViewModels.Member.VMAdminMemberDetail
+
+@functions {
+    public string MaskEmail(string? email)
+    {
+        if (string.IsNullOrWhiteSpace(email) || !email.Contains("@"))
+            return "（未提供）";
+
+        var parts = email.Split('@');
+        var name = parts[0];
+        var domain = parts[1];
+
+        if (name.Length <= 2)
+            return $"{name[0]}***@{domain}";
+
+        return $"{name.Substring(0, 2)}***@{domain}";
+    }
+
+    public string MaskPhone(string? phone)
+    {
+        if (string.IsNullOrWhiteSpace(phone))
+            return "（未提供）";
+
+        var trimmed = phone.Trim();
+        if (trimmed.Length <= 4)
+            return "***";
+
+        return $"{trimmed.Substring(0, 2)}***{trimmed.Substring(trimmed.Length - 2)}";
+    }
+}
+
+@{
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+
+    var mode = Context.Request.Query["mode"].ToString();
+    var currentMemberId = User.GetMemberId();
+    var isSelf = Model.MemberID == currentMemberId;
+    var isSuperAdmin = Model.RoleIDs.Contains("04");
+
+    var hasCreatorProfile = !string.IsNullOrWhiteSpace(Model.CreatorID);
+}
+
+<div class="container-fluid">
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success">@TempData["Success"]</div>
+    }
+    @if (TempData["Warning"] != null)
+    {
+        <div class="alert alert-warning">@TempData["Warning"]</div>
+    }
+
+    <div class="d-flex justify-content-between align-items-end mb-4">
+        <div>
+            <h2 class="fw-bold mb-1 text-light">會員詳情</h2>
+            <div class="text-secondary">@Model.MemberID</div>
+        </div>
+
+        <a class="btn btn-outline-secondary"
+           asp-area="Admin"
+           asp-controller="Members"
+           asp-action="Index"
+           asp-route-mode="@mode">
+            返回列表
+        </a>
+    </div>
+
+    <div class="row g-4">
+
+        <!-- 左側 -->
+        <div class="col-lg-7">
+
+            <!-- 基本資訊 -->
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div class="fw-semibold text-light">
+                            <i class="bi bi-person-badge me-2"></i>會員基本資訊
+                        </div>
+
+                        @if (Model.StatusID == 1)
+                        {
+                            <span class="badge bg-success">啟用中</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary">停權中</span>
+                        }
+                    </div>
+
+                    <hr />
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="text-secondary small mb-1">@Html.DisplayNameFor(m => m.MemberID)</div>
+                            <div class="text-light fw-semibold">@Model.MemberID</div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="text-secondary small mb-1">@Html.DisplayNameFor(m => m.DisplayName)</div>
+                            <div class="text-light fw-semibold">@Model.DisplayName</div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="text-secondary small mb-1">@Html.DisplayNameFor(m => m.StatusName)</div>
+                            <div class="text-light">@Model.StatusName</div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="text-secondary small mb-1">@Html.DisplayNameFor(m => m.CreatedAt)</div>
+                            <div class="text-light">@Model.CreatedAt.ToString("yyyy/MM/dd HH:mm")</div>
+                        </div>
+
+                        <div class="col-12">
+                            <div class="text-secondary small mb-1">@Html.DisplayNameFor(m => m.Email)</div>
+                            <div class="text-light">@MaskEmail(Model.Email)</div>
+                            <div class="text-secondary small mt-1">※ 為保護隱私，已遮罩顯示</div>
+                        </div>
+
+                        <div class="col-12">
+                            <div class="text-secondary small mb-1">@Html.DisplayNameFor(m => m.Phone)</div>
+                            <div class="text-light">@MaskPhone(Model.Phone)</div>
+                            <div class="text-secondary small mt-1">※ 為保護隱私，已遮罩顯示</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 創作者資訊 -->
+            @if (hasCreatorProfile)
+            {
+                <div class="card shadow-sm border-0">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div class="fw-semibold text-light">
+                                <i class="bi bi-palette me-2"></i>創作者資訊
+                            </div>
+
+                            @if (!string.IsNullOrWhiteSpace(Model.CreatorStatusName))
+                            {
+                                <span class="badge bg-info text-dark">@Model.CreatorStatusName</span>
+                            }
+                        </div>
+
+                        <hr />
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="text-secondary small mb-1">@Html.DisplayNameFor(m => m.CreatorID)</div>
+                                <div class="text-light fw-semibold">@Model.CreatorID</div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="text-secondary small mb-1">@Html.DisplayNameFor(m => m.CreatorStatusName)</div>
+                                <div class="text-light">@((Model.CreatorStatusName ?? "（未提供）"))</div>
+                            </div>
+
+                            <div class="col-12">
+                                <div class="text-secondary small mb-1">@Html.DisplayNameFor(m => m.BrandName)</div>
+                                <div class="text-light fw-semibold">@((Model.BrandName ?? "（未提供）"))</div>
+                            </div>
+
+                            <div class="col-12">
+                                <div class="text-secondary small mb-1">@Html.DisplayNameFor(m => m.BrandIntro)</div>
+                                <div class="text-light" style="white-space:pre-wrap;">@(Model.BrandIntro ?? "（未提供）")</div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="text-secondary small mb-1">@Html.DisplayNameFor(m => m.StartDate)</div>
+                                <div class="text-light">
+                                    @(Model.StartDate.HasValue
+                                                                    ? Model.StartDate.Value.ToString("yyyy/MM/dd")
+                                                                    : "（未提供）")
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="text-secondary small mb-1">@Html.DisplayNameFor(m => m.CreatorCreatedAt)</div>
+                                <div class="text-light">
+                                    @(Model.CreatorCreatedAt.HasValue
+                                                                    ? Model.CreatorCreatedAt.Value.ToString("yyyy/MM/dd HH:mm")
+                                                                    : "（未提供）")
+                                </div>
+                            </div>
+
+                            <div class="col-12">
+                                <div class="text-secondary small mb-1">@Html.DisplayNameFor(m => m.UpdatedAt)</div>
+                                <div class="text-light">
+                                    @(Model.UpdatedAt.HasValue
+                                                                    ? Model.UpdatedAt.Value.ToString("yyyy/MM/dd HH:mm")
+                                                                    : "（未提供）")
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <!-- 右側 -->
+        <div class="col-lg-5">
+
+            <!-- 角色資訊 -->
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-body">
+                    <div class="fw-semibold text-light mb-3">
+                        <i class="bi bi-shield-lock me-2"></i>角色資訊
+                    </div>
+
+                    <hr />
+
+                    @if (Model.RoleNames.Any())
+                    {
+                        <div class="mb-2">
+                            @for (int i = 0; i < Model.RoleNames.Count; i++)
+                            {
+                                var roleId = Model.RoleIDs[i];
+                                var badgeClass = roleId switch
+                                {
+                                                "01" => "bg-primary",
+                                                "02" => "bg-success",
+                                                "03" => "bg-warning text-dark",
+                                                "04" => "bg-danger",
+                                    _ => "bg-secondary"
+                                };
+
+                                <span class="badge @badgeClass me-2 mb-2 px-3 py-2">
+                                    @Model.RoleNames[i]
+                                </span>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-secondary">沒有角色資料</div>
+                    }
+                </div>
+            </div>
+
+            <!-- 風險資訊 -->
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-body">
+                    <div class="fw-semibold text-light mb-3">
+                        <i class="bi bi-exclamation-triangle me-2"></i>風險資訊
+                    </div>
+
+                    <hr />
+
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <div class="text-secondary small mb-1">@Html.DisplayNameFor(m => m.ViolationCount)</div>
+                            <div class="text-light fw-semibold fs-5">@Model.ViolationCount</div>
+                        </div>
+
+                        <div class="col-12">
+                            <div class="text-secondary small mb-1">@Html.DisplayNameFor(m => m.MaliciousReportCount)</div>
+                            <div class="text-light fw-semibold fs-5">@Model.MaliciousReportCount</div>
+                        </div>
+
+                        <div class="col-12">
+                            <div class="text-secondary small mb-1">@Html.DisplayNameFor(m => m.ReportBanUntil)</div>
+                            <div class="text-light">
+                                @(Model.ReportBanUntil.HasValue
+                                                                ? Model.ReportBanUntil.Value.ToString("yyyy/MM/dd HH:mm")
+                                                                : "（無）")
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 帳號操作 -->
+            <div class="card shadow-sm border-0">
+                <div class="card-body">
+                    <div class="fw-semibold text-light mb-3">
+                        <i class="bi bi-person-slash me-2"></i>帳號操作
+                    </div>
+
+                    <hr />
+
+                    @if (isSelf)
+                    {
+                        <div class="alert alert-warning mb-3">
+                            你不能停權自己的帳號。
+                        </div>
+
+                        <button class="btn btn-outline-secondary w-100" disabled>
+                            不可停權自己
+                        </button>
+                    }
+                    else if (isSuperAdmin)
+                    {
+                        <div class="alert alert-danger mb-3">
+                            超級管理者帳號不可停權。
+                        </div>
+
+                        <button class="btn btn-outline-danger w-100" disabled>
+                            超級管理者不可停權
+                        </button>
+                    }
+                    else if (Model.StatusID == 1)
+                    {
+                        <form asp-area="Admin"
+                              asp-controller="Members"
+                              asp-action="Suspend"
+                              asp-route-id="@Model.MemberID"
+                              asp-route-mode="@mode"
+                              method="post"
+                              onsubmit="return confirm('確定要停權這位會員嗎？');">
+
+                            @Html.AntiForgeryToken()
+
+                            <button class="btn btn-outline-warning w-100">
+                                <i class="bi bi-pause-circle me-1"></i> 停權會員
+                            </button>
+                        </form>
+                    }
+                    else
+                    {
+                        <form asp-area="Admin"
+                              asp-controller="Members"
+                              asp-action="Activate"
+                              asp-route-id="@Model.MemberID"
+                              asp-route-mode="@mode"
+                              method="post"
+                              onsubmit="return confirm('確定要恢復這位會員嗎？');">
+
+                            @Html.AntiForgeryToken()
+
+                            <button class="btn btn-outline-success w-100">
+                                <i class="bi bi-check2-circle me-1"></i> 恢復啟用
+                            </button>
+                        </form>
+                    }
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+==================================================
+FILE: CraftDailyCorner\Areas\Admin\Views\Members\Index.cshtml
+==================================================
+
+@using CraftDailyCorner.Extensions
+@model CraftDailyCorner.Areas.Admin.ViewModels.Member.VMAdminMemberIndex
+
+@{
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    var currentMemberId = User.GetMemberId();
+
+    var title = Model.Mode == "risk"
+        ? "會員管理"
+        : Model.Mode == "admin"
+            ? "管理管理者"
+            : Model.Mode == "creator"
+                ? "查看創作者資料"
+                : "查看會員資料";
+
+    var subtitle = Model.Mode == "risk"
+        ? "高風險會員"
+        : Model.Mode == "admin"
+            ? "管理者帳號清單"
+            : Model.Mode == "creator"
+                ? "創作者清單"
+                : "所有會員資料";
+
+    var showSearch = Model.Mode == "all" || Model.Mode == "creator";
+    var showPagination = Model.Mode == "all" || Model.Mode == "creator";
+}
+
+<div class="container-fluid">
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success">@TempData["Success"]</div>
+    }
+    @if (TempData["Warning"] != null)
+    {
+        <div class="alert alert-warning">@TempData["Warning"]</div>
+    }
+
+    <div class="d-flex justify-content-between align-items-end mb-4">
+        <div>
+            <h2 class="fw-bold mb-1 text-light">@title</h2>
+            <div class="text-light opacity-75">@subtitle</div>
+        </div>
+
+        @if (showSearch)
+        {
+            <form method="get"
+                  asp-area="Admin"
+                  asp-controller="Members"
+                  asp-action="Index"
+                  class="d-flex gap-2 align-items-center justify-content-center"
+                  style="min-width:520px;">
+
+                <input type="hidden" name="mode" value="@Model.Mode" />
+
+                <div class="input-group" style="width:300px;">
+                    <span class="input-group-text bg-dark text-light border-secondary">
+                        <i class="bi bi-search"></i>
+                    </span>
+
+                    <input name="memberId"
+                           value="@Model.SearchMemberId"
+                           class="form-control bg-dark text-light border-secondary"
+                           placeholder="輸入 MemberID" />
+                </div>
+
+                <button class="btn btn-outline-light" type="submit">
+                    搜尋
+                </button>
+
+                <a class="btn btn-outline-secondary @(string.IsNullOrWhiteSpace(Model.SearchMemberId) ? "invisible" : "")"
+                   asp-area="Admin"
+                   asp-controller="Members"
+                   asp-action="Index"
+                   asp-route-mode="@Model.Mode">
+                    清除
+                </a>
+            </form>
+        }
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-0">
+
+            @if (!Model.Items.Any())
+            {
+                <div class="p-4 text-center text-light opacity-75">
+                    <i class="bi bi-inbox fs-2"></i>
+                    <div class="mt-2">目前沒有資料</div>
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-dark table-hover align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th style="width:140px;">@Html.DisplayNameFor(m => m.Items[0].MemberID)</th>
+                                <th>@Html.DisplayNameFor(m => m.Items[0].DisplayName)</th>
+
+                                @if (Model.Mode == "creator")
+                                {
+                                    <th style="width:120px;">@Html.DisplayNameFor(m => m.Items[0].CreatorID)</th>
+                                    <th>@Html.DisplayNameFor(m => m.Items[0].BrandName)</th>
+                                }
+
+                                <th style="width:120px;">@Html.DisplayNameFor(m => m.Items[0].StatusName)</th>
+                                @if (Model.Mode == "risk")
+                                {
+                                    <th style="width:140px;">@Html.DisplayNameFor(m => m.Items[0].ViolationCount)</th>
+                                }
+
+                                <th style="width:180px;">@Html.DisplayNameFor(m => m.Items[0].CreatedAt)</th>
+                                <th style="width:220px;"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var x in Model.Items)
+                            {
+                                <tr class="@(Model.Mode == "risk" ? "table-active" : "")">
+                                    <td>@x.MemberID</td>
+
+                                    <td class="fw-semibold">@x.DisplayName</td>
+
+                                    @if (Model.Mode == "creator")
+                                    {
+                                        <td>@(x.CreatorID ?? "—")</td>
+                                        <td class="fw-semibold">@(x.BrandName ?? "—")</td>
+                                    }
+
+                                    <td>
+                                        @if (x.StatusID == 1)
+                                        {
+                                            <span class="badge bg-success">@x.StatusName</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary">@x.StatusName</span>
+                                        }
+                                    </td>
+
+                                    @if (Model.Mode == "risk")
+                                    {
+                                        <td>
+                                            <span class="badge bg-danger">@x.ViolationCount</span>
+                                        </td>
+                                    }
+
+                                    <td>@x.CreatedAt.ToString("yyyy/MM/dd HH:mm")</td>
+
+                                    <td class="text-end">
+                                        <a class="btn btn-sm btn-outline-light me-2"
+                                           asp-area="Admin"
+                                           asp-controller="Members"
+                                           asp-action="Detail"
+                                           asp-route-id="@x.MemberID"
+                                           asp-route-mode="@Model.Mode">
+                                            查看
+                                        </a>
+
+                                        @{
+                                            var isSuperAdmin = x.RoleIDs.Contains("04");
+                                        }
+
+                                        @if (x.MemberID == currentMemberId)
+                                        {
+                                            <button type="button" class="btn btn-sm btn-outline-secondary" disabled>
+                                                不可停權自己
+                                            </button>
+                                        }
+                                        else if (isSuperAdmin)
+                                        {
+                                            <button type="button" class="btn btn-sm btn-outline-danger" disabled>
+                                                超級管理者不可停權
+                                            </button>
+                                        }
+                                        else if (x.StatusID == 1)
+                                        {
+                                            <form class="d-inline"
+                                                  asp-area="Admin"
+                                                  asp-controller="Members"
+                                                  asp-action="Suspend"
+                                                  asp-route-id="@x.MemberID"
+                                                  asp-route-mode="@Model.Mode"
+                                                  method="post"
+                                                  onsubmit="return confirm('確定要停權這位會員嗎？');">
+                                                @Html.AntiForgeryToken()
+                                                <button type="submit" class="btn btn-sm btn-outline-warning">
+                                                    停權
+                                                </button>
+                                            </form>
+                                        }
+                                        else
+                                        {
+                                            <form class="d-inline"
+                                                  asp-area="Admin"
+                                                  asp-controller="Members"
+                                                  asp-action="Activate"
+                                                  asp-route-id="@x.MemberID"
+                                                  asp-route-mode="@Model.Mode"
+                                                  method="post"
+                                                  onsubmit="return confirm('確定要恢復這位會員嗎？');">
+                                                @Html.AntiForgeryToken()
+                                                <button type="submit" class="btn btn-sm btn-outline-success">
+                                                    啟用
+                                                </button>
+                                            </form>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+
+            @if (showPagination && Model.TotalPages > 1)
+            {
+                <div class="p-3 border-top border-secondary d-flex justify-content-between align-items-center">
+                    <div class="text-light opacity-75 small">
+                        第 @Model.Page / @Model.TotalPages 頁，共 @Model.TotalCount 筆
+                    </div>
+
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination pagination-sm mb-0">
+
+                            <li class="page-item @(Model.Page <= 1 ? "disabled" : "")">
+                                <a class="page-link bg-dark text-light border-secondary"
+                                   asp-area="Admin"
+                                   asp-controller="Members"
+                                   asp-action="Index"
+                                   asp-route-mode="@Model.Mode"
+                                   asp-route-memberId="@Model.SearchMemberId"
+                                   asp-route-page="@(Model.Page - 1)">
+                                    上一頁
+                                </a>
+                            </li>
+
+                            @for (int p = 1; p <= Model.TotalPages; p++)
+                            {
+                                <li class="page-item @(p == Model.Page ? "active" : "")">
+                                    <a class="page-link bg-dark text-light border-secondary"
+                                       asp-area="Admin"
+                                       asp-controller="Members"
+                                       asp-action="Index"
+                                       asp-route-mode="@Model.Mode"
+                                       asp-route-memberId="@Model.SearchMemberId"
+                                       asp-route-page="@p">
+                                        @p
+                                    </a>
+                                </li>
+                            }
+
+                            <li class="page-item @(Model.Page >= Model.TotalPages ? "disabled" : "")">
+                                <a class="page-link bg-dark text-light border-secondary"
+                                   asp-area="Admin"
+                                   asp-controller="Members"
+                                   asp-action="Index"
+                                   asp-route-mode="@Model.Mode"
+                                   asp-route-memberId="@Model.SearchMemberId"
+                                   asp-route-page="@(Model.Page + 1)">
+                                    下一頁
+                                </a>
+                            </li>
+
+                        </ul>
+                    </nav>
+                </div>
+            }
+
+        </div>
+    </div>
+</div>
+
+==================================================
 FILE: CraftDailyCorner\Areas\Admin\Views\Shared\_AdminLayout.cshtml
 ==================================================
 
@@ -2418,7 +3164,13 @@ FILE: CraftDailyCorner\Areas\Admin\Views\Shared\Components\VCAdminSidebar\Defaul
     var isDashboardPage = currentController == "Dashboard";
 
     var isMemberPage = currentController == "Members";
-    var isMemberIndexPage = currentController == "Members" && currentAction == "Index";
+
+    // Members 各子頁 active 判斷
+    var memberMode = string.IsNullOrWhiteSpace(currentMode) ? "all" : currentMode;
+
+    var isMemberAllPage = currentController == "Members" && currentAction == "Index" && memberMode == "all";
+    var isMemberCreatorPage = currentController == "Members" && currentAction == "Index" && memberMode == "creator";
+    var isMemberAdminPage = currentController == "Members" && currentAction == "Index" && memberMode == "admin";
 
     var isCreatorReviewPage = currentController == "CreatorReview";
     var isCreatorReviewPendingPage = currentController == "CreatorReview" && string.IsNullOrWhiteSpace(currentMode);
@@ -2454,6 +3206,7 @@ FILE: CraftDailyCorner\Areas\Admin\Views\Shared\Components\VCAdminSidebar\Defaul
                 <a asp-area="Admin"
                    asp-controller="Members"
                    asp-action="Index"
+                   asp-route-mode="risk"
                    class="nav-link admin-main-link text-light flex-grow-1 @(isMemberPage ? "active" : "")">
                     <i class="bi bi-person-bounding-box me-2"></i>會員管理
                 </a>
@@ -2477,30 +3230,37 @@ FILE: CraftDailyCorner\Areas\Admin\Views\Shared\Components\VCAdminSidebar\Defaul
                     <a asp-area="Admin"
                        asp-controller="Members"
                        asp-action="Index"
-                       class="nav-link admin-sub-link text-light small opacity-75 py-1 @(isMemberIndexPage ? "active" : "")">
+                       asp-route-mode="all"
+                       class="nav-link admin-sub-link text-light small opacity-75 py-1 @(isMemberAllPage ? "active" : "")">
                         查看會員資料
                     </a>
                 </div>
-            </div>
-        </li>
-        @if (User.IsInRole("04"))
-        {
-            <li class="nav-item mb-3">
-                <div id="collapseMembers"
-                     class="collapse @(isMemberPage ? "show" : "")">
+                <div class="ms-4">
+                    <!--查看創作者資料 -->
+                    <a asp-area="Admin"
+                       asp-controller="Members"
+                       asp-action="Index"
+                       asp-route-mode="creator"
+                       class="nav-link admin-sub-link text-light small opacity-75 py-1 @(isMemberCreatorPage ? "active" : "")">
+                        查看創作者資料
+                    </a>
+                </div>
+                @if (User.IsInRole("04"))
+                {
                     <div class="ms-4">
                         <!--查看會員資料 -->
                         <a asp-area="Admin"
-                           asp-controller=""
-                           asp-action=""
-                           class="nav-link admin-sub-link text-light small opacity-75 py-1 @(isMemberIndexPage ? "active" : "")">
+                           asp-controller="Members"
+                           asp-action="Index"
+                           asp-route-mode="admin"
+                           class="nav-link admin-sub-link text-light small opacity-75 py-1 @(isMemberAdminPage ? "active" : "")">
                             管理管理者
                         </a>
                     </div>
-                </div>
-            </li>
-        }
-
+                }
+            </div>
+        </li>
+        
         <!-- 創作者審核：待審核 -->
         <li class="nav-item mb-1">
             <div class="d-flex align-items-center justify-content-between admin-main-wrap @(isCreatorReviewPage ? "active" : "")">
@@ -3181,13 +3941,18 @@ FILE: CraftDailyCorner\Areas\Admin\Views\Violation\Detail.cshtml
 </div>
 
 ==================================================
-FILE: CraftDailyCorner\Areas\Admin\Views\Violation\History.cshtml
+FILE: CraftDailyCorner\Areas\Admin\Views\Violation\Index.cshtml
 ==================================================
 
 @model CraftDailyCorner.Areas.Admin.ViewModels.Violation.VMAdminViolationIndex
 
 @{
-    ViewData["Title"] = "違規管理（歷史資料）";
+    var isHistory = Model.Mode == "history";
+
+    ViewData["Title"] = isHistory
+        ? "違規管理（歷史資料）"
+        : "違規管理";
+
     Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
 }
 
@@ -3196,44 +3961,64 @@ FILE: CraftDailyCorner\Areas\Admin\Views\Violation\History.cshtml
     <div class="d-flex justify-content-between align-items-end mb-4">
         <div>
             <h2 class="fw-bold mb-1 text-light">違規管理</h2>
-            <div class="text-light opacity-75">歷史檢舉資料（已判定）</div>
+            <div class="text-light opacity-75">
+                @(isHistory ? "歷史檢舉資料（已判定）" : "待審核檢舉清單")
+            </div>
         </div>
 
-        <div class="d-flex align-items-center gap-2">
-            <form class="d-flex gap-2"
-                  method="get"
-                  asp-area="Admin"
-                  asp-controller="Violation"
-                  asp-action="Index">
-                <input type="hidden" name="mode" value="history" />
+        @if (isHistory)
+        {
+            <div class="d-flex align-items-center gap-2">
+                <form method="get"
+                      asp-area="Admin"
+                      asp-controller="Violation"
+                      asp-action="Index"
+                      class="d-flex gap-2 align-items-center justify-content-center"
+                      style="min-width:520px;">
 
-                <input name="memberId"
-                       value="@Model.SearchMemberId"
-                       class="form-control form-control-sm bg-dark text-light border-secondary"
-                       placeholder="輸入 MemberID 查詢（檢舉人/被檢舉者）"
-                       style="width:320px;" />
+                    <input type="hidden" name="mode" value="history" />
 
-                <button type="submit" class="btn btn-sm btn-outline-light">
-                    <i class="bi bi-search"></i> 搜尋
-                </button>
+                    <div class="input-group" style="width:300px;">
+                        <span class="input-group-text bg-dark text-light border-secondary">
+                            <i class="bi bi-search"></i>
+                        </span>
 
+                        <input name="memberId"
+                               value="@Model.SearchMemberId"
+                               class="form-control bg-dark text-light border-secondary"
+                               placeholder="輸入 MemberID 查詢（檢舉人/被檢舉者）" />
+                    </div>
+
+                    <button class="btn btn-outline-light" type="submit">
+                        搜尋
+                    </button>
+
+                    <a class="btn btn-outline-secondary @(string.IsNullOrWhiteSpace(Model.SearchMemberId) ? "invisible" : "")"
+                       asp-area="Admin"
+                       asp-controller="Violation"
+                       asp-action="Index"
+                       asp-route-mode="history">
+                        清除
+                    </a>
+                </form>
+            </div>
+        }
+        else
+        {
+            <div class="d-flex align-items-center gap-2">
                 <a class="btn btn-sm btn-outline-secondary"
                    asp-area="Admin"
                    asp-controller="Violation"
                    asp-action="Index"
                    asp-route-mode="history">
-                    清除
+                    查看歷史資料
                 </a>
-            </form>
 
-            <a class="btn btn-sm btn-outline-info"
-               asp-area="Admin"
-               asp-controller="Violation"
-               asp-action="Index"
-               asp-route-mode="pending">
-                回待審核
-            </a>
-        </div>
+                <span class="badge bg-danger @(Model.Items.Count == 0 ? "d-none" : "")">
+                    待審核 @Model.Items.Count
+                </span>
+            </div>
+        }
     </div>
 
     <div class="card shadow-sm border-0">
@@ -3243,7 +4028,9 @@ FILE: CraftDailyCorner\Areas\Admin\Views\Violation\History.cshtml
             {
                 <div class="p-4 text-center text-light opacity-75">
                     <i class="bi bi-inbox fs-2"></i>
-                    <div class="mt-2">沒有符合條件的歷史資料</div>
+                    <div class="mt-2">
+                        @(isHistory ? "沒有符合條件的歷史資料" : "目前沒有待審核檢舉")
+                    </div>
                 </div>
             }
             else
@@ -3257,7 +4044,12 @@ FILE: CraftDailyCorner\Areas\Admin\Views\Violation\History.cshtml
                                 <th>被檢舉者</th>
                                 <th style="width:220px;">目標</th>
                                 <th style="width:160px;">原因</th>
-                                <th style="width:140px;">結果</th>
+
+                                @if (isHistory)
+                                {
+                                    <th style="width:140px;">結果</th>
+                                }
+
                                 <th style="width:180px;">時間</th>
                                 <th style="width:120px;"></th>
                             </tr>
@@ -3265,11 +4057,12 @@ FILE: CraftDailyCorner\Areas\Admin\Views\Violation\History.cshtml
                         <tbody>
                             @foreach (var x in Model.Items)
                             {
-                                var badge = x.StatusID == 2 ? "bg-danger"
+                                var rowClass = isHistory ? "" : "table-active";
+                                var resultBadge = x.StatusID == 2 ? "bg-danger"
                                 : x.StatusID == 3 ? "bg-success"
                                 : "bg-secondary";
 
-                                <tr>
+                                <tr class="@rowClass">
                                     <td>#@x.ReportID</td>
                                     <td>
                                         <div class="fw-semibold">@x.ReporterName</div>
@@ -3293,9 +4086,14 @@ FILE: CraftDailyCorner\Areas\Admin\Views\Violation\History.cshtml
                                     <td>
                                         <span class="badge bg-secondary">@x.ReasonName</span>
                                     </td>
-                                    <td>
-                                        <span class="badge @badge">@x.StatusName</span>
-                                    </td>
+
+                                    @if (isHistory)
+                                    {
+                                        <td>
+                                            <span class="badge @resultBadge">@x.StatusName</span>
+                                        </td>
+                                    }
+
                                     <td>@x.CreatedAt.ToString("yyyy/MM/dd HH:mm")</td>
                                     <td class="text-end">
                                         <a class="btn btn-sm btn-outline-light"
@@ -3312,11 +4110,10 @@ FILE: CraftDailyCorner\Areas\Admin\Views\Violation\History.cshtml
                     </table>
                 </div>
 
-                <!-- 分頁 -->
-                @if (Model.TotalPages > 1)
+                @if (isHistory && Model.TotalPages > 1)
                 {
                     <div class="p-3 border-top border-secondary d-flex justify-content-between align-items-center">
-                        <div class="text-secondary small">
+                        <div class="text-secondary opacity-75 small">
                             第 @Model.Page / @Model.TotalPages 頁，共 @Model.TotalCount 筆
                         </div>
 
@@ -3378,114 +4175,6 @@ FILE: CraftDailyCorner\Areas\Admin\Views\Violation\History.cshtml
 </div>
 
 ==================================================
-FILE: CraftDailyCorner\Areas\Admin\Views\Violation\Index.cshtml
-==================================================
-
-@model CraftDailyCorner.Areas.Admin.ViewModels.Violation.VMAdminViolationIndex
-
-@{
-    ViewData["Title"] = "違規管理";
-    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
-}
-
-<div class="container-fluid">
-
-    <div class="d-flex justify-content-between align-items-end mb-4">
-        <div>
-            <h2 class="fw-bold mb-1 text-light">違規管理</h2>
-            <div class="text-light opacity-75">待審核檢舉清單</div>
-        </div>
-
-        <div class="d-flex align-items-center gap-2">
-            <a class="btn btn-sm btn-outline-secondary"
-               asp-area="Admin"
-               asp-controller="Violation"
-               asp-action="Index"
-               asp-route-mode="history">
-                查看歷史資料
-            </a>
-
-            <span class="badge bg-danger @(Model.Items.Count == 0 ? "d-none" : "")">
-                待審核 @Model.Items.Count
-            </span>
-        </div>
-    </div>
-
-    <div class="card shadow-sm border-0">
-        <div class="card-body p-0">
-
-            @if (!Model.Items.Any())
-            {
-                <div class="p-4 text-center text-light opacity-75">
-                    <i class="bi bi-inbox fs-2"></i>
-                    <div class="mt-2">目前沒有待審核檢舉</div>
-                </div>
-            }
-            else
-            {
-                <div class="table-responsive">
-                    <table class="table table-dark table-hover align-middle mb-0">
-                        <thead>
-                            <tr>
-                                <th style="width:120px;">檢舉ID</th>
-                                <th>檢舉人</th>
-                                <th>被檢舉者</th>
-                                <th style="width:220px;">目標</th>
-                                <th style="width:160px;">原因</th>
-                                <th style="width:180px;">時間</th>
-                                <th style="width:120px;"></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var x in Model.Items)
-                            {
-                                <tr class="table-active">
-                                    <td>#@x.ReportID</td>
-                                    <td>
-                                        <div class="fw-semibold">@x.ReporterName</div>
-                                        <div class="small text-light opacity-75">@x.ReporterMemberID</div>
-                                    </td>
-                                    <td>
-                                        @if (!string.IsNullOrEmpty(x.TargetOwnerID))
-                                        {
-                                            <div class="fw-semibold">@x.TargetOwnerName</div>
-                                            <div class="small text-light opacity-75">@x.TargetOwnerID</div>
-                                        }
-                                        else
-                                        {
-                                            <span class="text-light opacity-75">（未知）</span>
-                                        }
-                                    </td>
-                                    <td>
-                                        <div class="fw-semibold">@x.TargetTypeName</div>
-                                        <div class="small text-light opacity-75">@x.TargetID</div>
-                                    </td>
-                                    <td>
-                                        <span class="badge bg-secondary">@x.ReasonName</span>
-                                    </td>
-                                    <td>@x.CreatedAt.ToString("yyyy/MM/dd HH:mm")</td>
-                                    <td class="text-end">
-                                        <a class="btn btn-sm btn-outline-light"
-                                           asp-area="Admin"
-                                           asp-controller="Violation"
-                                           asp-action="Detail"
-                                           asp-route-id="@x.ReportID">
-                                            查看
-                                        </a>
-                                    </td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
-                </div>
-            }
-
-        </div>
-    </div>
-
-</div>
-
-==================================================
 FILE: CraftDailyCorner\Controllers\AccountController.cs
 ==================================================
 
@@ -3527,7 +4216,7 @@ namespace CraftDailyCorner.Controllers
             }
 
             ViewData["ReturnUrl"] = returnUrl;
-            return View();
+            return View(new VMLogin());
         }
 
         [HttpPost]
@@ -3539,6 +4228,16 @@ namespace CraftDailyCorner.Controllers
 
             if (user == null)
                 return Json(new { success = false, message = "帳號或密碼錯誤" });
+
+            var member = _context.Members
+                .FirstOrDefault(m => m.MemberID == user.MemberID);
+
+            if (member == null)
+                return Json(new { success = false, message = "找不到會員資料" });
+
+            // 會員停權不可登入
+            if (member.StatusID == 2)
+                return Json(new { success = false, message = "此帳號已被停權，無法登入" });
 
             var hasher = new PasswordHasher<Privacy>();
             var result = hasher.VerifyHashedPassword(user, user.PasswordHash, login.Password);
@@ -3647,7 +4346,7 @@ namespace CraftDailyCorner.Controllers
             var user = _context.Privacies.FirstOrDefault(u => u.Email == vm.Email);
             if (user == null)
             {
-                TempData["Message"] = "已發送重設密碼 Email，請檢查收件匣";
+                TempData["Info"] = "已發送重設密碼 Email，請檢查收件匣";
                 return RedirectToAction("Login");
             }
 
@@ -3666,7 +4365,7 @@ namespace CraftDailyCorner.Controllers
 
             var resetLink = Url.Action("ResetPassword", "Account", new { token = token }, Request.Scheme);
 
-            TempData["Message"] = "已發送重設密碼 Email，請檢查收件匣";
+            TempData["Info"] = "已發送重設密碼 Email，請檢查收件匣";
             TempData["ResetLink"] = resetLink; // 測試用
             return RedirectToAction("ForgetPasswordConfirmation");
         }
@@ -3712,7 +4411,7 @@ namespace CraftDailyCorner.Controllers
 
             await _context.SaveChangesAsync();
 
-            TempData["Message"] = "密碼已重設成功，請重新登入";
+            TempData["Success"] = "密碼已重設成功，請重新登入";
             return RedirectToAction("Login");
         }
     }
@@ -6107,6 +6806,136 @@ namespace CraftDailyCorner.Extensions
 
 
 ==================================================
+FILE: CraftDailyCorner\Filters\SuspendedMemberGuardFilter.cs
+==================================================
+
+using CraftDailyCorner.Extensions;
+using CraftDailyCorner.Models;
+using CraftDailyCorner.Services.Interface;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Controllers;
+using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
+using Microsoft.EntityFrameworkCore;
+
+namespace CraftDailyCorner.Filters
+{
+    public class SuspendedMemberGuardFilter : IAsyncActionFilter
+    {
+        private readonly CraftDailyCornerContext _context;
+        private readonly IAuthService _authService;
+        private readonly ITempDataDictionaryFactory _tempDataFactory;
+
+        private const byte MEMBER_SUSPENDED = 2;
+
+        public SuspendedMemberGuardFilter(
+            CraftDailyCornerContext context,
+            IAuthService authService,
+            ITempDataDictionaryFactory tempDataFactory)
+        {
+            _context = context;
+            _authService = authService;
+            _tempDataFactory = tempDataFactory;
+        }
+
+        public async Task OnActionExecutionAsync(
+            ActionExecutingContext context,
+            ActionExecutionDelegate next)
+        {
+            var httpContext = context.HttpContext;
+            var user = httpContext.User;
+
+            // 1. 未登入：不用檢查
+            if (user?.Identity?.IsAuthenticated != true)
+            {
+                await next();
+                return;
+            }
+
+            // 2. AllowAnonymous：直接放行
+            if (HasAllowAnonymous(context))
+            {
+                await next();
+                return;
+            }
+
+            // 3. 找不到 MemberID：直接登出並導登入頁
+            var memberId = user.GetMemberId();
+            if (string.IsNullOrWhiteSpace(memberId))
+            {
+                await ForceLogoutAndRedirectToLogin(context, "登入狀態異常，請重新登入");
+                return;
+            }
+
+            // 4. 查會員狀態
+            var member = await _context.Members
+                .AsNoTracking()
+                .Where(m => m.MemberID == memberId)
+                .Select(m => new
+                {
+                    m.MemberID,
+                    m.StatusID
+                })
+                .FirstOrDefaultAsync();
+
+            // 5. 會員不存在 or 已停權 => 強制登出
+            if (member == null)
+            {
+                await ForceLogoutAndRedirectToLogin(context, "找不到會員資料，請重新登入");
+                return;
+            }
+
+            if (member.StatusID == MEMBER_SUSPENDED)
+            {
+                await ForceLogoutAndRedirectToLogin(context, "此帳號已被停權，請聯絡管理員");
+                return;
+            }
+
+            await next();
+        }
+
+        private static bool HasAllowAnonymous(ActionExecutingContext context)
+        {
+            // Endpoint metadata
+            if (context.HttpContext.GetEndpoint()?.Metadata?.GetMetadata<IAllowAnonymous>() != null)
+                return true;
+
+            // Controller / Action attributes
+            if (context.ActionDescriptor is ControllerActionDescriptor cad)
+            {
+                bool controllerAllowAnonymous = cad.ControllerTypeInfo
+                    .GetCustomAttributes(typeof(AllowAnonymousAttribute), true)
+                    .Any();
+
+                bool actionAllowAnonymous = cad.MethodInfo
+                    .GetCustomAttributes(typeof(AllowAnonymousAttribute), true)
+                    .Any();
+
+                return controllerAllowAnonymous || actionAllowAnonymous;
+            }
+
+            return false;
+        }
+
+        private async Task ForceLogoutAndRedirectToLogin(
+            ActionExecutingContext context,
+            string message)
+        {
+            await _authService.SignOutAsync(context.HttpContext);
+
+            var tempData = _tempDataFactory.GetTempData(context.HttpContext);
+            tempData["Warning"] = message;
+
+            context.Result = new RedirectToActionResult(
+                actionName: "Login",
+                controllerName: "Account",
+                routeValues: null);
+        }
+    }
+}
+
+==================================================
 FILE: CraftDailyCorner\Helpers\ReactionIconHelper.cs
 ==================================================
 
@@ -6728,7 +7557,7 @@ namespace CraftDailyCorner.ImageManagementCore.ViewModels
 }
 
 ==================================================
-FILE: CraftDailyCorner\Migrations\20260308065457_InitialCreate.cs
+FILE: CraftDailyCorner\Migrations\20260309001803_InitialCreate.cs
 ==================================================
 
 using System;
@@ -8606,7 +9435,7 @@ namespace CraftDailyCorner.Migrations
 
 
 ==================================================
-FILE: CraftDailyCorner\Migrations\20260308065457_InitialCreate.Designer.cs
+FILE: CraftDailyCorner\Migrations\20260309001803_InitialCreate.Designer.cs
 ==================================================
 
 // <auto-generated />
@@ -8623,7 +9452,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CraftDailyCorner.Migrations
 {
     [DbContext(typeof(CraftDailyCornerContext))]
-    [Migration("20260308065457_InitialCreate")]
+    [Migration("20260309001803_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -16989,6 +17818,7 @@ namespace CraftDailyCorner.Models
 FILE: CraftDailyCorner\Program.cs
 ==================================================
 
+using CraftDailyCorner.Filters;
 using CraftDailyCorner.ImageManagementCore.Services;
 using CraftDailyCorner.ImageManagementCore.Services.Interfaces;
 using CraftDailyCorner.Models;
@@ -17002,10 +17832,16 @@ using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
+
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllersWithViews(options =>
+{
+    options.Filters.Add<SuspendedMemberGuardFilter>();
+});
+builder.Services.AddScoped<SuspendedMemberGuardFilter>();
 builder.Services.AddDbContext<CraftDailyCornerContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("CraftDailyCornerConnection")));
 builder.Services.AddScoped <IImageUploadService, ImageUploadService>();
@@ -17039,6 +17875,7 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IAdminViolationService, AdminViolationService>();
 builder.Services.AddScoped<IAdminCategoryService, AdminCategoryService>();
 builder.Services.AddScoped<IAdminTagService, AdminTagService>();
+builder.Services.AddScoped<IAdminMemberService, AdminMemberService>();
 
 builder.Services.AddHostedService<SoftDeleteCleanupBackgroundService>();
 builder.Services.AddHostedService<OrderAutoCompleteHostedBackgroundService>();
@@ -21211,6 +22048,298 @@ public class AdminDashboardService : IAdminDashboardService
         list.Reverse(); // 最新在前
 
         return list;
+    }
+}
+
+==================================================
+FILE: CraftDailyCorner\Services\AdminMemberService.cs
+==================================================
+
+using CraftDailyCorner.Areas.Admin.ViewModels.Member;
+using CraftDailyCorner.Models;
+using CraftDailyCorner.Services.Interface;
+using Microsoft.EntityFrameworkCore;
+
+namespace CraftDailyCorner.Services
+{
+    public class AdminMemberService : IAdminMemberService
+    {
+        private readonly CraftDailyCornerContext _context;
+
+        private const byte MEMBER_ACTIVE = 1;
+        private const byte MEMBER_SUSPENDED = 2;
+
+        public AdminMemberService(CraftDailyCornerContext context)
+        {
+            _context = context;
+        }
+
+        public async Task<VMAdminMemberIndex> GetIndexAsync(string mode = "all", string? memberId = null, int page = 1)
+        {
+            mode = (mode ?? "all").Trim().ToLower();
+            memberId = string.IsNullOrWhiteSpace(memberId) ? null : memberId.Trim();
+
+            const int pageSize = 8;
+            page = page <= 0 ? 1 : page;
+
+            var query = _context.Members
+                .AsNoTracking()
+                .Include(x => x.MemberStatus)
+                .Include(x => x.MemberRoles)
+                    .ThenInclude(x => x.Role)
+                .Include(x => x.CreatorProfile)
+                .AsQueryable();
+
+            switch (mode)
+            {
+                case "risk":
+                    query = query
+                        .Where(x => x.ViolationCount > 5)
+                        .OrderByDescending(x => x.ViolationCount)
+                        .ThenBy(x => x.MemberID);
+
+                    var riskItems = await query
+                        .Select(x => new VMAdminMemberListItem
+                        {
+                            MemberID = x.MemberID,
+                            DisplayName = x.DisplayName,
+                            StatusID = x.StatusID,
+                            StatusName = x.MemberStatus.StatusName,
+                            ViolationCount = x.ViolationCount,
+                            CreatedAt = x.CreatedAt,
+                            CreatorID = x.CreatorProfile != null ? x.CreatorProfile.CreatorID : null,
+                            BrandName = x.CreatorProfile != null ? x.CreatorProfile.BrandName : null,
+                            RoleIDs = x.MemberRoles
+                                .Select(r => r.RoleID)
+                                .ToList()
+                        })
+                        .ToListAsync();
+
+                    return new VMAdminMemberIndex
+                    {
+                        Mode = mode,
+                        SearchMemberId = memberId,
+                        Items = riskItems,
+                        Page = 1,
+                        PageSize = pageSize,
+                        TotalCount = riskItems.Count
+                    };
+
+                case "admin":
+                    query = query
+                        .Where(x => x.MemberRoles.Any(r => r.RoleID == "03" || r.RoleID == "04"))
+                        .OrderByDescending(x => x.CreatedAt)
+                        .ThenBy(x => x.MemberID);
+
+                    var adminItems = await query
+                        .Select(x => new VMAdminMemberListItem
+                        {
+                            MemberID = x.MemberID,
+                            DisplayName = x.DisplayName,
+                            StatusID = x.StatusID,
+                            StatusName = x.MemberStatus.StatusName,
+                            ViolationCount = x.ViolationCount,
+                            CreatedAt = x.CreatedAt,
+                            CreatorID = x.CreatorProfile != null ? x.CreatorProfile.CreatorID : null,
+                            BrandName = x.CreatorProfile != null ? x.CreatorProfile.BrandName : null,
+                            RoleIDs = x.MemberRoles
+                                .Select(r => r.RoleID)
+                                .ToList()
+                        })
+                        .ToListAsync();
+
+                    return new VMAdminMemberIndex
+                    {
+                        Mode = mode,
+                        SearchMemberId = memberId,
+                        Items = adminItems,
+                        Page = 1,
+                        PageSize = pageSize,
+                        TotalCount = adminItems.Count
+                    };
+
+                case "creator":
+                    query = query.Where(x => x.CreatorProfile != null);
+
+                    if (!string.IsNullOrWhiteSpace(memberId))
+                    {
+                        query = query.Where(x => x.MemberID == memberId);
+                    }
+
+                    query = query
+                        .OrderByDescending(x => x.CreatorProfile!.CreatedAt)
+                        .ThenBy(x => x.MemberID);
+
+                    var creatorTotal = await query.CountAsync();
+
+                    var creatorItems = await query
+                        .Skip((page - 1) * pageSize)
+                        .Take(pageSize)
+                        .Select(x => new VMAdminMemberListItem
+                        {
+                            MemberID = x.MemberID,
+                            DisplayName = x.DisplayName,
+                            StatusID = x.StatusID,
+                            StatusName = x.MemberStatus.StatusName,
+                            ViolationCount = x.ViolationCount,
+                            CreatedAt = x.CreatedAt,
+                            CreatorID = x.CreatorProfile != null ? x.CreatorProfile.CreatorID : null,
+                            BrandName = x.CreatorProfile != null ? x.CreatorProfile.BrandName : null,
+                            RoleIDs = x.MemberRoles
+                                .Select(r => r.RoleID)
+                                .ToList()
+                        })
+                        .ToListAsync();
+
+                    return new VMAdminMemberIndex
+                    {
+                        Mode = mode,
+                        SearchMemberId = memberId,
+                        Items = creatorItems,
+                        Page = page,
+                        PageSize = pageSize,
+                        TotalCount = creatorTotal
+                    };
+
+                case "all":
+                default:
+                    if (!string.IsNullOrWhiteSpace(memberId))
+                    {
+                        query = query.Where(x => x.MemberID == memberId);
+                    }
+
+                    query = query
+                        .OrderByDescending(x => x.CreatedAt)
+                        .ThenBy(x => x.MemberID);
+
+                    var total = await query.CountAsync();
+
+                    var items = await query
+                        .Skip((page - 1) * pageSize)
+                        .Take(pageSize)
+                        .Select(x => new VMAdminMemberListItem
+                        {
+                            MemberID = x.MemberID,
+                            DisplayName = x.DisplayName,
+                            StatusID = x.StatusID,
+                            StatusName = x.MemberStatus.StatusName,
+                            ViolationCount = x.ViolationCount,
+                            CreatedAt = x.CreatedAt,
+                            CreatorID = x.CreatorProfile != null ? x.CreatorProfile.CreatorID : null,
+                            BrandName = x.CreatorProfile != null ? x.CreatorProfile.BrandName : null,
+                            RoleIDs = x.MemberRoles
+                                .Select(r => r.RoleID)
+                                .ToList()
+                        })
+                        .ToListAsync();
+
+                    return new VMAdminMemberIndex
+                    {
+                        Mode = mode,
+                        SearchMemberId = memberId,
+                        Items = items,
+                        Page = page,
+                        PageSize = pageSize,
+                        TotalCount = total
+                    };
+            }
+        }
+
+        public async Task<VMAdminMemberDetail?> GetDetailAsync(string memberId, string mode = "all")
+        {
+            mode = (mode ?? "all").Trim().ToLower();
+
+            var member = await _context.Members
+                .AsNoTracking()
+                .Include(x => x.MemberStatus)
+                .Include(x => x.Privacy)
+                .Include(x => x.MemberRoles)
+                    .ThenInclude(x => x.Role)
+                .Include(x => x.CreatorProfile)
+                    .ThenInclude(x => x!.CreatorProfileStatus)
+                .FirstOrDefaultAsync(x => x.MemberID == memberId);
+
+            if (member == null)
+                return null;
+
+            if (mode == "risk" && member.ViolationCount <= 5)
+                return null;
+
+            if (mode == "admin" && !member.MemberRoles.Any(r => r.RoleID == "03" || r.RoleID == "04"))
+                return null;
+
+            if (mode == "creator" && member.CreatorProfile == null)
+                return null;
+
+            return new VMAdminMemberDetail
+            {
+                MemberID = member.MemberID,
+                DisplayName = member.DisplayName,
+                StatusID = member.StatusID,
+                StatusName = member.MemberStatus.StatusName,
+                MaliciousReportCount = member.MaliciousReportCount,
+                ReportBanUntil = member.ReportBanUntil,
+                ViolationCount = member.ViolationCount,
+                CreatedAt = member.CreatedAt,
+                Email = member.Privacy?.Email,
+                Phone = member.Privacy?.Phone,
+                RoleIDs = member.MemberRoles.Select(r => r.RoleID).ToList(),
+                RoleNames = member.MemberRoles.Select(r => r.Role.RoleName).ToList(),
+
+                CreatorID = member.CreatorProfile?.CreatorID,
+                CreatorStatusID = member.CreatorProfile?.StatusID,
+                CreatorStatusName = member.CreatorProfile?.CreatorProfileStatus?.StatusName,
+                BrandName = member.CreatorProfile?.BrandName,
+                BrandIntro = member.CreatorProfile?.BrandIntro,
+                StartDate = member.CreatorProfile?.StartDate,
+                BankCode = member.CreatorProfile?.BankCode,
+                BankAccount = member.CreatorProfile?.BankAccount,
+                CreatorCreatedAt = member.CreatorProfile?.CreatedAt,
+                UpdatedAt = member.CreatorProfile?.UpdatedAt
+            };
+        }
+
+        public async Task<(bool ok, string? message)> SuspendAsync(string memberId, string adminMemberId)
+        {
+            var member = await _context.Members
+                .Include(x => x.MemberRoles)
+                .FirstOrDefaultAsync(x => x.MemberID == memberId);
+
+            if (member == null)
+                return (false, "會員不存在");
+
+            if (member.MemberID == adminMemberId)
+                return (false, "不能停權自己的帳號");
+
+            if (member.MemberRoles.Any(r => r.RoleID == "04"))
+                return (false, "不可停權超級管理者");
+
+            if (member.StatusID == MEMBER_SUSPENDED)
+                return (false, "此會員目前已是停權狀態");
+
+            member.StatusID = MEMBER_SUSPENDED;
+
+            await _context.SaveChangesAsync();
+            return (true, null);
+        }
+
+        public async Task<(bool ok, string? message)> ActivateAsync(string memberId, string adminMemberId)
+        {
+            var member = await _context.Members
+                .Include(x => x.MemberRoles)
+                .FirstOrDefaultAsync(x => x.MemberID == memberId);
+
+            if (member == null)
+                return (false, "會員不存在");
+
+            if (member.StatusID == MEMBER_ACTIVE)
+                return (false, "此會員目前已是啟用狀態");
+
+            member.StatusID = MEMBER_ACTIVE;
+
+            await _context.SaveChangesAsync();
+            return (true, null);
+        }
     }
 }
 
@@ -26130,6 +27259,24 @@ namespace CraftDailyCorner.Services.Interface
     }
 }
 
+
+==================================================
+FILE: CraftDailyCorner\Services\Interface\IAdminMemberService.cs
+==================================================
+
+using CraftDailyCorner.Areas.Admin.ViewModels.Member;
+
+namespace CraftDailyCorner.Services.Interface
+{
+    public interface IAdminMemberService
+    {
+        Task<VMAdminMemberIndex> GetIndexAsync(string mode = "all", string? memberId = null, int page = 1);
+        Task<VMAdminMemberDetail?> GetDetailAsync(string memberId, string mode = "all");
+
+        Task<(bool ok, string? message)> SuspendAsync(string memberId, string adminMemberId);
+        Task<(bool ok, string? message)> ActivateAsync(string memberId, string adminMemberId);
+    }
+}
 
 ==================================================
 FILE: CraftDailyCorner\Services\Interface\IAdminSidebarService.cs
@@ -31285,12 +32432,39 @@ FILE: CraftDailyCorner\Views\Account\Login.cshtml
 @{
     ViewData["Title"] = "會員登入";
 }
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-5 col-md-7">
+            <h1>@ViewData["Title"]</h1>
+            <p class="text-muted mb-0">歡迎回到 CraftDailyCorner</p>
+            <hr />
+            @if (TempData["Success"] != null)
+            {
+                <div class="alert alert-success">
+                    @TempData["Success"]
+                </div>
+            }
 
-<h1>@ViewData["Title"]</h1>
+            @if (TempData["Info"] != null)
+            {
+                <div class="alert alert-info">
+                    @TempData["Info"]
+                </div>
+            }
 
-<hr />
-<div>
-    @await Html.PartialAsync("_LoginPartial", new VMLogin())
+            @if (TempData["Warning"] != null)
+            {
+                <div class="alert alert-warning">
+                    @TempData["Warning"]
+                </div>
+            }
+            <div class="card shadow-sm border-0">
+                <div class="card-body p-4">
+                    <partial name="_LoginPartial" model="(Model ?? new VMLogin())" />
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 
@@ -39533,12 +40707,23 @@ html {
 
 .admin-wrapper {
     min-height: 100vh;
+    display: flex;
 }
 
+/* 左側 Sidebar：固定寬度，不可被壓縮 */
+.admin-sidebar {
+    width: 280px;
+    min-width: 280px;
+    flex-shrink: 0;
+    background-color: #111827;
+    border-right: 1px solid #1f2937;
+}
 
-
+/* 右側內容：吃剩餘空間 */
 .admin-content {
     background-color: #0f172a;
+    flex: 1 1 auto;
+    min-width: 0;
 }
 
 .admin-topbar {
