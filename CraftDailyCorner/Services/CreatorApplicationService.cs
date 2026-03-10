@@ -145,30 +145,22 @@ namespace CraftDailyCorner.Services.Creator
 
         public async Task SubmitApprovedConfirmAsync(string memberId, VMApprovedConfirm vm)
         {
-            // 基本防呆
-            if (vm.BrandImageFile == null || vm.BrandImageFile.Length == 0)
-                throw new Exception("請上傳品牌圖片");
-            if (string.IsNullOrWhiteSpace(vm.BankCode))
-                throw new Exception("請填寫銀行代碼");
-            if (string.IsNullOrWhiteSpace(vm.BankAccount))
-                throw new Exception("請填寫銀行帳號");
-
-            // 申請必須存在且屬於自己
             var app = await _context.CreatorApplications
                 .FirstOrDefaultAsync(x => x.ApplicationID == vm.ApplicationID && x.MemberID == memberId);
 
             if (app == null)
                 throw new Exception("找不到申請資料");
 
+            // 必須是「已通過」(StatusID=2) 才能進入此流程
             if (app.StatusID != 2)
                 throw new Exception("此申請狀態不可確認");
 
-            // 已是創作者就不能重複建立
-            var existing = await _context.CreatorProfiles
-                .FirstOrDefaultAsync(c => c.MemberID == memberId);
+            // 已有 CreatorProfile 就不可重複建立
+            var hasCreatorProfile = await _context.CreatorProfiles
+                .AnyAsync(x => x.MemberID == memberId);
 
-            if (existing != null)
-                throw new Exception("你已是創作者，無需再次確認");
+            if (hasCreatorProfile)
+                throw new Exception("你已經是創作者，無需重複建立資料");
 
             using var tx = await _context.Database.BeginTransactionAsync();
 
@@ -199,6 +191,11 @@ namespace CraftDailyCorner.Services.Creator
                     CreatedAt = DateTime.Now,
                     UpdatedAt = DateTime.Now
                 });
+
+                // 建立預設訊息模板
+                // 1. 固定建立 1 筆 FirstMessage 自動回覆模板
+                // 2. 一併建立其他預設 QuickReply 模板
+                AddDefaultMessageTemplates(creatorId);
 
                 // 若你「管理者審核通過」時沒有掛 Role(02)，在這裡補一次最保險
                 var hasRole = await _context.MemberRoles
@@ -299,6 +296,66 @@ namespace CraftDailyCorner.Services.Creator
                 throw new Exception("產生創作者編號失敗");
 
             return newId;
+        }
+        /// <summary>
+        /// 建立新創作者的預設訊息模板
+        /// 規則：
+        /// 1. 每位創作者固定建立 1 筆 FirstMessage
+        /// 2. 其餘建立預設 QuickReply
+        /// </summary>
+        private void AddDefaultMessageTemplates(string creatorId)
+        {
+            var now = DateTime.Now;
+
+            var templates = new List<AutoReplyTemplate>
+            {
+                // =============================
+                // 系統固定模板：第一次訊息自動回覆
+                // 每位創作者只有一筆
+                // =============================
+                new AutoReplyTemplate
+                {
+                    Title = "首次訊息自動回覆",
+                    Content = "您好，感謝您的來訊！我會盡快回覆您，謝謝您的耐心等候。",
+                    IsActive = true,
+                    TriggerType = AutoReplyTemplateTriggerType.FirstMessage,
+                    CreatedAt = now,
+                    CreatorID = creatorId
+                },
+
+                // =============================
+                // 其他預設快速回覆模板（標記位置）
+                // =============================
+                new AutoReplyTemplate
+                {
+                    Title = "感謝詢問",
+                    Content = "您好，感謝您的詢問，我會盡快為您確認並回覆。",
+                    IsActive = true,
+                    TriggerType = AutoReplyTemplateTriggerType.QuickReply,
+                    CreatedAt = now,
+                    CreatorID = creatorId
+                },
+                new AutoReplyTemplate
+                {
+                    Title = "確認庫存中",
+                    Content = "您好，這邊幫您確認庫存中，請稍候一下，謝謝。",
+                    IsActive = true,
+                    TriggerType = AutoReplyTemplateTriggerType.QuickReply,
+                    CreatedAt = now,
+                    CreatorID = creatorId
+                },
+                new AutoReplyTemplate
+                {
+                    Title = "客製需求",
+                    Content = "您好，若有客製需求，歡迎提供想法與細節，我會再與您討論。",
+                    IsActive = true,
+                    TriggerType = AutoReplyTemplateTriggerType.QuickReply,
+                    CreatedAt = now,
+                    CreatorID = creatorId
+                }
+            };
+
+            _context.AutoReplyTemplates.AddRange(templates);
         }
     }
 }

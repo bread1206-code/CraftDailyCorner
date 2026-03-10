@@ -1,8 +1,6 @@
 
 public enum AutoReplyTemplateTriggerType : byte
 {
-    OnMessage = 1,      // 收到任何訊息
-    FirstMessage = 2,   // 該 Thread 第一則訊息
-    Keyword = 3,        // 關鍵字觸發
-    AfterOrder = 4      // 訂單成立後
+    FirstMessage = 1,   // 該 Thread 第一則訊息，內容如：您好，感謝您的訊息，我們會盡快回覆您
+    QuickReply = 2      // 快速回覆模板（創作者手動使用）
 }

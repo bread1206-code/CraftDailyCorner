@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CraftDailyCorner.Migrations
 {
     [DbContext(typeof(CraftDailyCornerContext))]
-    [Migration("20260309072619_InitialCreate")]
+    [Migration("20260310072921_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -702,6 +702,9 @@ namespace CraftDailyCorner.Migrations
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsAutoReply")
+                        .HasColumnType("bit");
 
                     b.Property<bool>("IsRead")
                         .HasColumnType("bit");

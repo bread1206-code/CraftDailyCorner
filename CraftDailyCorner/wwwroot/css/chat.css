@@ -1,0 +1,87 @@
+﻿/* =========================================
+   chat.css - 聊天室專屬樣式
+   ========================================= */
+
+/* 聊天室專屬高度控制 */
+.chat-container {
+    height: calc(100vh - 140px);
+    min-height: 600px;
+}
+
+/* 左側對話列表：選中狀態優化 (現代化淺色風格) */
+.list-group-item.chat-active {
+    background-color: #f8faff;
+    border-left: 4px solid #0d6efd;
+    color: #212529;
+}
+
+.list-group-item:hover {
+    background-color: #f8f9fa;
+}
+
+/* 捲軸美化 */
+.chat-scroll::-webkit-scrollbar {
+    width: 6px;
+}
+
+.chat-scroll::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.chat-scroll::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 10px;
+}
+
+    .chat-scroll::-webkit-scrollbar-thumb:hover {
+        background: #94a3b8;
+    }
+
+/* 訊息氣泡基礎設定 */
+.msg-bubble {
+    padding: 0.75rem 1.25rem;
+    border-radius: 1.25rem;
+    max-width: 75%;
+    position: relative;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    word-wrap: break-word;
+}
+
+/* 我的訊息 (藍底白字) */
+.msg-mine {
+    background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+    color: #ffffff;
+    border-bottom-right-radius: 0.25rem; /* 右下角收尖 */
+}
+
+/* 對方的訊息 (灰底黑字) */
+.msg-other {
+    background-color: #f1f5f9;
+    color: #1e293b;
+    border-bottom-left-radius: 0.25rem; /* 左下角收尖 */
+}
+
+/* 時間標籤微調 */
+.msg-time {
+    font-size: 0.75rem;
+    margin-top: 0.25rem;
+}
+
+/* 輸入區美化 */
+.chat-input-area {
+    background-color: #ffffff;
+    border-top: 1px solid #e2e8f0;
+}
+
+/* 輸入框美化 */
+.chat-textarea {
+    resize: none;
+    border-radius: 1rem;
+    background-color: #f8f9fa;
+    border: 1px solid #e2e8f0;
+}
+
+    .chat-textarea:focus {
+        background-color: #ffffff;
+        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
+    }

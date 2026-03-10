@@ -3,101 +3,107 @@
 @{
     ViewData["Title"] = "我的訊息";
 }
-
+@section Styles {
+    <link rel="stylesheet" href="~/css/chat.css" asp-append-version="true" />
+}
 <div class="container-fluid py-4">
 
     @if (TempData["Warning"] != null)
     {
-        <div class="alert alert-warning">@TempData["Warning"]</div>
+        <div class="alert alert-warning shadow-sm border-0 rounded-3">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i> @TempData["Warning"]
+        </div>
     }
 
-    <div class="row g-3">
+    <div class="row g-3 chat-container">
 
-        <!-- 左側：對話列表 -->
-        <div class="col-lg-4">
-            <div class="card shadow-sm border-0 h-100">
-                <div class="card-body p-0">
+        <div class="col-lg-4 h-100">
+            <div class="card shadow-sm border-0 h-100 rounded-4 overflow-hidden">
+                <div class="card-body p-0 d-flex flex-column h-100">
 
-                    <div class="p-3 border-bottom">
+                    <div class="p-3 border-bottom bg-white z-1">
                         <h5 class="fw-bold mb-1">訊息</h5>
                         <div class="text-muted small">選擇一個對話查看內容</div>
                     </div>
 
-                    @if (Model.Conversations == null || !Model.Conversations.Any())
-                    {
-                        <div class="p-4 text-center text-muted">
-                            <i class="bi bi-chat-dots fs-2 d-block mb-2"></i>
-                            目前沒有對話
-                        </div>
-                    }
-                    else
-                    {
-                        <div class="list-group list-group-flush">
-                            @foreach (var item in Model.Conversations)
-                            {
-                                var activeClass = item.IsActive ? "active" : "";
-                                var timeText = item.LastMessageAt.Date == DateTime.Today
-                                ? item.LastMessageAt.ToString("HH:mm")
-                                : item.LastMessageAt.ToString("MM/dd");
+                    <div class="flex-grow-1 overflow-auto chat-scroll bg-white">
+                        @if (Model.Conversations == null || !Model.Conversations.Any())
+                        {
+                            <div class="p-5 text-center text-muted h-100 d-flex flex-column justify-content-center">
+                                <i class="bi bi-chat-dots fs-1 d-block mb-3 text-light"></i>
+                                目前沒有對話
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="list-group list-group-flush border-0">
+                                @foreach (var item in Model.Conversations)
+                                {
+                                    // 改用自訂的 chat-active，避免 Bootstrap 預設 active 導致文字變白
+                                    var activeClass = item.IsActive ? "chat-active" : "";
+                                    var timeText = item.LastMessageAt.Date == DateTime.Today
+                                    ? item.LastMessageAt.ToString("HH:mm")
+                                    : item.LastMessageAt.ToString("MM/dd");
 
-                                <a asp-controller="Messages"
-                                   asp-action="Index"
-                                   asp-route-threadId="@item.ThreadID"
-                                   class="list-group-item list-group-item-action @activeClass">
-                                    <div class="d-flex justify-content-between align-items-start mb-1">
-                                        <div class="fw-semibold text-truncate pe-2">
-                                            @item.DisplayName
+                                    <a asp-controller="Messages"
+                                       asp-action="Index"
+                                       asp-route-threadId="@item.ThreadID"
+                                       class="list-group-item list-group-item-action border-bottom-0 border-top-0 border-end-0 py-3 @activeClass">
+
+                                        <div class="d-flex justify-content-between align-items-start mb-1">
+                                            <div class="fw-bold text-truncate pe-2 text-dark">
+                                                @item.DisplayName
+                                            </div>
+                                            <small class="text-nowrap text-muted">
+                                                @timeText
+                                            </small>
                                         </div>
 
-                                        <small class="text-nowrap @(item.IsActive ? "text-white-50" : "text-muted")">
-                                            @timeText
-                                        </small>
-                                    </div>
-
-                                    @if (!string.IsNullOrWhiteSpace(item.ProductName))
-                                    {
-                                        <div class="small @(item.IsActive ? "text-white-50" : "text-muted") mb-1">
-                                            商品：@item.ProductName
-                                        </div>
-                                    }
-
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <div class="small text-truncate pe-2 @(item.IsActive ? "text-white-50" : "text-muted")">
-                                            @(string.IsNullOrWhiteSpace(item.LastMessagePreview) ? "尚無訊息" : item.LastMessagePreview)
-                                        </div>
-
-                                        @if (item.UnreadCount > 0)
+                                        @if (!string.IsNullOrWhiteSpace(item.ProductName))
                                         {
-                                            <span class="badge bg-danger rounded-pill">@item.UnreadCount</span>
+                                            <div class="small text-muted mb-2 d-flex align-items-center">
+                                                <i class="bi bi-box-seam me-1"></i> @item.ProductName
+                                            </div>
                                         }
-                                    </div>
-                                </a>
-                            }
-                        </div>
-                    }
+
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div class="small text-truncate pe-2 text-secondary">
+                                                @(string.IsNullOrWhiteSpace(item.LastMessagePreview) ? "尚無訊息" : item.LastMessagePreview)
+                                            </div>
+
+                                            @if (item.UnreadCount > 0)
+                                            {
+                                                <span class="badge bg-danger rounded-pill px-2 shadow-sm">@item.UnreadCount</span>
+                                            }
+                                        </div>
+                                    </a>
+                                }
+                            </div>
+                        }
+                    </div>
 
                 </div>
             </div>
         </div>
 
-        <!-- 右側：聊天區 -->
-        <div class="col-lg-8">
-            <div class="card shadow-sm border-0 h-100">
-                <div class="card-body p-0 d-flex flex-column" style="min-height: 75vh;">
+        <div class="col-lg-8 h-100">
+            <div class="card shadow-sm border-0 h-100 rounded-4 overflow-hidden">
+                <div class="card-body p-0 d-flex flex-column h-100">
 
                     @if (Model.CurrentThread == null)
                     {
-                        <div class="flex-grow-1 d-flex flex-column justify-content-center align-items-center text-muted p-4">
-                            <i class="bi bi-chat-square-text fs-1 mb-3"></i>
-                            <div class="fw-semibold">請先選擇一個對話</div>
-                            <div class="small mt-1">左側選擇對話後，即可查看聊天內容</div>
+                        <div class="flex-grow-1 d-flex flex-column justify-content-center align-items-center text-muted p-4 bg-light">
+                            <div class="bg-white p-4 rounded-circle shadow-sm mb-3">
+                                <i class="bi bi-chat-square-text fs-1 text-primary"></i>
+                            </div>
+                            <h5 class="fw-bold text-dark">請先選擇一個對話</h5>
+                            <div class="small mt-1 text-secondary">左側選擇對話後，即可查看聊天內容</div>
                         </div>
                     }
                     else
                     {
-                        <!-- Header -->
-                        <div class="p-3 border-bottom">
-                            <div class="fw-bold">@Model.CurrentThread.DisplayName</div>
+                        <div class="p-3 border-bottom bg-white z-1 shadow-sm">
+                            <div class="fw-bold fs-5">@Model.CurrentThread.DisplayName</div>
 
                             @if (!string.IsNullOrWhiteSpace(Model.CurrentThread.SubTitle))
                             {
@@ -105,76 +111,111 @@
                             }
                         </div>
 
-                        <!-- 商品上下文卡片 -->
                         @if (!string.IsNullOrWhiteSpace(Model.CurrentThread.ProductID))
                         {
-                            <div class="p-3 border-bottom bg-light">
-                                <div class="small text-muted mb-2">你正在詢問商品</div>
+                            <div class="p-3 border-bottom bg-white">
+                                <div class="card border-0 shadow-sm bg-light rounded-3">
+                                    <div class="card-body p-3">
+                                        <div class="small text-primary fw-semibold mb-2">
+                                            <i class="bi bi-info-circle me-1"></i> 正在詢問商品
+                                        </div>
 
-                                <div class="d-flex align-items-center gap-3">
-                                    <div class="flex-shrink-0">
-                                        @if (!string.IsNullOrWhiteSpace(Model.CurrentThread.ProductImageUrl))
-                                        {
-                                            <img src="@($"/Photos/04ProductImage/Medium/{Model.CurrentThread.ProductImageUrl}.png")"
-                                                 alt="商品圖片"
-                                                 class="rounded border"
-                                                 style="width:88px;height:88px;object-fit:cover;" />
-                                        }
-                                        else
-                                        {
-                                            <div class="rounded border d-flex align-items-center justify-content-center bg-white text-muted"
-                                                 style="width:88px;height:88px;">
-                                                <i class="bi bi-image"></i>
+                                        <div class="d-flex align-items-center gap-3">
+                                            <div class="flex-shrink-0">
+                                                @if (!string.IsNullOrWhiteSpace(Model.CurrentThread.ProductImageUrl))
+                                                {
+                                                    <img src="@($"/Photos/04ProductImage/Medium/{Model.CurrentThread.ProductImageUrl}.png")"
+                                                         alt="商品圖片"
+                                                         class="rounded border border-white shadow-sm"
+                                                         style="width:80px;height:80px;object-fit:cover;" />
+                                                }
+                                                else
+                                                {
+                                                    <div class="rounded border d-flex align-items-center justify-content-center bg-white text-muted shadow-sm"
+                                                         style="width:80px;height:80px;">
+                                                        <i class="bi bi-image fs-3 text-light"></i>
+                                                    </div>
+                                                }
                                             </div>
-                                        }
-                                    </div>
 
-                                    <div class="flex-grow-1">
-                                        <div class="fw-semibold">@Model.CurrentThread.ProductName</div>
+                                            <div class="flex-grow-1">
+                                                <div class="fw-bold text-dark">@Model.CurrentThread.ProductName</div>
 
-                                        @if (Model.CurrentThread.ProductPrice.HasValue)
-                                        {
-                                            <div class="text-muted mt-1">
-                                                NT$ @Model.CurrentThread.ProductPrice.Value.ToString("N0")
+                                                @if (Model.CurrentThread.ProductPrice.HasValue)
+                                                {
+                                                    <div class="text-danger fw-semibold mt-1">
+                                                        NT$ @Model.CurrentThread.ProductPrice.Value.ToString("N0")
+                                                    </div>
+                                                }
+
+                                                <a asp-controller="Products"
+                                                   asp-action="Detail"
+                                                   asp-route-id="@Model.CurrentThread.ProductID"
+                                                   class="btn btn-sm btn-outline-primary rounded-pill px-3 mt-2">
+                                                    查看商品
+                                                </a>
                                             </div>
-                                        }
-
-                                        <a asp-controller="Products"
-                                           asp-action="Detail"
-                                           asp-route-id="@Model.CurrentThread.ProductID"
-                                           class="btn btn-sm btn-outline-secondary mt-2">
-                                            查看商品
-                                        </a>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         }
 
-                        <!-- 快速回覆模板 -->
-                        @if (Model.IsCreatorSide && Model.CurrentThread.QuickReplyTemplates.Any())
+                        @if (Model.CurrentThread.QuickReplyTemplates != null && Model.CurrentThread.QuickReplyTemplates.Any())
                         {
-                            <div class="p-3 border-bottom">
-                                <div class="small text-muted mb-2">快速回覆模板</div>
+                            <div class="p-2 border-bottom bg-white">
+                                <div class="d-flex justify-content-between align-items-center px-2 py-1">
+                                    <button class="btn btn-sm btn-link text-decoration-none text-muted p-0"
+                                            type="button"
+                                            data-bs-toggle="collapse"
+                                            data-bs-target="#quickReplyCollapse"
+                                            aria-expanded="true"
+                                            aria-controls="quickReplyCollapse">
+                                        <i class="bi bi-lightning-charge-fill text-warning"></i> 展開快速回覆
+                                    </button>
 
-                                <div class="d-flex flex-wrap gap-2">
-                                    @foreach (var template in Model.CurrentThread.QuickReplyTemplates)
-                                    {
-                                        <button type="button"
-                                                class="btn btn-sm btn-outline-primary quick-reply-btn"
-                                                data-content="@template.Content">
-                                            @template.Title
-                                        </button>
-                                    }
+                                    <a asp-controller="Messages"
+                                       asp-action="MessageTemplates"
+                                       class="btn btn-sm btn-outline-secondary rounded-pill" style="font-size:0.75rem;">
+                                        <i class="bi bi-gear"></i> 管理
+                                    </a>
+                                </div>
+
+                                <div class="collapse show mt-2 px-2 pb-2" id="quickReplyCollapse">
+                                    <div class="d-flex flex-wrap gap-2">
+                                        @foreach (var template in Model.CurrentThread.QuickReplyTemplates)
+                                        {
+                                            <button type="button"
+                                                    class="btn btn-sm btn-light border rounded-pill text-secondary quick-reply-btn hover-shadow"
+                                                    data-content="@template.Content">
+                                                @template.Title
+                                            </button>
+                                        }
+                                    </div>
                                 </div>
                             </div>
                         }
+                        else if (Model.IsCreatorSide)
+                        {
+                            <div class="p-3 border-bottom bg-white d-flex justify-content-between align-items-center">
+                                <div class="small text-muted"><i class="bi bi-info-circle me-1"></i> 尚無快速回覆模板</div>
+                                <a asp-controller="Messages"
+                                   asp-action="QuickReplyTemplates"
+                                   class="btn btn-sm btn-outline-secondary rounded-pill">
+                                    新增模板
+                                </a>
+                            </div>
+                        }
 
-                        <!-- 訊息區 -->
-                        <div class="flex-grow-1 p-3 overflow-auto" style="background:#f8f9fa;">
+                        <div id="messageScroll" class="flex-grow-1 p-4 overflow-auto chat-scroll" style="background-color:#f8faff;">
+
                             @if (!Model.CurrentThread.Messages.Any())
                             {
-                                <div class="text-center text-muted mt-5">
-                                    尚無訊息，開始第一則對話吧
+                                <div class="text-center mt-5">
+                                    <div class="d-inline-block p-3 rounded-circle bg-white shadow-sm mb-3">
+                                        <i class="bi bi-emoji-smile fs-2 text-muted"></i>
+                                    </div>
+                                    <div class="text-muted fw-semibold">尚無訊息，開始第一則對話吧！</div>
                                 </div>
                             }
                             else
@@ -182,39 +223,40 @@
                                 @foreach (var msg in Model.CurrentThread.Messages)
                                 {
                                     <div class="d-flex mb-3 @(msg.IsMine ? "justify-content-end" : "justify-content-start")">
-                                        <div class="rounded-4 px-3 py-2 shadow-sm @(msg.IsMine ? "bg-primary text-white" : "bg-white")"
-                                             style="max-width: 75%;">
+
+                                        <div class="msg-bubble @(msg.IsMine ? "msg-mine" : "msg-other")">
+
                                             <div style="white-space: pre-wrap;">@msg.Content</div>
 
-                                            <div class="small mt-2 @(msg.IsMine ? "text-white-50" : "text-muted") text-end">
+                                            <div class="msg-time @(msg.IsMine ? "text-white-50 text-end" : "text-secondary text-start")">
                                                 @msg.CreatedAt.ToString("yyyy/MM/dd HH:mm")
                                             </div>
+
                                         </div>
                                     </div>
                                 }
                             }
                         </div>
 
-                        <!-- 輸入區 -->
-                        <div class="p-3 border-top bg-white">
+                        <div class="p-3 chat-input-area z-1">
                             <form asp-controller="Messages"
                                   asp-action="Send"
-                                  method="post">
+                                  method="post"
+                                  class="d-flex flex-column gap-2">
                                 @Html.AntiForgeryToken()
 
                                 <input type="hidden" name="threadId" value="@Model.CurrentThread.ThreadID" />
 
-                                <div class="mb-2">
-                                    <textarea id="messageTextarea"
-                                          name="content"
-                                          class="form-control"
-                                          rows="3"
-                                          placeholder="輸入訊息...">@Model.CurrentThread.DraftContent</textarea>
-                                </div>
+                                <textarea id="messageTextarea"
+                                      name="content"
+                                      class="form-control chat-textarea px-3 py-2"
+                                      rows="2"
+                                      placeholder="輸入訊息..."
+                                      required>@Model.CurrentThread.DraftContent</textarea>
 
-                                <div class="d-flex justify-content-end">
-                                    <button type="submit" class="btn btn-primary">
-                                        <i class="bi bi-send me-1"></i> 送出
+                                <div class="d-flex justify-content-end align-items-center mt-1">
+                                    <button type="submit" class="btn btn-primary rounded-pill px-4 fw-semibold shadow-sm">
+                                        送出 <i class="bi bi-send-fill ms-1"></i>
                                     </button>
                                 </div>
                             </form>
@@ -230,15 +272,26 @@
 
 @section Scripts {
     <script>
+        // 快速回覆按鈕邏輯保留
         document.querySelectorAll(".quick-reply-btn").forEach(btn => {
             btn.addEventListener("click", function () {
                 const textarea = document.getElementById("messageTextarea");
                 if (!textarea) return;
 
                 const content = this.dataset.content || "";
+
+                // 附加到現有內容後方並自動換行，或直接覆蓋 (依照原本邏輯為直接覆寫)
                 textarea.value = content;
                 textarea.focus();
             });
+        });
+
+        // 捲軸自動置底邏輯保留
+        document.addEventListener("DOMContentLoaded", function () {
+            const container = document.getElementById("messageScroll");
+            if (container) {
+                container.scrollTop = container.scrollHeight;
+            }
         });
     </script>
 }

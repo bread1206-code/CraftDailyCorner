@@ -1271,7 +1271,8 @@ namespace CraftDailyCorner.Migrations
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     IsRead = table.Column<bool>(type: "bit", nullable: false),
                     ThreadID = table.Column<int>(type: "int", nullable: false),
-                    SenderID = table.Column<string>(type: "nchar(8)", maxLength: 8, nullable: false)
+                    SenderID = table.Column<string>(type: "nchar(8)", maxLength: 8, nullable: false),
+                    IsAutoReply = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {

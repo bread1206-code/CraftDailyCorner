@@ -1,8 +1,23 @@
-﻿@using CraftDailyCorner.Services.Interface
+﻿@using CraftDailyCorner.Extensions
+@using CraftDailyCorner.Services.Interface
 @using CraftDailyCorner.ViewModels
 @using System.Security.Claims
 @inject ISiteSettingService SiteSetting
+@inject IMessageService MessageService
+@{
+    bool hasUnread = false;
 
+    if (User.Identity?.IsAuthenticated == true)
+    {
+        var memberId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var creatorId = User.GetCreatorId();
+
+        if (!string.IsNullOrWhiteSpace(memberId))
+        {
+            hasUnread = await MessageService.HasUnreadMessagesAsync(memberId, creatorId);
+        }
+    }
+}
 <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom box-shadow mb-3">
     <div class="container">
 
@@ -246,11 +261,18 @@
                                 </li>
                             }
                             <li>
-                                <a class="dropdown-item" 
+                                <a class="dropdown-item d-flex justify-content-between align-items-center"
                                    asp-controller="Messages"
                                    asp-action="Index">
-                                    <i class="bi bi-chat-dots"></i>
-                                    我的訊息
+                                    <span>
+                                        <i class="bi bi-chat-dots"></i>
+                                        我的訊息
+                                    </span>
+
+                                    @if (hasUnread)
+                                    {
+                                        <span class="message-dot"></span>
+                                    }
                                 </a>
                             </li>
                             <li>

@@ -32,7 +32,9 @@ namespace CraftDailyCorner.Services
             // 創作者端：看自己的所有對話
             if (isCreatorSide)
             {
-                baseQuery = baseQuery.Where(t => t.CreatorID == creatorId);
+                baseQuery = baseQuery.Where(t =>
+                    t.MemberID == memberId ||
+                    t.CreatorID == creatorId);
             }
             // 會員端：看自己所有對話
             else
@@ -46,17 +48,22 @@ namespace CraftDailyCorner.Services
 
             var conversations = threads.Select(t =>
             {
-                string displayName = isCreatorSide
+                bool amCreatorOfThisThread =
+                    !string.IsNullOrWhiteSpace(creatorId) && t.CreatorID == creatorId;
+
+                string displayName = amCreatorOfThisThread
                     ? t.Member.DisplayName
                     : t.CreatorProfile.BrandName;
 
-                string? subTitle = isCreatorSide
+                string? subTitle = amCreatorOfThisThread
                     ? t.Member.MemberID
                     : t.CreatorProfile.CreatorID;
 
-                int unreadCount = isCreatorSide
-                    ? t.Messages.Count(m => !m.IsRead && m.SenderID != t.CreatorProfile.MemberID)
-                    : t.Messages.Count(m => !m.IsRead && m.SenderID != memberId);
+                string mySenderId = amCreatorOfThisThread
+                    ? t.CreatorProfile.MemberID
+                    : memberId;
+
+                int unreadCount = t.Messages.Count(m => !m.IsRead && m.SenderID != mySenderId);
 
                 return new VMMessageConversationItem
                 {
@@ -125,6 +132,14 @@ namespace CraftDailyCorner.Services
             if (product == null)
                 throw new ArgumentException("找不到商品資料");
 
+            var productOwnerMemberId = await _context.CreatorProfiles
+                .Where(c => c.CreatorID == product.CreatorID)
+                .Select(c => c.MemberID)
+                .FirstOrDefaultAsync();
+
+            if (productOwnerMemberId == memberId)
+                throw new ArgumentException("不能向自己的商品提問");
+
             var existingThread = await _context.MessageThreads
                 .FirstOrDefaultAsync(t =>
                     t.MemberID == memberId &&
@@ -166,6 +181,11 @@ namespace CraftDailyCorner.Services
             if (thread == null)
                 throw new ArgumentException("找不到對話資料");
 
+            var creatorMemberId = thread.CreatorProfile.MemberID;
+
+            if (senderId != thread.MemberID && senderId != creatorMemberId)
+                throw new ArgumentException("無權限在此對話中發送訊息");
+
             var now = DateTime.Now;
 
             var isFirstUserMessage = !await _context.Messages
@@ -203,20 +223,11 @@ namespace CraftDailyCorner.Services
             if (thread == null)
                 return;
 
-            // 目前登入者若是會員本人，就把不是自己送出的訊息標已讀
-            // 若登入者是創作者，呼叫端目前仍會帶 memberId，這裡用 thread 判斷
-            var creatorMemberId = await _context.CreatorProfiles
-                .Where(c => c.CreatorID == thread.CreatorID)
-                .Select(c => c.MemberID)
-                .FirstOrDefaultAsync();
-
-            var readerId = currentMemberId;
-
             var unreadMessages = await _context.Messages
                 .Where(m =>
                     m.ThreadID == threadId &&
                     !m.IsRead &&
-                    m.SenderID != readerId)
+                    m.SenderID != currentMemberId)
                 .ToListAsync();
 
             foreach (var item in unreadMessages)
@@ -237,7 +248,7 @@ namespace CraftDailyCorner.Services
                 .Where(t =>
                     t.CreatorID == creatorId &&
                     t.IsActive &&
-                    t.TriggerType == AutoReplyTemplateTriggerType.OnMessage)
+                    t.TriggerType == AutoReplyTemplateTriggerType.QuickReply)
                 .OrderBy(t => t.Title)
                 .Select(t => new VMQuickReplyTemplateItem
                 {
@@ -247,7 +258,16 @@ namespace CraftDailyCorner.Services
                 })
                 .ToListAsync();
         }
-
+        public async Task<bool> HasUnreadMessagesAsync(string memberId, string? creatorId)
+        {
+            return await _context.Messages
+                .AnyAsync(m =>
+                    !m.IsRead &&
+                    (
+                        m.SenderID != memberId ||
+                        (creatorId != null && m.SenderID != creatorId)
+                    ));
+        }
         // =========================
         // Private Helpers
         // =========================
@@ -263,6 +283,7 @@ namespace CraftDailyCorner.Services
                 .Include(t => t.Member)
                 .Include(t => t.CreatorProfile)
                 .Include(t => t.Product)
+                    .ThenInclude(p => p.ProductImages)
                 .Include(t => t.Messages)
                     .ThenInclude(m => m.Member)
                 .FirstOrDefaultAsync(t => t.ThreadID == threadId);
@@ -270,11 +291,21 @@ namespace CraftDailyCorner.Services
             if (thread == null)
                 return null;
 
-            string displayName = isCreatorSide
+            // 權限檢查：只能查看自己參與的對話
+            if (thread.MemberID != memberId &&
+                (string.IsNullOrWhiteSpace(creatorId) || thread.CreatorID != creatorId))
+            {
+                return null;
+            }
+
+            bool amCreatorOfThisThread =
+                !string.IsNullOrWhiteSpace(creatorId) && thread.CreatorID == creatorId;
+
+            string displayName = amCreatorOfThisThread
                 ? thread.Member.DisplayName
                 : thread.CreatorProfile.BrandName;
 
-            string? subTitle = isCreatorSide
+            string? subTitle = amCreatorOfThisThread
                 ? thread.Member.MemberID
                 : thread.CreatorProfile.CreatorID;
 
@@ -286,14 +317,15 @@ namespace CraftDailyCorner.Services
                     Content = m.Content,
                     CreatedAt = m.CreatedAt,
                     IsRead = m.IsRead,
-                    IsMine = m.SenderID == memberId ||
-                             (!string.IsNullOrWhiteSpace(creatorId) && m.SenderID == thread.CreatorProfile.MemberID),
+                    IsMine = amCreatorOfThisThread
+                        ? m.SenderID == thread.CreatorProfile.MemberID
+                        : m.SenderID == memberId,
                     IsAutoReply = false, // 之後若你要區分模板/自動訊息，可再補欄位
                     SenderName = m.Member.DisplayName
                 })
                 .ToList();
 
-            var quickReplyTemplates = isCreatorSide
+            var quickReplyTemplates = amCreatorOfThisThread
                 ? await GetQuickReplyTemplatesAsync(thread.CreatorID)
                 : new List<VMQuickReplyTemplateItem>();
 
@@ -306,6 +338,7 @@ namespace CraftDailyCorner.Services
                 ProductName = thread.Product?.ProductName,
                 ProductPrice = thread.Product?.Price,
                 ProductImageUrl = thread.Product?.ProductImages
+                    .Where(pi => pi.StatusID == 1)
                     .OrderBy(pi => pi.SortOrder)
                     .Select(pi => pi.ImageUrl)
                     .FirstOrDefault(),

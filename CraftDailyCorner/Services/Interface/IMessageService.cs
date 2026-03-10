@@ -39,5 +39,7 @@ namespace CraftDailyCorner.Services.Interface
         /// </summary>
         /// <param name="creatorId">創作者ID</param>
         Task<List<VMQuickReplyTemplateItem>> GetQuickReplyTemplatesAsync(string creatorId);
+
+        Task<bool> HasUnreadMessagesAsync(string memberId, string? creatorId);
     }
 }

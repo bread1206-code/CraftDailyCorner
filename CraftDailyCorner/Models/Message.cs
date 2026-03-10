@@ -28,6 +28,7 @@ namespace CraftDailyCorner.Models
         [Display(Name = "寄件人")]
         public string SenderID { get; set; } = null!;
 
+        public bool IsAutoReply { get; set; } = false;
         public virtual MessageThread MessageThread { get; set; } = null!;
         public virtual Member Member { get; set; } = null!;
     }
