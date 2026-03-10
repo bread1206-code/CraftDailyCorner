@@ -22,6 +22,12 @@ namespace CraftDailyCorner.Services
         {
             bool isCreatorSide = !string.IsNullOrWhiteSpace(creatorId);
 
+            // 先把目前進入的對話標記為已讀
+            if (threadId.HasValue)
+            {
+                await MarkThreadAsReadAsync(threadId.Value, memberId, creatorId);
+            }
+
             IQueryable<MessageThread> baseQuery = _context.MessageThreads
                 .AsNoTracking()
                 .Include(t => t.Member)
@@ -29,7 +35,7 @@ namespace CraftDailyCorner.Services
                 .Include(t => t.Product)
                 .Include(t => t.Messages);
 
-            // 創作者端：看自己的所有對話
+            // 創作者端：看自己參與的所有對話
             if (isCreatorSide)
             {
                 baseQuery = baseQuery.Where(t =>
@@ -88,11 +94,6 @@ namespace CraftDailyCorner.Services
                     memberId,
                     creatorId,
                     isCreatorSide);
-
-                if (currentThread != null)
-                {
-                    await MarkThreadAsReadAsync(threadId.Value, memberId);
-                }
             }
             else if (conversations.Any())
             {
@@ -100,16 +101,17 @@ namespace CraftDailyCorner.Services
 
                 conversations[0].IsActive = true;
 
+                // 自動選第一筆時，也要先標已讀
+                await MarkThreadAsReadAsync(firstThreadId, memberId, creatorId);
+
+                // 重新計算 conversations，避免第一筆未讀數還留著
+                conversations[0].UnreadCount = 0;
+
                 currentThread = await BuildMessageDetailAsync(
                     firstThreadId,
                     memberId,
                     creatorId,
                     isCreatorSide);
-
-                if (currentThread != null)
-                {
-                    await MarkThreadAsReadAsync(firstThreadId, memberId);
-                }
 
                 threadId = firstThreadId;
             }
@@ -214,33 +216,6 @@ namespace CraftDailyCorner.Services
             }
         }
 
-        public async Task MarkThreadAsReadAsync(int threadId, string currentMemberId)
-        {
-            var thread = await _context.MessageThreads
-                .AsNoTracking()
-                .FirstOrDefaultAsync(t => t.ThreadID == threadId);
-
-            if (thread == null)
-                return;
-
-            var unreadMessages = await _context.Messages
-                .Where(m =>
-                    m.ThreadID == threadId &&
-                    !m.IsRead &&
-                    m.SenderID != currentMemberId)
-                .ToListAsync();
-
-            foreach (var item in unreadMessages)
-            {
-                item.IsRead = true;
-            }
-
-            if (unreadMessages.Any())
-            {
-                await _context.SaveChangesAsync();
-            }
-        }
-
         public async Task<List<VMQuickReplyTemplateItem>> GetQuickReplyTemplatesAsync(string creatorId)
         {
             return await _context.AutoReplyTemplates
@@ -258,16 +233,54 @@ namespace CraftDailyCorner.Services
                 })
                 .ToListAsync();
         }
+
         public async Task<bool> HasUnreadMessagesAsync(string memberId, string? creatorId)
         {
-            return await _context.Messages
+            // =============================
+            // 會員身分未讀：
+            // 自己作為 Member 參與的對話中，
+            // 是否存在「不是自己送的」未讀訊息
+            // =============================
+            var hasMemberUnread = await _context.Messages
+                .AsNoTracking()
                 .AnyAsync(m =>
                     !m.IsRead &&
-                    (
-                        m.SenderID != memberId ||
-                        (creatorId != null && m.SenderID != creatorId)
-                    ));
+                    m.SenderID != memberId &&
+                    m.MessageThread.MemberID == memberId);
+
+            if (hasMemberUnread)
+                return true;
+
+            // =============================
+            // 創作者身分未讀：
+            // 自己作為 Creator 參與的對話中，
+            // 是否存在「不是自己（創作者本人）送的」未讀訊息
+            // =============================
+            if (!string.IsNullOrWhiteSpace(creatorId))
+            {
+                var creatorMemberId = await _context.CreatorProfiles
+                    .AsNoTracking()
+                    .Where(c => c.CreatorID == creatorId)
+                    .Select(c => c.MemberID)
+                    .FirstOrDefaultAsync();
+
+                if (!string.IsNullOrWhiteSpace(creatorMemberId))
+                {
+                    var hasCreatorUnread = await _context.Messages
+                        .AsNoTracking()
+                        .AnyAsync(m =>
+                            !m.IsRead &&
+                            m.SenderID != creatorMemberId &&
+                            m.MessageThread.CreatorID == creatorId);
+
+                    if (hasCreatorUnread)
+                        return true;
+                }
+            }
+
+            return false;
         }
+
         // =========================
         // Private Helpers
         // =========================
@@ -397,6 +410,38 @@ namespace CraftDailyCorner.Services
             return content.Length <= 50
                 ? content
                 : content.Substring(0, 50);
+        }
+
+        private async Task MarkThreadAsReadAsync(int threadId, string memberId, string? creatorId)
+        {
+            var thread = await _context.MessageThreads
+                .Include(t => t.CreatorProfile)
+                .Include(t => t.Messages)
+                .FirstOrDefaultAsync(t => t.ThreadID == threadId);
+
+            if (thread == null)
+                return;
+
+            bool amCreatorOfThisThread =
+                !string.IsNullOrWhiteSpace(creatorId) && thread.CreatorID == creatorId;
+
+            string mySenderId = amCreatorOfThisThread
+                ? thread.CreatorProfile.MemberID
+                : memberId;
+
+            var unreadMessages = thread.Messages
+                .Where(m => !m.IsRead && m.SenderID != mySenderId)
+                .ToList();
+
+            if (!unreadMessages.Any())
+                return;
+
+            foreach (var msg in unreadMessages)
+            {
+                msg.IsRead = true;
+            }
+
+            await _context.SaveChangesAsync();
         }
     }
 }
