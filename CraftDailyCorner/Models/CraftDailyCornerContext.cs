@@ -658,10 +658,24 @@ namespace CraftDailyCorner.Models
             modelBuilder.Entity<MessageThread>()
                 .HasIndex(mt => new { mt.MemberID, mt.CreatorID, mt.ProductID })
                 .IsUnique();
+
+            modelBuilder.Entity<NotificationPreference>()
+                .HasIndex(np => new { np.MemberID, np.NotificationType })
+                .IsUnique();
+
             #endregion
 
             modelBuilder.Entity<PortfolioItem>()
                 .HasQueryFilter(i => !i.IsDeleted);
+
+            modelBuilder.Entity<NotificationEvent>()
+                .HasIndex(ne => ne.MemberID);
+
+            modelBuilder.Entity<NotificationEvent>()
+                .HasIndex(ne => new { ne.MemberID, ne.IsRead, ne.CreatedAt });
+
+            modelBuilder.Entity<NotificationEvent>()
+                .HasIndex(ne => new { ne.MemberID, ne.NotificationType, ne.CreatedAt });
         }
     }
 }

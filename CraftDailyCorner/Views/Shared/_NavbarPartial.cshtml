@@ -149,12 +149,12 @@
                     }
                 </li>
 
-                <!-- 公告 -->
+                <!-- 通知 -->
                 <li class="nav-item">
                     <a class="btn btn-primary position-relative"
-                       asp-controller="Announcement"
-                       asp-action="Index"
-                       title="公告">
+                       asp-controller=""
+                       asp-action=""
+                       title="通知">
                         <i class="bi bi-bell-fill"></i>
                     </a>
                 </li>
@@ -204,7 +204,7 @@
                             </li>
                             <li>
                                 <a class="dropdown-item"
-                                   asp-controller="Orders"
+                                   asp-controller="Payment"
                                    asp-action="Index">
                                     <i class="bi bi-clock-history text-secondary"></i>
                                     付款紀錄
@@ -277,10 +277,9 @@
                             </li>
                             <li>
                                 <a class="dropdown-item"
-                                   asp-controller="Settings"
-                                   asp-action="Index">
-                                    <i class="bi bi-gear"></i>
-                                    設定
+                                   asp-controller="Notification"
+                                   asp-action="Preferences">
+                                    <i class="bi bi-bell me-2"></i>通知設定
                                 </a>
                             </li>
 

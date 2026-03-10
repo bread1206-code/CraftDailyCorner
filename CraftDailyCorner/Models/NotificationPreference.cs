@@ -13,7 +13,7 @@ namespace CraftDailyCorner.Models
         public NotificationType NotificationType { get; set; }
 
         [Display(Name = "是否啟用")]
-        public bool IsActive { get; set; }
+        public bool IsActive { get; set; }=true;
 
         [Display(Name = "建立時間")]
         public DateTime CreatedAt { get; set; }

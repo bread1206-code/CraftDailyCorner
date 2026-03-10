@@ -265,8 +265,8 @@ namespace CraftDailyCorner.Seed
             _seedPlatformSetting.Run(logoGuids);
             _seedPortfolio.Run(prtfolioGuids);
             _seedPortfolioItem.Run(prtfolioGuids, seedPortfolioItemGuids);
-            _seedNotificationPreference.Run();
-            _seedNotificationEvent.Run();
+            //_seedNotificationPreference.Run();
+            //_seedNotificationEvent.Run();
 
             Console.WriteLine("更新Seed資料 完成");
             

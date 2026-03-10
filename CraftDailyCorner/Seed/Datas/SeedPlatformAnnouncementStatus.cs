@@ -32,6 +32,14 @@ namespace CraftDailyCorner.Seed.Datas
                     StatusName = "已發布",
                     Description = "公告顯示中",
                     IsActive = true
+                },
+                new PlatformAnnouncementStatus
+                {
+                    StatusID = 3,
+                    StatusCode = "Archived",
+                    StatusName = "已封存",
+                    Description = "公告已封存",
+                    IsActive = false
                 }
             );
 
