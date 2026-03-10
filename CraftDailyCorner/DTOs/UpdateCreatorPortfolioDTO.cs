@@ -1,4 +1,6 @@
-﻿namespace CraftDailyCorner.DTOs
+﻿using CraftDailyCorner.Models.enums;
+
+namespace CraftDailyCorner.DTOs
 {
     public class UpdateCreatorPortfolioDTO
     {

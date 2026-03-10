@@ -1,6 +1,7 @@
 ﻿using CraftDailyCorner.Models;
 using CraftDailyCorner.Services.Interface;
 using CraftDailyCorner.ViewModels.Notification;
+using CraftDailyCorner.Models.enums;
 
 namespace CraftDailyCorner.Services
 {

@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using CraftDailyCorner.Models.enums;
 
 namespace CraftDailyCorner.DTOs
 {

@@ -1,5 +1,4 @@
 ﻿using CraftDailyCorner.Models.enums;
-using CraftDailyCorner.Models.Enums;
 using System.ComponentModel.DataAnnotations;
 
 namespace CraftDailyCorner.DTOs

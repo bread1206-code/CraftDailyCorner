@@ -1,5 +1,5 @@
 ﻿using CraftDailyCorner.ViewModels.Reaction;
-using System;
+using CraftDailyCorner.Models.enums;
 using System.ComponentModel.DataAnnotations;
 
 namespace CraftDailyCorner.ViewModels.CreatorPost

@@ -1,7 +1,6 @@
 ﻿using CraftDailyCorner.DTOs;
 using CraftDailyCorner.Models;
 using CraftDailyCorner.Models.enums;
-using CraftDailyCorner.Models.Enums;
 using Microsoft.EntityFrameworkCore;
 
 namespace CraftDailyCorner.Services

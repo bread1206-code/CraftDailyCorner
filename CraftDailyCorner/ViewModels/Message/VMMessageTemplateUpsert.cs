@@ -1,5 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using CraftDailyCorner.Models.Enums;
+using CraftDailyCorner.Models.enums;
 
 namespace CraftDailyCorner.ViewModels.Message
 {

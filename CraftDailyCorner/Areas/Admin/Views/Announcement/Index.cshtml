@@ -1,0 +1,133 @@
+﻿@model CraftDailyCorner.Areas.Admin.ViewModels.Announcement.VMAdminAnnouncementIndex
+
+@{
+    ViewData["Title"] = "公告管理";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container-fluid">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold text-light mb-1">公告管理</h2>
+            <div class="text-light opacity-75">
+                管理平台公告內容
+            </div>
+        </div>
+
+        <a asp-action="Create"
+           class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i>
+            新增公告
+        </a>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success">@TempData["Success"]</div>
+    }
+
+    @if (TempData["Warning"] != null)
+    {
+        <div class="alert alert-warning">@TempData["Warning"]</div>
+    }
+
+    <div class="card shadow-sm border-0">
+        <div class="card-body">
+
+            <table class="table table-hover align-middle">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>標題</th>
+                        <th>受眾</th>
+                        <th>狀態</th>
+                        <th>發布時間</th>
+                        <th>建立者</th>
+                        <th style="width:220px">操作</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    @foreach (var item in Model.Items)
+                    {
+                        <tr>
+                            <td>@item.AnnouncementID</td>
+
+                            <td>@item.Title</td>
+
+                            <td>@item.AudienceName</td>
+
+                            <td>
+                                @if (item.StatusID == 2)
+                                {
+                                    <span class="badge bg-success">啟用</span>
+                                }
+                                else if (item.StatusID == 1)
+                                {
+                                    <span class="badge bg-secondary">草稿</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-dark">停用</span>
+                                }
+                            </td>
+
+                            <td>
+                                @(item.PublishedAt?.ToString("yyyy/MM/dd HH:mm") ?? "-")
+                            </td>
+
+                            <td>
+                                @(item.CreatedByName ?? item.CreatedBy)
+                            </td>
+
+                            <td class="d-flex gap-2">
+
+                                <a asp-action="Detail"
+                                   asp-route-id="@item.AnnouncementID"
+                                   class="btn btn-sm btn-outline-secondary">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+
+                                <a asp-action="Edit"
+                                   asp-route-id="@item.AnnouncementID"
+                                   class="btn btn-sm btn-outline-primary">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+
+                                @if (item.StatusID != 2)
+                                {
+                                    <form asp-action="Activate"
+                                          method="post">
+                                        <input type="hidden"
+                                               name="id"
+                                               value="@item.AnnouncementID" />
+                                        <button class="btn btn-sm btn-success">
+                                            <i class="bi bi-check-circle"></i>
+                                        </button>
+                                    </form>
+                                }
+                                else
+                                {
+                                    <form asp-action="Inactivate"
+                                          method="post">
+                                        <input type="hidden"
+                                               name="id"
+                                               value="@item.AnnouncementID" />
+                                        <button class="btn btn-sm btn-danger">
+                                            <i class="bi bi-x-circle"></i>
+                                        </button>
+                                    </form>
+                                }
+
+                            </td>
+                        </tr>
+                    }
+
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+</div>

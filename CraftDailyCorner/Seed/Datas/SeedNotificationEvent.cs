@@ -1,4 +1,5 @@
 ﻿using CraftDailyCorner.Models;
+using CraftDailyCorner.Models.enums;
 
 namespace CraftDailyCorner.Seed.Datas
 {

@@ -13,38 +13,39 @@ namespace CraftDailyCorner.Seed.Datas
 
         public void Run()
         {
-            if (_context.PlatformAnnouncementStatuses.Any()) return;
+            if (_context.PlatformAnnouncementStatuses.Any())
+                return;
 
-            _context.PlatformAnnouncementStatuses.AddRange(
-                
+            var statuses = new List<PlatformAnnouncementStatus>
+            {
                 new PlatformAnnouncementStatus
                 {
                     StatusID = 1,
                     StatusCode = "Draft",
                     StatusName = "草稿",
-                    Description = "公告草稿",
-                    IsActive = false
-                }, 
+                    Description = "公告尚未發布",
+                    IsActive = true
+                },
                 new PlatformAnnouncementStatus
                 {
                     StatusID = 2,
-                    StatusCode = "Published",
-                    StatusName = "已發布",
+                    StatusCode = "Active",
+                    StatusName = "啟用",
                     Description = "公告顯示中",
                     IsActive = true
                 },
                 new PlatformAnnouncementStatus
                 {
                     StatusID = 3,
-                    StatusCode = "Archived",
-                    StatusName = "已封存",
-                    Description = "公告已封存",
+                    StatusCode = "Inactive",
+                    StatusName = "停用",
+                    Description = "公告已停用，不顯示",
                     IsActive = false
                 }
-            );
+            };
 
+            _context.PlatformAnnouncementStatuses.AddRange(statuses);
             _context.SaveChanges();
         }
     }
-
 }

@@ -1,4 +1,4 @@
-﻿using CraftDailyCorner.Models.Enums;
+﻿using CraftDailyCorner.Models.enums;
 
 namespace CraftDailyCorner.Services
 {

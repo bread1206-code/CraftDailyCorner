@@ -1,0 +1,33 @@
+﻿@model CraftDailyCorner.ViewModels.Announcement.VMAnnouncementDetail
+
+@{
+    ViewData["Title"] = "公告詳情";
+}
+
+<div class="container py-4" style="max-width: 900px;">
+
+    <div class="mb-4">
+        <a asp-controller="Announcement"
+           asp-action="Index"
+           class="btn btn-outline-secondary btn-sm mb-3">
+            <i class="bi bi-arrow-left"></i>
+            返回公告列表
+        </a>
+
+        <h2 class="fw-bold mb-2">@Model.Title</h2>
+
+        <div class="text-muted small">
+            發布時間：@((Model.PublishedAt ?? Model.CreatedAt).ToString("yyyy/MM/dd HH:mm"))
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-4">
+
+            <div style="white-space: pre-wrap; line-height: 1.8;">
+                @Model.Content
+            </div>
+
+        </div>
+    </div>
+</div>

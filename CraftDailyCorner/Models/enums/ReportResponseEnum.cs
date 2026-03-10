@@ -1,5 +1,5 @@
-﻿namespace CraftDailyCorner.Models.Enums
-{ 
+﻿namespace CraftDailyCorner.Models.enums
+{
     public enum ReportResponseEnum
     {
         Success,//成功

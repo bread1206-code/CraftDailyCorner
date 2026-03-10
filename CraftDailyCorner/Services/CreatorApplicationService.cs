@@ -4,6 +4,7 @@ using CraftDailyCorner.Services.Interface;
 using CraftDailyCorner.ViewModels.CreatorApplication;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using CraftDailyCorner.Models.enums;
 using System.Data;
 
 namespace CraftDailyCorner.Services.Creator

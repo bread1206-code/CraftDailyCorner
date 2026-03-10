@@ -1,0 +1,132 @@
+﻿@model CraftDailyCorner.Areas.Admin.ViewModels.Announcement.VMAdminAnnouncementDetail
+
+@{
+    ViewData["Title"] = "公告詳情";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container-fluid">
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success">@TempData["Success"]</div>
+    }
+
+    @if (TempData["Warning"] != null)
+    {
+        <div class="alert alert-warning">@TempData["Warning"]</div>
+    }
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold text-light mb-1">公告詳情</h2>
+            <div class="text-light opacity-75">
+                公告 ID：@Model.AnnouncementID
+            </div>
+        </div>
+
+        <div class="d-flex gap-2">
+            <a asp-action="Edit"
+               asp-route-id="@Model.AnnouncementID"
+               class="btn btn-outline-primary">
+                <i class="bi bi-pencil"></i>
+                編輯
+            </a>
+
+            <a asp-action="Index"
+               class="btn btn-outline-secondary">
+                返回列表
+            </a>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-body">
+
+            <div class="d-flex justify-content-between align-items-start flex-wrap gap-3 mb-3">
+                <div>
+                    <h3 class="fw-bold mb-2">@Model.Title</h3>
+
+                    <div class="d-flex flex-wrap gap-2">
+                        <span class="badge bg-info text-dark">@Model.AudienceName</span>
+
+                        @if (Model.StatusID == 2)
+                        {
+                            <span class="badge bg-success">@Model.StatusName</span>
+                        }
+                        else if (Model.StatusID == 1)
+                        {
+                            <span class="badge bg-secondary">@Model.StatusName</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-dark">@Model.StatusName</span>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <hr />
+
+            <div class="mb-4">
+                <div class="text-muted mb-2">公告內容</div>
+                <div style="white-space: pre-wrap;">@Model.Content</div>
+            </div>
+
+            <hr />
+
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <div class="text-muted small">建立時間</div>
+                    <div>@Model.CreatedAt.ToString("yyyy/MM/dd HH:mm")</div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="text-muted small">建立者</div>
+                    <div>@(Model.CreatedByName ?? Model.CreatedBy)</div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="text-muted small">最後更新時間</div>
+                    <div>@(Model.UpdatedAt?.ToString("yyyy/MM/dd HH:mm") ?? "-")</div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="text-muted small">最後更新者</div>
+                    <div>@(Model.UpdatedByName ?? Model.UpdatedBy ?? "-")</div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="text-muted small">發布時間</div>
+                    <div>@(Model.PublishedAt?.ToString("yyyy/MM/dd HH:mm") ?? "-")</div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="d-flex gap-2">
+        @if (Model.StatusID != 2)
+        {
+            <form asp-action="Activate" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="id" value="@Model.AnnouncementID" />
+                <button type="submit" class="btn btn-success">
+                    <i class="bi bi-check-circle"></i>
+                    啟用公告
+                </button>
+            </form>
+        }
+        else
+        {
+            <form asp-action="Inactivate" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="id" value="@Model.AnnouncementID" />
+                <button type="submit" class="btn btn-danger">
+                    <i class="bi bi-x-circle"></i>
+                    停用公告
+                </button>
+            </form>
+        }
+    </div>
+</div>

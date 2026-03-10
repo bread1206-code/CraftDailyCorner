@@ -1,6 +1,5 @@
 ﻿using CraftDailyCorner.Areas.Admin.ViewModels.Violation;
 using CraftDailyCorner.Models;
-using CraftDailyCorner.Models.Enums;
 using CraftDailyCorner.Models.enums;
 using CraftDailyCorner.Services.Interface;
 using Microsoft.EntityFrameworkCore;

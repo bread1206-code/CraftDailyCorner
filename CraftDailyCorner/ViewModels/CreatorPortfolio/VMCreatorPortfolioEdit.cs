@@ -1,5 +1,6 @@
 ﻿using CraftDailyCorner.ImageManagementCore.ViewModels;
 using System.ComponentModel.DataAnnotations;
+using CraftDailyCorner.Models.enums;
 
 namespace CraftDailyCorner.ViewModels.CreatorPortfolio
 {

@@ -1,6 +1,5 @@
 ﻿using CraftDailyCorner.Extensions;
-using CraftDailyCorner.Models.Enums;
-using CraftDailyCorner.Services;
+using CraftDailyCorner.Models.enums;
 using CraftDailyCorner.Services.Interface;
 using CraftDailyCorner.ViewModels.Message;
 using Microsoft.AspNetCore.Authorization;

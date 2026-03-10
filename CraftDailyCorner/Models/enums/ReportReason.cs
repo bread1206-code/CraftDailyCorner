@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace CraftDailyCorner.Models.Enums
+namespace CraftDailyCorner.Models.enums
 {
     public enum ReportReason
     {
