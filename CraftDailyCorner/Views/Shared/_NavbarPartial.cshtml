@@ -151,12 +151,7 @@
 
                 <!-- 通知 -->
                 <li class="nav-item">
-                    <a class="btn btn-primary position-relative"
-                       asp-controller=""
-                       asp-action=""
-                       title="通知">
-                        <i class="bi bi-bell-fill"></i>
-                    </a>
+                    @await Component.InvokeAsync("VCNotificationDropdown")
                 </li>
 
                 <!-- 登入 / 使用者 -->

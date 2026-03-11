@@ -1,4 +1,5 @@
 ﻿using CraftDailyCorner.DTOs;
+using CraftDailyCorner.Models.enums;
 using CraftDailyCorner.ViewModels.Notification;
 
 namespace CraftDailyCorner.Services.Interface
@@ -16,5 +17,12 @@ namespace CraftDailyCorner.Services.Interface
         Task<bool> MarkAsReadAsync(long eventId, string memberId);
 
         Task<int> MarkAllAsReadAsync(string memberId);
+
+        Task<VMNotificationIndex> GetPagedAsync(
+            string memberId,
+            int page = 1,
+            int pageSize = 10,
+            bool unreadOnly = false,
+            NotificationFilterType filterType = NotificationFilterType.All);
     }
 }

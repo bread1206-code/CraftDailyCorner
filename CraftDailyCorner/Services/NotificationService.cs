@@ -180,6 +180,93 @@ namespace CraftDailyCorner.Services
             return entities.Count;
         }
 
+        public async Task<VMNotificationIndex> GetPagedAsync(
+    string memberId,
+    int page = 1,
+    int pageSize = 10,
+    bool unreadOnly = false,
+    NotificationFilterType filterType = NotificationFilterType.All)
+        {
+            if (string.IsNullOrWhiteSpace(memberId))
+                throw new ArgumentException("memberId 不可為空");
+
+            if (page <= 0)
+                page = 1;
+
+            if (pageSize <= 0)
+                pageSize = 10;
+
+            var query = _context.NotificationEvents
+                .AsNoTracking()
+                .Where(x => x.MemberID == memberId);
+
+            if (unreadOnly)
+            {
+                query = query.Where(x => !x.IsRead);
+            }
+
+            query = filterType switch
+            {
+                NotificationFilterType.Announcement => query.Where(x =>
+                    x.NotificationType == NotificationType.Announcement),
+
+                NotificationFilterType.Order => query.Where(x =>
+                    x.NotificationType == NotificationType.OrderCreated ||
+                    x.NotificationType == NotificationType.OrderPaid ||
+                    x.NotificationType == NotificationType.OrderShipped ||
+                    x.NotificationType == NotificationType.OrderDelivered ||
+                    x.NotificationType == NotificationType.OrderCompleted),
+
+                NotificationFilterType.Product => query.Where(x =>
+                    x.NotificationType == NotificationType.FavoriteProductPublished ||
+                    x.NotificationType == NotificationType.FavoriteProductRestocked ||
+                    x.NotificationType == NotificationType.ProductLowStock ||
+                    x.NotificationType == NotificationType.ProductOutOfStock),
+
+                NotificationFilterType.Creator => query.Where(x =>
+                    x.NotificationType == NotificationType.CreatorNewPost ||
+                    x.NotificationType == NotificationType.CreatorNewProduct ||
+                    x.NotificationType == NotificationType.CreatorNewPortfolio ||
+                    x.NotificationType == NotificationType.PostComment),
+
+                _ => query
+            };
+
+            query = query
+                .OrderByDescending(x => x.CreatedAt)
+                .ThenByDescending(x => x.EventID);
+
+            var totalCount = await query.CountAsync();
+
+            var items = await query
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .Select(x => new VMNotificationItem
+                {
+                    EventID = x.EventID,
+                    NotificationType = x.NotificationType,
+                    Title = x.Title,
+                    Content = x.Content,
+                    LinkUrl = x.LinkUrl,
+                    IsRead = x.IsRead,
+                    CreatedAt = x.CreatedAt
+                })
+                .ToListAsync();
+
+            var unreadCount = await _context.NotificationEvents
+                .CountAsync(x => x.MemberID == memberId && !x.IsRead);
+
+            return new VMNotificationIndex
+            {
+                Page = page,
+                PageSize = pageSize,
+                TotalCount = totalCount,
+                UnreadCount = unreadCount,
+                UnreadOnly = unreadOnly,
+                FilterType = filterType,
+                Items = items
+            };
+        }
         private void ValidateCreateDto(CreateNotificationDTO dto)
         {
             if (dto == null)

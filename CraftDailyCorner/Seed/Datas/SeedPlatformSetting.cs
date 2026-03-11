@@ -25,16 +25,6 @@ namespace CraftDailyCorner.Seed.Datas
                         Description = "未付款訂單自動取消天數",
                         UpdatedAt = DateTime.Now,
                         UpdatedBy = "M0000001"
-                    },
-                    new PlatformSetting
-                    {
-                        SettingKey = "platform_LogoURL",
-                        SettingValue = imageGuids[0],
-                        DataType = "string",
-                        CategoryID = 1,
-                        Description = "平台 Logo URL",
-                        UpdatedAt = DateTime.Now,
-                        UpdatedBy = "M0000001"
                     }
                 };
                 _context.PlatformSettings.AddRange(platformSettings);

@@ -1,0 +1,151 @@
+﻿@model CraftDailyCorner.ViewModels.Notification.VMNotificationDropdown
+
+<div class="dropdown">
+    <button class="btn btn-primary position-relative"
+            type="button"
+            data-bs-toggle="dropdown"
+            aria-expanded="false">
+
+        <i class="bi bi-bell-fill"></i>
+
+        @if (Model.UnreadCount > 0)
+        {
+            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger notification-badge"
+                  id="notificationBadge">
+                @Model.UnreadCount
+            </span>
+        }
+        else
+        {
+            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger notification-badge d-none"
+                  id="notificationBadge">
+                0
+            </span>
+        }
+    </button>
+
+    <ul class="dropdown-menu dropdown-menu-end p-0 notification-dropdown-menu" style="width:320px">
+        <li class="dropdown-header fw-bold px-3 py-2">
+            通知
+        </li>
+        <li><hr class="m-1"/></li>
+        
+        @if (!Model.Items.Any())
+        {
+            <li class="px-3 py-3 text-muted">
+                目前沒有通知
+            </li>
+        }
+        else
+        {
+            foreach (var item in Model.Items)
+            {
+                var targetUrl = string.IsNullOrWhiteSpace(item.LinkUrl)
+                ? Url.Action("Index", "Notification")
+                : item.LinkUrl;
+                var typeClass = item.NotificationType switch
+                {
+                    // 藍色
+                    CraftDailyCorner.Models.enums.NotificationType.Announcement => "notification-blue",
+                    CraftDailyCorner.Models.enums.NotificationType.OrderCompleted => "notification-blue",
+
+                    // 綠色
+                    CraftDailyCorner.Models.enums.NotificationType.OrderCreated => "notification-green",
+                    CraftDailyCorner.Models.enums.NotificationType.OrderPaid => "notification-green",
+                    CraftDailyCorner.Models.enums.NotificationType.OrderShipped => "notification-green",
+                    CraftDailyCorner.Models.enums.NotificationType.OrderDelivered => "notification-green",
+
+                    // 紅色
+                    CraftDailyCorner.Models.enums.NotificationType.ProductOutOfStock => "notification-red",
+
+                    // 黃色
+                    CraftDailyCorner.Models.enums.NotificationType.ProductLowStock => "notification-yellow",
+
+                    // 淺藍
+                    CraftDailyCorner.Models.enums.NotificationType.FavoriteProductPublished => "notification-info",
+                    CraftDailyCorner.Models.enums.NotificationType.FavoriteProductRestocked => "notification-info",
+                    CraftDailyCorner.Models.enums.NotificationType.CreatorNewPost => "notification-info",
+                    CraftDailyCorner.Models.enums.NotificationType.CreatorNewProduct => "notification-info",
+                    CraftDailyCorner.Models.enums.NotificationType.CreatorNewPortfolio => "notification-info",
+                    CraftDailyCorner.Models.enums.NotificationType.PostComment => "notification-info",
+
+                    _ => "notification-default"
+                };
+
+                <li>
+                    <a class="dropdown-item small notification-link @(item.IsRead ? "" : "fw-bold")"
+                       href="@targetUrl"
+                       data-event-id="@item.EventID"
+                       data-is-read="@item.IsRead.ToString().ToLower()">
+
+                        <div class="d-flex justify-content-between align-items-center text-muted small">
+
+                            <div class="d-flex align-items-center gap-1">
+                                <i class="bi bi-broadcast"></i>
+                                <span class="fs-6 notification-title @typeClass">
+                                    @item.Title
+                                </span>
+                            </div>
+
+                            <span class="text-muted small">
+                                @item.CreatedAt.ToString("MM/dd HH:mm")
+                            </span>
+
+                        </div>
+
+                        <div class="text-muted small notification-content">
+                            @item.Content
+                        </div>
+
+                    </a>
+                    <hr class="m-1"/>
+                </li>
+            }
+        }
+
+        <li>
+            <a class="dropdown-item text-center"
+               asp-controller="Notification"
+               asp-action="Index">
+                查看全部通知
+            </a>
+        </li>
+    </ul>
+</div>
+
+<script>
+    (function () {
+        const links = document.querySelectorAll(".notification-link");
+        const badge = document.getElementById("notificationBadge");
+
+        function decreaseBadge() {
+            if (!badge) return;
+
+            let count = parseInt(badge.textContent.trim(), 10);
+            if (isNaN(count) || count <= 0) return;
+
+            count -= 1;
+            badge.textContent = count;
+
+            if (count <= 0) {
+                badge.classList.add("d-none");
+            }
+        }
+
+        links.forEach(link => {
+            link.addEventListener("click", function () {
+                const eventId = this.dataset.eventId;
+                const isRead = this.dataset.isRead === "true";
+
+                if (!eventId || isRead) return;
+
+                this.dataset.isRead = "true";
+                this.classList.remove("fw-bold");
+
+                decreaseBadge();
+
+                navigator.sendBeacon(`/Notification/MarkAsRead/${eventId}`);
+            });
+        });
+    })();
+</script>

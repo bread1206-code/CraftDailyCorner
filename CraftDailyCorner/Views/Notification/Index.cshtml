@@ -1,0 +1,246 @@
+﻿@model CraftDailyCorner.ViewModels.Notification.VMNotificationIndex
+@using CraftDailyCorner.Models.enums
+@using CraftDailyCorner.ViewModels.Notification
+
+@{
+    ViewData["Title"] = "我的通知";
+}
+
+<div class="container py-4">
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success">@TempData["Success"]</div>
+    }
+
+    <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 mb-4">
+        <div>
+            <h2 class="fw-bold mb-1">我的通知</h2>
+            <div class="text-muted">
+                未讀通知：@Model.UnreadCount
+            </div>
+        </div>
+
+        <div class="d-flex flex-wrap gap-2">
+            <a asp-controller="Notification"
+               asp-action="Index"
+               asp-route-unreadOnly="false"
+               asp-route-filterType="@Model.FilterType"
+               class="btn @(Model.UnreadOnly ? "btn-outline-dark" : "btn-dark")">
+                全部
+            </a>
+
+            <a asp-controller="Notification"
+               asp-action="Index"
+               asp-route-unreadOnly="true"
+               asp-route-filterType="@Model.FilterType"
+               class="btn @(Model.UnreadOnly ? "btn-warning" : "btn-outline-warning")">
+                只看未讀
+            </a>
+
+            <form asp-controller="Notification"
+                  asp-action="MarkAllAsRead"
+                  method="post"
+                  class="d-inline">
+                @Html.AntiForgeryToken()
+                <button type="submit"
+                        class="btn btn-outline-primary"
+                        @(Model.UnreadCount == 0 ? "disabled" : null)>
+                    全部標記為已讀
+                </button>
+            </form>
+
+            <a asp-controller="Notification"
+               asp-action="Preferences"
+               class="btn btn-outline-secondary">
+                通知設定
+            </a>
+        </div>
+    </div>
+
+    <div class="d-flex flex-wrap gap-2 mb-3">
+        <a asp-controller="Notification"
+           asp-action="Index"
+           asp-route-unreadOnly="@Model.UnreadOnly"
+           asp-route-filterType="All"
+           class="btn btn-sm @(Model.FilterType == NotificationFilterType.All ? "btn-dark" : "btn-outline-dark")">
+            全部類型
+        </a>
+
+        <a asp-controller="Notification"
+           asp-action="Index"
+           asp-route-unreadOnly="@Model.UnreadOnly"
+           asp-route-filterType="Announcement"
+           class="btn btn-sm @(Model.FilterType == NotificationFilterType.Announcement ? "btn-primary" : "btn-outline-primary")">
+            公告
+        </a>
+
+        <a asp-controller="Notification"
+           asp-action="Index"
+           asp-route-unreadOnly="@Model.UnreadOnly"
+           asp-route-filterType="Order"
+           class="btn btn-sm @(Model.FilterType == NotificationFilterType.Order ? "btn-success" : "btn-outline-success")">
+            訂單
+        </a>
+
+        <a asp-controller="Notification"
+           asp-action="Index"
+           asp-route-unreadOnly="@Model.UnreadOnly"
+           asp-route-filterType="Product"
+           class="btn btn-sm @(Model.FilterType == NotificationFilterType.Product ? "btn-warning" : "btn-outline-warning")">
+            商品
+        </a>
+
+        <a asp-controller="Notification"
+           asp-action="Index"
+           asp-route-unreadOnly="@Model.UnreadOnly"
+           asp-route-filterType="Creator"
+           class="btn btn-sm @(Model.FilterType == NotificationFilterType.Creator ? "btn-info" : "btn-outline-info")">
+            創作者互動
+        </a>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-0">
+
+            @if (!Model.Items.Any())
+            {
+                <div class="p-5 text-center text-muted">
+                    <i class="bi bi-bell fs-2 d-block mb-2"></i>
+                    目前沒有符合條件的通知
+                </div>
+            }
+            else
+            {
+                <div class="list-group list-group-flush">
+                    @foreach (var item in Model.Items)
+                    {
+                        var targetUrl = string.IsNullOrWhiteSpace(item.LinkUrl)
+                        ? Url.Action("Index", "Notification")
+                        : item.LinkUrl;
+
+                        var typeClass = item.NotificationType switch
+                        {
+                            CraftDailyCorner.Models.enums.NotificationType.Announcement => "notification-blue",
+                            CraftDailyCorner.Models.enums.NotificationType.OrderCompleted => "notification-blue",
+
+                            CraftDailyCorner.Models.enums.NotificationType.OrderCreated => "notification-green",
+                            CraftDailyCorner.Models.enums.NotificationType.OrderPaid => "notification-green",
+                            CraftDailyCorner.Models.enums.NotificationType.OrderShipped => "notification-green",
+                            CraftDailyCorner.Models.enums.NotificationType.OrderDelivered => "notification-green",
+
+                            CraftDailyCorner.Models.enums.NotificationType.ProductOutOfStock => "notification-red",
+
+                            CraftDailyCorner.Models.enums.NotificationType.ProductLowStock => "notification-yellow",
+
+                            CraftDailyCorner.Models.enums.NotificationType.FavoriteProductPublished => "notification-info",
+                            CraftDailyCorner.Models.enums.NotificationType.FavoriteProductRestocked => "notification-info",
+                            CraftDailyCorner.Models.enums.NotificationType.CreatorNewPost => "notification-info",
+                            CraftDailyCorner.Models.enums.NotificationType.CreatorNewProduct => "notification-info",
+                            CraftDailyCorner.Models.enums.NotificationType.CreatorNewPortfolio => "notification-info",
+                            CraftDailyCorner.Models.enums.NotificationType.PostComment => "notification-info",
+
+                            _ => "notification-default"
+                        };
+
+                        <a href="@targetUrl"
+                           class="list-group-item list-group-item-action notification-center-link notification-center-item @(item.IsRead ? "" : "notification-unread")"
+                           data-event-id="@item.EventID"
+                           data-is-read="@item.IsRead.ToString().ToLower()">
+
+                            <div class="d-flex justify-content-between align-items-start gap-3 mb-2">
+                                <div class="d-flex align-items-center gap-2 flex-grow-1 min-w-0">
+                                    <i class="bi bi-broadcast text-muted flex-shrink-0"></i>
+                                    <span class="notification-title @typeClass">
+                                        @item.Title
+                                    </span>
+                                </div>
+
+                                <small class="text-muted flex-shrink-0">
+                                    @item.CreatedAt.ToString("yyyy/MM/dd HH:mm")
+                                </small>
+                            </div>
+
+                            <div class="text-muted small notification-content">
+                                @item.Content
+                            </div>
+
+                            @if (!item.IsRead)
+                            {
+                                <div class="mt-2">
+                                    <span class="badge bg-danger">未讀</span>
+                                </div>
+                            }
+                        </a>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+
+    @if (Model.TotalPages > 1)
+    {
+        <div class="mt-4 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+            <div class="text-muted small">
+                第 @Model.Page / @Model.TotalPages 頁，共 @Model.TotalCount 筆
+            </div>
+
+            <nav>
+                <ul class="pagination mb-0">
+                    <li class="page-item @(Model.Page <= 1 ? "disabled" : "")">
+                        <a class="page-link"
+                           asp-controller="Notification"
+                           asp-action="Index"
+                           asp-route-page="@(Model.Page - 1)"
+                           asp-route-unreadOnly="@Model.UnreadOnly"
+                           asp-route-filterType="@Model.FilterType">
+                            上一頁
+                        </a>
+                    </li>
+
+                    @for (int p = 1; p <= Model.TotalPages; p++)
+                    {
+                        <li class="page-item @(p == Model.Page ? "active" : "")">
+                            <a class="page-link"
+                               asp-controller="Notification"
+                               asp-action="Index"
+                               asp-route-page="@p"
+                               asp-route-unreadOnly="@Model.UnreadOnly"
+                               asp-route-filterType="@Model.FilterType">
+                                @p
+                            </a>
+                        </li>
+                    }
+
+                    <li class="page-item @(Model.Page >= Model.TotalPages ? "disabled" : "")">
+                        <a class="page-link"
+                           asp-controller="Notification"
+                           asp-action="Index"
+                           asp-route-page="@(Model.Page + 1)"
+                           asp-route-unreadOnly="@Model.UnreadOnly"
+                           asp-route-filterType="@Model.FilterType">
+                            下一頁
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    }
+</div>
+
+<script>
+    (function () {
+        const links = document.querySelectorAll(".notification-center-link");
+
+        links.forEach(link => {
+            link.addEventListener("click", function () {
+                const eventId = this.dataset.eventId;
+                const isRead = this.dataset.isRead === "true";
+
+                if (!eventId || isRead) return;
+
+                navigator.sendBeacon(`/Notification/MarkAsRead/${eventId}`);
+            });
+        });
+    })();
+</script>

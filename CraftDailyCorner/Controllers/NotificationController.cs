@@ -1,4 +1,5 @@
 ﻿using CraftDailyCorner.Extensions;
+using CraftDailyCorner.Models.enums;
 using CraftDailyCorner.Services.Interface;
 using CraftDailyCorner.ViewModels.Notification;
 using Microsoft.AspNetCore.Authorization;
@@ -10,10 +11,54 @@ namespace CraftDailyCorner.Controllers
     public class NotificationController : Controller
     {
         private readonly INotificationPreferenceService _notificationPreferenceService;
+        private readonly INotificationService _notificationService;
 
-        public NotificationController(INotificationPreferenceService notificationPreferenceService)
+        public NotificationController(
+            INotificationPreferenceService notificationPreferenceService,
+            INotificationService notificationService)
         {
             _notificationPreferenceService = notificationPreferenceService;
+            _notificationService = notificationService;
+        }
+
+        // GET: /Notification
+        [HttpGet]
+        public async Task<IActionResult> Index(
+            int page = 1,
+            bool unreadOnly = false,
+            NotificationFilterType filterType = NotificationFilterType.All)
+        {
+            var memberId = User.GetMemberId();
+            var vm = await _notificationService.GetPagedAsync(memberId, page, 10, unreadOnly, filterType);
+
+            return View(vm);
+        }
+
+        // POST: /Notification/MarkAsRead/5
+        [HttpPost]
+        public async Task<IActionResult> MarkAsRead(long id)
+        {
+            var memberId = User.GetMemberId();
+
+            var ok = await _notificationService.MarkAsReadAsync(id, memberId);
+
+            if (!ok)
+                return NotFound();
+
+            return Ok();
+        }
+
+        // POST: /Notification/MarkAllAsRead
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> MarkAllAsRead()
+        {
+            var memberId = User.GetMemberId();
+
+            await _notificationService.MarkAllAsReadAsync(memberId);
+
+            TempData["Success"] = "已將所有通知標記為已讀";
+            return RedirectToAction(nameof(Index));
         }
 
         // GET: /Notification/Preferences
