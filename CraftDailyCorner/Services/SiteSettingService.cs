@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using CraftDailyCorner.Models;
+﻿using CraftDailyCorner.Models;
 using CraftDailyCorner.Services.Interface;
 
 namespace CraftDailyCorner.Services

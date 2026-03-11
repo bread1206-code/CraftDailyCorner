@@ -85,13 +85,13 @@ function updateQuantity(productId, quantity) {
                 alert(res.message);
                 return;
             }
-            
+
             updateBadge(res.summary.totalQuantity);
             reloadCartModal();
         });
 }
 
- //移除商品
+//移除商品
 function removeFromCart(productId) {
     fetch('/Cart/RemoveItem', {
         method: 'POST',
@@ -259,10 +259,32 @@ function updateCartSummary() {
 
 // 導向結帳頁 (需告知後端選了哪個創作者)
 function goToCheckout() {
-    const selectedCreator = document.querySelector('.creator-check:checked');
-    if (selectedCreator) {
-        const creatorId = selectedCreator.dataset.creatorId;
-        // 導向結帳，並帶入 CreatorID 過濾
-        window.location.href = `/Orders/Checkout?creatorId=${creatorId}`;
+    // 新增：取得目前所有勾選的商品
+    const checkedProducts = document.querySelectorAll('.product-check:checked');
+
+    if (checkedProducts.length === 0) {
+        alert('請先勾選要結帳的商品');
+        return;
     }
+
+    // 新增：因為前面已限制只能勾同一位創作者，直接取第一筆 creatorId
+    const creatorId = checkedProducts[0].dataset.creatorId;
+
+    // 新增：把勾選的商品 ProductId 一起帶到結帳頁
+    const selectedProductIds = Array.from(checkedProducts)
+        .map(cb => cb.dataset.productId)
+        .filter(id => id);
+
+    if (!creatorId || selectedProductIds.length === 0) {
+        alert('結帳商品資料不完整，請重新勾選');
+        return;
+    }
+
+    const query = new URLSearchParams({
+        creatorId: creatorId,
+        selectedProductIds: selectedProductIds.join(',')
+    });
+
+    // 導向結帳，並帶入 CreatorID 與本次勾選商品清單
+    window.location.href = `/Orders/Checkout?${query.toString()}`;
 }

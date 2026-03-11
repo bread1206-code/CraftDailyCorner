@@ -1,4 +1,5 @@
 ﻿using CraftDailyCorner.Areas.Admin.ViewModels.Announcement;
+using CraftDailyCorner.DTOs;
 using CraftDailyCorner.Models;
 using CraftDailyCorner.Models.enums;
 using CraftDailyCorner.Services.Interface;
@@ -10,14 +11,18 @@ namespace CraftDailyCorner.Services
     public class AdminAnnouncementService : IAdminAnnouncementService
     {
         private readonly CraftDailyCornerContext _context;
+        private readonly INotificationService _notificationService;
 
         private const byte STATUS_DRAFT = 1;
         private const byte STATUS_ACTIVE = 2;
         private const byte STATUS_INACTIVE = 3;
 
-        public AdminAnnouncementService(CraftDailyCornerContext context)
+        public AdminAnnouncementService(
+            CraftDailyCornerContext context,
+            INotificationService notificationService)
         {
             _context = context;
+            _notificationService = notificationService;
         }
 
         public async Task<VMAdminAnnouncementIndex> GetIndexAsync()
@@ -72,7 +77,6 @@ namespace CraftDailyCorner.Services
             if (entity == null)
                 return null;
 
-            // 一般管理者不可編輯「僅管理者」公告
             if (!isSuperAdmin && entity.AudienceType == AnnouncementAudienceType.AdminsOnly)
                 return null;
 
@@ -150,6 +154,11 @@ namespace CraftDailyCorner.Services
             _context.PlatformAnnouncements.Add(entity);
             await _context.SaveChangesAsync();
 
+            if (entity.StatusID == STATUS_ACTIVE)
+            {
+                await NotifyAnnouncementAsync(entity);
+            }
+
             return entity.AnnouncementID;
         }
 
@@ -166,11 +175,11 @@ namespace CraftDailyCorner.Services
             if (entity == null)
                 return false;
 
-            // 一般管理者不可修改既有的「僅管理者」公告
             if (!isSuperAdmin && entity.AudienceType == AnnouncementAudienceType.AdminsOnly)
                 return false;
 
             var wasActive = entity.StatusID == STATUS_ACTIVE;
+            var willBeActive = vm.StatusID == STATUS_ACTIVE;
 
             entity.Title = vm.Title.Trim();
             entity.Content = vm.Content.Trim();
@@ -179,13 +188,18 @@ namespace CraftDailyCorner.Services
             entity.UpdatedAt = DateTime.Now;
             entity.UpdatedBy = currentMemberId;
 
-            // 第一次切到 Active 時補 PublishedAt
-            if (!wasActive && vm.StatusID == STATUS_ACTIVE)
+            if (!wasActive && willBeActive && !entity.PublishedAt.HasValue)
             {
                 entity.PublishedAt = DateTime.Now;
             }
 
             await _context.SaveChangesAsync();
+
+            if (!wasActive && willBeActive)
+            {
+                await NotifyAnnouncementAsync(entity);
+            }
+
             return true;
         }
 
@@ -200,6 +214,9 @@ namespace CraftDailyCorner.Services
             if (!isSuperAdmin && entity.AudienceType == AnnouncementAudienceType.AdminsOnly)
                 return (false, "只有超級管理者可以啟用管理者公告");
 
+            if (entity.StatusID == STATUS_ACTIVE)
+                return (true, null);
+
             entity.StatusID = STATUS_ACTIVE;
             entity.UpdatedAt = DateTime.Now;
             entity.UpdatedBy = currentMemberId;
@@ -208,6 +225,9 @@ namespace CraftDailyCorner.Services
                 entity.PublishedAt = DateTime.Now;
 
             await _context.SaveChangesAsync();
+
+            await NotifyAnnouncementAsync(entity);
+
             return (true, null);
         }
 
@@ -232,7 +252,7 @@ namespace CraftDailyCorner.Services
 
         private void ValidateAudiencePermission(byte audienceType, bool isSuperAdmin)
         {
-            if (!Enum.IsDefined(typeof(AnnouncementAudienceType), (int)audienceType))
+            if (!Enum.IsDefined(typeof(AnnouncementAudienceType), audienceType))
                 throw new ArgumentException("受眾類型不正確");
 
             if (!isSuperAdmin && audienceType == (byte)AnnouncementAudienceType.AdminsOnly)
@@ -291,6 +311,60 @@ namespace CraftDailyCorner.Services
                 (byte)AnnouncementAudienceType.AdminsOnly => "僅管理者",
                 _ => "未知"
             };
+        }
+
+        private async Task NotifyAnnouncementAsync(PlatformAnnouncement entity)
+        {
+            var memberIds = await GetTargetMemberIdsByAudienceAsync(entity.AudienceType);
+
+            if (!memberIds.Any())
+                return;
+
+            var dtos = memberIds.Select(memberId => new CreateNotificationDTO
+            {
+                MemberID = memberId,
+                NotificationType = NotificationType.Announcement,
+                Title = "平台公告",
+                Content = entity.Title,
+                LinkUrl = $"/Announcement/Detail/{entity.AnnouncementID}",
+                RelatedEntityType = "Announcement",
+                RelatedEntityId = entity.AnnouncementID.ToString()
+            });
+
+            await _notificationService.CreateBatchAsync(dtos);
+        }
+
+        private async Task<List<string>> GetTargetMemberIdsByAudienceAsync(AnnouncementAudienceType audienceType)
+        {
+            if (audienceType == AnnouncementAudienceType.AllMembers)
+            {
+                return await _context.Members
+                    .AsNoTracking()
+                    .Select(x => x.MemberID)
+                    .ToListAsync();
+            }
+
+            if (audienceType == AnnouncementAudienceType.CreatorsOnly)
+            {
+                return await _context.MemberRoles
+                    .AsNoTracking()
+                    .Where(x => x.RoleID == "02")
+                    .Select(x => x.MemberID)
+                    .Distinct()
+                    .ToListAsync();
+            }
+
+            if (audienceType == AnnouncementAudienceType.AdminsOnly)
+            {
+                return await _context.MemberRoles
+                    .AsNoTracking()
+                    .Where(x => x.RoleID == "03" || x.RoleID == "04")
+                    .Select(x => x.MemberID)
+                    .Distinct()
+                    .ToListAsync();
+            }
+
+            return new List<string>();
         }
     }
 }

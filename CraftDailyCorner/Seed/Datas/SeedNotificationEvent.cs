@@ -14,56 +14,56 @@ namespace CraftDailyCorner.Seed.Datas
 
         public void Run()
         {
-            if (!_context.NotificationEvents.Any())
+            if (_context.NotificationEvents.Any())
+                return;
+
+            var now = DateTime.Now;
+
+            var notificationEvents = new List<NotificationEvent>
             {
-                var now = DateTime.Now;
-
-                var notificationEvents = new List<NotificationEvent>
+                new NotificationEvent
                 {
-                    new NotificationEvent
-                    {
-                        NotificationType = NotificationType.Order,
-                        Title = "訂單通知",
-                        Content = "您的訂單已成立",
-                        LinkUrl = "/Orders",
-                        IsRead = false,
-                        ReadAt = null,
-                        RelatedEntityType = "Order",
-                        RelatedEntityId = "O0000001",
-                        CreatedAt = now,
-                        MemberID = "M0000002"
-                    },
-                    new NotificationEvent
-                    {
-                        NotificationType = NotificationType.CreatorPost,
-                        Title = "創作日誌更新",
-                        Content = "您追蹤的創作者發布了新的創作日誌",
-                        LinkUrl = "/Post/Detail/P0000001",
-                        IsRead = false,
-                        ReadAt = null,
-                        RelatedEntityType = "Post",
-                        RelatedEntityId = "P0000001",
-                        CreatedAt = now,
-                        MemberID = "M0000002"
-                    },
-                    new NotificationEvent
-                    {
-                        NotificationType = NotificationType.Product,
-                        Title = "商品通知",
-                        Content = "您收藏的商品已重新上架",
-                        LinkUrl = "/Products/Detail/PR000001",
-                        IsRead = false,
-                        ReadAt = null,
-                        RelatedEntityType = "Product",
-                        RelatedEntityId = "PR000001",
-                        CreatedAt = now,
-                        MemberID = "M0000002"
-                    }
-                };
+                    NotificationType = NotificationType.OrderCreated,
+                    Title = "訂單已成立",
+                    Content = "您的訂單已成立，系統已開始處理。",
+                    LinkUrl = "/Orders/Detail/202601010001",
+                    IsRead = false,
+                    ReadAt = null,
+                    RelatedEntityType = "Order",
+                    RelatedEntityId = "202601010001",
+                    CreatedAt = now,
+                    MemberID = "M0000002"
+                },
+                new NotificationEvent
+                {
+                    NotificationType = NotificationType.CreatorNewPost,
+                    Title = "創作者發布了新日誌",
+                    Content = "您追蹤的創作者發布了新的創作日誌。",
+                    LinkUrl = "/Post/Detail/P0000001",
+                    IsRead = false,
+                    ReadAt = null,
+                    RelatedEntityType = "Post",
+                    RelatedEntityId = "P0000001",
+                    CreatedAt = now,
+                    MemberID = "M0000002"
+                },
+                new NotificationEvent
+                {
+                    NotificationType = NotificationType.FavoriteProductPublished,
+                    Title = "收藏商品已上架",
+                    Content = "您收藏的商品現在已上架，可以前往查看。",
+                    LinkUrl = "/Products/Detail/P000000001",
+                    IsRead = false,
+                    ReadAt = null,
+                    RelatedEntityType = "Product",
+                    RelatedEntityId = "P000000001",
+                    CreatedAt = now,
+                    MemberID = "M0000002"
+                }
+            };
 
-                _context.NotificationEvents.AddRange(notificationEvents);
-                _context.SaveChanges();
-            }
+            _context.NotificationEvents.AddRange(notificationEvents);
+            _context.SaveChanges();
         }
     }
 }

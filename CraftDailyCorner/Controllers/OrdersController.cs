@@ -28,8 +28,6 @@ namespace CraftDailyCorner.Controllers
             return View(orders);
         }
 
-        
-        
         //訂單詳細內容
         public IActionResult Detail(string orderId)
         {
@@ -43,22 +41,48 @@ namespace CraftDailyCorner.Controllers
         }
 
         // GET: /Orders/Checkout
-        public IActionResult Checkout(string creatorId)
+        // GET: /Orders/Checkout
+        public IActionResult Checkout(string creatorId, string? selectedProductIds)
         {
             var memberId = User.GetMemberId();
             if (string.IsNullOrEmpty(creatorId)) return RedirectToAction("Index", "Cart");
 
-            // 取得該創作者的商品清單
-            var allItems = _cartService.GetCartItemsForCheckout(memberId);
-            var filteredItems = allItems.Where(i => i.Product.CreatorId == creatorId).ToList();
+            // 新增：解析前端傳來的勾選商品清單
+            var selectedProductIdList = (selectedProductIds ?? string.Empty)
+                .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                .Select(x => x.Trim())
+                .Where(x => !string.IsNullOrWhiteSpace(x))
+                .Distinct()
+                .ToList();
+
+            if (!selectedProductIdList.Any())
+            {
+                TempData["Error"] = "請先勾選要結帳的商品";
+                return RedirectToAction("Index", "Products");
+            }
+
+            // 取得該創作者且本次有勾選的商品清單
+            var filteredItems = _cartService.GetCartItemsForCheckout(memberId, creatorId, selectedProductIdList);
 
             if (!filteredItems.Any()) return RedirectToAction("Index", "Products");
+
+            //成功進入結帳頁時，清除前一次殘留的錯誤訊息
+            TempData.Remove("Error");
+
+            //標記目前是結帳流程頁，Navbar 可依此隱藏購物車按鈕
+            ViewBag.HideCartButton = true;
 
             var vm = new VMCheckout
             {
                 Items = filteredItems,
                 TotalAmount = filteredItems.Sum(i => i.Product.Price * i.Quantity),
-                CreatorId = creatorId // 傳給 View
+                CreatorId = creatorId, // 傳給 View
+
+                //將勾選商品清單帶進結帳頁，供 POST 回傳
+                SelectedProductIds = filteredItems
+                    .Select(i => i.Product.ProductId)
+                    .Distinct()
+                    .ToList()
             };
 
             return View(vm);
@@ -70,12 +94,23 @@ namespace CraftDailyCorner.Controllers
         public IActionResult Create(VMCreateOrderRequest request)
         {
             var memberId = User.GetMemberId();
+
+            //先補強勾選商品驗證，避免只靠欄位 Required
+            if (request.SelectedProductIds == null || !request.SelectedProductIds.Any())
+            {
+                ModelState.AddModelError(string.Empty, "請先勾選要結帳的商品");
+            }
+
             if (!ModelState.IsValid)
             {
-                
-                // 驗證失敗重新載入時，也要帶回該創作者的商品
-                var allItems = _cartService.GetCartItemsForCheckout(memberId);
-                var filteredItems = allItems.Where(i => i.Product.CreatorId == request.CreatorId).ToList();
+                //驗證失敗重新載入時，也要帶回本次勾選的商品
+                var filteredItems = _cartService.GetCartItemsForCheckout(
+                    memberId,
+                    request.CreatorId,
+                    request.SelectedProductIds ?? new List<string>());
+
+                //這裡雖然網址是 /Orders/Create，但仍要隱藏購物車按鈕
+                ViewBag.HideCartButton = true;
 
                 var vm = new VMCheckout
                 {
@@ -84,19 +119,37 @@ namespace CraftDailyCorner.Controllers
                     CreatorId = request.CreatorId,
                     ReceiverName = request.ReceiverName,
                     ReceiverPhone = request.ReceiverPhone,
-                    ReceiverAddress = request.ReceiverAddress
+                    ReceiverAddress = request.ReceiverAddress,
+
+                    //重新帶回本次勾選商品，避免畫面驗證失敗後遺失
+                    SelectedProductIds = request.SelectedProductIds ?? new List<string>()
                 };
                 return View("Checkout", vm);
             }
 
-            // ⭐ 這裡傳入第三個參數 request.CreatorId
-            var result = _orderService.CreateOrder(memberId, request, request.CreatorId);
+            var result = _orderService.CreateOrder(memberId, request);
 
             if (!result.Success)
             {
+                // 新增：失敗時直接回到結帳頁，保留原本輸入與勾選商品
+                var filteredItems = _cartService.GetCartItemsForCheckout(
+                    memberId,
+                    request.CreatorId,
+                    request.SelectedProductIds ?? new List<string>());
+
+                var vm = new VMCheckout
+                {
+                    Items = filteredItems,
+                    TotalAmount = filteredItems.Sum(i => i.Product.Price * i.Quantity),
+                    CreatorId = request.CreatorId,
+                    ReceiverName = request.ReceiverName,
+                    ReceiverPhone = request.ReceiverPhone,
+                    ReceiverAddress = request.ReceiverAddress,
+                    SelectedProductIds = request.SelectedProductIds ?? new List<string>()
+                };
+
                 TempData["Error"] = result.Message;
-                // 如果失敗，導回結帳頁並帶上 creatorId
-                return RedirectToAction(nameof(Checkout), new { creatorId = request.CreatorId });
+                return View("Checkout", vm);
             }
 
             return RedirectToAction(nameof(Complete), new { orderId = result.OrderID });
@@ -142,18 +195,6 @@ namespace CraftDailyCorner.Controllers
         {
             var memberId = User.GetMemberId();
             var result = _orderService.ConfirmPickup(orderId, memberId);
-
-            TempData[result.Success ? "Success" : "Error"] = result.Message;
-            return RedirectToAction(nameof(Detail), new { orderId });
-        }
-
-        // 會員完成訂單：已送達(Shipment狀態=3)才允許
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult CompleteOrder(string orderId)
-        {
-            var memberId = User.GetMemberId();
-            var result = _orderService.CompleteOrder(orderId, memberId);
 
             TempData[result.Success ? "Success" : "Error"] = result.Message;
             return RedirectToAction(nameof(Detail), new { orderId });

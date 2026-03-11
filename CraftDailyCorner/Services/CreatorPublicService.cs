@@ -8,7 +8,6 @@ using CraftDailyCorner.ViewModels.FollowCreator;
 using CraftDailyCorner.ViewModels.Product;
 using CraftDailyCorner.ViewModels.Reaction;
 using Microsoft.EntityFrameworkCore;
-using CraftDailyCorner.Extensions;
 
 namespace CraftDailyCorner.Services.Creator
 {

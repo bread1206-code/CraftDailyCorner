@@ -97,6 +97,7 @@ namespace CraftDailyCorner.Controllers
                     }
                 }
             }
+
             var creatorId = User.GetCreatorId();
 
             if (!ModelState.IsValid)
@@ -105,13 +106,30 @@ namespace CraftDailyCorner.Controllers
                 return View(vm);
             }
 
-            var success = await _productService
-                .UpdateAsync(vm, creatorId);
+            try
+            {
+                var success = await _productService
+                    .UpdateAsync(vm, creatorId);
 
-            if (!success)
-                return NotFound();
+                if (!success)
+                    return NotFound();
 
-            return RedirectToAction(nameof(Index));
+                // 新增：更新成功提示
+                TempData["Success"] = "商品已更新";
+
+                return RedirectToAction(nameof(Index));
+            }
+            catch (Exception ex)
+            {
+                // 新增：接住 Service 丟出的商業規則例外
+                // 例如：庫存為 0 無法上架、上架商品必須至少一張圖片
+                ModelState.AddModelError(string.Empty, ex.Message);
+
+                // 新增：回填選單資料，避免回畫面時下拉選單失效
+                _productService.LoadOptions(vm);
+
+                return View(vm);
+            }
         }
 
         //軟刪除（下架）

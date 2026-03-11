@@ -9,7 +9,7 @@
         1 => 1, // 待付款
         2 => 2, // 已付款
         3 => 3, // 準備中
-        4 => (Model.ShipmentStatusID == 3 ? 5 : 4), // 已出貨  //判斷是否已取貨
+        4 => (Model.ShipmentStatusID == 3 ? 5 : 4), // 已出貨  //判斷商品是否已送達
         5 => 5, // 完成
         6 => 6, // 取消
         _ => 0
@@ -32,12 +32,22 @@
         bannerClass = "alert-warning";
         iconClass = "bi-exclamation-circle";
         subMessage = "此訂單尚未完成付款，請於下方進行付款";
-    }else if (isShipped)
+    }
+    else if (isShipped)
     {
         bannerClass = "alert-info";
         iconClass = "bi-truck";
-        subMessage = "您的訂單已出貨，請耐心等待配送";
-    }else if (isCompleted)
+
+        if (Model.ShipmentStatusID == 3)
+        {
+            subMessage = "您的訂單已送達，請於規定時間內完成取貨";
+        }
+        else
+        {
+            subMessage = "您的訂單已出貨，請耐心等待配送";
+        }
+    }
+    else if (isCompleted)
     {
         bannerClass = "alert-success";
         iconClass = "bi-check-circle-fill";
@@ -158,7 +168,7 @@
                     @if (Model.DeliveredAt != null)
                     {
                         <div class="text-muted small mt-2">
-                            收貨時間：@Model.DeliveredAt?.ToString("yyyy/MM/dd HH:mm")
+                            送達時間：@Model.DeliveredAt?.ToString("yyyy/MM/dd HH:mm")
                         </div>
                     }
                 </div>
@@ -182,7 +192,7 @@
                         <div class="d-flex flex-column gap-2 w-100">
 
                             @* 配送中才顯示「取貨」 *@
-                            @if (Model.StatusID == 4 && Model.ShipmentStatusID != 3)
+                            @if (Model.StatusID == 4 && Model.ShipmentStatusID == 3)
                             {
                                 <form asp-action="ConfirmPickup" method="post" class="d-flex justify-content-end">
                                     @Html.AntiForgeryToken()
@@ -194,24 +204,6 @@
                                         </div>
                                         <div class="card-text">
                                             取貨（模擬）
-                                        </div>
-                                    </button>
-                                </form>
-                            }
-
-                            @* 已送達才顯示「完成訂單」 *@
-                            @if (Model.StatusID == 4 && Model.ShipmentStatusID == 3)
-                            {
-                                <form asp-action="CompleteOrder" method="post" class="d-flex justify-content-end">
-                                    @Html.AntiForgeryToken()
-                                    <input type="hidden" name="orderId" value="@Model.OrderID" />
-
-                                    <button type="submit" class="order-card-btn order-card-green">
-                                        <div class="card-icon">
-                                            <i class="bi bi-check2-circle me-1"></i>
-                                        </div>
-                                        <div class="card-text">
-                                            完成訂單
                                         </div>
                                     </button>
                                 </form>
@@ -306,10 +298,13 @@
         }
         else
         {
-            <div class="alert alert-success text-center shadow-sm">
-                <i class="bi bi-check-circle-fill fs-3 me-2"></i>
-                此訂單已完成付款
-            </div>
+            @if (Model.StatusID != 5)
+            {
+                <div class="alert alert-success text-center shadow-sm">
+                    <i class="bi bi-check-circle-fill fs-3 me-2"></i>
+                    此訂單已付款，系統正持續處理中
+                </div>                
+            }
         }
     </div>
 

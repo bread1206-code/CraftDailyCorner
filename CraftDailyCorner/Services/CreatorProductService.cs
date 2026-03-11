@@ -1,5 +1,8 @@
-﻿using CraftDailyCorner.ImageManagementCore.ViewModels;
+﻿using CraftDailyCorner.DTOs;
+using CraftDailyCorner.ImageManagementCore.ViewModels;
 using CraftDailyCorner.Models;
+using CraftDailyCorner.Models.enums;
+using CraftDailyCorner.Services.Interface;
 using CraftDailyCorner.ViewModels.CreatorProduct;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -9,13 +12,17 @@ namespace CraftDailyCorner.Services
     public class CreatorProductService
     {
         private readonly CraftDailyCornerContext _context;
+        private readonly INotificationService _notificationService;
 
-        public CreatorProductService(CraftDailyCornerContext context)
+        public CreatorProductService(
+            CraftDailyCornerContext context,
+            INotificationService notificationService)
         {
             _context = context;
+            _notificationService = notificationService;
         }
 
-        //商品列表
+        // 商品列表
         public VMCreatorProductList GetCreatorProductList(string creatorId)
         {
             var items = _context.Products
@@ -24,9 +31,9 @@ namespace CraftDailyCorner.Services
                 .Include(p => p.ProductImages)
                 .Where(p => p.CreatorID == creatorId)
                 .OrderBy(p =>
-                        p.Inventory.StockQty == 0 ? 0 :
-                        p.Inventory.StockQty <= p.Inventory.AlertQty ? 1 : 2)
-                    .ThenByDescending(p => p.ProductID)
+                    p.Inventory.StockQty == 0 ? 0 :
+                    p.Inventory.StockQty <= p.Inventory.AlertQty ? 1 : 2)
+                .ThenByDescending(p => p.ProductID)
                 .Select(p => new VMCreatorProductListItem
                 {
                     ProductID = p.ProductID,
@@ -39,7 +46,6 @@ namespace CraftDailyCorner.Services
                         .OrderBy(i => i.SortOrder)
                         .Select(i => i.ImageUrl)
                         .FirstOrDefault(),
-
                     AlertQty = p.Inventory.AlertQty,
                     CreatedAt = p.CreatedAt
                 })
@@ -63,7 +69,7 @@ namespace CraftDailyCorner.Services
             return vm;
         }
 
-        //取得編輯表單
+        // 取得編輯表單
         public async Task<VMCreatorProductForm?> GetEditFormAsync(
             string productId,
             string creatorId)
@@ -90,10 +96,13 @@ namespace CraftDailyCorner.Services
                 StockQty = product.Inventory.StockQty,
                 AlertQty = product.Inventory.AlertQty,
                 SelectedCategoryIds = product.ProductCategories
-                    .Select(pc => pc.CategoryID).ToList(),
+                    .Select(pc => pc.CategoryID)
+                    .ToList(),
                 SelectedTagIds = product.ProductTags
-                    .Select(pt => pt.TagID).ToList()
+                    .Select(pt => pt.TagID)
+                    .ToList()
             };
+
             vm.ImageManagement = new VMImageManagement
             {
                 EntityId = product.ProductID,
@@ -104,12 +113,13 @@ namespace CraftDailyCorner.Services
             return vm;
         }
 
-        //建立商品
+        // 建立商品
         public async Task<string> CreateAsync(
             VMCreatorProductForm vm,
             string creatorId)
         {
             var productId = await GenerateProductIdAsync();
+            var now = DateTime.Now;
 
             var product = new Product
             {
@@ -119,7 +129,7 @@ namespace CraftDailyCorner.Services
                 Price = vm.Price,
                 StatusID = vm.StatusID,
                 CreatorID = creatorId,
-                CreatedAt = DateTime.Now
+                CreatedAt = now
             };
 
             _context.Products.Add(product);
@@ -129,7 +139,7 @@ namespace CraftDailyCorner.Services
                 ProductID = productId,
                 StockQty = vm.StockQty,
                 AlertQty = vm.AlertQty,
-                UpdatedAt = DateTime.Now
+                UpdatedAt = now
             });
 
             foreach (var cid in vm.SelectedCategoryIds)
@@ -151,10 +161,72 @@ namespace CraftDailyCorner.Services
             }
 
             await _context.SaveChangesAsync();
+
+            // ===== 新商品通知：只有新建且直接上架才通知追蹤者 =====
+            if (vm.StatusID == 2)
+            {
+                var followerMemberIds = await _context.FollowCreators
+                    .Where(x => x.CreatorID == creatorId)
+                    .Select(x => x.MemberID)
+                    .Distinct()
+                    .ToListAsync();
+
+                if (followerMemberIds.Any())
+                {
+                    var dtos = followerMemberIds.Select(memberId => new CreateNotificationDTO
+                    {
+                        MemberID = memberId,
+                        NotificationType = NotificationType.CreatorNewProduct,
+                        Title = "創作者新商品通知",
+                        Content = $"你追蹤的創作者上架了新商品「{vm.ProductName}」。",
+                        LinkUrl = $"/Products/Detail/{productId}",
+                        RelatedEntityType = "Product",
+                        RelatedEntityId = productId
+                    });
+
+                    await _notificationService.CreateBatchAsync(dtos);
+                }
+            }
+
+            var creatorMemberId = await _context.CreatorProfiles
+                .Where(x => x.CreatorID == creatorId)
+                .Select(x => x.MemberID)
+                .FirstOrDefaultAsync();
+
+            if (!string.IsNullOrWhiteSpace(creatorMemberId))
+            {
+                if (vm.StockQty == 0)
+                {
+                    await _notificationService.CreateAsync(new CreateNotificationDTO
+                    {
+                        MemberID = creatorMemberId,
+                        NotificationType = NotificationType.ProductOutOfStock,
+                        Title = "商品缺貨通知",
+                        Content = $"商品「{vm.ProductName}」目前已缺貨。",
+                        LinkUrl = $"/CreatorProducts/Edit/{productId}",
+                        RelatedEntityType = "Product",
+                        RelatedEntityId = productId
+                    });
+                }
+                else if (vm.StockQty <= vm.AlertQty)
+                {
+                    await _notificationService.CreateAsync(new CreateNotificationDTO
+                    {
+                        MemberID = creatorMemberId,
+                        NotificationType = NotificationType.ProductLowStock,
+                        Title = "商品低庫存通知",
+                        Content = $"商品「{vm.ProductName}」目前庫存僅剩 {vm.StockQty} 件，已達警戒值。",
+                        LinkUrl = $"/CreatorProducts/Edit/{productId}",
+                        RelatedEntityType = "Product",
+                        RelatedEntityId = productId
+                    });
+                }
+            }
+
             return productId;
         }
 
-        //更新商品
+        // 更新商品
         public async Task<bool> UpdateAsync(
             VMCreatorProductForm vm,
             string creatorId)
@@ -163,6 +235,7 @@ namespace CraftDailyCorner.Services
                 .Include(p => p.Inventory)
                 .Include(p => p.ProductCategories)
                 .Include(p => p.ProductTags)
+                .Include(p => p.ProductImages)
                 .FirstOrDefaultAsync(p =>
                     p.ProductID == vm.ProductID &&
                     p.CreatorID == creatorId);
@@ -170,10 +243,12 @@ namespace CraftDailyCorner.Services
             if (product == null)
                 return false;
 
-            //上架檢查
+            var oldStatusId = product.StatusID;
+            var oldStockQty = product.Inventory?.StockQty ?? 0;
+
             if (vm.StatusID == 2)
             {
-                if (product.Inventory.StockQty <= 0)
+                if (vm.StockQty <= 0)
                     throw new Exception("庫存為 0 無法上架");
 
                 var imageCount = await _context.ProductImages
@@ -192,6 +267,7 @@ namespace CraftDailyCorner.Services
 
             product.Inventory.StockQty = vm.StockQty;
             product.Inventory.AlertQty = vm.AlertQty;
+            product.Inventory.UpdatedAt = DateTime.Now;
 
             _context.ProductCategories.RemoveRange(product.ProductCategories);
             foreach (var cid in vm.SelectedCategoryIds)
@@ -214,10 +290,101 @@ namespace CraftDailyCorner.Services
             }
 
             await _context.SaveChangesAsync();
+
+            var creatorMemberId = await _context.CreatorProfiles
+                .Where(x => x.CreatorID == creatorId)
+                .Select(x => x.MemberID)
+                .FirstOrDefaultAsync();
+
+            // ===== 收藏商品已上架：只在第一次從非上架 -> 上架時發 =====
+            if (oldStatusId != 2 && vm.StatusID == 2)
+            {
+                var favoriteMemberIds = await _context.FavoriteProducts
+                    .Where(x => x.ProductID == product.ProductID)
+                    .Select(x => x.MemberID)
+                    .Distinct()
+                    .ToListAsync();
+
+                if (favoriteMemberIds.Any())
+                {
+                    var dtos = favoriteMemberIds.Select(memberId => new CreateNotificationDTO
+                    {
+                        MemberID = memberId,
+                        NotificationType = NotificationType.FavoriteProductPublished,
+                        Title = "收藏商品已上架通知",
+                        Content = $"你收藏的商品「{product.ProductName}」已上架。",
+                        LinkUrl = $"/Products/Detail/{product.ProductID}",
+                        RelatedEntityType = "Product",
+                        RelatedEntityId = product.ProductID
+                    });
+
+                    await _notificationService.CreateBatchAsync(dtos);
+                }
+            }
+
+            // ===== 收藏商品補貨 =====
+            if (oldStockQty == 0 && vm.StockQty > 0)
+            {
+                var favoriteMemberIds = await _context.FavoriteProducts
+                    .Where(x => x.ProductID == product.ProductID)
+                    .Select(x => x.MemberID)
+                    .Distinct()
+                    .ToListAsync();
+
+                if (favoriteMemberIds.Any())
+                {
+                    var dtos = favoriteMemberIds.Select(memberId => new CreateNotificationDTO
+                    {
+                        MemberID = memberId,
+                        NotificationType = NotificationType.FavoriteProductRestocked,
+                        Title = "收藏商品已補貨通知",
+                        Content = $"你收藏的商品「{product.ProductName}」已補貨，可以購買了。",
+                        LinkUrl = $"/Products/Detail/{product.ProductID}",
+                        RelatedEntityType = "Product",
+                        RelatedEntityId = product.ProductID
+                    });
+
+                    await _notificationService.CreateBatchAsync(dtos);
+                }
+            }
+
+            if (!string.IsNullOrWhiteSpace(creatorMemberId))
+            {
+                // ===== 低庫存通知 =====
+                if (oldStockQty > vm.AlertQty && vm.StockQty > 0 && vm.StockQty <= vm.AlertQty)
+                {
+                    await _notificationService.CreateAsync(new CreateNotificationDTO
+                    {
+                        MemberID = creatorMemberId,
+                        NotificationType = NotificationType.ProductLowStock,
+                        Title = "商品低庫存通知",
+                        Content = $"商品「{product.ProductName}」目前庫存僅剩 {vm.StockQty} 件，已達警戒值。",
+                        LinkUrl = $"/CreatorProducts/Edit/{product.ProductID}",
+                        RelatedEntityType = "Product",
+                        RelatedEntityId = product.ProductID
+                    });
+                }
+
+                // ===== 缺貨通知 =====
+                if (oldStockQty > 0 && vm.StockQty == 0)
+                {
+                    await _notificationService.CreateAsync(new CreateNotificationDTO
+                    {
+                        MemberID = creatorMemberId,
+                        NotificationType = NotificationType.ProductOutOfStock,
+                        Title = "商品缺貨通知",
+                        Content = $"商品「{product.ProductName}」目前已缺貨。",
+                        LinkUrl = $"/CreatorProducts/Edit/{product.ProductID}",
+                        RelatedEntityType = "Product",
+                        RelatedEntityId = product.ProductID
+                    });
+                }
+            }
+
             return true;
         }
 
-        //載入選單
+        // 載入選單
         public void LoadOptions(VMCreatorProductForm vm)
         {
             vm.StatusSelectList = _context.ProductStatuses
@@ -227,7 +394,8 @@ namespace CraftDailyCorner.Services
                     Value = s.StatusID.ToString(),
                     Text = s.StatusName,
                     Selected = s.StatusID == vm.StatusID
-                }).ToList();
+                })
+                .ToList();
 
             vm.TagSelectList = _context.Tags
                 .Where(t => t.IsActive)
@@ -236,7 +404,8 @@ namespace CraftDailyCorner.Services
                     Value = t.TagID.ToString(),
                     Text = t.TagName,
                     Selected = vm.SelectedTagIds.Contains(t.TagID)
-                }).ToList();
+                })
+                .ToList();
 
             var allCategories = _context.Categories
                 .Where(c => c.IsActive)
@@ -246,18 +415,21 @@ namespace CraftDailyCorner.Services
                 .Where(c => c.ParentCategoryID == null)
                 .ToList();
 
-            vm.CategoryGroups = parents.Select(p => new VMCategoryGroup
-            {
-                ParentCategoryName = p.CategoryName,
-                Children = allCategories
-                    .Where(c => c.ParentCategoryID == p.CategoryID)
-                    .Select(c => new VMCategoryChild
-                    {
-                        CategoryID = c.CategoryID,
-                        CategoryName = c.CategoryName,
-                        IsSelected = vm.SelectedCategoryIds.Contains(c.CategoryID)
-                    }).ToList()
-            }).ToList();
+            vm.CategoryGroups = parents
+                .Select(p => new VMCategoryGroup
+                {
+                    ParentCategoryName = p.CategoryName,
+                    Children = allCategories
+                        .Where(c => c.ParentCategoryID == p.CategoryID)
+                        .Select(c => new VMCategoryChild
+                        {
+                            CategoryID = c.CategoryID,
+                            CategoryName = c.CategoryName,
+                            IsSelected = vm.SelectedCategoryIds.Contains(c.CategoryID)
+                        })
+                        .ToList()
+                })
+                .ToList();
         }
 
         private async Task<string> GenerateProductIdAsync()

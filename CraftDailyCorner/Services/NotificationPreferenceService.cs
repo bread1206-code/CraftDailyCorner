@@ -1,7 +1,7 @@
 ﻿using CraftDailyCorner.Models;
+using CraftDailyCorner.Models.enums;
 using CraftDailyCorner.Services.Interface;
 using CraftDailyCorner.ViewModels.Notification;
-using CraftDailyCorner.Models.enums;
 
 namespace CraftDailyCorner.Services
 {
@@ -23,7 +23,6 @@ namespace CraftDailyCorner.Services
                 .Where(x => x.MemberID == memberId)
                 .ToList();
 
-            // 若資料不存在，先補齊預設值
             EnsureDefaultPreferences(memberId, preferences);
 
             preferences = _context.NotificationPreferences
@@ -32,14 +31,27 @@ namespace CraftDailyCorner.Services
 
             return new VMNotificationPreference
             {
-                ProductNotificationEnabled = preferences
-                    .FirstOrDefault(x => x.NotificationType == NotificationType.Product)?.IsActive ?? true,
+                // 商品通知群組：收藏商品上架 / 補貨
+                ProductNotificationEnabled =
+                    IsGroupEnabled(preferences, NotificationType.FavoriteProductPublished) &&
+                    IsGroupEnabled(preferences, NotificationType.FavoriteProductRestocked),
 
-                OrderNotificationEnabled = preferences
-                    .FirstOrDefault(x => x.NotificationType == NotificationType.Order)?.IsActive ?? true,
+                // 訂單通知群組：會員訂單 + 創作者訂單完成
+                OrderNotificationEnabled =
+                    IsGroupEnabled(preferences, NotificationType.OrderCreated) &&
+                    IsGroupEnabled(preferences, NotificationType.OrderPaid) &&
+                    IsGroupEnabled(preferences, NotificationType.OrderShipped) &&
+                    IsGroupEnabled(preferences, NotificationType.OrderDelivered) &&
+                    IsGroupEnabled(preferences, NotificationType.OrderCompleted),
 
-                CreatorNotificationEnabled = preferences
-                    .FirstOrDefault(x => x.NotificationType == NotificationType.CreatorPost)?.IsActive ?? true
+                // 創作者通知群組：追蹤創作者 + 低庫存 + 缺貨 + 留言
+                CreatorNotificationEnabled =
+                    IsGroupEnabled(preferences, NotificationType.CreatorNewPost) &&
+                    IsGroupEnabled(preferences, NotificationType.CreatorNewProduct) &&
+                    IsGroupEnabled(preferences, NotificationType.CreatorNewPortfolio) &&
+                    IsGroupEnabled(preferences, NotificationType.ProductLowStock) &&
+                    IsGroupEnabled(preferences, NotificationType.ProductOutOfStock) &&
+                    IsGroupEnabled(preferences, NotificationType.PostComment)
             };
         }
 
@@ -61,9 +73,27 @@ namespace CraftDailyCorner.Services
                 .Where(x => x.MemberID == memberId)
                 .ToList();
 
-            UpdateSinglePreference(preferences, memberId, NotificationType.Product, vm.ProductNotificationEnabled);
-            UpdateSinglePreference(preferences, memberId, NotificationType.Order, vm.OrderNotificationEnabled);
-            UpdateSinglePreference(preferences, memberId, NotificationType.CreatorPost, vm.CreatorNotificationEnabled);
+            // ===== 商品通知群組 =====
+            UpdateSinglePreference(preferences, memberId, NotificationType.FavoriteProductPublished, vm.ProductNotificationEnabled);
+            UpdateSinglePreference(preferences, memberId, NotificationType.FavoriteProductRestocked, vm.ProductNotificationEnabled);
+
+            // ===== 訂單通知群組 =====
+            UpdateSinglePreference(preferences, memberId, NotificationType.OrderCreated, vm.OrderNotificationEnabled);
+            UpdateSinglePreference(preferences, memberId, NotificationType.OrderPaid, vm.OrderNotificationEnabled);
+            UpdateSinglePreference(preferences, memberId, NotificationType.OrderShipped, vm.OrderNotificationEnabled);
+            UpdateSinglePreference(preferences, memberId, NotificationType.OrderDelivered, vm.OrderNotificationEnabled);
+            UpdateSinglePreference(preferences, memberId, NotificationType.OrderCompleted, vm.OrderNotificationEnabled);
+
+            // ===== 創作者通知群組 =====
+            UpdateSinglePreference(preferences, memberId, NotificationType.CreatorNewPost, vm.CreatorNotificationEnabled);
+            UpdateSinglePreference(preferences, memberId, NotificationType.CreatorNewProduct, vm.CreatorNotificationEnabled);
+            UpdateSinglePreference(preferences, memberId, NotificationType.CreatorNewPortfolio, vm.CreatorNotificationEnabled);
+            UpdateSinglePreference(preferences, memberId, NotificationType.ProductLowStock, vm.CreatorNotificationEnabled);
+            UpdateSinglePreference(preferences, memberId, NotificationType.ProductOutOfStock, vm.CreatorNotificationEnabled);
+            UpdateSinglePreference(preferences, memberId, NotificationType.PostComment, vm.CreatorNotificationEnabled);
+
+            // 公告預設一律存在，但目前不放在 UI 三大開關內
+            UpdateSinglePreference(preferences, memberId, NotificationType.Announcement, true);
 
             _context.SaveChanges();
         }
@@ -73,47 +103,55 @@ namespace CraftDailyCorner.Services
             var now = DateTime.Now;
             bool changed = false;
 
-            if (!existingPreferences.Any(x => x.NotificationType == NotificationType.Product))
+            foreach (var type in GetDefaultTypes())
             {
-                _context.NotificationPreferences.Add(new NotificationPreference
-                {
-                    MemberID = memberId,
-                    NotificationType = NotificationType.Product,
-                    IsActive = true,
-                    CreatedAt = now,
-                    UpdatedAt = now
-                });
-                changed = true;
-            }
+                if (existingPreferences.Any(x => x.NotificationType == type))
+                    continue;
 
-            if (!existingPreferences.Any(x => x.NotificationType == NotificationType.Order))
-            {
                 _context.NotificationPreferences.Add(new NotificationPreference
                 {
                     MemberID = memberId,
-                    NotificationType = NotificationType.Order,
+                    NotificationType = type,
                     IsActive = true,
                     CreatedAt = now,
                     UpdatedAt = now
                 });
-                changed = true;
-            }
 
-            if (!existingPreferences.Any(x => x.NotificationType == NotificationType.CreatorPost))
-            {
-                _context.NotificationPreferences.Add(new NotificationPreference
-                {
-                    MemberID = memberId,
-                    NotificationType = NotificationType.CreatorPost,
-                    IsActive = true,
-                    CreatedAt = now,
-                    UpdatedAt = now
-                });
                 changed = true;
             }
 
             if (changed)
                 _context.SaveChanges();
+        }
+
+        private static List<NotificationType> GetDefaultTypes()
+        {
+            return new List<NotificationType>
+            {
+                NotificationType.Announcement,
+
+                NotificationType.FavoriteProductPublished,
+                NotificationType.FavoriteProductRestocked,
+
+                NotificationType.CreatorNewPost,
+                NotificationType.CreatorNewProduct,
+                NotificationType.CreatorNewPortfolio,
+
+                NotificationType.OrderCreated,
+                NotificationType.OrderPaid,
+                NotificationType.OrderShipped,
+                NotificationType.OrderDelivered,
+                NotificationType.OrderCompleted,
+
+                NotificationType.ProductLowStock,
+                NotificationType.ProductOutOfStock,
+                NotificationType.PostComment
+            };
+        }
+
+        private static bool IsGroupEnabled(List<NotificationPreference> preferences, NotificationType type)
+        {
+            return preferences.FirstOrDefault(x => x.NotificationType == type)?.IsActive ?? true;
         }
 
         private void UpdateSinglePreference(

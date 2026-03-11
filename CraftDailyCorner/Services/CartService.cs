@@ -162,10 +162,20 @@ namespace CraftDailyCorner.Services
         }
 
         //Checkout：取得快照商品清單
-        public List<VMCheckoutItem> GetCartItemsForCheckout(string memberId)
+        public List<VMCheckoutItem> GetCartItemsForCheckout(string memberId, string creatorId, List<string> selectedProductIds)
         {
             var cart = GetCart(memberId);
             if (cart == null)
+                return new();
+
+            // 新增：只保留本次勾選的商品，並去除重複 / 空值
+            selectedProductIds = selectedProductIds?
+                .Where(id => !string.IsNullOrWhiteSpace(id))
+                .Distinct()
+                .ToList() ?? new List<string>();
+
+            // 新增：沒有勾選商品時直接回傳空清單
+            if (!selectedProductIds.Any())
                 return new();
 
             return _context.CartItems
@@ -173,7 +183,10 @@ namespace CraftDailyCorner.Services
                     .ThenInclude(p => p.ProductImages)
                 .Include(ci => ci.Product)
                     .ThenInclude(p => p.CreatorProfile)
-                .Where(ci => ci.CartID == cart.CartID)
+                .Where(ci =>
+                    ci.CartID == cart.CartID &&
+                    ci.Product.CreatorID == creatorId &&
+                    selectedProductIds.Contains(ci.ProductID))
                 .Select(ci => new VMCheckoutItem
                 {
                     Quantity = ci.Quantity,

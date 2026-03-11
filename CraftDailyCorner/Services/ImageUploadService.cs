@@ -1,8 +1,6 @@
-﻿using CraftDailyCorner.Services;
-using SixLabors.ImageSharp;
+﻿using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats.Png;
 using SixLabors.ImageSharp.Processing;
-using System.Diagnostics;
 namespace CraftDailyCorner.Services
 {
     public class ImageUploadService : IImageUploadService

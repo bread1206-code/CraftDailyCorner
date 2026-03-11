@@ -5,19 +5,22 @@ using CraftDailyCorner.Services.Interface;
 using CraftDailyCorner.ViewModels.CreatorPost;
 using Microsoft.EntityFrameworkCore;
 
-
-namespace CraftDailyCorner.Services.Creator
+namespace CraftDailyCorner.Services
 {
     public class CreatorPostCommentService : ICreatorPostCommentService
     {
         private readonly CraftDailyCornerContext _context;
         private readonly IReactionService _reactionService;
+        private readonly INotificationService _notificationService;
 
         public CreatorPostCommentService(
-            CraftDailyCornerContext context, IReactionService reactionService)
+            CraftDailyCornerContext context,
+            IReactionService reactionService,
+            INotificationService notificationService)
         {
             _context = context;
             _reactionService = reactionService;
+            _notificationService = notificationService;
         }
 
         //建立留言
@@ -27,6 +30,7 @@ namespace CraftDailyCorner.Services.Creator
             string? creatorId = null)
         {
             var post = await _context.CreatorPosts
+                .Include(p => p.CreatorProfile)
                 .FirstOrDefaultAsync(p =>
                     p.PostID == dto.PostID &&
                     p.StatusID == 1);
@@ -49,6 +53,24 @@ namespace CraftDailyCorner.Services.Creator
             _context.PostComments.Add(comment);
             await _context.SaveChangesAsync();
 
+            // ===== 第五階段：日誌回應通知 =====
+            // 通知日誌作者；自己留言自己的日誌不通知自己
+            var creatorMemberId = post.CreatorProfile?.MemberID;
+            if (!string.IsNullOrWhiteSpace(creatorMemberId) &&
+                creatorMemberId != memberId)
+            {
+                await _notificationService.CreateAsync(new CreateNotificationDTO
+                {
+                    MemberID = creatorMemberId,
+                    NotificationType = NotificationType.PostComment,
+                    Title = "日誌回應通知",
+                    Content = $"你的日誌「{post.Title}」有新留言。",
+                    LinkUrl = $"/Post/Detail/{post.PostID}#comment-{comment.CommentID}",
+                    RelatedEntityType = "PostComment",
+                    RelatedEntityId = comment.CommentID
+                });
+            }
+
             return await BuildCommentViewModelAsync(
                 comment.CommentID,
                 memberId,
@@ -57,9 +79,9 @@ namespace CraftDailyCorner.Services.Creator
 
         //取得留言列表
         public async Task<List<VMPostCommentItem>> GetPostCommentsAsync(
-    string postId,
-    string? currentMemberId,
-    string? currentCreatorId)
+            string postId,
+            string? currentMemberId,
+            string? currentCreatorId)
         {
             var comments = await _context.PostComments
                 .Include(c => c.Member)
@@ -112,14 +134,11 @@ namespace CraftDailyCorner.Services.Creator
             return comments;
         }
 
-
-
-
         //建構留言
         public async Task<VMPostCommentItem> BuildCommentViewModelAsync(
-    string commentId,
-    string? currentMemberId,
-    string? currentCreatorId)
+            string commentId,
+            string? currentMemberId,
+            string? currentCreatorId)
         {
             var vm = await _context.PostComments
                 .Include(c => c.Member)

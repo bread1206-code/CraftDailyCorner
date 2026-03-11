@@ -1,266 +1,375 @@
-﻿using CraftDailyCorner.Models;
-using CraftDailyCorner.ViewModels.Creator;
+﻿using CraftDailyCorner.DTOs;
+using CraftDailyCorner.Models;
+using CraftDailyCorner.Models.enums;
+using CraftDailyCorner.Services.Interface;
 using CraftDailyCorner.ViewModels.CreatorOrder;
 using Microsoft.EntityFrameworkCore;
 using System.Text.RegularExpressions;
 
-public class CreatorOrderService : ICreatorOrderService
+namespace CraftDailyCorner.Services
 {
-    private readonly CraftDailyCornerContext _context;
-    private const int PageSize = 20;
-
-    public CreatorOrderService(CraftDailyCornerContext context)
+    public class CreatorOrderService : ICreatorOrderService
     {
-        _context = context;
-    }
+        private readonly CraftDailyCornerContext _context;
+        private readonly INotificationService _notificationService;
+        private const int PageSize = 20;
 
-    // 訂單列表
-    public async Task<VMCreatorOrderList> GetOrdersAsync(
-        string creatorId,
-        string status,
-        int page)
-    {
-        var query = _context.Orders
-            .Include(o => o.OrderStatus)
-            .Include(o => o.Shipment)
-            .Include(o => o.OrderDetails)
-                .ThenInclude(d => d.Product)
-            .Where(o => o.OrderDetails
-                .Any(d => d.Product.CreatorID == creatorId));
-
-        query = status.ToLower() switch
+        public CreatorOrderService(
+            CraftDailyCornerContext context,
+            INotificationService notificationService)
         {
-            "new" => query.Where(o => o.StatusID == 2),
-            "processing" => query.Where(o => o.StatusID == 3),
-            "shipping" => query.Where(o => o.StatusID == 4),
-            "history" => query.Where(o => o.StatusID == 5 || o.StatusID == 6),
-            _ => query.Where(o => o.StatusID == 2)
-        };
-
-        int totalCount = await query.CountAsync();
-
-        var orders = await query
-            .OrderByDescending(o => o.CreatedAt)
-            .Skip((page - 1) * PageSize)
-            .Take(PageSize)
-            .Select(o => new VMCreatorOrderItem
-            {
-                OrderID = o.OrderID,
-                ReceiverName = o.ReceiverName,
-                CreatedAt = o.CreatedAt,
-                TotalAmount = o.TotalAmount,
-                StatusID = o.StatusID,
-                StatusName = o.OrderStatus.StatusName,
-                HasShipment = o.Shipment != null,
-                TrackingNo = o.Shipment != null ? o.Shipment.TrackingNo : null
-            })
-            .ToListAsync();
-
-        return new VMCreatorOrderList
-        {
-            StatusFilter = status,
-            Orders = orders,
-            CurrentPage = page,
-            TotalPages = (int)Math.Ceiling(totalCount / (double)PageSize)
-        };
-    }
-
-    //訂單明細
-    public async Task<VMCreatorOrderDetail?> GetOrderDetailAsync(
-        string creatorId,
-        string orderId)
-    {
-        var order = await _context.Orders
-            .Include(o => o.OrderStatus)
-            .Include(o => o.Shipment)
-            .Include(o => o.OrderDetails)
-                .ThenInclude(d => d.Product)
-            .FirstOrDefaultAsync(o => o.OrderID == orderId &&
-                o.OrderDetails.Any(d => d.Product.CreatorID == creatorId));
-
-        if (order == null)
-            return null;
-
-        return new VMCreatorOrderDetail
-        {
-            OrderID = order.OrderID,
-            ReceiverName = order.ReceiverName,
-            ReceiverPhone = order.ReceiverPhone,
-            ShippingAddress = order.ShippingAddress,
-            CreatedAt = order.CreatedAt,
-            TotalAmount = order.TotalAmount,
-            StatusID = order.StatusID,
-            StatusName = order.OrderStatus.StatusName,
-            TrackingNo = order.Shipment?.TrackingNo,
-            Items = order.OrderDetails.Select(d => new VMCreatorOrderDetailItem
-            {
-                ProductID = d.ProductID,
-                ProductNameSnapshot = d.ProductNameSnapshot,
-                PriceSnapshot = d.PriceSnapshot,
-                CostSnapshot = d.CostSnapshot,
-                Quantity = d.Quantity
-            }).ToList()
-        };
-    }
-
-    // 開始處理
-    public async Task<bool> StartProcessingAsync(
-        string creatorId,
-        string orderId)
-    {
-        var order = await _context.Orders
-            .Include(o => o.OrderDetails)
-                .ThenInclude(d => d.Product)
-            .FirstOrDefaultAsync(o => o.OrderID == orderId &&
-                o.StatusID == 2 &&
-                o.OrderDetails.Any(d => d.Product.CreatorID == creatorId));
-
-        if (order == null)
-            return false;
-
-        order.StatusID = 3;
-        order.UpdatedAt = DateTime.Now;
-
-        _context.Shipments.Add(new Shipment
-        {
-            OrderID = order.OrderID,
-            StatusID = 1
-        });
-
-        await _context.SaveChangesAsync();
-        return true;
-    }
-
-    //出貨
-    public async Task<bool> ShipAsync(
-        string creatorId,
-        VMCreatorShipmentUpdate model)
-    {
-        var order = await _context.Orders
-            .Include(o => o.Shipment)
-            .Include(o => o.OrderDetails)
-                .ThenInclude(d => d.Product)
-            .FirstOrDefaultAsync(o => o.OrderID == model.OrderID &&
-                o.StatusID == 3 &&
-                o.OrderDetails.Any(d => d.Product.CreatorID == creatorId));
-
-        if (order == null)
-            return false;
-
-        order.StatusID = 4;
-        order.UpdatedAt = DateTime.Now;
-
-        if (order.Shipment != null)
-        {
-            order.Shipment.TrackingNo = model.TrackingNo;
-            order.Shipment.StatusID = 2;
+            _context = context;
+            _notificationService = notificationService;
         }
 
-        await _context.SaveChangesAsync();
-        return true;
-    }
-
-    public async Task<ShipResult> ShipAndGetNextAsync(
-    string creatorId,
-    string orderId,
-    string trackingNo)
-    {
-        //取得訂單
-        var order = await _context.Orders
-            .Include(o => o.Shipment)
-            .Include(o => o.OrderDetails)
-                .ThenInclude(d => d.Product)
-            .FirstOrDefaultAsync(o =>
-                o.OrderID == orderId &&
-                o.StatusID == 3 &&
-                o.OrderDetails.Any(d =>
-                    d.Product.CreatorID == creatorId));
-
-        if (order == null)
-            return new ShipResult { Success = false };
-        // =====  格式驗證 =====
-        if (!Regex.IsMatch(trackingNo.Trim(), @"^SH\d{12}$"))
+        public async Task<VMCreatorOrderList> GetOrdersAsync(
+            string creatorId,
+            string status,
+            int page)
         {
-            return new ShipResult
+            var query = _context.Orders
+                .Include(o => o.OrderStatus)
+                .Include(o => o.Shipment)
+                .Include(o => o.OrderDetails)
+                    .ThenInclude(d => d.Product)
+                .Where(o => o.OrderDetails
+                    .Any(d => d.Product.CreatorID == creatorId));
+
+            query = status.ToLower() switch
             {
-                Success = false,
-                ErrorMessage = "物流編號格式錯誤（需為 SH + 12 碼數字）"
+                "new" => query.Where(o => o.StatusID == 2),
+                "processing" => query.Where(o => o.StatusID == 3),
+                "shipping" => query.Where(o => o.StatusID == 4),
+                "history" => query.Where(o => o.StatusID == 5 || o.StatusID == 6),
+                _ => query.Where(o => o.StatusID == 2)
+            };
+
+            int totalCount = await query.CountAsync();
+
+            var orders = await query
+                .OrderByDescending(o => o.CreatedAt)
+                .Skip((page - 1) * PageSize)
+                .Take(PageSize)
+                .Select(o => new VMCreatorOrderItem
+                {
+                    OrderID = o.OrderID,
+                    ReceiverName = o.ReceiverName,
+                    CreatedAt = o.CreatedAt,
+                    TotalAmount = o.TotalAmount,
+                    StatusID = o.StatusID,
+                    StatusName = o.OrderStatus.StatusName,
+                    HasShipment = o.Shipment != null,
+                    TrackingNo = o.Shipment != null ? o.Shipment.TrackingNo : null
+                })
+                .ToListAsync();
+
+            return new VMCreatorOrderList
+            {
+                StatusFilter = status,
+                Orders = orders,
+                CurrentPage = page,
+                TotalPages = (int)Math.Ceiling(totalCount / (double)PageSize)
             };
         }
 
-        // =====  重複檢查 =====
-        var exists = await _context.Shipments
-            .AnyAsync(s => s.TrackingNo == trackingNo.Trim());
-
-        if (exists)
+        public async Task<VMCreatorOrderDetail?> GetOrderDetailAsync(
+            string creatorId,
+            string orderId)
         {
-            return new ShipResult
-            {
-                Success = false,
-                ErrorMessage = "此物流編號已被使用，請確認是否輸入錯誤"
-            };
-        }
-        //更新為 Shipped
-        order.StatusID = 4;
-        order.UpdatedAt = DateTime.Now;
+            var order = await _context.Orders
+                .Include(o => o.OrderStatus)
+                .Include(o => o.Shipment)
+                .Include(o => o.OrderDetails)
+                    .ThenInclude(d => d.Product)
+                .FirstOrDefaultAsync(o => o.OrderID == orderId &&
+                    o.OrderDetails.Any(d => d.Product.CreatorID == creatorId));
 
-        if (order.Shipment == null)
-        {
-            order.Shipment = new Shipment
+            if (order == null)
+                return null;
+
+            return new VMCreatorOrderDetail
             {
-                TrackingNo = trackingNo.Trim(),
-                StatusID = 2,
                 OrderID = order.OrderID,
-                ShippedAt = DateTime.Now
+                ReceiverName = order.ReceiverName,
+                ReceiverPhone = order.ReceiverPhone,
+                ShippingAddress = order.ShippingAddress,
+                CreatedAt = order.CreatedAt,
+                TotalAmount = order.TotalAmount,
+                StatusID = order.StatusID,
+                StatusName = order.OrderStatus.StatusName,
+                TrackingNo = order.Shipment?.TrackingNo,
+                ShipmentStatusID = order.Shipment?.StatusID,
+                ShippedAt = order.Shipment?.ShippedAt,
+                DeliveredAt = order.Shipment?.DeliveredAt,
+                Items = order.OrderDetails.Select(d => new VMCreatorOrderDetailItem
+                {
+                    ProductID = d.ProductID,
+                    ProductNameSnapshot = d.ProductNameSnapshot,
+                    PriceSnapshot = d.PriceSnapshot,
+                    CostSnapshot = d.CostSnapshot,
+                    Quantity = d.Quantity
+                }).ToList()
             };
         }
-        else
+
+        public async Task<bool> StartProcessingAsync(
+            string creatorId,
+            string orderId)
         {
-            order.Shipment.TrackingNo = trackingNo.Trim();
-            order.Shipment.StatusID = 2;
-            order.Shipment.ShippedAt = DateTime.Now;
+            var order = await _context.Orders
+                .Include(o => o.OrderDetails)
+                    .ThenInclude(d => d.Product)
+                .FirstOrDefaultAsync(o => o.OrderID == orderId &&
+                    o.StatusID == 2 &&
+                    o.OrderDetails.Any(d => d.Product.CreatorID == creatorId));
+
+            if (order == null)
+                return false;
+
+            order.StatusID = 3;
+            order.UpdatedAt = DateTime.Now;
+
+            _context.Shipments.Add(new Shipment
+            {
+                OrderID = order.OrderID,
+                StatusID = 1
+            });
+
+            await _context.SaveChangesAsync();
+            return true;
         }
 
-        await _context.SaveChangesAsync();
-
-        //查下一張 Processing
-        var nextOrderId = await _context.Orders
-            .Where(o =>
-                o.StatusID == 3 &&
-                o.OrderDetails.Any(d =>
-                    d.Product.CreatorID == creatorId))
-                .OrderBy(o => o.CreatedAt)
-            .Select(o => o.OrderID)
-            .FirstOrDefaultAsync();
-
-        return new ShipResult
+        public async Task<bool> ShipAsync(
+            string creatorId,
+            VMCreatorShipmentUpdate model)
         {
-            Success = true,
-            NextOrderId = nextOrderId
-        };
-    }
-    //取得訂單統計
-    public async Task<(int NewCount, int ProcessingCount, int ShippingCount, int HistoryCount)>
-    GetOrderStatisticsAsync(string creatorId)
-    {
-        var grouped = await _context.Orders
-            .Where(o => o.OrderDetails
-                .Any(d => d.Product.CreatorID == creatorId))
-            .GroupBy(o => o.StatusID)
-            .Select(g => new
+            var order = await _context.Orders
+                .Include(o => o.Shipment)
+                .Include(o => o.OrderDetails)
+                    .ThenInclude(d => d.Product)
+                .FirstOrDefaultAsync(o => o.OrderID == model.OrderID &&
+                    o.StatusID == 3 &&
+                    o.OrderDetails.Any(d => d.Product.CreatorID == creatorId));
+
+            if (order == null)
+                return false;
+
+            order.StatusID = 4;
+            order.UpdatedAt = DateTime.Now;
+
+            if (order.Shipment != null)
             {
-                StatusID = g.Key,
-                Count = g.Count()
-            })
-            .ToListAsync();
+                order.Shipment.TrackingNo = model.TrackingNo;
+                order.Shipment.StatusID = 2;
+                order.Shipment.ShippedAt = DateTime.Now;
+            }
 
-        int newCount = grouped.FirstOrDefault(x => x.StatusID == 2)?.Count ?? 0;
-        int processingCount = grouped.FirstOrDefault(x => x.StatusID == 3)?.Count ?? 0;
-        int shippingCount = grouped.FirstOrDefault(x => x.StatusID == 4)?.Count ?? 0;
-        int historyCount =
-            grouped.Where(x => x.StatusID == 5 || x.StatusID == 6)
-                   .Sum(x => x.Count);
+            await _context.SaveChangesAsync();
 
-        return (newCount, processingCount, shippingCount, historyCount);
+            await NotifyMemberOrderShippedAsync(order.OrderID);
+
+            return true;
+        }
+
+        public async Task<ShipResult> ShipAndGetNextAsync(
+            string creatorId,
+            string orderId,
+            string trackingNo)
+        {
+            var order = await _context.Orders
+                .Include(o => o.Shipment)
+                .Include(o => o.OrderDetails)
+                    .ThenInclude(d => d.Product)
+                .FirstOrDefaultAsync(o =>
+                    o.OrderID == orderId &&
+                    o.StatusID == 3 &&
+                    o.OrderDetails.Any(d => d.Product.CreatorID == creatorId));
+
+            if (order == null)
+                return new ShipResult { Success = false };
+
+            if (!Regex.IsMatch(trackingNo.Trim(), @"^SH\d{12}$"))
+            {
+                return new ShipResult
+                {
+                    Success = false,
+                    ErrorMessage = "物流編號格式錯誤（需為 SH + 12 碼數字）"
+                };
+            }
+
+            var exists = await _context.Shipments
+                .AnyAsync(s => s.TrackingNo == trackingNo.Trim());
+
+            if (exists)
+            {
+                return new ShipResult
+                {
+                    Success = false,
+                    ErrorMessage = "此物流編號已被使用，請確認是否輸入錯誤"
+                };
+            }
+
+            order.StatusID = 4;
+            order.UpdatedAt = DateTime.Now;
+
+            if (order.Shipment == null)
+            {
+                order.Shipment = new Shipment
+                {
+                    TrackingNo = trackingNo.Trim(),
+                    StatusID = 2,
+                    OrderID = order.OrderID,
+                    ShippedAt = DateTime.Now
+                };
+            }
+            else
+            {
+                order.Shipment.TrackingNo = trackingNo.Trim();
+                order.Shipment.StatusID = 2;
+                order.Shipment.ShippedAt = DateTime.Now;
+            }
+
+            await _context.SaveChangesAsync();
+
+            await NotifyMemberOrderShippedAsync(order.OrderID);
+
+            var nextOrderId = await _context.Orders
+                .Where(o =>
+                    o.StatusID == 3 &&
+                    o.OrderDetails.Any(d => d.Product.CreatorID == creatorId))
+                .OrderBy(o => o.CreatedAt)
+                .Select(o => o.OrderID)
+                .FirstOrDefaultAsync();
+
+            return new ShipResult
+            {
+                Success = true,
+                NextOrderId = nextOrderId
+            };
+        }
+
+        public async Task<bool> MarkDeliveredAsync(string creatorId, string orderId)
+        {
+            var order = await _context.Orders
+                .Include(o => o.Shipment)
+                .Include(o => o.OrderDetails)
+                    .ThenInclude(d => d.Product)
+                        .ThenInclude(p => p.CreatorProfile)
+                .FirstOrDefaultAsync(o =>
+                    o.OrderID == orderId &&
+                    o.StatusID == 4 &&
+                    o.OrderDetails.Any(d => d.Product.CreatorID == creatorId));
+
+            if (order == null)
+                return false;
+
+            if (order.Shipment == null)
+                return false;
+
+            if (order.Shipment.StatusID == 3)
+                return true;
+
+            order.Shipment.StatusID = 3;
+            order.Shipment.DeliveredAt = DateTime.Now;
+            order.UpdatedAt = DateTime.Now;
+
+            await _context.SaveChangesAsync();
+
+            await NotifyMemberOrderDeliveredAsync(order.OrderID);
+            await NotifyCreatorsOrderDeliveredAsync(order);
+
+            return true;
+        }
+
+        public async Task<(int NewCount, int ProcessingCount, int ShippingCount, int HistoryCount)>
+            GetOrderStatisticsAsync(string creatorId)
+        {
+            var grouped = await _context.Orders
+                .Where(o => o.OrderDetails
+                    .Any(d => d.Product.CreatorID == creatorId))
+                .GroupBy(o => o.StatusID)
+                .Select(g => new
+                {
+                    StatusID = g.Key,
+                    Count = g.Count()
+                })
+                .ToListAsync();
+
+            int newCount = grouped.FirstOrDefault(x => x.StatusID == 2)?.Count ?? 0;
+            int processingCount = grouped.FirstOrDefault(x => x.StatusID == 3)?.Count ?? 0;
+            int shippingCount = grouped.FirstOrDefault(x => x.StatusID == 4)?.Count ?? 0;
+            int historyCount =
+                grouped.Where(x => x.StatusID == 5 || x.StatusID == 6)
+                       .Sum(x => x.Count);
+
+            return (newCount, processingCount, shippingCount, historyCount);
+        }
+
+        private async Task NotifyMemberOrderShippedAsync(string orderId)
+        {
+            var order = await _context.Orders
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.OrderID == orderId);
+
+            if (order == null)
+                return;
+
+            await _notificationService.CreateAsync(new CreateNotificationDTO
+            {
+                MemberID = order.MemberID,
+                NotificationType = NotificationType.OrderShipped,
+                Title = "商品已寄出",
+                Content = $"訂單 {order.OrderID} 已寄出，請留意物流進度。",
+                LinkUrl = $"/Orders/Detail?orderId={order.OrderID}",
+                RelatedEntityType = "Order",
+                RelatedEntityId = order.OrderID
+            });
+        }
+
+        private async Task NotifyMemberOrderDeliveredAsync(string orderId)
+        {
+            var order = await _context.Orders
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.OrderID == orderId);
+
+            if (order == null)
+                return;
+
+            await _notificationService.CreateAsync(new CreateNotificationDTO
+            {
+                MemberID = order.MemberID,
+                NotificationType = NotificationType.OrderDelivered,
+                Title = "商品已送達",
+                Content = $"訂單 {order.OrderID} 已送達指定地址。",
+                LinkUrl = $"/Orders/Detail?orderId={order.OrderID}",
+                RelatedEntityType = "Order",
+                RelatedEntityId = order.OrderID
+            });
+        }
+
+        private async Task NotifyCreatorsOrderDeliveredAsync(Order order)
+        {
+            var creatorMembers = order.OrderDetails
+                .Where(x => x.Product?.CreatorProfile != null)
+                .Select(x => x.Product.CreatorProfile.MemberID)
+                .Distinct()
+                .ToList();
+
+            if (!creatorMembers.Any())
+                return;
+
+            var dtos = creatorMembers.Select(memberId => new CreateNotificationDTO
+            {
+                MemberID = memberId,
+                NotificationType = NotificationType.OrderDelivered,
+                Title = "商品已送達",
+                Content = $"訂單 {order.OrderID} 的商品已送達指定地址。",
+                LinkUrl = $"/CreatorOrders/Detail?id={order.OrderID}",
+                RelatedEntityType = "Order",
+                RelatedEntityId = order.OrderID
+            });
+
+            await _notificationService.CreateBatchAsync(dtos);
+        }
     }
 }

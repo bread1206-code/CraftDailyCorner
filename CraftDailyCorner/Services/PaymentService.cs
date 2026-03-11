@@ -1,4 +1,5 @@
 ﻿using CraftDailyCorner.Models;
+using CraftDailyCorner.Models.enums;
 using CraftDailyCorner.Services.Interface;
 using CraftDailyCorner.ViewModels.Payment;
 using Microsoft.EntityFrameworkCore;
@@ -8,15 +9,19 @@ namespace CraftDailyCorner.Services
     public class PaymentService : IPaymentService
     {
         private readonly CraftDailyCornerContext _context;
+        private readonly INotificationService _notificationService;
 
-        public PaymentService(CraftDailyCornerContext context)
+        public PaymentService(
+            CraftDailyCornerContext context,
+            INotificationService notificationService)
         {
             _context = context;
+            _notificationService = notificationService;
         }
 
-        
+
         // 付款頁初始化
-        
+
         public VMPaymentCreate? PreparePayment(string orderId)
         {
             var order = _context.Orders
@@ -54,17 +59,22 @@ namespace CraftDailyCorner.Services
             };
         }
 
-        
+
         // 建立付款（Mock）
-        
+
         public VMPaymentResult CreateMockPayment(VMPaymentSubmit vm)
         {
             using var tx = _context.Database.BeginTransaction();
 
             try
             {
+                var now = DateTime.Now;
+
                 // 取得訂單（for update）
                 var order = _context.Orders
+                    .Include(o => o.OrderDetails)
+                        .ThenInclude(od => od.Product)
+                            .ThenInclude(p => p.CreatorProfile)
                     .FirstOrDefault(o => o.OrderID == vm.OrderID);
 
                 if (order == null)
@@ -117,8 +127,8 @@ namespace CraftDailyCorner.Services
                     AttemptNo = (byte)attemptNo,
                     StatusID = isSuccess ? paidPaymentStatusId : failedPaymentStatusId,
                     GatewayTradeNo = $"MOCK-{Guid.NewGuid():N}",//模擬第三方交易編號
-                    CreatedAt = DateTime.Now,
-                    PaidAt = isSuccess ? DateTime.Now : null
+                    CreatedAt = now,
+                    PaidAt = isSuccess ? now : null
                 };
 
                 _context.Payments.Add(payment);
@@ -129,6 +139,50 @@ namespace CraftDailyCorner.Services
                     : pendingOrderStatusId;
 
                 _context.SaveChanges();
+
+                // ===== 付款成功通知 =====
+                if (isSuccess)
+                {
+                    // 會員：付款完成通知
+                    _context.NotificationEvents.Add(new NotificationEvent
+                    {
+                        MemberID = order.MemberID,
+                        NotificationType = NotificationType.OrderPaid,
+                        Title = "付款完成通知",
+                        Content = $"訂單 {order.OrderID} 已完成付款。",
+                        LinkUrl = $"/Orders/Detail?orderId={order.OrderID}",
+                        IsRead = false,
+                        RelatedEntityType = "Order",
+                        RelatedEntityId = order.OrderID,
+                        CreatedAt = now
+                    });
+
+                    // 創作者：付款完成通知（準備出貨）
+                    var creatorMemberIds = order.OrderDetails
+                        .Where(x => x.Product?.CreatorProfile != null)
+                        .Select(x => x.Product.CreatorProfile!.MemberID)
+                        .Distinct()
+                        .ToList();
+
+                    foreach (var creatorMemberId in creatorMemberIds)
+                    {
+                        _context.NotificationEvents.Add(new NotificationEvent
+                        {
+                            MemberID = creatorMemberId,
+                            NotificationType = NotificationType.OrderPaid,
+                            Title = "付款完成通知",
+                            Content = $"訂單 {order.OrderID} 已付款，請準備出貨。",
+                            LinkUrl = $"/CreatorOrders/Detail?id={order.OrderID}",
+                            IsRead = false,
+                            RelatedEntityType = "Order",
+                            RelatedEntityId = order.OrderID,
+                            CreatedAt = now
+                        });
+                    }
+
+                    _context.SaveChanges();
+                }
+
                 tx.Commit();
 
                 return new VMPaymentResult
@@ -156,6 +210,7 @@ namespace CraftDailyCorner.Services
         {
             if (string.IsNullOrEmpty(memberId))
                 return new List<VMPaymentIndexItem>();
+
             return _context.Payments
                 .Include(p => p.Order)
                 .Include(p => p.PaymentMethod)
@@ -169,7 +224,6 @@ namespace CraftDailyCorner.Services
                     MethodName = p.PaymentMethod.MethodName,
                     StatusName = p.PaymentStatus.StatusName,
                     CreatedAt = p.CreatedAt,
-
                     PaidAt = p.PaidAt
                 })
                 .ToList();
@@ -199,6 +253,5 @@ namespace CraftDailyCorner.Services
                 })
                 .ToList();
         }
-
     }
 }

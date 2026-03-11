@@ -62,6 +62,8 @@ builder.Services.AddScoped<IMessageTemplateService, MessageTemplateService>();
 builder.Services.AddScoped<INotificationPreferenceService, NotificationPreferenceService>();
 builder.Services.AddScoped<IAdminAnnouncementService, AdminAnnouncementService>();
 builder.Services.AddScoped<IAnnouncementService, AnnouncementService>();
+builder.Services.AddScoped<INotificationService, NotificationService>();
+
 
 builder.Services.AddHostedService<SoftDeleteCleanupBackgroundService>();
 builder.Services.AddHostedService<OrderAutoCompleteHostedBackgroundService>();

@@ -20,7 +20,11 @@ namespace CraftDailyCorner.Services
         public async Task<string> RegisterMemberAsync(VMRegister vm)
         {
             using var tx = await _context.Database.BeginTransactionAsync();
-            try { 
+
+            try
+            {
+                var now = DateTime.Now;
+
                 // 1. 呼叫 SP 生成 MemberID
                 var newMemberIdParam = new SqlParameter
                 {
@@ -38,18 +42,18 @@ namespace CraftDailyCorner.Services
 
                 string newMemberId = (string)newMemberIdParam.Value;
 
-                // 建立 Member
+                // 2. 建立 Member
                 var member = new Member
                 {
                     MemberID = newMemberId,
                     ImageUrl = null,
                     DisplayName = vm.DisplayName,
                     StatusID = 1,
-                    CreatedAt = DateTime.Now
+                    CreatedAt = now
                 };
                 _context.Members.Add(member);
 
-                // 2. 建立 Privacy 並 Hash 密碼，設定預設頭像
+                // 3. 建立 Privacy 並 Hash 密碼
                 var hasher = new PasswordHasher<Privacy>();
 
                 var privacy = new Privacy
@@ -60,22 +64,22 @@ namespace CraftDailyCorner.Services
                     Gender = vm.Gender!.Value,
                     PasswordHash = hasher.HashPassword(null!, vm.Password)
                 };
-
                 _context.Privacies.Add(privacy);
 
-                // 3. 指派預設角色 (RoleID = 1)
+                // 4. 指派預設角色 (RoleID = 01)
                 var memberRole = new MemberRole
                 {
                     MemberID = newMemberId,
                     RoleID = "01",
-                    AssignedAt = DateTime.Now
+                    AssignedAt = now
                 };
                 _context.MemberRoles.Add(memberRole);
-                // 4. 紀錄角色指派歷史
+
+                // 5. 紀錄角色指派歷史
                 var memberRoleHistory = new MemberRoleHistory
                 {
                     Action = MemberRoleHistoryAction.Created,
-                    OperatedAt = DateTime.Now,
+                    OperatedAt = now,
                     MemberID = newMemberId,
                     RoleID = "01",
                     OperatedBy = MemberRoleHistoryOperated.System,
@@ -83,18 +87,51 @@ namespace CraftDailyCorner.Services
                 };
                 _context.MemberRoleHistories.Add(memberRoleHistory);
 
-                await _context.SaveChangesAsync();
-                //5.建立會員購物車
-
+                // 6. 建立會員購物車
                 var cart = new Cart
                 {
                     MemberID = newMemberId,
-                    CreatedAt = DateTime.Now
+                    CreatedAt = now
                 };
                 _context.Carts.Add(cart);
 
-                await _context.SaveChangesAsync();
+                // 7. 建立通知偏好設定（預設全部開啟）
+                var defaultTypes = new List<NotificationType>
+                {
+                    NotificationType.Announcement,
 
+                    NotificationType.FavoriteProductPublished,
+                    NotificationType.FavoriteProductRestocked,
+
+                    NotificationType.CreatorNewPost,
+                    NotificationType.CreatorNewProduct,
+                    NotificationType.CreatorNewPortfolio,
+
+                    NotificationType.OrderCreated,
+                    NotificationType.OrderPaid,
+                    NotificationType.OrderShipped,
+                    NotificationType.OrderDelivered,
+                    NotificationType.OrderCompleted,
+
+                    NotificationType.ProductLowStock,
+                    NotificationType.ProductOutOfStock,
+                    NotificationType.PostComment
+                };
+
+                var notificationPreferences = defaultTypes
+                    .Select(type => new NotificationPreference
+                    {
+                        MemberID = newMemberId,
+                        NotificationType = type,
+                        IsActive = true,
+                        CreatedAt = now,
+                        UpdatedAt = now
+                    })
+                    .ToList();
+
+                _context.NotificationPreferences.AddRange(notificationPreferences);
+
+                await _context.SaveChangesAsync();
                 await tx.CommitAsync();
 
                 return newMemberId;

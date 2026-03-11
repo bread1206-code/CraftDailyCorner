@@ -1,18 +1,26 @@
 ﻿@using CraftDailyCorner.ViewModels.CreatorOrder
 @model VMCreatorOrderDetail
+
 @if (TempData["Error"] != null)
 {
     <div class="alert alert-danger">
         @TempData["Error"]
     </div>
 }
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["Success"]
+    </div>
+}
+
 @{
     ViewData["Title"] = "訂單明細";
 }
 
 <div class="container my-5">
 
-    <!-- 頁面標題 -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h3 class="fw-bold mb-0">訂單明細</h3>
 
@@ -23,8 +31,6 @@
         </a>
     </div>
 
-
-    <!-- 訂單基本資訊 -->
     <div class="card shadow-sm border-0 mb-4">
         <div class="card-body">
 
@@ -76,11 +82,25 @@
                 </div>
             }
 
+            @if (Model.ShippedAt != null)
+            {
+                <div class="mt-2">
+                    <strong>出貨時間：</strong>
+                    <span>@Model.ShippedAt?.ToString("yyyy/MM/dd HH:mm")</span>
+                </div>
+            }
+
+            @if (Model.DeliveredAt != null)
+            {
+                <div class="mt-2">
+                    <strong>送達時間：</strong>
+                    <span>@Model.DeliveredAt?.ToString("yyyy/MM/dd HH:mm")</span>
+                </div>
+            }
+
         </div>
     </div>
 
-
-    <!-- 商品明細 -->
     <div class="card shadow-sm border-0 mb-4">
         <div class="card-body p-0">
 
@@ -119,8 +139,6 @@
         </div>
     </div>
 
-
-    <!--總金額 -->
     <div class="text-end mb-4">
         <h5>
             總金額：
@@ -130,9 +148,7 @@
         </h5>
     </div>
 
-    <!--出貨操作區 -->
-    <!-- Processing 才能輸入物流 -->
-    @if (Model.StatusID == 3)   
+    @if (Model.StatusID == 3)
     {
         <div class="card shadow-sm border-0">
             <div class="card-body">
@@ -140,13 +156,14 @@
                 <h5 class="fw-semibold mb-3">輸入物流編號</h5>
 
                 <form asp-action="Ship" method="post">
-                    <input type="hidden" name="OrderID" value="@Model.OrderID" />
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="orderId" value="@Model.OrderID" />
 
                     <div class="row g-3 align-items-center">
 
                         <div class="col-md-6">
                             <input type="text"
-                                   name="TrackingNo"
+                                   name="trackingNo"
                                    class="form-control"
                                    placeholder="請輸入物流編號，例如 SH202603030001"
                                    required
@@ -167,6 +184,7 @@
                         </div>
 
                     </div>
+
                     @if (!string.IsNullOrEmpty(Model.SuggestedTrackingNo))
                     {
                         <div class="text-muted mt-2">
@@ -176,6 +194,24 @@
                     }
                 </form>
 
+            </div>
+        </div>
+    }
+
+    @if (Model.StatusID == 4 && Model.ShipmentStatusID != 3)
+    {
+        <div class="card shadow-sm border-0">
+            <div class="card-body">
+                <h5 class="fw-semibold mb-3">物流狀態操作</h5>
+
+                <form asp-action="MarkDelivered" method="post" class="d-inline">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="orderId" value="@Model.OrderID" />
+
+                    <button type="submit" class="btn btn-success">
+                        商品送達（模擬）
+                    </button>
+                </form>
             </div>
         </div>
     }

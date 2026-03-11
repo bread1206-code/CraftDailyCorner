@@ -39,7 +39,7 @@
                                     <div class="d-flex align-items-center gap-2">
                                         @if (!string.IsNullOrEmpty(item.Product.ImageUrl))
                                         {
-                                            <img src=@($"/Photos/04ProductImage/Medium/{item.Product.ImageUrl}.png")
+                                            <img src="@($"/Photos/04ProductImage/Medium/{item.Product.ImageUrl}.png")"
                                                  alt="@item.Product.ProductName"
                                                  style="width:60px;height:60px;object-fit:cover;"
                                                  class="rounded" />
@@ -64,7 +64,7 @@
                                     @item.Quantity
                                 </td>
                                 <td class="text-end">
-                                    @((item.Product.Price* item.Quantity).ToString("N0"))
+                                    @((item.Product.Price * item.Quantity).ToString("N0"))
                                 </td>
                             </tr>
                         }
@@ -87,7 +87,13 @@
         <form asp-action="Create" method="post">
             @Html.AntiForgeryToken()
 
-            <input type="hidden" name="CreatorId" value="@Model.Items.FirstOrDefault()?.Product.CreatorId" />
+            <input asp-for="CreatorId" type="hidden" />
+
+            @* 新增：把本次勾選的商品清單一併 POST 回後端 *@
+            @foreach (var productId in Model.SelectedProductIds)
+            {
+                <input type="hidden" name="SelectedProductIds" value="@productId" />
+            }
 
             <div class="card">
                 <div class="card-header fw-semibold">

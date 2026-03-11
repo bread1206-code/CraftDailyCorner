@@ -14,41 +14,49 @@ namespace CraftDailyCorner.Seed.Datas
 
         public void Run()
         {
-            if (!_context.NotificationPreferences.Any())
+            if (_context.NotificationPreferences.Any())
+                return;
+
+            var now = DateTime.Now;
+
+            var memberIds = _context.Members.Select(m => m.MemberID).ToList();
+
+            var defaultTypes = new List<NotificationType>
             {
-                var now = DateTime.Now;
+                NotificationType.Announcement,
 
-                var notificationPreferences = new List<NotificationPreference>
-                {
-                    new NotificationPreference
-                    {
-                        NotificationType = NotificationType.Product,
-                        IsActive = true,
-                        CreatedAt = now,
-                        UpdatedAt = now,
-                        MemberID = "M0000002"
-                    },
-                    new NotificationPreference
-                    {
-                        NotificationType = NotificationType.Order,
-                        IsActive = true,
-                        CreatedAt = now,
-                        UpdatedAt = now,
-                        MemberID = "M0000002"
-                    },
-                    new NotificationPreference
-                    {
-                        NotificationType = NotificationType.CreatorPost,
-                        IsActive = true,
-                        CreatedAt = now,
-                        UpdatedAt = now,
-                        MemberID = "M0000002"
-                    }
-                };
+                NotificationType.FavoriteProductPublished,
+                NotificationType.FavoriteProductRestocked,
 
-                _context.NotificationPreferences.AddRange(notificationPreferences);
-                _context.SaveChanges();
-            }
+                NotificationType.CreatorNewPost,
+                NotificationType.CreatorNewProduct,
+                NotificationType.CreatorNewPortfolio,
+
+                NotificationType.OrderCreated,
+                NotificationType.OrderPaid,
+                NotificationType.OrderShipped,
+                NotificationType.OrderDelivered,
+                NotificationType.OrderCompleted,
+
+                NotificationType.ProductLowStock,
+                NotificationType.ProductOutOfStock,
+                NotificationType.PostComment
+            };
+
+            var notificationPreferences = memberIds
+                .SelectMany(memberId => defaultTypes
+                    .Select(type => new NotificationPreference
+                    {
+                        MemberID = memberId,
+                        NotificationType = type,
+                        IsActive = true,
+                        CreatedAt = now,
+                        UpdatedAt = now
+                    }))
+                .ToList();
+
+            _context.NotificationPreferences.AddRange(notificationPreferences);
+            _context.SaveChanges();
         }
     }
 }

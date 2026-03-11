@@ -5,22 +5,25 @@ using CraftDailyCorner.Services.Interface;
 using CraftDailyCorner.ViewModels.CreatorPost;
 using Microsoft.EntityFrameworkCore;
 
-namespace CraftDailyCorner.Services.Creator
+namespace CraftDailyCorner.Services
 {
     public class CreatorPostService : ICreatorPostService
     {
         private readonly CraftDailyCornerContext _context;
         private readonly IImageUploadService _imageUploadService;
         private readonly IReactionService _reactionService;
+        private readonly INotificationService _notificationService;
 
         public CreatorPostService(
             CraftDailyCornerContext context,
             IImageUploadService imageUploadService,
-            IReactionService reactionService)
+            IReactionService reactionService,
+            INotificationService notificationService)
         {
             _context = context;
             _imageUploadService = imageUploadService;
             _reactionService = reactionService;
+            _notificationService = notificationService;
         }
 
         // ===============================
@@ -59,7 +62,6 @@ namespace CraftDailyCorner.Services.Creator
                     CommentCount = p.PostComments
                         .Count(c => c.Status == PostCommentStatus.Visible),
 
-                    // 新增 summary
                     ReactionSummary = new CraftDailyCorner.ViewModels.Reaction.VMReactionButton
                     {
                         TargetType = ReactionTargetType.CreatorPost,
@@ -68,7 +70,7 @@ namespace CraftDailyCorner.Services.Creator
                         TotalCount = _context.Reactions
                             .Count(r => r.TargetType == ReactionTargetType.CreatorPost && r.TargetID == p.PostID),
 
-                                        TopReactionType = _context.Reactions
+                        TopReactionType = _context.Reactions
                             .Where(r => r.TargetType == ReactionTargetType.CreatorPost && r.TargetID == p.PostID)
                             .GroupBy(r => r.ReactionType)
                             .OrderByDescending(g => g.Count())
@@ -94,8 +96,8 @@ namespace CraftDailyCorner.Services.Creator
         // 前台單篇
         // ===============================
         public async Task<VMPostDetail?> GetPostDetailAsync(
-                string postId,
-                string? currentMemberId)
+            string postId,
+            string? currentMemberId)
         {
             var post = await _context.CreatorPosts
                 .Where(p => p.PostID == postId && p.StatusID == 1)
@@ -167,7 +169,7 @@ namespace CraftDailyCorner.Services.Creator
         public async Task<bool> CanViewPostAsync(string postId, string? memberId)
         {
             var post = await _context.CreatorPosts
-                .Include(c=>c.CreatorProfile)
+                .Include(c => c.CreatorProfile)
                 .FirstOrDefaultAsync(p =>
                     p.PostID == postId &&
                     p.StatusID == 1);
@@ -228,19 +230,22 @@ namespace CraftDailyCorner.Services.Creator
         // 建立
         // ===============================
         public async Task CreateAsync(
-        CreateCreatorPostDTO dto,
-        string creatorId)
+            CreateCreatorPostDTO dto,
+            string creatorId)
         {
             if (dto.ImageFile == null)
                 throw new Exception("請上傳封面圖片");
+
             var postId = Guid.NewGuid().ToString();
+            var now = DateTime.Now;
+
             var imageKey = _imageUploadService.UploadImage(
-                    dto.ImageFile,
-                    null,
-                    "05CreatorPost",
-                    ImageSizePresets.Post,
-                    postId
-                );
+                dto.ImageFile,
+                null,
+                "05CreatorPost",
+                ImageSizePresets.Post,
+                postId
+            );
 
             var post = new CreatorPost
             {
@@ -251,20 +256,48 @@ namespace CraftDailyCorner.Services.Creator
                 Visibility = dto.Visibility,
                 CreatorID = creatorId,
                 StatusID = 1,
-                CreatedAt = DateTime.Now,
-                UpdatedAt = DateTime.Now
+                CreatedAt = now,
+                UpdatedAt = now
             };
 
             _context.CreatorPosts.Add(post);
             await _context.SaveChangesAsync();
+
+            // ===== 第五階段：創作者新日誌通知 =====
+            // 規格：建立新日誌時通知追蹤者（下架再上架不算）
+            // 所以只在 Create 時送
+            if (post.Visibility == CreatorPostVisibility.Public)
+            {
+                var followerMemberIds = await _context.FollowCreators
+                    .Where(x => x.CreatorID == creatorId)
+                    .Select(x => x.MemberID)
+                    .Distinct()
+                    .ToListAsync();
+
+                if (followerMemberIds.Any())
+                {
+                    var dtos = followerMemberIds.Select(memberId => new CreateNotificationDTO
+                    {
+                        MemberID = memberId,
+                        NotificationType = NotificationType.CreatorNewPost,
+                        Title = "創作者新日誌通知",
+                        Content = $"你追蹤的創作者發布了新日誌「{post.Title}」。",
+                        LinkUrl = $"/Post/Detail/{post.PostID}",
+                        RelatedEntityType = "Post",
+                        RelatedEntityId = post.PostID
+                    });
+
+                    await _notificationService.CreateBatchAsync(dtos);
+                }
+            }
         }
 
         // ===============================
         // 更新
         // ===============================
         public async Task UpdateAsync(
-        UpdateCreatorPostDTO dto,
-        string creatorId)
+            UpdateCreatorPostDTO dto,
+            string creatorId)
         {
             var post = await _context.CreatorPosts
                 .FirstOrDefaultAsync(p =>
@@ -317,6 +350,7 @@ namespace CraftDailyCorner.Services.Creator
 
             await _context.SaveChangesAsync();
         }
+
         public async Task<VMCreatorPostEdit?> GetEditDataAsync(string postId, string creatorId)
         {
             return await _context.CreatorPosts

@@ -36,9 +36,11 @@ namespace CraftDailyCorner.ViewModels.CreatorProduct
         // 庫存
         [Range(1, 10000, ErrorMessage = "庫存最少為1，最多為10,000")]
         [Display(Name = "庫存數量")]
+        [Required(ErrorMessage = "庫存數量為必填")]
         public int StockQty { get; set; }
 
         [Display(Name = "警戒數量")]
+        [Required(ErrorMessage = "警戒數量為必填")]
         public int AlertQty { get; set; }
 
         // 建立用圖片

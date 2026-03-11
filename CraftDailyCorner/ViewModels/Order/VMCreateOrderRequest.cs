@@ -8,6 +8,7 @@ namespace CraftDailyCorner.ViewModels.Order
     {
         [Required]
         public string CreatorId { get; set; } = null!;
+
         [Required]
         public string ReceiverName { get; set; } = null!;
 
@@ -16,5 +17,8 @@ namespace CraftDailyCorner.ViewModels.Order
 
         [Required]
         public string ReceiverAddress { get; set; } = null!;
+
+        // 本次建立訂單時，實際有勾選的商品
+        public List<string> SelectedProductIds { get; set; } = new();
     }
 }

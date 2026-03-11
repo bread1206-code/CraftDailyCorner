@@ -501,7 +501,13 @@ namespace CraftDailyCorner.Migrations
                     EventID = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     NotificationType = table.Column<byte>(type: "tinyint", nullable: false),
+                    Title = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     Content = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    LinkUrl = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
+                    IsRead = table.Column<bool>(type: "bit", nullable: false),
+                    ReadAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    RelatedEntityType = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: true),
+                    RelatedEntityId = table.Column<string>(type: "nvarchar(36)", maxLength: 36, nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     MemberID = table.Column<string>(type: "nchar(8)", maxLength: 8, nullable: false)
                 },
@@ -601,6 +607,10 @@ namespace CraftDailyCorner.Migrations
                     Title = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     Content = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     StatusID = table.Column<byte>(type: "tinyint", nullable: false),
+                    AudienceType = table.Column<byte>(type: "tinyint", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    UpdatedBy = table.Column<string>(type: "nchar(8)", maxLength: 8, nullable: true),
+                    PublishedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     CreatedBy = table.Column<string>(type: "nchar(8)", nullable: false)
                 },
@@ -1478,9 +1488,20 @@ namespace CraftDailyCorner.Migrations
                 column: "MemberID");
 
             migrationBuilder.CreateIndex(
-                name: "IX_NotificationPreferences_MemberID",
+                name: "IX_NotificationEvents_MemberID_IsRead_CreatedAt",
+                table: "NotificationEvents",
+                columns: new[] { "MemberID", "IsRead", "CreatedAt" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_NotificationEvents_MemberID_NotificationType_CreatedAt",
+                table: "NotificationEvents",
+                columns: new[] { "MemberID", "NotificationType", "CreatedAt" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_NotificationPreferences_MemberID_NotificationType",
                 table: "NotificationPreferences",
-                column: "MemberID");
+                columns: new[] { "MemberID", "NotificationType" },
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_OrderDetails_ProductID",

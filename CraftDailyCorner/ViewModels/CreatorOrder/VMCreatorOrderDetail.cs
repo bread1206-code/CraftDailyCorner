@@ -15,6 +15,10 @@
         public string? SuggestedTrackingNo { get; set; }
         public string? TrackingNo { get; set; }
 
+        public byte? ShipmentStatusID { get; set; }
+        public DateTime? ShippedAt { get; set; }
+        public DateTime? DeliveredAt { get; set; }
+
         public List<VMCreatorOrderDetailItem> Items { get; set; } = new();
     }
 }

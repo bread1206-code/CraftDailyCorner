@@ -1,7 +1,6 @@
 ﻿using CraftDailyCorner.Models;
 using CraftDailyCorner.Models.enums;
 using CraftDailyCorner.Services.Interface;
-using CraftDailyCorner.ViewModels.CreatorAnalytics;
 using CraftDailyCorner.ViewModels.CreatorAnalytics.Commerce;
 using CraftDailyCorner.ViewModels.CreatorAnalytics.Community;
 using Microsoft.EntityFrameworkCore;

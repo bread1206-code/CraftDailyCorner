@@ -783,6 +783,13 @@ namespace CraftDailyCorner.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<bool>("IsRead")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("LinkUrl")
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
                     b.Property<string>("MemberID")
                         .IsRequired()
                         .HasMaxLength(8)
@@ -791,9 +798,29 @@ namespace CraftDailyCorner.Migrations
                     b.Property<byte>("NotificationType")
                         .HasColumnType("tinyint");
 
+                    b.Property<DateTime?>("ReadAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("RelatedEntityId")
+                        .HasMaxLength(36)
+                        .HasColumnType("nvarchar(36)");
+
+                    b.Property<string>("RelatedEntityType")
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
                     b.HasKey("EventID");
 
                     b.HasIndex("MemberID");
+
+                    b.HasIndex("MemberID", "IsRead", "CreatedAt");
+
+                    b.HasIndex("MemberID", "NotificationType", "CreatedAt");
 
                     b.ToTable("NotificationEvents");
                 });
@@ -825,7 +852,8 @@ namespace CraftDailyCorner.Migrations
 
                     b.HasKey("PreferenceID");
 
-                    b.HasIndex("MemberID");
+                    b.HasIndex("MemberID", "NotificationType")
+                        .IsUnique();
 
                     b.ToTable("NotificationPreferences");
                 });
@@ -1080,6 +1108,9 @@ namespace CraftDailyCorner.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("AnnouncementID"));
 
+                    b.Property<byte>("AudienceType")
+                        .HasColumnType("tinyint");
+
                     b.Property<string>("Content")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -1091,6 +1122,9 @@ namespace CraftDailyCorner.Migrations
                         .IsRequired()
                         .HasColumnType("nchar(8)");
 
+                    b.Property<DateTime?>("PublishedAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<byte>("StatusID")
                         .HasColumnType("tinyint");
 
@@ -1098,6 +1132,13 @@ namespace CraftDailyCorner.Migrations
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(8)
+                        .HasColumnType("nchar(8)");
 
                     b.HasKey("AnnouncementID");
 
