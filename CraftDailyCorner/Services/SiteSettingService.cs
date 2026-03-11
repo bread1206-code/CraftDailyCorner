@@ -1,5 +1,6 @@
 ﻿using CraftDailyCorner.Models;
 using CraftDailyCorner.Services.Interface;
+using Microsoft.EntityFrameworkCore;
 
 namespace CraftDailyCorner.Services
 {
@@ -7,23 +8,37 @@ namespace CraftDailyCorner.Services
     {
         private readonly CraftDailyCornerContext _context;
 
-
         public SiteSettingService(CraftDailyCornerContext context)
         {
             _context = context;
         }
 
-            public string GetNavbarLogo()
+        public async Task<string?> GetStringAsync(string key)
         {
-
-            var logo = _context.PlatformSettings
-                .Where(x => x.CategoryID == 1 && x.SettingKey == "platform_LogoURL")
-                .OrderByDescending(x => x.UpdatedAt)
+            return await _context.PlatformSettings
+                .Where(x => x.SettingKey == key)
                 .Select(x => x.SettingValue)
-                .FirstOrDefault();
+                .FirstOrDefaultAsync();
+        }
 
-            return logo ?? "/images/default-logo";
+        public async Task<int> GetIntAsync(string key)
+        {
+            var value = await GetStringAsync(key);
+
+            if (int.TryParse(value, out var result))
+                return result;
+
+            return 0;
+        }
+
+        public async Task<bool> GetBoolAsync(string key)
+        {
+            var value = await GetStringAsync(key);
+
+            if (bool.TryParse(value, out var result))
+                return result;
+
+            return false;
         }
     }
-
 }

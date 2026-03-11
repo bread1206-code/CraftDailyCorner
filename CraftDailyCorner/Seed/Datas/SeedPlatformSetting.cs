@@ -18,11 +18,61 @@ namespace CraftDailyCorner.Seed.Datas
                 {
                     new PlatformSetting
                     {
-                        SettingKey = "OrderAutoCancelDays",
-                        SettingValue = "7",
-                        DataType = "int",
+                        SettingKey = "PlatformName",
+                        SettingValue = "CraftDailyCorner",
+                        DataType = "string",
                         CategoryID = 1,
-                        Description = "未付款訂單自動取消天數",
+                        Description = "平台顯示名稱",
+                        UpdatedAt = DateTime.Now,
+                        UpdatedBy = "M0000001"
+                    },
+                    new PlatformSetting
+                    {
+                        SettingKey = "PlatformServiceEmail",
+                        SettingValue = "service@craftdailycorner.com",
+                        DataType = "string",
+                        CategoryID = 1,
+                        Description = "客服聯絡信箱",
+                        UpdatedAt = DateTime.Now,
+                        UpdatedBy = "M0000001"
+                    },
+                    new PlatformSetting
+                    {
+                        SettingKey = "HomepageFeaturedProductCount",
+                        SettingValue = "8",
+                        DataType = "int",
+                        CategoryID = 2,
+                        Description = "首頁精選商品數",
+                        UpdatedAt = DateTime.Now,
+                        UpdatedBy = "M0000001"
+                    },
+                    new PlatformSetting
+                    {
+                        SettingKey = "BannerAutoplaySeconds",
+                        SettingValue = "5",
+                        DataType = "int",
+                        CategoryID = 2,
+                        Description = "Banner 輪播秒數",
+                        UpdatedAt = DateTime.Now,
+                        UpdatedBy = "M0000001"
+                    },
+                    new PlatformSetting
+                    {
+                        SettingKey = "ProductListPageSize",
+                        SettingValue = "12",
+                        DataType = "int",
+                        CategoryID = 2,
+                        Description = "商品列表每頁筆數",
+                        UpdatedAt = DateTime.Now,
+                        UpdatedBy = "M0000001"
+                    },
+                    new PlatformSetting
+                    {
+                        SettingKey = "RegistrationEnabled",
+                        SettingValue = "true",
+                        DataType = "bool",
+                        CategoryID = 1,
+                        Description = "是否開放會員註冊",
                         UpdatedAt = DateTime.Now,
                         UpdatedBy = "M0000001"
                     }

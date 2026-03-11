@@ -27,8 +27,12 @@
     var isCategoriesPage = currentController == "Categories";
     var isTagPage = currentController == "Tag";
     var isAnnouncementPage = currentController == "Announcement";
-    var isSystemSettingPage = currentController == "SystemSetting" || currentController == "HomepageBanner";
+    var isSystemSettingPage = currentController == "SystemSetting"
+    || currentController == "HomepageBanner"
+    || currentController == "PlatformSetting";
+
     var isHomepageBannerPage = currentController == "HomepageBanner";
+    var isPlatformSettingPage = currentController == "PlatformSetting";
 }
 
 <div class="admin-sidebar p-3">
@@ -238,18 +242,27 @@
         </li>
 
         <li class="nav-item">
-            <div id="collapseSystemSetting"
-                 class="collapse @(isSystemSettingPage ? "show" : "")">
-                <div class="ms-4">
-                    <a asp-area="Admin"
-                       asp-controller="HomepageBanner"
-                       asp-action="Index"
-                       class="nav-link admin-sub-link text-light small opacity-75 py-1 @(isHomepageBannerPage ? "active" : "")">
-                        首頁輪播圖管理
-                    </a>
-                </div>
-            </div>
-        </li>
+    <div id="collapseSystemSetting"
+         class="collapse @(isSystemSettingPage ? "show" : "")">
+        <div class="ms-4">
+            <a asp-area="Admin"
+               asp-controller="PlatformSetting"
+               asp-action="Index"
+               class="nav-link admin-sub-link text-light small opacity-75 py-1 @(isPlatformSettingPage ? "active" : "")">
+                平台參數設定
+            </a>
+        </div>
+
+        <div class="ms-4">
+            <a asp-area="Admin"
+               asp-controller="HomepageBanner"
+               asp-action="Index"
+               class="nav-link admin-sub-link text-light small opacity-75 py-1 @(isHomepageBannerPage ? "active" : "")">
+                首頁輪播圖管理
+            </a>
+        </div>
+    </div>
+</li>
 
     </ul>
 

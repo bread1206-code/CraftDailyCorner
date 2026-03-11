@@ -2,6 +2,10 @@
 {
     public interface ISiteSettingService
     {
-        string GetNavbarLogo();
+        Task<string?> GetStringAsync(string key);
+
+        Task<int> GetIntAsync(string key);
+
+        Task<bool> GetBoolAsync(string key);
     }
 }

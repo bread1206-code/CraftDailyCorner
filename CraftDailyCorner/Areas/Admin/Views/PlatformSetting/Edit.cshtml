@@ -1,0 +1,164 @@
+﻿@model CraftDailyCorner.Areas.Admin.ViewModels.PlatformSetting.VMAdminPlatformSettingEdit
+
+@{
+    ViewData["Title"] = "編輯平台參數";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container-fluid">
+
+    <div class="d-flex justify-content-between align-items-end mb-4">
+        <div>
+            <h2 class="fw-bold mb-1 text-light">編輯平台參數</h2>
+            <div class="text-light opacity-75">修改平台設定值</div>
+        </div>
+
+        <a class="btn btn-outline-light"
+           asp-area="Admin"
+           asp-controller="PlatformSetting"
+           asp-action="Index">
+            返回列表
+        </a>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-body">
+
+            <form asp-area="Admin"
+                  asp-controller="PlatformSetting"
+                  asp-action="Edit"
+                  method="post">
+                @Html.AntiForgeryToken()
+
+                <input type="hidden" asp-for="SettingID" />
+                <input type="hidden" asp-for="SettingKey" />
+                <input type="hidden" asp-for="DataType" />
+                <input type="hidden" asp-for="CategoryID" />
+                <input type="hidden" asp-for="CategoryName" />
+                <input type="hidden" asp-for="Description" />
+                <input type="hidden" asp-for="UpdatedAt" />
+                <input type="hidden" asp-for="UpdatedBy" />
+                <input type="hidden" asp-for="UpdatedByName" />
+
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger mb-4"></div>
+
+                <div class="row g-4">
+                    <div class="col-lg-7">
+
+                        <div class="mb-3">
+                            <label asp-for="SettingKey" class="form-label text-light"></label>
+                            <input asp-for="SettingKey"
+                                   class="form-control bg-dark text-light border-secondary"
+                                   readonly />
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="SettingValue" class="form-label text-light"></label>
+
+                            @if (Model.IsBoolType)
+                            {
+                                <select asp-for="SettingValue"
+                                        asp-items="Model.BoolOptions"
+                                        class="form-select bg-dark text-light border-secondary">
+                                </select>
+                            }
+                            else
+                            {
+                                <input asp-for="SettingValue"
+                                       class="form-control bg-dark text-light border-secondary"
+                                       placeholder="請輸入設定值" />
+                            }
+
+                            <span asp-validation-for="SettingValue" class="text-warning small"></span>
+
+                            @if (!string.IsNullOrWhiteSpace(Model.HintText))
+                            {
+                                <div class="form-text text-light opacity-75 mt-2">
+                                    @Model.HintText
+                                </div>
+                            }
+
+                            @if (!string.IsNullOrWhiteSpace(Model.SuggestedRange))
+                            {
+                                <div class="small text-info mt-1">
+                                    建議範圍：@Model.SuggestedRange
+                                </div>
+                            }
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="DataType" class="form-label text-light"></label>
+                            <input asp-for="DataType"
+                                   class="form-control bg-dark text-light border-secondary"
+                                   readonly />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label text-light">類別</label>
+                            <input value="@Model.CategoryName"
+                                   class="form-control bg-dark text-light border-secondary"
+                                   readonly />
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="Description" class="form-label text-light"></label>
+                            <textarea asp-for="Description"
+                                      class="form-control bg-dark text-light border-secondary"
+                                      rows="3"
+                                      readonly></textarea>
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-save2 me-1"></i> 儲存變更
+                            </button>
+
+                            <a class="btn btn-outline-light"
+                               asp-area="Admin"
+                               asp-controller="PlatformSetting"
+                               asp-action="Index">
+                                取消
+                            </a>
+                        </div>
+
+                    </div>
+
+                    <div class="col-lg-5">
+                        <div class="border rounded p-3 h-100 bg-dark-subtle">
+                            <div class="fw-semibold text-light mb-3">
+                                <i class="bi bi-info-circle me-2"></i>設定資訊
+                            </div>
+
+                            <div class="mb-3">
+                                <div class="text-secondary small mb-1">目前值</div>
+                                <div class="text-light fw-semibold">@Model.SettingValue</div>
+                            </div>
+
+                            <div class="mb-3">
+                                <div class="text-secondary small mb-1">資料型態</div>
+                                <div class="text-light">@Model.DataType</div>
+                            </div>
+
+                            <div class="mb-3">
+                                <div class="text-secondary small mb-1">最後更新時間</div>
+                                <div class="text-light">@Model.UpdatedAt.ToString("yyyy/MM/dd HH:mm")</div>
+                            </div>
+
+                            <div class="mb-0">
+                                <div class="text-secondary small mb-1">最後更新者</div>
+                                <div class="text-light">@(Model.UpdatedByName ?? Model.UpdatedBy)</div>
+                                <div class="text-secondary small">@Model.UpdatedBy</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
