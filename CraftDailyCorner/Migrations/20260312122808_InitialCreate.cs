@@ -1206,7 +1206,9 @@ namespace CraftDailyCorner.Migrations
                     Rating = table.Column<byte>(type: "tinyint", nullable: false),
                     Comment = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     MemberID = table.Column<string>(type: "nchar(8)", maxLength: 8, nullable: false),
+                    OrderID = table.Column<string>(type: "nchar(12)", maxLength: 12, nullable: false),
                     ProductID = table.Column<string>(type: "nchar(10)", maxLength: 10, nullable: false)
                 },
                 constraints: table =>
@@ -1219,11 +1221,17 @@ namespace CraftDailyCorner.Migrations
                         principalColumn: "MemberID",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
+                        name: "FK_ProductReviews_Orders_OrderID",
+                        column: x => x.OrderID,
+                        principalTable: "Orders",
+                        principalColumn: "OrderID",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
                         name: "FK_ProductReviews_Products_ProductID",
                         column: x => x.ProductID,
                         principalTable: "Products",
                         principalColumn: "ProductID",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -1654,9 +1662,15 @@ namespace CraftDailyCorner.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_ProductReviews_MemberID",
+                name: "IX_ProductReviews_MemberID_OrderID_ProductID",
                 table: "ProductReviews",
-                column: "MemberID");
+                columns: new[] { "MemberID", "OrderID", "ProductID" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ProductReviews_OrderID",
+                table: "ProductReviews",
+                column: "OrderID");
 
             migrationBuilder.CreateIndex(
                 name: "IX_ProductReviews_ProductID",

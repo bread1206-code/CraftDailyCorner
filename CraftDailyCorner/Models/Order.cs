@@ -51,5 +51,6 @@ namespace CraftDailyCorner.Models
         public virtual List<Payment>? Payments { get; set; }
         public virtual Shipment? Shipment { get; set; }
         public virtual OrderStatus OrderStatus { get; set; } = null!;
+        public virtual List<ProductReview> ProductReviews { get; set; } = new();
     }
 }

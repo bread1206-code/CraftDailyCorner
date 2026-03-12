@@ -291,6 +291,11 @@ namespace CraftDailyCorner.Services
                 })
                 .ToList();
 
+            var reviews = _context.ProductReviews
+                .AsNoTracking()
+                .Where(r => r.MemberID == memberId && r.OrderID == orderId)
+                .ToList();
+
             return new VMMyOrderDetail
             {
                 OrderID = order.OrderID,
@@ -304,13 +309,23 @@ namespace CraftDailyCorner.Services
                 ShippingAddress = order.ShippingAddress,
 
                 Items = order.OrderDetails!
-                    .Select(od => new VMMyOrderItem
+                    .Select(od =>
                     {
-                        ProductID = od.ProductID,
-                        ProductName = od.ProductNameSnapshot,
-                        Price = (int)Math.Floor(od.PriceSnapshot),
-                        Quantity = od.Quantity,
-                        BrandName = od.Product.CreatorProfile!.BrandName
+                        var review = reviews.FirstOrDefault(r => r.ProductID == od.ProductID);
+
+                        return new VMMyOrderItem
+                        {
+                            ProductID = od.ProductID,
+                            ProductName = od.ProductNameSnapshot,
+                            Price = (int)Math.Floor(od.PriceSnapshot),
+                            Quantity = od.Quantity,
+                            BrandName = od.Product.CreatorProfile!.BrandName,
+
+                            HasReview = review != null,
+                            ReviewID = review?.ReviewID,
+                            ReviewRating = review?.Rating,
+                            ReviewComment = review?.Comment
+                        };
                     })
                     .ToList(),
 

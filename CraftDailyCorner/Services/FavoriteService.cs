@@ -99,6 +99,7 @@ namespace CraftDailyCorner.Services
                 {
                     ProductID = f.ProductID,
                     ProductName = f.Product.ProductName,
+                    CreatorID = f.Product.CreatorID,
                     Price = f.Product.Price,
                     CoverImageUrl = f.Product.ProductImages
                         .Where(i => i.StatusID == 1)

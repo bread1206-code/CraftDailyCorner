@@ -334,7 +334,13 @@ namespace CraftDailyCorner.Models
                 .HasOne(pr => pr.Product)
                 .WithMany(p => p.ProductReviews)
                 .HasForeignKey(pr => pr.ProductID)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<ProductReview>()
+                .HasOne(pr => pr.Order)
+                .WithMany(p => p.ProductReviews)
+                .HasForeignKey(pr => pr.OrderID)
+                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<MessageThread>()
                 .HasOne(mt => mt.Member)
@@ -662,6 +668,10 @@ namespace CraftDailyCorner.Models
             modelBuilder.Entity<NotificationPreference>()
                 .HasIndex(np => new { np.MemberID, np.NotificationType })
                 .IsUnique();
+
+            modelBuilder.Entity<ProductReview>()
+               .HasIndex(e => new { e.MemberID, e.OrderID, e.ProductID })
+               .IsUnique();
 
             #endregion
 

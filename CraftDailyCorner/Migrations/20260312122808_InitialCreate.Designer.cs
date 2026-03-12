@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CraftDailyCorner.Migrations
 {
     [DbContext(typeof(CraftDailyCornerContext))]
-    [Migration("20260312004059_InitialCreate")]
+    [Migration("20260312122808_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -1576,6 +1576,11 @@ namespace CraftDailyCorner.Migrations
                         .HasMaxLength(8)
                         .HasColumnType("nchar(8)");
 
+                    b.Property<string>("OrderID")
+                        .IsRequired()
+                        .HasMaxLength(12)
+                        .HasColumnType("nchar(12)");
+
                     b.Property<string>("ProductID")
                         .IsRequired()
                         .HasMaxLength(10)
@@ -1584,11 +1589,17 @@ namespace CraftDailyCorner.Migrations
                     b.Property<byte>("Rating")
                         .HasColumnType("tinyint");
 
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
                     b.HasKey("ReviewID");
 
-                    b.HasIndex("MemberID");
+                    b.HasIndex("OrderID");
 
                     b.HasIndex("ProductID");
+
+                    b.HasIndex("MemberID", "OrderID", "ProductID")
+                        .IsUnique();
 
                     b.ToTable("ProductReviews");
                 });
@@ -2432,13 +2443,21 @@ namespace CraftDailyCorner.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("CraftDailyCorner.Models.Order", "Order")
+                        .WithMany("ProductReviews")
+                        .HasForeignKey("OrderID")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.HasOne("CraftDailyCorner.Models.Product", "Product")
                         .WithMany("ProductReviews")
                         .HasForeignKey("ProductID")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Member");
+
+                    b.Navigation("Order");
 
                     b.Navigation("Product");
                 });
@@ -2641,6 +2660,8 @@ namespace CraftDailyCorner.Migrations
                     b.Navigation("OrderDetails");
 
                     b.Navigation("Payments");
+
+                    b.Navigation("ProductReviews");
 
                     b.Navigation("Shipment");
                 });

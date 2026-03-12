@@ -250,7 +250,7 @@ namespace CraftDailyCorner.Seed
             //_seedShipment.Run();
             _seedFavoriteProduct.Run();
             _seedFollowCreator.Run();
-            _seedProductReview.Run();
+            //_seedProductReview.Run();
             _seedMessageThread.Run();
             _seedMessage.Run();
             _seedAutoReplyTemplate.Run();

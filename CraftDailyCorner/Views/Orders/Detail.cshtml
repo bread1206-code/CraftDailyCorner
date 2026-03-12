@@ -250,6 +250,10 @@
                         <th class="text-end">單價</th>
                         <th class="text-end">數量</th>
                         <th class="text-end">小計</th>
+                        @if (Model.StatusID == 5)
+                        {
+                            <th class="text-end">評價</th>
+                        }
                     </tr>
                 </thead>
                 <tbody>
@@ -263,6 +267,25 @@
                             <td class="text-end">$@item.Price</td>
                             <td class="text-end">@item.Quantity</td>
                             <td class="text-end fw-semibold">$@item.SubTotal</td>
+
+                            @if (Model.StatusID == 5)
+                            {
+                                <td class="text-end">
+                                    <button type="button"
+                                            class="btn @(item.HasReview ? "btn-outline-secondary" : "btn-outline-primary") btn-sm"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#productReviewModal"
+                                            data-order-id="@Model.OrderID"
+                                            data-product-id="@item.ProductID"
+                                            data-product-name="@item.ProductName"
+                                            data-review-id="@item.ReviewID"
+                                            data-rating="@item.ReviewRating"
+                                            data-comment="@item.ReviewComment"
+                                            data-has-review="@item.HasReview.ToString().ToLower()">
+                                        @(item.HasReview ? "編輯評價" : "建立評價")
+                                    </button>
+                                </td>
+                            }
                         </tr>
                     }
                 </tbody>
@@ -329,5 +352,89 @@
             }
         </small>
     </div>
+    @if (Model.StatusID == 5)
+    {
+        <div class="modal fade" id="productReviewModal" tabindex="-1" aria-labelledby="productReviewModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <form asp-controller="ProductReviews" asp-action="Upsert" method="post">
+                        @Html.AntiForgeryToken()
 
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="productReviewModalLabel">商品評價</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="關閉"></button>
+                        </div>
+
+                        <div class="modal-body">
+                            <input type="hidden" name="OrderID" id="reviewOrderID" />
+                            <input type="hidden" name="ProductID" id="reviewProductID" />
+                            <input type="hidden" name="ReviewID" id="reviewID" />
+
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">商品名稱</label>
+                                <input type="text" id="reviewProductName" class="form-control" readonly />
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="reviewRating" class="form-label fw-semibold">星等</label>
+                                <select name="Rating" id="reviewRating" class="form-select" required>
+                                    <option value="">請選擇星等</option>
+                                    <option value="5">5 星</option>
+                                    <option value="4">4 星</option>
+                                    <option value="3">3 星</option>
+                                    <option value="2">2 星</option>
+                                    <option value="1">1 星</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="reviewComment" class="form-label fw-semibold">評論內容</label>
+                                <textarea name="Comment" id="reviewComment" class="form-control" rows="4" maxlength="1000"
+                                          placeholder="歡迎分享您對商品的使用感受"></textarea>
+                            </div>
+                        </div>
+
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">取消</button>
+                            <button type="submit" class="btn btn-primary" id="reviewSubmitButton">儲存評價</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    }
 </div>
+@if (Model.StatusID == 5)
+{
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const reviewModal = document.getElementById("productReviewModal");
+            if (!reviewModal) return;
+
+            reviewModal.addEventListener("show.bs.modal", function (event) {
+                const button = event.relatedTarget;
+
+                const orderId = button.getAttribute("data-order-id");
+                const productId = button.getAttribute("data-product-id");
+                const productName = button.getAttribute("data-product-name");
+                const reviewId = button.getAttribute("data-review-id");
+                const rating = button.getAttribute("data-rating");
+                const comment = button.getAttribute("data-comment");
+                const hasReview = button.getAttribute("data-has-review") === "true";
+
+                document.getElementById("reviewOrderID").value = orderId ?? "";
+                document.getElementById("reviewProductID").value = productId ?? "";
+                document.getElementById("reviewID").value = reviewId ?? "";
+                document.getElementById("reviewProductName").value = productName ?? "";
+                document.getElementById("reviewRating").value = rating ?? "";
+                document.getElementById("reviewComment").value = comment ?? "";
+
+                document.getElementById("productReviewModalLabel").textContent =
+                    hasReview ? "編輯商品評價" : "建立商品評價";
+
+                document.getElementById("reviewSubmitButton").textContent =
+                    hasReview ? "儲存修改" : "送出評價";
+            });
+        });
+    </script>
+}
