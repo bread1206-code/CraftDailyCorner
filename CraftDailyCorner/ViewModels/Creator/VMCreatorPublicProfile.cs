@@ -17,7 +17,7 @@ namespace CraftDailyCorner.ViewModels.Creator
         public bool IsOwner { get; set; }
         // ===== UI Helper（可選，但建議）=====
         public string CreatorImagePath =>
-            $"/Photos/03CreatorBrand/Medium/{ImageUrl}.png";
+            $"/Photos/03CreatorBrand/{CreatorID}/Medium/{ImageUrl}.png";
 
         public string StartDateText =>
             StartDate.ToString("yyyy/MM/dd");

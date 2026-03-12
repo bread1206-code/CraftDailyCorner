@@ -17,6 +17,8 @@ namespace CraftDailyCorner.ViewModels.Homepage
         public int FavoriteCount { get; set; }
         [Display(Name = "圖片")]
         public string? CoverImage { get; set; }
+        [Display(Name = "創作者編號")]
+        public string CreatorID { get; set; } = null!;
         [Display(Name = "創作者")]
         public string BrandName { get; set; } = null!;
     }

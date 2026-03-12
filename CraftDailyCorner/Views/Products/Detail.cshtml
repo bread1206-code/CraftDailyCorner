@@ -44,7 +44,7 @@
                                     @for (int i = 0; i < Model.ImageUrls.Count; i++)
                                     {
                                         <div class="carousel-item @(i == 0 ? "active" : "")">
-                                            <img src=@($"/Photos/04ProductImage/Large/{Model.ImageUrls[i]}.png")
+                                            <img src=@($"/Photos/04ProductImage/{Model.CreatorID}/Large/{Model.ImageUrls[i]}.png")
                                                  class="d-block w-100"
                                                  style="height: 420px; object-fit: contain;"
                                                  alt="@Model.ProductName" />
@@ -76,7 +76,7 @@
                         <div class="d-flex gap-2 mt-3 justify-content-center">
                             @foreach (var img in Model.ImageUrls)
                             {
-                                <img src=@($"/Photos/04ProductImage/Large/{img}.png")
+                                <img src=@($"/Photos/04ProductImage/{Model.CreatorID}/Large/{img}.png")
                                      class="img-thumbnail"
                                      style="width: 80px; height: 80px; object-fit: cover;" />
                             }

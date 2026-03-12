@@ -39,7 +39,7 @@
                                     <div class="d-flex align-items-center gap-2">
                                         @if (!string.IsNullOrEmpty(item.Product.ImageUrl))
                                         {
-                                            <img src="@($"/Photos/04ProductImage/Medium/{item.Product.ImageUrl}.png")"
+                                            <img src="@($"/Photos/04ProductImage/{item.Product.CreatorId}/Medium/{item.Product.ImageUrl}.png")"
                                                  alt="@item.Product.ProductName"
                                                  style="width:60px;height:60px;object-fit:cover;"
                                                  class="rounded" />

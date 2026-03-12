@@ -38,7 +38,8 @@ namespace CraftDailyCorner.ViewComponents
                         .OrderBy(i => i.SortOrder)
                         .Select(i => i.ImageUrl)
                         .FirstOrDefault(),
-                    BrandName = p.CreatorProfile.BrandName
+                    BrandName = p.CreatorProfile.BrandName,
+                    CreatorID = p.CreatorProfile.CreatorID
                 })
                 .OrderByDescending(x => x.FavoriteCount)
                 .Take(featuredCount)

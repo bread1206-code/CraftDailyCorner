@@ -8,7 +8,8 @@ public interface IImageUploadService
         string? seedSourcePath,
         string folderName,
         List<ImageSizeOption> sizes,
-        string? entityId = null
+        string? entityId = null,
+        string? entitySubFolder = null
     );
 
     // Seed 專用（給 SeedRunner 用）
@@ -16,6 +17,7 @@ public interface IImageUploadService
         string seedFolder,
         string sourceFile,
         string fileNameWithoutExt,
-        List<ImageSizeOption> sizes
+        List<ImageSizeOption> sizes,
+        string? entitySubFolder = null
     );
 }

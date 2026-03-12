@@ -34,8 +34,8 @@
             @foreach (var item in Model)
             {
                 string logoUrl = string.IsNullOrEmpty(item.CreatorLogo)
-                ? "/Photos/03CreatorBrand/Medium/default.png"
-                : $"/Photos/03CreatorBrand/Medium/{item.CreatorLogo}.png";
+                ? $"/Photos/03CreatorBrand/{item.CreatorId}/Medium/default.png"
+                : $"/Photos/03CreatorBrand/{item.CreatorId}/Medium/{item.CreatorLogo}.png";
 
                 <div class="col-md-6 col-lg-4">
 
@@ -71,7 +71,7 @@
                                         <a href="@item.LatestProductUrl"
                                            class="text-decoration-none text-dark">
 
-                                            <img src="@($"/Photos/04ProductImage/Medium/{item.LatestProductImage}.png")"
+                                            <img src="@($"/Photos/04ProductImage/{item.CreatorId}/Medium/{item.LatestProductImage}.png")"
                                                  class="img-fluid rounded mb-2"
                                                  style="height:80px;object-fit:cover;" />
 

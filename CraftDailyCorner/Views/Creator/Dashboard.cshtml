@@ -6,7 +6,7 @@
 
     string brandImageUrl = string.IsNullOrEmpty(Model.ImageUrl)
         ? "/Photos/Creator/Brand/default.png"
-        : $"/Photos/03CreatorBrand/Large/{Model.ImageUrl}.png?v={Model.UpdatedAt.Ticks}";
+        : $"/Photos/03CreatorBrand/{Model.CreatorID}/Large/{Model.ImageUrl}.png?v={Model.UpdatedAt.Ticks}";
 }
 
 <div class="container my-5">

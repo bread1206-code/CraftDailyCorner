@@ -39,7 +39,6 @@ public class ImageManagementController : Controller
         List<IFormFile> files)
     {
         var creatorId = User.GetCreatorId();
-
         var service = GetService(entityType);
 
         foreach (var file in files)
@@ -60,9 +59,9 @@ public class ImageManagementController : Controller
     [HttpPost("Delete")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(
-    string entityId,
-    string entityType,
-    long imageId)
+        string entityId,
+        string entityType,
+        long imageId)
     {
         try
         {
@@ -80,6 +79,7 @@ public class ImageManagementController : Controller
             return BadRequest(ex.Message);
         }
     }
+
     // =============================
     // Sort
     // =============================
@@ -87,12 +87,11 @@ public class ImageManagementController : Controller
     [HttpPost("UpdateSort")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> UpdateSort(
-    string entityId,
-    string entityType,
-    List<long> orderedIds)
+        string entityId,
+        string entityType,
+        List<long> orderedIds)
     {
         var creatorId = User.GetCreatorId();
-
         var service = GetService(entityType);
 
         await service.UpdateSortWithValidationAsync(
@@ -126,7 +125,6 @@ public class ImageManagementController : Controller
         string entityType)
     {
         var service = GetService(entityType);
-
         var images = await service.GetImagesAsync(entityId);
 
         var vm = new VMImageManagement
@@ -148,11 +146,21 @@ public class ImageManagementController : Controller
 
     private string BuildImageUrl(IEntityImage image)
     {
-        if (image is ProductImage)
-            return $"/Photos/04ProductImage/Medium/{image.ImageUrl}.png";
+        if (image is ProductImage productImage)
+        {
+            var creatorId = productImage.Product?.CreatorID
+                ?? throw new Exception("找不到商品對應的 CreatorID");
 
-        if (image is PortfolioItem)
-            return $"/Photos/06Portfolio/Medium/{image.ImageUrl}.png";
+            return $"/Photos/04ProductImage/{creatorId}/Medium/{productImage.ImageUrl}.png";
+        }
+
+        if (image is PortfolioItem portfolioItem)
+        {
+            var creatorId = portfolioItem.Portfolio?.CreatorID
+                ?? throw new Exception("找不到作品集對應的 CreatorID");
+
+            return $"/Photos/06Portfolio/{creatorId}/Medium/{portfolioItem.ImageUrl}.png";
+        }
 
         throw new Exception("未知圖片類型");
     }

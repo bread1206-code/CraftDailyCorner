@@ -18,8 +18,8 @@ namespace CraftDailyCorner.ViewModels.Creator
         // 顯示圖片用（/Photos/...）
         public string CurrentImagePath =>
             string.IsNullOrWhiteSpace(ImageUrl)
-                ? "/Photos/03CreatorBrand/Large/default.png"
-                : $"/Photos/03CreatorBrand/Large/{ImageUrl}.png?v={UpdatedAt.Ticks}";
+                ? $"/Photos/03CreatorBrand/{CreatorID}/Large/default.png"
+                : $"/Photos/03CreatorBrand/{CreatorID}/Large/{ImageUrl}.png?v={UpdatedAt.Ticks}";
 
         [Display(Name = "品牌圖片")]
         public IFormFile? BrandImage { get; set; }
