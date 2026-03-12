@@ -7,21 +7,6 @@
 
 <div class="container-fluid">
 
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h2 class="fw-bold text-light mb-1">公告管理</h2>
-            <div class="text-light opacity-75">
-                管理平台公告內容
-            </div>
-        </div>
-
-        <a asp-action="Create"
-           class="btn btn-primary">
-            <i class="bi bi-plus-circle"></i>
-            新增公告
-        </a>
-    </div>
-
     @if (TempData["Success"] != null)
     {
         <div class="alert alert-success">@TempData["Success"]</div>
@@ -32,101 +17,126 @@
         <div class="alert alert-warning">@TempData["Warning"]</div>
     }
 
+    <div class="d-flex justify-content-between align-items-end mb-4">
+        <div>
+            <h2 class="fw-bold mb-1 text-light">公告管理</h2>
+            <div class="text-light opacity-75">管理平台公告內容與發布狀態</div>
+        </div>
+
+        <a asp-area="Admin"
+           asp-controller="Announcement"
+           asp-action="Create"
+           class="btn btn-primary">
+            <i class="bi bi-plus-circle me-1"></i> 新增公告
+        </a>
+    </div>
+
     <div class="card shadow-sm border-0">
-        <div class="card-body">
+        <div class="card-body p-0">
 
-            <table class="table table-hover align-middle">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>標題</th>
-                        <th>受眾</th>
-                        <th>狀態</th>
-                        <th>發布時間</th>
-                        <th>建立者</th>
-                        <th style="width:220px">操作</th>
-                    </tr>
-                </thead>
+            @if (Model.Items == null || !Model.Items.Any())
+            {
+                <div class="p-4 text-secondary">
+                    目前尚無公告資料
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-dark table-hover align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th style="width:100px;">公告ID</th>
+                                <th>標題</th>
+                                <th style="width:140px;">受眾</th>
+                                <th style="width:120px;">狀態</th>
+                                <th style="width:180px;">發布時間</th>
+                                <th style="width:160px;">建立者</th>
+                                <th style="width:260px;" class="text-end"></th>
+                            </tr>
+                        </thead>
 
-                <tbody>
-
-                    @foreach (var item in Model.Items)
-                    {
-                        <tr>
-                            <td>@item.AnnouncementID</td>
-
-                            <td>@item.Title</td>
-
-                            <td>@item.AudienceName</td>
-
-                            <td>
-                                @if (item.StatusID == 2)
+                        <tbody>
+                            @foreach (var item in Model.Items)
+                            {
+                                string statusBadgeClass = item.StatusID switch
                                 {
-                                    <span class="badge bg-success">啟用</span>
-                                }
-                                else if (item.StatusID == 1)
+                                    2 => "bg-success",
+                                    1 => "bg-secondary",
+                                    _ => "bg-dark"
+                                };
+
+                                string statusText = item.StatusID switch
                                 {
-                                    <span class="badge bg-secondary">草稿</span>
-                                }
-                                else
-                                {
-                                    <span class="badge bg-dark">停用</span>
-                                }
-                            </td>
+                                    2 => "啟用",
+                                    1 => "草稿",
+                                    _ => "停用"
+                                };
 
-                            <td>
-                                @(item.PublishedAt?.ToString("yyyy/MM/dd HH:mm") ?? "-")
-                            </td>
+                                string toggleBtnText = item.StatusID == 2 ? "停用" : "啟用";
+                                string toggleBtnClass = item.StatusID == 2 ? "btn-outline-danger" : "btn-outline-success";
+                                string toggleAction = item.StatusID == 2 ? "Inactivate" : "Activate";
 
-                            <td>
-                                @(item.CreatedByName ?? item.CreatedBy)
-                            </td>
+                                <tr>
+                                    <td>#@item.AnnouncementID</td>
 
-                            <td class="d-flex gap-2">
+                                    <td>
+                                        <div class="fw-semibold">@item.Title</div>
+                                    </td>
 
-                                <a asp-action="Detail"
-                                   asp-route-id="@item.AnnouncementID"
-                                   class="btn btn-sm btn-outline-secondary">
-                                    <i class="bi bi-eye"></i>
-                                </a>
+                                    <td>@item.AudienceName</td>
 
-                                <a asp-action="Edit"
-                                   asp-route-id="@item.AnnouncementID"
-                                   class="btn btn-sm btn-outline-primary">
-                                    <i class="bi bi-pencil"></i>
-                                </a>
+                                    <td>
+                                        <span class="badge @statusBadgeClass">
+                                            @statusText
+                                        </span>
+                                    </td>
 
-                                @if (item.StatusID != 2)
-                                {
-                                    <form asp-action="Activate"
-                                          method="post">
-                                        <input type="hidden"
-                                               name="id"
-                                               value="@item.AnnouncementID" />
-                                        <button class="btn btn-sm btn-success">
-                                            <i class="bi bi-check-circle"></i>
-                                        </button>
-                                    </form>
-                                }
-                                else
-                                {
-                                    <form asp-action="Inactivate"
-                                          method="post">
-                                        <input type="hidden"
-                                               name="id"
-                                               value="@item.AnnouncementID" />
-                                        <button class="btn btn-sm btn-danger">
-                                            <i class="bi bi-x-circle"></i>
-                                        </button>
-                                    </form>
-                                }
+                                    <td>
+                                        @(item.PublishedAt?.ToString("yyyy/MM/dd HH:mm") ?? "-")
+                                    </td>
 
-                            </td>
-                        </tr>
-                    }
+                                    <td>
+                                        @(item.CreatedByName ?? item.CreatedBy)
+                                    </td>
 
-                </tbody>
-            </table>
+                                    <td class="text-end">
+                                        <a asp-area="Admin"
+                                           asp-controller="Announcement"
+                                           asp-action="Detail"
+                                           asp-route-id="@item.AnnouncementID"
+                                           class="btn btn-sm btn-outline-light">
+                                            查看
+                                        </a>
+
+                                        <a asp-area="Admin"
+                                           asp-controller="Announcement"
+                                           asp-action="Edit"
+                                           asp-route-id="@item.AnnouncementID"
+                                           class="btn btn-sm btn-outline-primary">
+                                            編輯
+                                        </a>
+
+                                        <form class="d-inline"
+                                              asp-area="Admin"
+                                              asp-controller="Announcement"
+                                              asp-action="@toggleAction"
+                                              method="post">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden"
+                                                   name="id"
+                                                   value="@item.AnnouncementID" />
+                                            <button type="submit" class="btn btn-sm @toggleBtnClass">
+                                                @toggleBtnText
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
 
         </div>
     </div>

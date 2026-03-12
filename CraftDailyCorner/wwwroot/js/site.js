@@ -4,7 +4,7 @@
 
 document.addEventListener("DOMContentLoaded", function () {
     initFavoriteButtons();      // 收藏
-    
+    initFollowButtons();        // 追蹤
 });
 
 /* ==================================================
@@ -207,7 +207,7 @@ function ajaxLogin(formElement) {
         })
         .then(res => {
             if (!res.success) {
-                const errorSpan = form.find('#loginError'); 
+                const errorSpan = form.find('#loginError');
                 if (errorSpan.length > 0) {
                     errorSpan.text(res.message).removeClass('d-none');
                 } else {
@@ -246,11 +246,18 @@ function ajaxRegister() {
         body: formData,
         headers: { 'X-Requested-With': 'XMLHttpRequest' }
     })
-        .then(r => r.json())
+        .then(async response => {
+            if (!response.ok) {
+                throw new Error('系統忙碌中，請稍後再試');
+            }
+
+            return await response.json();
+        })
         .then(res => {
             if (!res.success) {
                 if (res.errors) showRegisterErrors(res.errors);
-                if (res.message) showRegisterError(res.message);
+                else if (res.message) showRegisterError(res.message);
+                else showRegisterError('註冊失敗，請稍後再試');
                 return;
             }
 
@@ -304,15 +311,16 @@ function showRegisterErrors(errors) {
     }
 }
 
-
 function switchToRegister() {
     const registerTabBtn = document.querySelector('[data-bs-target="#registerTab"]');
     if (!registerTabBtn) return;
 
     bootstrap.Tab.getOrCreateInstance(registerTabBtn).show();
 
-    // 重新解析驗證規則
-    $.validator.unobtrusive.parse('#registerForm');
+    // 重新解析驗證規則（只有開放註冊時才需要）
+    if (window.registrationEnabled) {
+        $.validator.unobtrusive.parse('#registerForm');
+    }
 }
 
 //登入動畫
@@ -406,6 +414,7 @@ function playLoginSuccessAnimation(type = "envelope") {
         }
     });
 }
+
 // 氣球爆炸後的禮物動畫
 function createGiftBurst(container, count = 20) {
 
@@ -568,9 +577,6 @@ function notifyError(message) {
 /* ==================================================
  * 6) 追蹤創作者（ AJAX 送出 + 動畫）
  * ================================================== */
-document.addEventListener("DOMContentLoaded", function () {
-initFollowButtons();
-});
 
 function initFollowButtons() {
     document.querySelectorAll(".follow-form").forEach(form => {
@@ -604,6 +610,7 @@ function initFollowButtons() {
                     openLoginModal?.();
                     return;
                 }
+
                 // 若被導去 login（302 變成回 HTML）
                 const contentType = res.headers.get("content-type") || "";
                 if (!contentType.includes("application/json")) {
@@ -743,7 +750,6 @@ function burstHeartsFirework(stageEl, count = 22) {
     setTimeout(() => layer.remove(), 2600);
 }
 
-
 /*審核違規留言 */
 document.addEventListener("DOMContentLoaded", function () {
     const hash = window.location.hash;
@@ -768,7 +774,7 @@ document.addEventListener("DOMContentLoaded", function () {
         el.classList.remove("flash");
     }, 2500);
 
-    // 6 秒後也把 highlight 拿掉（如果你想一直亮著，把這段刪掉）
+    // 6 秒後也把 highlight 拿掉
     setTimeout(() => {
         el.classList.remove("comment-highlight");
     }, 6000);

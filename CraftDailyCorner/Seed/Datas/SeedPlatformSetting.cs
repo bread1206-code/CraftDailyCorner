@@ -10,7 +10,7 @@ namespace CraftDailyCorner.Seed.Datas
         {
             _context = context;
         }
-        public void Run(string[] imageGuids)
+        public void Run()
         {
             if (!_context.PlatformSettings.Any()) // 避免重複 Seed
             {
@@ -73,6 +73,16 @@ namespace CraftDailyCorner.Seed.Datas
                         DataType = "bool",
                         CategoryID = 1,
                         Description = "是否開放會員註冊",
+                        UpdatedAt = DateTime.Now,
+                        UpdatedBy = "M0000001"
+                    },
+                    new PlatformSetting
+                    {
+                        SettingKey = "PlatformLogo",
+                        SettingValue = "platformLogo",
+                        DataType = "image",
+                        CategoryID = 2,
+                        Description = "平台 LOGO 圖片",
                         UpdatedAt = DateTime.Now,
                         UpdatedBy = "M0000001"
                     }

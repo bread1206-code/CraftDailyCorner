@@ -1,10 +1,20 @@
-﻿@{
-    ViewData["Title"] = "日作市集";
+﻿@using CraftDailyCorner.Services.Interface
+@inject ISiteSettingService SiteSetting
+
+@{
+    var platformName = await SiteSetting.GetStringAsync("PlatformName");
+
+    if (string.IsNullOrWhiteSpace(platformName))
+    {
+        platformName = "日作市集";
+    }
+
+    ViewData["Title"] = platformName;
 }
 
 <div class="text-center">
-
 </div>
+
 <div class="mb-4">
     @await Component.InvokeAsync("VCHomepageBanner")
 </div>

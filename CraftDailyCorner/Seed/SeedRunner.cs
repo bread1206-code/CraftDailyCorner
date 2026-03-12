@@ -196,7 +196,6 @@ namespace CraftDailyCorner.Seed
             var creatorPostGuids = GenerateGuids(7);
             var seedPortfolioItemGuids = GenerateGuids(2);
             var prtfolioGuids = GenerateGuids(1);
-            var logoGuids = GenerateGuids(1);
             var homepageBannerGuids = GenerateGuids(6);
             Console.WriteLine("準備 GUID 完成");
 
@@ -208,7 +207,6 @@ namespace CraftDailyCorner.Seed
             UploadImages(productImageGuids, "04ProductImage");
             UploadImages(creatorPostGuids, "05CreatorPost");
             UploadImages(seedPortfolioItemGuids, "06Portfolio");
-            UploadImages(logoGuids, "07Logo");
             UploadImages(homepageBannerGuids, "08HomepageBanner");
             UploadImages();// 上傳預設會員圖片
             Console.WriteLine("上傳圖片 完成");
@@ -262,7 +260,7 @@ namespace CraftDailyCorner.Seed
             _seedInventoryAlert.Run();
             _seedPlatformAnnouncement.Run();
             _seedHomepageBanner.Run(homepageBannerGuids);
-            _seedPlatformSetting.Run(logoGuids);
+            _seedPlatformSetting.Run();
             _seedPortfolio.Run(prtfolioGuids);
             _seedPortfolioItem.Run(prtfolioGuids, seedPortfolioItemGuids);
             //_seedNotificationPreference.Run();
@@ -312,6 +310,15 @@ namespace CraftDailyCorner.Seed
                     sourceFile: "Seed/SeedPhotos/01Member/default.png",
                     fileNameWithoutExt: "default",
                     sizes: sizes
+                );
+            var sizesLogo = _folderSizeMapping.ContainsKey("07Logo")
+                ? _folderSizeMapping["07Logo"]
+                : ImageSizePresets.Logo;
+            _imageUploadService.UploadFromSeed(
+                    seedFolder: "07Logo",
+                    sourceFile: "Seed/SeedPhotos/07Logo/platformLogo.png",
+                    fileNameWithoutExt: "platformLogo",
+                    sizes: sizesLogo
                 );
         }
 

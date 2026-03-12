@@ -2,6 +2,7 @@
 
 namespace CraftDailyCorner.Helpers
 {
+    //心情反應CSS設定
     public static class ReactionIconHelper
     {
         public static string GetIcon(ReactionType type)

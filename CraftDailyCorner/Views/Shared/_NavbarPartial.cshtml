@@ -6,6 +6,13 @@
 @inject IMessageService MessageService
 @{
     bool hasUnread = false;
+    var registrationEnabled = await SiteSetting.GetBoolAsync("RegistrationEnabled");
+    var logoName = await SiteSetting.GetStringAsync("PlatformLogo");
+
+    if (string.IsNullOrWhiteSpace(logoName))
+    {
+        logoName = "platformLogo";
+    }
 
     if (User.Identity?.IsAuthenticated == true)
     {
@@ -23,7 +30,7 @@
 
         <!-- Logo -->
         <a class="navbar-brand me-3" asp-controller="Home" asp-action="Index">
-            <img src="@($"/Photos/07LOGO/Other/.png")"
+            <img src="@($"/Photos/07LOGO/Other/{logoName}.png?v={DateTime.Now.Ticks}")"
                  alt="Logo"
                  class="Logo img-fluid" />
         </a>

@@ -4,17 +4,6 @@
 @{
     ViewData["Title"] = "商品列表";
 
-    int pageSize = 20;
-    int currentPage = Convert.ToInt32(Context.Request.Query["page"].FirstOrDefault() ?? "1");
-
-    var totalItems = Model.Products.Count;
-    var totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
-
-    var pagedProducts = Model.Products
-        .Skip((currentPage - 1) * pageSize)
-        .Take(pageSize)
-        .ToList();
-
     string BuildPageUrl(int page)
     {
         var qs = new Dictionary<string, string?>()
@@ -34,13 +23,18 @@
 }
 
 <div class="container my-5">
-    <!--麵包屑-->
     @await Html.PartialAsync("_BreadcrumbPartial", Model.Breadcrumb)
-    <h3 class="fw-bold mb-4">@Model.PageTitle</h3>
 
-    <!-- 商品 Card -->
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <h3 class="fw-bold mb-0">@Model.PageTitle</h3>
+
+        <div class="text-muted small">
+            共 @Model.TotalCount 筆商品，每頁 @Model.PageSize 筆
+        </div>
+    </div>
+
     <div class="row g-4">
-        @foreach (var item in pagedProducts)
+        @foreach (var item in Model.Products)
         {
             <div class="col-12 col-sm-6 col-md-3">
                 <div class="card h-100 shadow-sm p-card">
@@ -49,17 +43,17 @@
                        asp-route-id="@item.ProductID"
                        class="text-decoration-none text-dark">
 
-                        <img src=@($"/Photos/04ProductImage/Large/{item.CoverImageUrl}.png")
+                        <img src="@($"/Photos/04ProductImage/Large/{item.CoverImageUrl}.png")"
                              class="card-img-top"
                              style="height:200px;object-fit:cover;" />
                     </a>
-                        <div class="card-body">
 
-                            <!-- 商品名稱 + 收藏（同一行） -->
-                            <div class="d-flex justify-content-between align-items-start">
-                                <h6 class="card-title text-truncate mb-1 pe-2">
-                                    @item.ProductName
-                                </h6>
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <h6 class="card-title text-truncate mb-1 pe-2">
+                                @item.ProductName
+                            </h6>
+
                             @if (User.Identity?.IsAuthenticated == true)
                             {
                                 <button type="button"
@@ -79,59 +73,50 @@
                                     <i class="bi @(item.IsFavorite ? "bi-heart-fill text-danger" : "bi-heart text-muted") fs-5"></i>
                                 </button>
                             }
-                            </div>
-
-                            <p class="text-danger fw-bold mb-1">
-                                NT$ @Math.Floor(item.Price)
-                            </p>
-
                         </div>
-                    
+
+                        <p class="text-danger fw-bold mb-1">
+                            NT$ @Math.Floor(item.Price)
+                        </p>
+                    </div>
                 </div>
-            @*  <!-- Tags -->
-                <div class="card-footer bg-white border-0 pt-0">
-                    @foreach (var tag in item.ProductTags.Select(pt => pt.Tag))
-                    {
-                        <a asp-controller="Products"
-                            asp-action="Index"
-                            asp-route-tagId="@tag.TagID"
-                            class="badge bg-secondary text-decoration-none me-1">
-                            @tag.TagName
-                        </a>
-                    }
-                </div> *@
             </div>
         }
     </div>
 
-    <!-- 分頁 -->
-    @if (totalPages > 1)
+    @if (!Model.Products.Any())
+    {
+        <div class="text-center text-muted mt-5">
+            目前沒有符合條件的商品
+        </div>
+    }
+
+    @if (Model.TotalPages > 1)
     {
         <nav class="mt-5">
             <ul class="pagination justify-content-center">
 
-                <li class="page-item @(currentPage == 1 ? "disabled" : "")">
-                    <a class="page-link" href="@BuildPageUrl(currentPage - 1)">
+                <li class="page-item @(Model.Page == 1 ? "disabled" : "")">
+                    <a class="page-link" href="@BuildPageUrl(Model.Page - 1)">
                         上一頁
                     </a>
                 </li>
 
-                @for (int i = 1; i <= totalPages; i++)
+                @for (int i = 1; i <= Model.TotalPages; i++)
                 {
-                    <li class="page-item @(i == currentPage ? "active" : "")">
+                    <li class="page-item @(i == Model.Page ? "active" : "")">
                         <a class="page-link" href="@BuildPageUrl(i)">
                             @i
                         </a>
                     </li>
                 }
 
-                <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
-                    <a class="page-link" href="@BuildPageUrl(currentPage + 1)">
+                <li class="page-item @(Model.Page == Model.TotalPages ? "disabled" : "")">
+                    <a class="page-link" href="@BuildPageUrl(Model.Page + 1)">
                         下一頁
                     </a>
                 </li>
             </ul>
         </nav>
     }
-
 </div>

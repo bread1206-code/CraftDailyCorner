@@ -1,23 +1,41 @@
-﻿@model IEnumerable<CraftDailyCorner.Models.HomepageBanner>
+﻿@model CraftDailyCorner.ViewModels.Homepage.VMHomepageBanner
+
 @{
     Layout = null;
+    var intervalMs = Model.AutoplaySeconds * 1000;
 }
-<div id="BannerAutoplaying" class="carousel slide" data-bs-ride="carousel">
-    <div class="carousel-inner">
-        @foreach (var item in Model)
-        {
-            var a = item == Model.First() ? "active" : "";
 
-            <div class="carousel-item @a">
-                <img src="@($"/Photos/08HomepageBanner/Other/{item.ImageUrl}.png")" class="d-block w-100">
+<div id="BannerAutoplaying"
+     class="carousel slide"
+     data-bs-ride="carousel"
+     data-bs-interval="@intervalMs">
+
+    <div class="carousel-inner">
+        @for (int i = 0; i < Model.Items.Count; i++)
+        {
+            var item = Model.Items[i];
+            var activeClass = i == 0 ? "active" : "";
+
+            <div class="carousel-item @activeClass">
+                <img src="@($"/Photos/08HomepageBanner/Other/{item.ImageUrl}.png")"
+                     class="d-block w-100"
+                     alt="@item.Title">
             </div>
         }
     </div>
-    <button class="carousel-control-prev" type="button" data-bs-target="#BannerAutoplaying" data-bs-slide="prev">
+
+    <button class="carousel-control-prev"
+            type="button"
+            data-bs-target="#BannerAutoplaying"
+            data-bs-slide="prev">
         <span class="carousel-control-prev-icon" aria-hidden="true"></span>
         <span class="visually-hidden">Previous</span>
     </button>
-    <button class="carousel-control-next" type="button" data-bs-target="#BannerAutoplaying" data-bs-slide="next">
+
+    <button class="carousel-control-next"
+            type="button"
+            data-bs-target="#BannerAutoplaying"
+            data-bs-slide="next">
         <span class="carousel-control-next-icon" aria-hidden="true"></span>
         <span class="visually-hidden">Next</span>
     </button>

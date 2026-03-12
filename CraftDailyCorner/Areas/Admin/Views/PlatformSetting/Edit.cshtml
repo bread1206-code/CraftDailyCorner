@@ -27,7 +27,8 @@
             <form asp-area="Admin"
                   asp-controller="PlatformSetting"
                   asp-action="Edit"
-                  method="post">
+                  method="post"
+                  enctype="multipart/form-data">
                 @Html.AntiForgeryToken()
 
                 <input type="hidden" asp-for="SettingID" />
@@ -55,7 +56,22 @@
                         <div class="mb-3">
                             <label asp-for="SettingValue" class="form-label text-light"></label>
 
-                            @if (Model.IsBoolType)
+                            @if (Model.IsImageType)
+                            {
+                                <input type="hidden" asp-for="SettingValue" />
+
+                                <input asp-for="LogoFile"
+                                       type="file"
+                                       accept=".png,image/png"
+                                       class="form-control bg-dark text-light border-secondary" />
+
+                                <span asp-validation-for="LogoFile" class="text-warning small"></span>
+
+                                <div class="form-text text-light opacity-75 mt-2">
+                                    請上傳 PNG 圖檔，系統會覆蓋既有平台 LOGO。
+                                </div>
+                            }
+                            else if (Model.IsBoolType)
                             {
                                 <select asp-for="SettingValue"
                                         asp-items="Model.BoolOptions"
@@ -69,7 +85,10 @@
                                        placeholder="請輸入設定值" />
                             }
 
-                            <span asp-validation-for="SettingValue" class="text-warning small"></span>
+                            @if (!Model.IsImageType)
+                            {
+                                <span asp-validation-for="SettingValue" class="text-warning small"></span>
+                            }
 
                             @if (!string.IsNullOrWhiteSpace(Model.HintText))
                             {
@@ -85,6 +104,18 @@
                                 </div>
                             }
                         </div>
+
+                        @if (Model.IsImageType)
+                        {
+                            <div class="mb-4">
+                                <label class="form-label text-light">目前 LOGO</label>
+                                <div class="p-3 border rounded bg-white d-inline-block">
+                                    <img src="@($"/Photos/07LOGO/Other/{Model.SettingValue}.png?v={DateTime.Now.Ticks}")"
+                                         alt="平台 LOGO"
+                                         style="max-width:220px; max-height:120px;" />
+                                </div>
+                            </div>
+                        }
 
                         <div class="mb-3">
                             <label asp-for="DataType" class="form-label text-light"></label>

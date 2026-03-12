@@ -13,20 +13,22 @@ namespace CraftDailyCorner.Controllers
         private readonly CraftDailyCornerContext _context;
         private readonly IAccountService _accountService;
         private readonly IAuthService _authService;
+        private readonly ISiteSettingService _siteSettingService;
 
         public AccountController(
             CraftDailyCornerContext context,
             IAccountService accountService,
-            IAuthService authService)
+            IAuthService authService,
+            ISiteSettingService siteSettingService)
         {
             _context = context;
             _accountService = accountService;
             _authService = authService;
+            _siteSettingService = siteSettingService;
         }
 
         public IActionResult Login(string? returnUrl = null)
         {
-            // 如果已經登入，直接導回首頁或 returnUrl
             if (User.Identity != null && User.Identity.IsAuthenticated)
             {
                 if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
@@ -55,7 +57,6 @@ namespace CraftDailyCorner.Controllers
             if (member == null)
                 return Json(new { success = false, message = "找不到會員資料" });
 
-            // 會員停權不可登入
             if (member.StatusID == 2)
                 return Json(new { success = false, message = "此帳號已被停權，無法登入" });
 
@@ -65,10 +66,8 @@ namespace CraftDailyCorner.Controllers
             if (result == PasswordVerificationResult.Failed)
                 return Json(new { success = false, message = "帳號或密碼錯誤" });
 
-            // ✅ 改用 AuthService
             await _authService.SignInMemberAsync(HttpContext, user.MemberID);
 
-            // RememberAccount 邏輯保留
             if (login.RememberAccount)
             {
                 Response.Cookies.Append(
@@ -91,7 +90,6 @@ namespace CraftDailyCorner.Controllers
         [Authorize]
         public async Task<IActionResult> Logout()
         {
-            // ✅ 改用 AuthService
             await _authService.SignOutAsync(HttpContext);
             return RedirectToAction("Index", "Home");
         }
@@ -99,18 +97,32 @@ namespace CraftDailyCorner.Controllers
         // =============================
         // Register
         // =============================
-        public IActionResult Register()
+        public async Task<IActionResult> Register()
         {
             if (User.Identity != null && User.Identity.IsAuthenticated)
                 return RedirectToAction("Index", "Home");
 
-            return View();
+            var registrationEnabled = await _siteSettingService.GetBoolAsync("RegistrationEnabled");
+
+            ViewBag.RegistrationEnabled = registrationEnabled;
+
+            return View(new VMRegister());
         }
-        //註冊
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Register(VMRegister model)
         {
+            var registrationEnabled = await _siteSettingService.GetBoolAsync("RegistrationEnabled");
+            if (!registrationEnabled)
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = "目前暫停開放會員註冊"
+                });
+            }
+
             if (!ModelState.IsValid)
             {
                 var errors = ModelState
@@ -141,10 +153,8 @@ namespace CraftDailyCorner.Controllers
                 }, new JsonSerializerOptions { PropertyNamingPolicy = null });
             }
 
-            // 建立會員
             string newMemberId = await _accountService.RegisterMemberAsync(model);
 
-            // 自動登入（✅ 改用 AuthService）
             await _authService.SignInMemberAsync(HttpContext, newMemberId);
 
             return Json(new { success = true });
@@ -186,7 +196,7 @@ namespace CraftDailyCorner.Controllers
             var resetLink = Url.Action("ResetPassword", "Account", new { token = token }, Request.Scheme);
 
             TempData["Info"] = "已發送重設密碼 Email，請檢查收件匣";
-            TempData["ResetLink"] = resetLink; // 測試用
+            TempData["ResetLink"] = resetLink;
             return RedirectToAction("ForgetPasswordConfirmation");
         }
 

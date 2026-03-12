@@ -1,6 +1,7 @@
 ﻿using CraftDailyCorner.Areas.Admin.ViewModels.PlatformSetting;
 using CraftDailyCorner.Models;
 using CraftDailyCorner.Services.Interface;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 
@@ -9,8 +10,8 @@ namespace CraftDailyCorner.Services
     public class AdminPlatformSettingService : IAdminPlatformSettingService
     {
         private readonly CraftDailyCornerContext _context;
+        private readonly IWebHostEnvironment _env;
 
-        // 先只管理這 6 個平台參數
         private static readonly string[] AllowedKeys =
         {
             "PlatformName",
@@ -18,12 +19,16 @@ namespace CraftDailyCorner.Services
             "HomepageFeaturedProductCount",
             "BannerAutoplaySeconds",
             "ProductListPageSize",
-            "RegistrationEnabled"
+            "RegistrationEnabled",
+            "PlatformLogo"
         };
 
-        public AdminPlatformSettingService(CraftDailyCornerContext context)
+        public AdminPlatformSettingService(
+            CraftDailyCornerContext context,
+            IWebHostEnvironment env)
         {
             _context = context;
+            _env = env;
         }
 
         public async Task<VMAdminPlatformSettingIndex> GetIndexAsync()
@@ -105,6 +110,18 @@ namespace CraftDailyCorner.Services
             if (entity == null)
                 return false;
 
+            // image 型態：走上傳覆蓋固定檔名
+            if (string.Equals(entity.DataType, "image", StringComparison.OrdinalIgnoreCase))
+            {
+                await SavePlatformLogoAsync(vm, entity);
+
+                entity.UpdatedAt = DateTime.Now;
+                entity.UpdatedBy = adminMemberId;
+
+                await _context.SaveChangesAsync();
+                return true;
+            }
+
             var newValue = (vm.SettingValue ?? string.Empty).Trim();
 
             if (string.IsNullOrWhiteSpace(newValue))
@@ -118,6 +135,33 @@ namespace CraftDailyCorner.Services
 
             await _context.SaveChangesAsync();
             return true;
+        }
+
+        private async Task SavePlatformLogoAsync(VMAdminPlatformSettingEdit vm, PlatformSetting entity)
+        {
+            if (vm.LogoFile == null || vm.LogoFile.Length == 0)
+                throw new ArgumentException("請選擇要上傳的 LOGO 圖片");
+
+            var ext = Path.GetExtension(vm.LogoFile.FileName)?.ToLowerInvariant();
+            if (ext != ".png")
+                throw new ArgumentException("平台 LOGO 只接受 PNG 圖檔");
+
+            if (string.IsNullOrWhiteSpace(vm.LogoFile.ContentType) ||
+                !vm.LogoFile.ContentType.StartsWith("image/"))
+                throw new ArgumentException("請上傳有效的圖片檔案");
+
+            var folder = Path.Combine(_env.WebRootPath, "Photos", "07LOGO", "Other");
+            Directory.CreateDirectory(folder);
+
+            // 固定覆蓋檔名
+            var fixedFileName = "platformLogo.png";
+            var fullPath = Path.Combine(folder, fixedFileName);
+
+            using var stream = new FileStream(fullPath, FileMode.Create, FileAccess.Write);
+            await vm.LogoFile.CopyToAsync(stream);
+
+            // DB 只存不含副檔名的固定值
+            entity.SettingValue = "platformLogo";
         }
 
         private static void ValidateSettingValue(string dataType, string value, string settingKey)
@@ -136,8 +180,8 @@ namespace CraftDailyCorner.Services
                     switch (settingKey)
                     {
                         case "HomepageFeaturedProductCount":
-                            if (intValue < 4 || intValue > 12)
-                                throw new ArgumentException("首頁精選商品數建議介於 4 ~ 12");
+                            if (intValue < 4 || intValue > 16)
+                                throw new ArgumentException("首頁精選商品數建議介於 4 ~ 16");
                             break;
 
                         case "BannerAutoplaySeconds":
@@ -160,6 +204,9 @@ namespace CraftDailyCorner.Services
                 case "string":
                     break;
 
+                case "image":
+                    break;
+
                 default:
                     throw new ArgumentException($"不支援的資料型態：{dataType}");
             }
@@ -175,28 +222,31 @@ namespace CraftDailyCorner.Services
                 _ => value
             };
         }
+
         private static SelectList BuildBoolOptions(string? selectedValue)
         {
             selectedValue = (selectedValue ?? string.Empty).Trim().ToLower();
 
             var items = new List<SelectListItem>
-                {
-                    new SelectListItem { Value = "true", Text = "開啟" },
-                    new SelectListItem { Value = "false", Text = "關閉" }
-                };
+            {
+                new SelectListItem { Value = "true", Text = "開啟" },
+                new SelectListItem { Value = "false", Text = "關閉" }
+            };
 
             return new SelectList(items, "Value", "Text", selectedValue);
         }
+
         private static string? BuildHintText(string settingKey)
         {
             return settingKey switch
             {
                 "PlatformName" => "平台前台顯示名稱。",
                 "PlatformServiceEmail" => "顯示於平台聯絡資訊或客服用途。",
-                "HomepageFeaturedProductCount" => "首頁精選商品顯示數量，建議 4 ~ 12。",
+                "HomepageFeaturedProductCount" => "首頁精選商品顯示數量，建議 4 ~ 16。",
                 "BannerAutoplaySeconds" => "首頁 Banner 自動輪播秒數，建議 3 ~ 10。",
                 "ProductListPageSize" => "商品列表每頁顯示筆數，建議 8 ~ 40。",
                 "RegistrationEnabled" => "控制是否開放新會員註冊。",
+                "PlatformLogo" => "上傳平台 LOGO，固定覆蓋為 platformLogo.png。",
                 _ => null
             };
         }
@@ -205,7 +255,7 @@ namespace CraftDailyCorner.Services
         {
             return settingKey switch
             {
-                "HomepageFeaturedProductCount" => "4 ~ 12",
+                "HomepageFeaturedProductCount" => "4 ~ 16",
                 "BannerAutoplaySeconds" => "3 ~ 10",
                 "ProductListPageSize" => "8 ~ 40",
                 _ => null

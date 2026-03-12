@@ -27,9 +27,10 @@
     var isCategoriesPage = currentController == "Categories";
     var isTagPage = currentController == "Tag";
     var isAnnouncementPage = currentController == "Announcement";
+
     var isSystemSettingPage = currentController == "SystemSetting"
-    || currentController == "HomepageBanner"
-    || currentController == "PlatformSetting";
+        || currentController == "HomepageBanner"
+        || currentController == "PlatformSetting";
 
     var isHomepageBannerPage = currentController == "HomepageBanner";
     var isPlatformSettingPage = currentController == "PlatformSetting";
@@ -51,12 +52,20 @@
 
         <!-- 會員管理 -->
         <li class="nav-item mb-1">
-            <div class="d-flex align-items-center justify-content-between admin-main-wrap @(isMemberPage ? "active" : "")">
+            <div class="d-flex align-items-center justify-content-between admin-main-wrap @(isMemberPage ? "active" : "")"
+                 role="button"
+                 data-bs-toggle="collapse"
+                 data-bs-target="#collapseMembers"
+                 aria-expanded="@(isMemberPage ? "true" : "false")"
+                 aria-controls="collapseMembers"
+                 style="cursor:pointer;">
+
                 <a asp-area="Admin"
                    asp-controller="Members"
                    asp-action="Index"
                    asp-route-mode="risk"
-                   class="nav-link admin-main-link text-light flex-grow-1 @(isMemberPage ? "active" : "")">
+                   class="nav-link admin-main-link text-light flex-grow-1 @(isMemberPage ? "active" : "")"
+                   onclick="event.stopPropagation();">
                     <i class="bi bi-person-bounding-box me-2"></i>會員管理
                 </a>
 
@@ -65,7 +74,8 @@
                         data-bs-toggle="collapse"
                         data-bs-target="#collapseMembers"
                         aria-expanded="@(isMemberPage ? "true" : "false")"
-                        aria-controls="collapseMembers">
+                        aria-controls="collapseMembers"
+                        onclick="event.stopPropagation();">
                     <i class="bi bi-caret-down-fill"></i>
                 </button>
             </div>
@@ -109,14 +119,22 @@
                 }
             </div>
         </li>
-        
-        <!-- 創作者審核：待審核 -->
+
+        <!-- 創作者審核 -->
         <li class="nav-item mb-1">
-            <div class="d-flex align-items-center justify-content-between admin-main-wrap @(isCreatorReviewPage ? "active" : "")">
+            <div class="d-flex align-items-center justify-content-between admin-main-wrap @(isCreatorReviewPage ? "active" : "")"
+                 role="button"
+                 data-bs-toggle="collapse"
+                 data-bs-target="#collapseCreatorReview"
+                 aria-expanded="@(isCreatorReviewPage ? "true" : "false")"
+                 aria-controls="collapseCreatorReview"
+                 style="cursor:pointer;">
+
                 <a asp-area="Admin"
                    asp-controller="CreatorReview"
                    asp-action="Index"
-                   class="nav-link admin-main-link text-light flex-grow-1 d-flex justify-content-between align-items-center @(isCreatorReviewPage ? "active" : "")">
+                   class="nav-link admin-main-link text-light flex-grow-1 d-flex justify-content-between align-items-center @(isCreatorReviewPage ? "active" : "")"
+                   onclick="event.stopPropagation();">
                     <span>
                         <i class="bi bi-person-check me-2"></i>創作者審核
                     </span>
@@ -131,7 +149,8 @@
                         data-bs-toggle="collapse"
                         data-bs-target="#collapseCreatorReview"
                         aria-expanded="@(isCreatorReviewPage ? "true" : "false")"
-                        aria-controls="collapseCreatorReview">
+                        aria-controls="collapseCreatorReview"
+                        onclick="event.stopPropagation();">
                     <i class="bi bi-caret-down-fill"></i>
                 </button>
             </div>
@@ -152,13 +171,22 @@
                 </div>
             </div>
         </li>
-        <!-- 違規管理：待審核 -->
+
+        <!-- 違規管理 -->
         <li class="nav-item mb-1">
-            <div class="d-flex align-items-center justify-content-between admin-main-wrap @(isViolationPage ? "active" : "")">
+            <div class="d-flex align-items-center justify-content-between admin-main-wrap @(isViolationPage ? "active" : "")"
+                 role="button"
+                 data-bs-toggle="collapse"
+                 data-bs-target="#collapseViolation"
+                 aria-expanded="@(isViolationPage ? "true" : "false")"
+                 aria-controls="collapseViolation"
+                 style="cursor:pointer;">
+
                 <a asp-area="Admin"
                    asp-controller="Violation"
                    asp-action="Index"
-                   class="nav-link admin-main-link text-light flex-grow-1 d-flex justify-content-between align-items-center @(isViolationPage ? "active" : "")">
+                   class="nav-link admin-main-link text-light flex-grow-1 d-flex justify-content-between align-items-center @(isViolationPage ? "active" : "")"
+                   onclick="event.stopPropagation();">
                     <span>
                         <i class="bi bi-exclamation-triangle me-2"></i>違規管理
                     </span>
@@ -173,7 +201,8 @@
                         data-bs-toggle="collapse"
                         data-bs-target="#collapseViolation"
                         aria-expanded="@(isViolationPage ? "true" : "false")"
-                        aria-controls="collapseViolation">
+                        aria-controls="collapseViolation"
+                        onclick="event.stopPropagation();">
                     <i class="bi bi-caret-down-fill"></i>
                 </button>
             </div>
@@ -221,48 +250,54 @@
             </a>
         </li>
 
+        <!-- 系統設定 -->
         <li class="nav-item mb-1">
-            <div class="d-flex align-items-center justify-content-between admin-main-wrap @(isSystemSettingPage ? "active" : "")">
-                <a asp-area="Admin"
-                   asp-controller="SystemSetting"
-                   asp-action="Index"
-                   class="nav-link admin-main-link text-light flex-grow-1 @(isSystemSettingPage ? "active" : "")">
+            <div class="d-flex align-items-center justify-content-between admin-main-wrap @(isSystemSettingPage ? "active" : "")"
+                 role="button"
+                 data-bs-toggle="collapse"
+                 data-bs-target="#collapseSystemSetting"
+                 aria-expanded="@(isSystemSettingPage ? "true" : "false")"
+                 aria-controls="collapseSystemSetting"
+                 style="cursor:pointer;">
+
+                <div class="nav-link admin-main-link text-light flex-grow-1 @(isSystemSettingPage ? "active" : "")">
                     <i class="bi bi-gear me-2"></i>系統設定
-                </a>
+                </div>
 
                 <button class="btn btn-link text-light text-decoration-none p-0 ms-2 admin-toggle @(isSystemSettingPage ? "" : "collapsed")"
                         type="button"
                         data-bs-toggle="collapse"
                         data-bs-target="#collapseSystemSetting"
                         aria-expanded="@(isSystemSettingPage ? "true" : "false")"
-                        aria-controls="collapseSystemSetting">
+                        aria-controls="collapseSystemSetting"
+                        onclick="event.stopPropagation();">
                     <i class="bi bi-caret-down-fill"></i>
                 </button>
             </div>
         </li>
 
         <li class="nav-item">
-    <div id="collapseSystemSetting"
-         class="collapse @(isSystemSettingPage ? "show" : "")">
-        <div class="ms-4">
-            <a asp-area="Admin"
-               asp-controller="PlatformSetting"
-               asp-action="Index"
-               class="nav-link admin-sub-link text-light small opacity-75 py-1 @(isPlatformSettingPage ? "active" : "")">
-                平台參數設定
-            </a>
-        </div>
+            <div id="collapseSystemSetting"
+                 class="collapse @(isSystemSettingPage ? "show" : "")">
+                <div class="ms-4">
+                    <a asp-area="Admin"
+                       asp-controller="PlatformSetting"
+                       asp-action="Index"
+                       class="nav-link admin-sub-link text-light small opacity-75 py-1 @(isPlatformSettingPage ? "active" : "")">
+                        平台參數設定
+                    </a>
+                </div>
 
-        <div class="ms-4">
-            <a asp-area="Admin"
-               asp-controller="HomepageBanner"
-               asp-action="Index"
-               class="nav-link admin-sub-link text-light small opacity-75 py-1 @(isHomepageBannerPage ? "active" : "")">
-                首頁輪播圖管理
-            </a>
-        </div>
-    </div>
-</li>
+                <div class="ms-4">
+                    <a asp-area="Admin"
+                       asp-controller="HomepageBanner"
+                       asp-action="Index"
+                       class="nav-link admin-sub-link text-light small opacity-75 py-1 @(isHomepageBannerPage ? "active" : "")">
+                        首頁輪播圖管理
+                    </a>
+                </div>
+            </div>
+        </li>
 
     </ul>
 

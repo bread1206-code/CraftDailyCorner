@@ -1,4 +1,5 @@
 ﻿using CraftDailyCorner.Models;
+using CraftDailyCorner.Services.Interface;
 using CraftDailyCorner.ViewModels.Breadcrumb;
 using CraftDailyCorner.ViewModels.Product;
 using Microsoft.EntityFrameworkCore;
@@ -8,28 +9,46 @@ namespace CraftDailyCorner.Services
     public class ProductService
     {
         private readonly CraftDailyCornerContext _context;
+        private readonly ISiteSettingService _siteSetting;
 
-        public ProductService(CraftDailyCornerContext context)
+        public ProductService(
+            CraftDailyCornerContext context,
+            ISiteSettingService siteSetting)
         {
             _context = context;
+            _siteSetting = siteSetting;
         }
 
-        //商品列表（分類 / 搜尋 / Tag）
-        public VMProductList GetProductList(int? categoryId,string? keyword,int? tagId,string? memberId)
+        // 商品列表（分類 / 搜尋 / Tag + 分頁）
+        public async Task<VMProductList> GetProductListAsync(
+            int? categoryId,
+            string? keyword,
+            int? tagId,
+            string? memberId,
+            int page = 1)
         {
+            if (page <= 0)
+                page = 1;
+
+            var pageSize = await _siteSetting.GetIntAsync("ProductListPageSize");
+            if (pageSize <= 0)
+                pageSize = 12;
+
             var query = _context.Products
+                .AsNoTracking()
                 .Include(p => p.ProductImages)
-                .Where(p => p.StatusID == 2);
+                .Where(p => p.StatusID == 2)
+                .AsQueryable();
 
             string pageTitle = "所有商品";
 
             // 分類
             if (categoryId.HasValue)
             {
-                var categoryName = _context.Categories
+                var categoryName = await _context.Categories
                     .Where(c => c.CategoryID == categoryId)
                     .Select(c => c.CategoryName)
-                    .FirstOrDefault();
+                    .FirstOrDefaultAsync();
 
                 pageTitle = categoryName != null
                     ? $"{categoryName} 類商品"
@@ -52,10 +71,10 @@ namespace CraftDailyCorner.Services
             // 標籤（最高優先）
             if (tagId.HasValue)
             {
-                var tagName = _context.Tags
+                var tagName = await _context.Tags
                     .Where(t => t.TagID == tagId)
                     .Select(t => t.TagName)
-                    .FirstOrDefault();
+                    .FirstOrDefaultAsync();
 
                 pageTitle = tagName != null
                     ? $"#{tagName} 標籤商品"
@@ -65,17 +84,23 @@ namespace CraftDailyCorner.Services
                     p.ProductTags.Any(pt => pt.TagID == tagId));
             }
 
-            var products = query.ToList();
+            var totalCount = await query.CountAsync();
 
-            // 一次撈會員收藏
+            var products = await query
+                .OrderByDescending(p => p.CreatedAt)
+                .ThenByDescending(p => p.ProductID)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
             var favoriteIds = new HashSet<string>();
 
             if (!string.IsNullOrEmpty(memberId))
             {
-                favoriteIds = _context.FavoriteProducts
+                favoriteIds = await _context.FavoriteProducts
                     .Where(f => f.MemberID == memberId)
                     .Select(f => f.ProductID)
-                    .ToHashSet();
+                    .ToHashSetAsync();
             }
 
             var items = products.Select(p =>
@@ -103,6 +128,9 @@ namespace CraftDailyCorner.Services
                 Keyword = keyword,
                 TagId = tagId,
                 PageTitle = pageTitle,
+                Page = page,
+                PageSize = pageSize,
+                TotalCount = totalCount,
 
                 Breadcrumb = BuildProductBreadcrumb(
                     categoryId,
@@ -112,7 +140,7 @@ namespace CraftDailyCorner.Services
             };
         }
 
-        //商品詳細頁
+        // 商品詳細頁
         public VMProductDetail? GetProductDetail(string productId, string? memberId)
         {
             var product = _context.Products
@@ -181,26 +209,24 @@ namespace CraftDailyCorner.Services
                 ReportBanUntil = reportBanUntil
             };
         }
+
         // 建立商品列表頁的麵包屑導航
-        private VMBreadcrumb BuildProductBreadcrumb(int? categoryId,string? keyword,int? tagId)
+        private VMBreadcrumb BuildProductBreadcrumb(int? categoryId, string? keyword, int? tagId)
         {
             var breadcrumb = new VMBreadcrumb();
 
-            // 首頁
             breadcrumb.Items.Add(new VMBreadcrumbItem
             {
                 Text = "首頁",
                 Url = "/"
             });
 
-            // 商品列表
             breadcrumb.Items.Add(new VMBreadcrumbItem
             {
                 Text = "商品",
                 Url = "/Products"
             });
 
-            // 搜尋（優先）
             if (!string.IsNullOrWhiteSpace(keyword))
             {
                 breadcrumb.Items.Add(new VMBreadcrumbItem
@@ -212,7 +238,6 @@ namespace CraftDailyCorner.Services
                 return breadcrumb;
             }
 
-            // 標籤
             if (tagId.HasValue)
             {
                 var tagName = _context.Tags
@@ -229,7 +254,6 @@ namespace CraftDailyCorner.Services
                 return breadcrumb;
             }
 
-            // 分類
             if (categoryId.HasValue)
             {
                 var categoryName = _context.Categories
@@ -246,26 +270,24 @@ namespace CraftDailyCorner.Services
 
             return breadcrumb;
         }
+
         // 建立商品詳細頁的麵包屑導航
         private VMBreadcrumb BuildProductDetailBreadcrumb(Product product)
         {
             var breadcrumb = new VMBreadcrumb();
 
-            // 首頁
             breadcrumb.Items.Add(new VMBreadcrumbItem
             {
                 Text = "首頁",
                 Url = "/"
             });
 
-            // 商品列表
             breadcrumb.Items.Add(new VMBreadcrumbItem
             {
                 Text = "商品",
                 Url = "/Products"
             });
 
-            // 分類（取第一個）
             var category = product.ProductCategories
                 .Select(pc => pc.Category)
                 .FirstOrDefault();
@@ -279,7 +301,6 @@ namespace CraftDailyCorner.Services
                 });
             }
 
-            // 商品名稱（目前頁）
             breadcrumb.Items.Add(new VMBreadcrumbItem
             {
                 Text = product.ProductName,

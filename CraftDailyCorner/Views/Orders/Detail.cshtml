@@ -1,6 +1,11 @@
-﻿@using CraftDailyCorner.ViewModels.Member
+﻿@using CraftDailyCorner.Services.Interface
+@using CraftDailyCorner.ViewModels.Member
 @model VMMyOrderDetail
+@inject ISiteSettingService SiteSetting
 
+@{
+    var email = await SiteSetting.GetStringAsync("PlatformServiceEmail");
+}
 @{
     ViewData["Title"] = "訂單明細";
 
@@ -309,13 +314,19 @@
     </div>
 
     <!-- ===== 客服資訊 ===== -->
+    <!-- ===== 客服資訊 ===== -->
     <div class="alert alert-light mt-4">
         <div class="fw-semibold mb-1">訂單有問題？</div>
         <small class="text-muted">
             若您對訂單內容或配送狀態有任何疑問，請聯絡客服：
-            <a href="#">
-                support@craftdailycorner.com
-            </a>
+            @if (!string.IsNullOrWhiteSpace(email))
+            {
+                <a href="mailto:@email">@email</a>
+            }
+            else
+            {
+                <span>目前尚未設定客服信箱</span>
+            }
         </small>
     </div>
 

@@ -13,17 +13,18 @@ namespace CraftDailyCorner.Controllers
             _productService = productService;
         }
 
-        public IActionResult Index(int? categoryId, string? keyword, int? tagId)
+        public async Task<IActionResult> Index(int? categoryId, string? keyword, int? tagId, int page = 1)
         {
             string? memberId = User.Identity?.IsAuthenticated == true
                 ? User.FindFirstValue(ClaimTypes.NameIdentifier)
                 : null;
 
-            var vm = _productService.GetProductList(
+            var vm = await _productService.GetProductListAsync(
                 categoryId,
                 keyword,
                 tagId,
-                memberId
+                memberId,
+                page
             );
 
             return View(vm);

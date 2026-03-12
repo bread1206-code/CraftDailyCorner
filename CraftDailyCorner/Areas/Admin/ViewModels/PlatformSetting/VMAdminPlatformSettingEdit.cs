@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using System.ComponentModel.DataAnnotations;
 
 namespace CraftDailyCorner.Areas.Admin.ViewModels.PlatformSetting
@@ -37,7 +38,14 @@ namespace CraftDailyCorner.Areas.Admin.ViewModels.PlatformSetting
         public bool IsBoolType =>
             string.Equals(DataType, "bool", StringComparison.OrdinalIgnoreCase);
 
+        public bool IsImageType =>
+            string.Equals(DataType, "image", StringComparison.OrdinalIgnoreCase);
+
+        [Display(Name = "上傳 LOGO")]
+        public IFormFile? LogoFile { get; set; }
+
         public SelectList? BoolOptions { get; set; }
+
         public string? HintText { get; set; }
 
         public string? SuggestedRange { get; set; }

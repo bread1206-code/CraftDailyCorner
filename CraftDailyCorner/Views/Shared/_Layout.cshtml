@@ -1,6 +1,18 @@
 ﻿@using CraftDailyCorner.Services.Interface
 @using CraftDailyCorner.ViewModels.Member
 @using System.Security.Claims
+@inject ISiteSettingService SiteSetting
+
+@{
+    var registrationEnabled = await SiteSetting.GetBoolAsync("RegistrationEnabled");
+    var serviceEmail = await SiteSetting.GetStringAsync("PlatformServiceEmail");
+
+    if (string.IsNullOrWhiteSpace(serviceEmail))
+    {
+        serviceEmail = "目前尚未設定客服信箱";
+    }
+}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -14,7 +26,6 @@
     <link rel="stylesheet" href="~/CraftDailyCorner.styles.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/loadingOverlay.css" />
     <link rel="stylesheet" href="~/css/reaction.css" />
-    @inject ISiteSettingService SiteSetting
     @RenderSection("Styles", required: false)
 </head>
 <body>
@@ -22,6 +33,7 @@
         <div id="navbarContainer">
             @await Html.PartialAsync("_NavbarPartial")
         </div>
+
         <!-- 登入 Modal -->
         <div class="modal fade" id="loginModal" tabindex="-1">
             <div class="modal-dialog">
@@ -55,8 +67,34 @@
                             <div class="tab-pane fade show active" id="loginTab">
                                 @await Html.PartialAsync("_LoginPartial", new VMLogin())
                             </div>
+
                             <div class="tab-pane fade" id="registerTab">
-                                @await Html.PartialAsync("_RegisterPartial", new VMRegister())
+                                @if (registrationEnabled)
+                                {
+                                    @await Html.PartialAsync("_RegisterPartial", new VMRegister())
+                                }
+                                else
+                                {
+                                    <div class="text-center py-4">
+                                        <i class="bi bi-person-x fs-1 text-muted d-block mb-3"></i>
+
+                                        <h5 class="text-muted mb-2">
+                                            目前暫停開放會員註冊
+                                        </h5>
+
+                                        <p class="text-muted small mb-0">
+                                            若有任何問題，請聯絡平台客服：
+                                            @if (!string.IsNullOrWhiteSpace(serviceEmail) && serviceEmail != "目前尚未設定客服信箱")
+                                            {
+                                                <a href="mailto:@serviceEmail">@serviceEmail</a>
+                                            }
+                                            else
+                                            {
+                                                <span>@serviceEmail</span>
+                                            }
+                                        </p>
+                                    </div>
+                                }
                             </div>
                         </div>
                     </div>
@@ -80,6 +118,7 @@
             </div>
         </div>
     </header>
+
     <div class="container">
         <main role="main" class="pb-3">
             @RenderBody()
@@ -91,10 +130,13 @@
             &copy; 2026 - CraftDailyCorner - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
         </div>
     </footer>
+
     <!--動畫區塊-->
     <div id="favorite-stamp-overlay"></div>
+
     <!--檢舉動畫區塊-->
     <div id="report-stamp-overlay"></div>
+
     <!-- 登入成功動畫 Overlay -->
     <div id="login-anim-overlay" class="login-anim-overlay" aria-hidden="true">
         <!-- 信封 -->
@@ -111,13 +153,17 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
             integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+
     <script>
         // 傳遞使用者登入狀態到 JavaScript
         window.isAuthenticated = @(User.Identity?.IsAuthenticated == true ? "true" : "false");
+
+        // 傳遞是否開放註冊到 JavaScript
+        window.registrationEnabled = @registrationEnabled.ToString().ToLower();
     </script>
-    
+
     <script src="~/js/site.js" asp-append-version="true"></script>
     <script src="~/js/cart.js"></script>
     <script src="~/js/loadingOverlay.js"></script>
@@ -127,7 +173,5 @@
     <script src="~/js/reaction.js"></script>
     @await Html.PartialAsync("_ValidationScriptsPartial")
     @await RenderSectionAsync("Scripts", required: false)
-    
-    
 </body>
 </html>

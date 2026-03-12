@@ -4,34 +4,124 @@
 
 @{
     Layout = null;
+
+    var items = Model?.ToList() ?? new List<VMHotProductCard>();
+
+    var groups = items
+        .Select((item, index) => new { item, index })
+        .GroupBy(x => x.index / 4)
+        .Select(g => g.Select(x => x.item).ToList())
+        .ToList();
 }
+
 <div class="card" id="hotproduct">
     <div class="card-body">
-        <h2 class="fw-bold mb-1"><i class="bi bi-fire text-danger"> </i>發燒新品</h2>
-        @if (Model.Any())
-        {
-            <div class="row smallimg px-3">
-                @foreach (var item in Model)
-                {
-                    <div class="col-md-3 px-3">
-                        <a asp-controller="Products" asp-action="Detail" asp-route-id="@item.ProductID" class="text-decoration-none text-dark">
-                            <div class="card hover-card">
-                                @if (item.CoverImage != null)
-                                {
-                                    <img src="@($"/Photos/04ProductImage/Medium/{item.CoverImage}.png")" alt="Photo" class="img-thumbnail" />
-                                }
-                                <div class="card-body">
-                                    <div>@Html.DisplayFor(modelItem => item.BrandName)</div>
-                                    <div class="fw-bold fs-3 hotpost-title">@Html.DisplayFor(modelItem => item.ProductName)</div>
-                                </div>
-                                <div class="fw-bold fs-4 mx-1"><i class="bi bi-currency-dollar"></i>@Html.DisplayFor(modelItem => item.Price)</div>
-                                <div class="text-end mx-1 mb-1">@Html.DisplayFor(modelItem => item.FavoriteCount)人收藏中</div>
-                            </div>
-                        </a>
-                    </div>
 
+        <h2 class="fw-bold mb-3">
+            <i class="bi bi-fire text-danger"></i> 發燒新品
+        </h2>
+
+        @if (items.Any())
+        {
+            <div id="hotProductCarousel"
+                 class="carousel slide"
+                 data-bs-ride="carousel"
+                 data-bs-interval="5000">
+
+                <div class="carousel-inner">
+
+                    @for (int i = 0; i < groups.Count; i++)
+                    {
+                        var group = groups[i];
+                        var activeClass = i == 0 ? "active" : "";
+
+                        <div class="carousel-item @activeClass">
+
+                            <div class="row smallimg px-3">
+
+                                @foreach (var item in group)
+                                {
+                                    <div class="col-md-3 px-3">
+
+                                        <a asp-controller="Products"
+                                           asp-action="Detail"
+                                           asp-route-id="@item.ProductID"
+                                           class="text-decoration-none text-dark">
+
+                                            <div class="card hover-card h-100">
+
+                                                @if (!string.IsNullOrWhiteSpace(item.CoverImage))
+                                                {
+                                                    <img src="@($"/Photos/04ProductImage/Medium/{item.CoverImage}.png")"
+                                                         alt="Photo"
+                                                         class="img-thumbnail" />
+                                                }
+
+                                                <div class="card-body">
+
+                                                    <div class="small text-muted">
+                                                        @item.BrandName
+                                                    </div>
+
+                                                    <div class="fw-bold fs-5 hotpost-title">
+                                                        @item.ProductName
+                                                    </div>
+
+                                                </div>
+
+                                                <div class="fw-bold fs-4 mx-2">
+                                                    <i class="bi bi-currency-dollar"></i>
+                                                    @Html.DisplayFor(modelItem => item.Price)
+                                                </div>
+
+                                                <div class="text-end mx-2 mb-2 small text-muted">
+                                                    @item.FavoriteCount 人收藏
+                                                </div>
+
+                                            </div>
+
+                                        </a>
+
+                                    </div>
+                                }
+
+                            </div>
+
+                        </div>
+                    }
+
+                </div>
+
+                @if (groups.Count > 1)
+                {
+                    <button class="carousel-control-prev"
+                            type="button"
+                            data-bs-target="#hotProductCarousel"
+                            data-bs-slide="prev">
+
+                        <span class="carousel-control-prev-icon"></span>
+
+                    </button>
+
+                    <button class="carousel-control-next"
+                            type="button"
+                            data-bs-target="#hotProductCarousel"
+                            data-bs-slide="next">
+
+                        <span class="carousel-control-next-icon"></span>
+
+                    </button>
                 }
+
             </div>
         }
+        else
+        {
+            <div class="text-muted px-3">
+                目前沒有商品
+            </div>
+        }
+
     </div>
 </div>
+
