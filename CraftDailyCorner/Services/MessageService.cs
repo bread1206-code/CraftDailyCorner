@@ -358,7 +358,8 @@ namespace CraftDailyCorner.Services
                     .FirstOrDefault(),
                 Messages = messages,
                 QuickReplyTemplates = quickReplyTemplates,
-                DraftContent = null
+                DraftContent = null,
+                IsCreatorThread = amCreatorOfThisThread
             };
         }
 

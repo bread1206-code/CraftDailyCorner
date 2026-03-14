@@ -174,7 +174,9 @@ namespace CraftDailyCorner.Services.Creator
                     vm.BrandImageFile,
                     null,
                     "03CreatorBrand",
-                    ImageSizePresets.Creator
+                    ImageSizePresets.Creator,
+                    entityId: null,
+                    entitySubFolder: creatorId
                 );
 
                 // 建立 CreatorProfile

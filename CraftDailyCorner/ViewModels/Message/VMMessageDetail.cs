@@ -31,5 +31,7 @@ namespace CraftDailyCorner.ViewModels.Message
 
         // 輸入框預設內容
         public string? DraftContent { get; set; }
+
+        public bool IsCreatorThread { get; set; }
     }
 }
