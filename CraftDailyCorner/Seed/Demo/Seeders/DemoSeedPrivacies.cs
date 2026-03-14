@@ -22,29 +22,37 @@ namespace CraftDailyCorner.Seed.Demo.Seeders
             if (seedContext.Members == null || !seedContext.Members.Any())
                 throw new Exception("DemoSeedContext.Members 沒有資料");
 
-            if (_context.Privacies.Any())
-                return;
+            // 取得已存在的 MemberID
+            var existingMemberIds = _context.Privacies
+                .Select(x => x.MemberID)
+                .ToHashSet();
 
             var hasher = new PasswordHasher<Privacy>();
 
-            var privacies = seedContext.Members.Select(row =>
-            {
-                var privacy = new Privacy
+            var privacies = seedContext.Members
+                .Where(row => !existingMemberIds.Contains(row.MemberID))
+                .Select(row =>
                 {
-                    MemberID = row.MemberID,
-                    Email = row.Email,
-                    Phone = row.Phone,
-                    Birthday = row.Birthday,
-                    Gender = ConvertGender(row.Gender)
-                };
+                    var privacy = new Privacy
+                    {
+                        MemberID = row.MemberID,
+                        Email = row.Email,
+                        Phone = row.Phone,
+                        Birthday = row.Birthday,
+                        Gender = ConvertGender(row.Gender)
+                    };
 
-                privacy.PasswordHash = hasher.HashPassword(privacy, row.Password);
+                    privacy.PasswordHash = hasher.HashPassword(privacy, row.Password);
 
-                return privacy;
-            }).ToList();
+                    return privacy;
+                })
+                .ToList();
 
-            _context.Privacies.AddRange(privacies);
-            _context.SaveChanges();
+            if (privacies.Any())
+            {
+                _context.Privacies.AddRange(privacies);
+                _context.SaveChanges();
+            }
         }
 
         private static PrivacyGender ConvertGender(byte gender)

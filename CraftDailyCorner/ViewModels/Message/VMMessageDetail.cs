@@ -16,6 +16,13 @@ namespace CraftDailyCorner.ViewModels.Message
         public decimal? ProductPrice { get; set; }
         public string? ProductImageUrl { get; set; }
 
+        public string? ProductCreatorID { get; set; }
+
+        public string ProductImagePath =>
+            string.IsNullOrWhiteSpace(ProductImageUrl) || string.IsNullOrWhiteSpace(ProductCreatorID)
+                ? "/images/no-image.png"
+                : $"/Photos/04ProductImage/{ProductCreatorID}/Medium/{ProductImageUrl}.png";
+
         // 訊息清單
         public List<VMMessageItem> Messages { get; set; } = new();
 

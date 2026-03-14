@@ -37,6 +37,7 @@ namespace CraftDailyCorner.Services
                 .Select(p => new VMCreatorProductListItem
                 {
                     ProductID = p.ProductID,
+                    CreatorID = p.CreatorID,
                     ProductName = p.ProductName,
                     Price = p.Price,
                     StatusName = p.ProductStatus.StatusName,
@@ -92,6 +93,7 @@ namespace CraftDailyCorner.Services
                 ProductName = product.ProductName,
                 Description = product.Description,
                 Price = product.Price,
+                CostPrice = product.CostPrice,
                 StatusID = product.StatusID,
                 StockQty = product.Inventory.StockQty,
                 AlertQty = product.Inventory.AlertQty,
@@ -127,6 +129,7 @@ namespace CraftDailyCorner.Services
                 ProductName = vm.ProductName,
                 Description = vm.Description,
                 Price = vm.Price,
+                CostPrice = vm.CostPrice,
                 StatusID = vm.StatusID,
                 CreatorID = creatorId,
                 CreatedAt = now
@@ -162,7 +165,7 @@ namespace CraftDailyCorner.Services
 
             await _context.SaveChangesAsync();
 
-            // ===== 新商品通知：只有新建且直接上架才通知追蹤者 =====
+            // 新商品通知：只有新建且直接上架才通知追蹤者
             if (vm.StatusID == 2)
             {
                 var followerMemberIds = await _context.FollowCreators
@@ -263,6 +266,7 @@ namespace CraftDailyCorner.Services
             product.ProductName = vm.ProductName;
             product.Description = vm.Description;
             product.Price = vm.Price;
+            product.CostPrice = vm.CostPrice;
             product.StatusID = vm.StatusID;
 
             product.Inventory.StockQty = vm.StockQty;
@@ -296,7 +300,7 @@ namespace CraftDailyCorner.Services
                 .Select(x => x.MemberID)
                 .FirstOrDefaultAsync();
 
-            // ===== 收藏商品已上架：只在第一次從非上架 -> 上架時發 =====
+            // 收藏商品已上架：只在第一次從非上架 -> 上架時發
             if (oldStatusId != 2 && vm.StatusID == 2)
             {
                 var favoriteMemberIds = await _context.FavoriteProducts
@@ -322,7 +326,7 @@ namespace CraftDailyCorner.Services
                 }
             }
 
-            // ===== 收藏商品補貨 =====
+            // 收藏商品補貨
             if (oldStockQty == 0 && vm.StockQty > 0)
             {
                 var favoriteMemberIds = await _context.FavoriteProducts
@@ -350,7 +354,7 @@ namespace CraftDailyCorner.Services
 
             if (!string.IsNullOrWhiteSpace(creatorMemberId))
             {
-                // ===== 低庫存通知 =====
+                // 低庫存通知
                 if (oldStockQty > vm.AlertQty && vm.StockQty > 0 && vm.StockQty <= vm.AlertQty)
                 {
                     await _notificationService.CreateAsync(new CreateNotificationDTO
@@ -365,7 +369,7 @@ namespace CraftDailyCorner.Services
                     });
                 }
 
-                // ===== 缺貨通知 =====
+                // 缺貨通知
                 if (oldStockQty > 0 && vm.StockQty == 0)
                 {
                     await _notificationService.CreateAsync(new CreateNotificationDTO

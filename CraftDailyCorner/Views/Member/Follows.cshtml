@@ -14,8 +14,8 @@
             我追蹤的創作者
         </h3>
         <a asp-controller="Member"
-           asp-action="Index"
-           class="btn btn-outline-secondary btn-sm fs-5">
+               asp-action="Index"
+               class="btn btn-outline-secondary btn-sm fs-5">
             返回會員中心
         </a>
     </div>
@@ -33,10 +33,6 @@
 
             @foreach (var item in Model)
             {
-                string logoUrl = string.IsNullOrEmpty(item.CreatorLogo)
-                ? $"/Photos/03CreatorBrand/{item.CreatorId}/Medium/default.png"
-                : $"/Photos/03CreatorBrand/{item.CreatorId}/Medium/{item.CreatorLogo}.png";
-
                 <div class="col-md-6 col-lg-4">
 
                     <div class="card shadow-sm h-100">
@@ -46,7 +42,7 @@
 
                             <a href="@item.CreatorProfileUrl" class="text-decoration-none text-dark">
 
-                                <img src="@logoUrl"
+                                <img src="@item.CreatorLogoPath"
                                      class="rounded-circle mb-2"
                                      style="width:80px;height:80px;object-fit:cover;" />
 
@@ -69,9 +65,9 @@
                                     @if (item.LatestProductId != null)
                                     {
                                         <a href="@item.LatestProductUrl"
-                                           class="text-decoration-none text-dark">
+                                               class="text-decoration-none text-dark">
 
-                                            <img src="@($"/Photos/04ProductImage/{item.CreatorId}/Medium/{item.LatestProductImage}.png")"
+                                            <img src="@item.LatestProductImagePath"
                                                  class="img-fluid rounded mb-2"
                                                  style="height:80px;object-fit:cover;" />
 
@@ -87,7 +83,6 @@
 
                                 </div>
 
-
                                 <!-- 最新日誌 -->
                                 <div class="col-4">
 
@@ -96,9 +91,9 @@
                                     @if (item.LatestPostId != null)
                                     {
                                         <a href="@item.LatestPostUrl"
-                                           class="text-decoration-none text-dark">
+                                               class="text-decoration-none text-dark">
 
-                                            <img src="@($"/Photos/05CreatorPost/Medium/{item.LatestPostImage}.png")"
+                                            <img src="@item.LatestPostImagePath"
                                                  class="img-fluid rounded mb-2"
                                                  style="height:80px;object-fit:cover;" />
 
@@ -114,7 +109,6 @@
 
                                 </div>
 
-
                                 <!-- 最新作品集 -->
                                 <div class="col-4">
 
@@ -123,9 +117,9 @@
                                     @if (item.LatestPortfolioId != null)
                                     {
                                         <a href="@item.LatestPortfolioUrl"
-                                           class="text-decoration-none text-dark">
+                                               class="text-decoration-none text-dark">
 
-                                            <img src="@($"/Photos/06Portfolio/Medium/{item.LatestPortfolioImage}.png")"
+                                            <img src="@item.LatestPortfolioImagePath"
                                                  class="img-fluid rounded mb-2"
                                                  style="height:80px;object-fit:cover;" />
 

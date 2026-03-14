@@ -1,16 +1,21 @@
 ﻿namespace CraftDailyCorner.ViewModels.Product
 {
-    // 商品列表頁「單張卡片」專用
     public class VMProductListItem
     {
-        public string ProductID { get; set; } = null!;
-        public string ProductName { get; set; } = null!;
+        public string ProductID { get; set; } = string.Empty;
+        public string ProductName { get; set; } = string.Empty;
+
         public decimal Price { get; set; }
 
-        // 封面圖（已處理好，View 直接用）
-        public string CoverImageUrl { get; set; } = "no-image.png";
+        public string? CoverImageUrl { get; set; }
 
-        // 收藏狀態
+        public string? CreatorID { get; set; }
+
         public bool IsFavorite { get; set; }
+
+        public string CoverImagePath =>
+            string.IsNullOrWhiteSpace(CoverImageUrl) || string.IsNullOrWhiteSpace(CreatorID)
+                ? "/images/no-image.png"
+                : $"/Photos/04ProductImage/{CreatorID}/Large/{CoverImageUrl}.png";
     }
 }

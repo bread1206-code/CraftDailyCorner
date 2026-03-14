@@ -670,50 +670,56 @@ function playFollowLogoHeartbeatAndFirework(form) {
     const btn = form.querySelector(".follow-btn");
     if (!btn) return;
 
-    // 避免動畫疊加（同一顆按鈕）
     if (btn.dataset.animating === "1") return;
     btn.dataset.animating = "1";
 
-    // 取 logo：優先 data-logo；沒給就找頁面上的圓形頭像 img
     let logoUrl = form.dataset.logo;
     if (!logoUrl) {
         const profileAvatar = document.querySelector('img.rounded-circle');
-        logoUrl = profileAvatar?.getAttribute("src") || "/Photos/03CreatorBrand/Medium/default.png";
+        logoUrl = profileAvatar?.getAttribute("src") || "/images/no-image.png";
     }
 
-    //  建立「全畫面中央」動畫層（掛 body）
     let stage = document.getElementById("follow-anim-stage");
     if (!stage) {
         stage = document.createElement("div");
         stage.id = "follow-anim-stage";
         document.body.appendChild(stage);
+
+        stage.addEventListener("click", e => e.stopPropagation());
     }
 
-    // 1) Logo 心跳泡泡（在畫面中央）
+    stage.classList.add("show");
+    stage.style.pointerEvents = "auto";
+    document.body.style.overflow = "hidden";
+
     const pulse = document.createElement("div");
     pulse.className = "follow-logo-pulse follow-center";
     pulse.innerHTML = `<img src="${logoUrl}" alt="brand" />`;
     stage.appendChild(pulse);
 
-    // 2) 心跳結束 -> 炸愛心（煙火往下掉）
     const explodeTimer = setTimeout(() => {
-        burstHeartsFirework(stage, 30); // 想更澎湃可 24~30
+        burstHeartsFirework(stage, 30);
     }, 2200);
 
-    // 3) 清理
-    const cleanupTimer = setTimeout(() => {
+    const cleanup = () => {
         pulse.remove();
+        stage.classList.remove("show");
+        stage.style.pointerEvents = "none";
+        document.body.style.overflow = "";
         btn.dataset.animating = "0";
-    }, 2200 + 2200); // 愛心動畫變慢了，清理時間也拉長
+    };
 
-    // 防止離頁或 DOM 變化造成計時器殘留
+    const cleanupTimer = setTimeout(cleanup, 4400);
+
     const obs = new MutationObserver(() => {
         if (!document.body.contains(btn)) {
             clearTimeout(explodeTimer);
             clearTimeout(cleanupTimer);
+            cleanup();
             obs.disconnect();
         }
     });
+
     obs.observe(document.body, { childList: true, subtree: true });
 }
 
@@ -728,13 +734,13 @@ function burstHeartsFirework(stageEl, count = 22) {
         heart.className = "bi bi-heart-fill follow-heart";
 
         // 水平炸更開一點
-        const dx = (Math.random() * 2 - 1) * (80 + Math.random() * 140); // -220~220
+        const dx = (Math.random() * 2 - 1) * (320 + Math.random() * 200); //
 
         // 先往上（負），再往下掉更遠
-        const up = -(70 + Math.random() * 160); // -70~-230
-        const fall = 320 + Math.random() * 360; // +320~+680（更遠）
+        const up = -(120 + Math.random() * 240); // -120~-360
+        const fall = 420 + Math.random() * 500; // +420~+920（更遠）
 
-        const scale = 0.8 + Math.random() * 1.2; // 顆粒略大
+        const scale = 1 + Math.random() * 2; // 顆粒略大
         const delay = Math.random() * 220;       // 延遲拉長
 
         heart.style.setProperty("--dx", `${dx.toFixed(1)}px`);

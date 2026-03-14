@@ -271,6 +271,9 @@ namespace CraftDailyCorner.Services
                 .Include(o => o.OrderDetails!)
                     .ThenInclude(od => od.Product)
                         .ThenInclude(p => p.CreatorProfile)
+                .Include(o => o.OrderDetails!)
+                    .ThenInclude(od => od.Product)
+                        .ThenInclude(p => p.ProductImages)
                 .FirstOrDefault(o =>
                     o.OrderID == orderId &&
                     o.MemberID == memberId);
@@ -317,6 +320,11 @@ namespace CraftDailyCorner.Services
                         {
                             ProductID = od.ProductID,
                             ProductName = od.ProductNameSnapshot,
+                            ProductImage = od.Product.ProductImages
+                                .OrderBy(pi => pi.SortOrder)
+                                .Select(pi => pi.ImageUrl)
+                                .FirstOrDefault(),
+                            CreatorID = od.Product.CreatorID,
                             Price = (int)Math.Floor(od.PriceSnapshot),
                             Quantity = od.Quantity,
                             BrandName = od.Product.CreatorProfile!.BrandName,

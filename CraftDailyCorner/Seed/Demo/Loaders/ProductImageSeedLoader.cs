@@ -1,4 +1,5 @@
 ﻿using CraftDailyCorner.Seed.Demo.Sources;
+using System.Text;
 
 namespace CraftDailyCorner.Seed.Demo.Loaders
 {
@@ -12,7 +13,7 @@ namespace CraftDailyCorner.Seed.Demo.Loaders
             if (!File.Exists(csvPath))
                 throw new FileNotFoundException("找不到 ProductImages.csv", csvPath);
 
-            var lines = File.ReadAllLines(csvPath);
+            var lines = File.ReadAllLines(csvPath, Encoding.UTF8);
 
             if (lines.Length <= 1)
                 return new List<ProductImageSeedRow>();

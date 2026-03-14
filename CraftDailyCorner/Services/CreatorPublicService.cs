@@ -50,6 +50,7 @@ namespace CraftDailyCorner.Services.Creator
                             PostID = p.PostID,
                             Title = p.Title,
                             ImageUrl = p.ImageUrl,
+                            CreatorID = p.CreatorID,
                             CreatedAt = p.CreatedAt,
                             BrandName = c.BrandName,
 
@@ -96,6 +97,7 @@ namespace CraftDailyCorner.Services.Creator
                             PortfolioID = p.PortfolioID,
                             Title = p.Title,
                             CreatedAt = p.CreatedAt,
+                            CreatorID = p.CreatorID,
                             CreatorName = c.BrandName,
                             ItemCount = p.PortfolioItems.Count(),
                             CoverImageUrl = p.PortfolioItems
@@ -143,6 +145,7 @@ namespace CraftDailyCorner.Services.Creator
                         {
                             ProductID = p.ProductID,
                             ProductName = p.ProductName,
+                            CreatorID = p.CreatorID,
                             ImageUrl = p.ProductImages
                                 .OrderBy(i => i.SortOrder)
                                 .Select(i => i.ImageUrl)

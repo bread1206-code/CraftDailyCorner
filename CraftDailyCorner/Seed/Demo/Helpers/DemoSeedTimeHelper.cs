@@ -22,7 +22,7 @@
             // 讓同品牌商品分散建立，不要全擠在同一天
             return creatorConfirmedAt
                 .AddDays(2 + ((sortOrder - 1) * 4))
-                .AddHours(sortOrder % 5);
+                .AddHours((sortOrder * 3) % 24);
         }
     }
 }

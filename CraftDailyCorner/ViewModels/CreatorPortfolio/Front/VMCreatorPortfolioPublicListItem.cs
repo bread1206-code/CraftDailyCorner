@@ -12,6 +12,7 @@ namespace CraftDailyCorner.ViewModels.CreatorPortfolio.Front
 
         [Display(Name = "創作者")]
         public string CreatorName { get; set; } = null!;
+
         public string CreatorID { get; set; } = null!;
 
         [Display(Name = "建立時間")]
@@ -20,17 +21,16 @@ namespace CraftDailyCorner.ViewModels.CreatorPortfolio.Front
         public int ItemCount { get; set; }
 
         public string? CoverImageUrl { get; set; }
-        //內文預覽（用 p-preview 多行截斷）
+
         public string? Preview { get; set; }
 
-        //心情反應（標題旁 icon + total）
         public VMReactionButton ReactionSummary { get; set; } = new VMReactionButton();
+
         public string CoverImagePath =>
             string.IsNullOrEmpty(CoverImageUrl)
                 ? "/images/default-cover.jpg"
-                : $"/Photos/06Portfolio/Medium/{CoverImageUrl}.png";
+                : $"/Photos/06Portfolio/{CreatorID}/Medium/{CoverImageUrl}.png";
 
-        public string Url =>
-            $"/Portfolio/Detail/{PortfolioID}";
+        public string Url => $"/Portfolio/Detail/{PortfolioID}";
     }
 }

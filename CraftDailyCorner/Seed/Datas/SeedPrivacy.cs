@@ -22,7 +22,7 @@ namespace CraftDailyCorner.Seed.Datas
                     new Privacy
                     {
                         Email = "member00@member.com",
-                        Phone = "0912345670",
+                        Phone = "0912345000",
                         Birthday = new DateTime(2025, 12, 20),
                         Gender = 0,
                         MemberID = "M0000000"

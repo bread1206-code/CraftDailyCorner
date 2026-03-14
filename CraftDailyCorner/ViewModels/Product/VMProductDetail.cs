@@ -3,7 +3,7 @@ using CraftDailyCorner.ViewModels.Breadcrumb;
 
 namespace CraftDailyCorner.ViewModels.Product
 {
-    //商品詳細頁使用，包含完整商品資訊
+    // 商品詳細頁使用，包含完整商品資訊
     public class VMProductDetail
     {
         // 商品基本資訊
@@ -37,13 +37,31 @@ namespace CraftDailyCorner.ViewModels.Product
         public bool IsOwner { get; set; }
 
         // UI 行為
-        public int MaxPurchaseQty => StockQty;   // 給 input max 用
+        public int MaxPurchaseQty => StockQty;
         public int DefaultQty => IsOutOfStock ? 0 : 1;
-        // 新增：麵包屑導航
+
+        // 麵包屑導航
         public VMBreadcrumb Breadcrumb { get; set; } = new();
+
         // 檢舉相關
         public bool IsReportBanned { get; set; }
         public DateTime? ReportBanUntil { get; set; }
-    }
 
+        // 圖片路徑
+        public string GetLargeImagePath(string imageUrl)
+        {
+            if (string.IsNullOrWhiteSpace(imageUrl) || string.IsNullOrWhiteSpace(CreatorID))
+                return "/images/no-image.png";
+
+            return $"/Photos/04ProductImage/{CreatorID}/Large/{imageUrl}.png";
+        }
+
+        public string GetMediumImagePath(string imageUrl)
+        {
+            if (string.IsNullOrWhiteSpace(imageUrl) || string.IsNullOrWhiteSpace(CreatorID))
+                return "/images/no-image.png";
+
+            return $"/Photos/04ProductImage/{CreatorID}/Medium/{imageUrl}.png";
+        }
     }
+}

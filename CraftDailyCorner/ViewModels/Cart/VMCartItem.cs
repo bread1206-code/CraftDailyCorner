@@ -20,5 +20,10 @@ namespace CraftDailyCorner.ViewModels.Cart
         public int PriceInt => (int)Math.Floor(Price);
 
         public decimal SubTotal => Math.Floor(Price * Quantity);
+
+        public string ImagePath =>
+            string.IsNullOrWhiteSpace(ImageUrl) || string.IsNullOrWhiteSpace(CreatorId)
+                ? "/images/no-image.png"
+                : $"/Photos/04ProductImage/{CreatorId}/Medium/{ImageUrl}.png";
     }
 }

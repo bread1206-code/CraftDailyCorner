@@ -42,6 +42,7 @@ namespace CraftDailyCorner.ViewComponents
                     CreatorID = p.CreatorProfile.CreatorID
                 })
                 .OrderByDescending(x => x.FavoriteCount)
+                .ThenBy(x => x.ProductID)
                 .Take(featuredCount)
                 .ToListAsync();
 

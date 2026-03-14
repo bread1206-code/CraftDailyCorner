@@ -7,6 +7,8 @@ namespace CraftDailyCorner.ViewModels.CreatorPortfolio
     {
         public string PortfolioID { get; set; } = null!;
 
+        public string CreatorID { get; set; } = null!;
+
         [Display(Name = "標題")]
         public string Title { get; set; } = null!;
 
@@ -18,8 +20,14 @@ namespace CraftDailyCorner.ViewModels.CreatorPortfolio
 
         [Display(Name = "作品數量")]
         public int ItemCount { get; set; }
+
         [Display(Name = "封面圖片URL")]
         public string? CoverImageUrl { get; set; }
+
+        public string CoverImagePath =>
+            string.IsNullOrEmpty(CoverImageUrl)
+                ? "/images/default-cover.jpg"
+                : $"/Photos/06Portfolio/{CreatorID}/Medium/{CoverImageUrl}.png";
 
         public string VisibilityText =>
             Visibility switch

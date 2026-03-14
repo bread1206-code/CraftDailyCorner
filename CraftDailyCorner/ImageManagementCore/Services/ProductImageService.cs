@@ -16,7 +16,6 @@ namespace CraftDailyCorner.ImageManagementCore.Services
         private readonly ILogger<ProductImageService> _logger;
 
         public string EntityType => "Product";
-
         public int? MaxImageCount => 10;
         public string? HintMessage => "商品圖片最多 10 張";
 
@@ -33,12 +32,12 @@ namespace CraftDailyCorner.ImageManagementCore.Services
         }
 
         // =========================================================
-        // 取得圖片
+        // 取得圖片（載入 Product）
         // =========================================================
-
         public override async Task<List<IEntityImage>> GetImagesAsync(string productId)
         {
             var result = await _dbSet
+                .Include(x => x.Product)
                 .Where(x => x.ProductID == productId)
                 .OrderBy(x => x.SortOrder)
                 .ToListAsync();
@@ -49,7 +48,6 @@ namespace CraftDailyCorner.ImageManagementCore.Services
         // =========================================================
         // 新增圖片
         // =========================================================
-
         public async Task AddWithUploadAsync(
             IFormFile file,
             string productId,
@@ -61,8 +59,7 @@ namespace CraftDailyCorner.ImageManagementCore.Services
                 .Where(x => x.ProductID == productId)
                 .CountAsync();
 
-            if (MaxImageCount.HasValue &&
-                currentCount >= MaxImageCount.Value)
+            if (MaxImageCount.HasValue && currentCount >= MaxImageCount.Value)
             {
                 throw new InvalidOperationException(HintMessage);
             }
@@ -74,7 +71,8 @@ namespace CraftDailyCorner.ImageManagementCore.Services
                 null,
                 "04ProductImage",
                 ImageSizePresets.Product,
-                fileName
+                entityId: fileName,
+                entitySubFolder: creatorId
             );
 
             var nextSort = await GetNextSortOrderAsync(
@@ -94,7 +92,6 @@ namespace CraftDailyCorner.ImageManagementCore.Services
         // =========================================================
         // 安全硬刪（DB成功才刪檔）
         // =========================================================
-
         public async Task DeleteWithValidationAsync(
             long imageId,
             string creatorId)
@@ -115,37 +112,34 @@ namespace CraftDailyCorner.ImageManagementCore.Services
                 .Where(x => x.ProductID == productId)
                 .CountAsync();
 
-            //至少保留一張
             if (imageCount <= 1)
                 throw new InvalidOperationException("商品至少需要一張圖片");
 
             var fileName = image.ImageUrl;
 
-            //先刪 DB
             _dbSet.Remove(image);
 
-            //重排排序
             await ReorderAfterDelete(productId);
-
             await _db.SaveChangesAsync();
 
-            //再刪檔（失敗只記錄 log）
             try
             {
-                DeletePhysicalFiles(fileName);
+                DeletePhysicalFiles(creatorId, fileName);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex,
-                    "刪除商品圖片實體檔案失敗，FileName: {FileName}",
-                    fileName);
+                _logger.LogError(
+                    ex,
+                    "刪除商品圖片實體檔案失敗，CreatorID: {CreatorID}, FileName: {FileName}",
+                    creatorId,
+                    fileName
+                );
             }
         }
 
         // =========================================================
         // 更新排序
         // =========================================================
-
         public async Task UpdateSortWithValidationAsync(
             string productId,
             List<long> orderedIds,
@@ -169,7 +163,6 @@ namespace CraftDailyCorner.ImageManagementCore.Services
         // =========================================================
         // 驗證擁有者
         // =========================================================
-
         private async Task ValidateOwnerAsync(
             string productId,
             string creatorId)
@@ -186,13 +179,13 @@ namespace CraftDailyCorner.ImageManagementCore.Services
         // =========================================================
         // 刪除實體檔案
         // =========================================================
-
-        private void DeletePhysicalFiles(string fileName)
+        private void DeletePhysicalFiles(string creatorId, string fileName)
         {
             string basePath = Path.Combine(
                 _env.WebRootPath,
                 "Photos",
-                "04ProductImage"
+                "04ProductImage",
+                creatorId
             );
 
             string[] folders = { "Medium", "Large" };
@@ -211,7 +204,6 @@ namespace CraftDailyCorner.ImageManagementCore.Services
         // =========================================================
         // 重排排序
         // =========================================================
-
         private async Task ReorderAfterDelete(string productId)
         {
             var images = await _dbSet

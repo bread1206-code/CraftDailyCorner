@@ -67,7 +67,7 @@ namespace CraftDailyCorner.Services
             ProcessAndSaveImage(image, seedFolder, fileNameWithoutExt, sizes, entitySubFolder);
         }
 
-        // 圖片上傳
+        // 表單圖片上傳
         public string UploadFromFormFile(
             IFormFile file,
             string folderName,
@@ -78,18 +78,15 @@ namespace CraftDailyCorner.Services
             if (file == null || file.Length == 0)
                 throw new ArgumentException("檔案不存在");
 
-            // ContentType
             var allowedTypes = new[] { "image/jpeg", "image/png", "image/jpg" };
             if (!allowedTypes.Contains(file.ContentType))
                 throw new InvalidOperationException("只允許上傳 jpg、jpeg 或 png 圖片");
 
-            // 副檔名
             var ext = Path.GetExtension(file.FileName).ToLowerInvariant();
             var allowedExts = new[] { ".jpg", ".jpeg", ".png" };
             if (!allowedExts.Contains(ext))
                 throw new InvalidOperationException("圖片副檔名不正確");
 
-            // ImageSharp 真正解析（最後防線）
             string fileName = entityId ?? Guid.NewGuid().ToString();
 
             using var stream = file.OpenReadStream();
@@ -105,7 +102,7 @@ namespace CraftDailyCorner.Services
 
             ProcessAndSaveImage(image, folderName, fileName, sizes, entitySubFolder);
 
-            return fileName; // 存 DB 用（不含副檔名）
+            return fileName; // DB 存檔名主體
         }
 
         // 重設尺寸，儲存檔案

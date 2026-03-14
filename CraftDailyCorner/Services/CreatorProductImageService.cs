@@ -27,8 +27,8 @@ namespace CraftDailyCorner.Services
         // ================= 取得清單 =================
 
         public async Task<List<VMProductImageItem>> GetImagesAsync(
-            string productId,
-            string creatorId)
+    string productId,
+    string creatorId)
         {
             return await _context.ProductImages
                 .Include(i => i.Product)
@@ -40,6 +40,7 @@ namespace CraftDailyCorner.Services
                 .Select(i => new VMProductImageItem
                 {
                     ImageID = i.ImageID,
+                    CreatorID = i.Product.CreatorID,
                     ImageUrl = i.ImageUrl,
                     SortOrder = i.SortOrder
                 })
@@ -81,7 +82,9 @@ namespace CraftDailyCorner.Services
                     file,
                     null,
                     "04ProductImage",
-                    ImageSizePresets.Product
+                    ImageSizePresets.Product,
+                    entityId: null,
+                    entitySubFolder: creatorId
                 );
 
                 _context.ProductImages.Add(new ProductImage
@@ -108,9 +111,12 @@ namespace CraftDailyCorner.Services
                 throw new Exception("找不到圖片或無權限");
 
             var productId = image.ProductID;
+            var imageName = image.ImageUrl;
 
             _context.ProductImages.Remove(image);
             await _context.SaveChangesAsync();
+
+            _imageFileService.DeleteProductImage(creatorId, imageName);
 
             await ReorderAsync(productId);
             await _context.SaveChangesAsync();

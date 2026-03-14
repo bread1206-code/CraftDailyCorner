@@ -17,6 +17,8 @@ html {
     font-size: 14px;
     position: relative;
     min-height: 100%;
+    overflow-y: scroll;
+    scrollbar-gutter: stable;
 }
 
 @media (min-width: 768px) {
@@ -607,8 +609,9 @@ body {
 
 /* =========================================================
    FOLLOW ANIMATION (Full-screen Center)
+   - 有背景遮罩
+   - 可攔截點擊
    - Logo heartbeat x2, pause 1s, heartbeat x2
-   - Logo 4x size (52px -> 208px)
    - Hearts burst then fall farther + slower (firework)
    ========================================================= */
 
@@ -618,7 +621,29 @@ body {
     inset: 0;
     pointer-events: none;
     z-index: 9999;
+    opacity: 0;
+    transition: opacity .2s ease;
 }
+
+    /* 顯示遮罩時 */
+    #follow-anim-stage.show {
+        opacity: 1;
+    }
+
+    /* 背景遮罩 */
+    #follow-anim-stage::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: rgba(255, 255, 255, 0.45);
+        backdrop-filter: blur(4px);
+        opacity: 0;
+        transition: opacity .2s ease;
+    }
+
+    #follow-anim-stage.show::before {
+        opacity: 1;
+    }
 
 /* 通用：置中定位 */
 .follow-center {
@@ -651,9 +676,8 @@ body {
         border-radius: 50%;
         object-fit: cover;
         background: #fff;
-        box-shadow: 0 18px 60px rgba(0,0,0,.28);
-        border: 4px solid rgba(255,255,255,.95);
-        /* 兩段心跳：跳兩下 -> 停 1 秒 -> 跳兩下 */
+        box-shadow: 0 18px 60px rgba(0, 0, 0, .28);
+        border: 4px solid rgba(255, 255, 255, .95);
         animation: followLogoHeartbeatSequence 2.2s ease-in-out forwards;
     }
 
@@ -719,11 +743,9 @@ body {
     top: 0;
     opacity: 0;
     transform: translate(0, 0) scale(0.2);
-    /* 慢一點：2400ms */
-    animation: followHeartFirework 2400ms cubic-bezier(.2,.8,.2,1) forwards;
-    /* 顏色：可換成你想要的主題色 */
+    animation: followHeartFirework 2400ms cubic-bezier(.2, .8, .2, 1) forwards;
     color: #ff4d6d;
-    filter: drop-shadow(0 10px 14px rgba(0,0,0,.14));
+    filter: drop-shadow(0 10px 14px rgba(0, 0, 0, .14));
 }
 
 /*
@@ -762,7 +784,6 @@ body {
         animation: none !important;
     }
 }
-
 /* =========================================================
    10. Login Animation
    ========================================================= */
@@ -1336,4 +1357,219 @@ body {
         margin: 0;
         padding: 0;
     }
+}
+/* ================================
+   Navbar 音樂控制
+================================ */
+
+.music-control-wrapper {
+    position: relative;
+}
+
+/* 音量面板 */
+.music-volume-panel {
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 64px;
+    height: 150px;
+    background: #ffffff;
+    border: 1px solid #dee2e6;
+    border-radius: 18px;
+    box-shadow: 0 8px 18px rgba(0,0,0,0.12);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 0;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    z-index: 1050;
+    margin-top: 4px;
+    transition: opacity 0.18s ease, visibility 0.18s ease, transform 0.18s ease;
+}
+
+/* 避免 hover 中斷的透明緩衝區 */
+.music-control-wrapper::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 18px;
+}
+
+/* Hover 顯示音量 */
+.music-control-wrapper:hover .music-volume-panel,
+.music-volume-panel:hover {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+}
+
+/* =====================================================
+   Navbar 音樂控制
+   ===================================================== */
+
+.music-control-wrapper {
+    position: relative;
+}
+
+/* Hover 面板 */
+.music-hover-panel {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: stretch;
+    justify-content: center;
+    background: #ffffff;
+    border: 1px solid #dee2e6;
+    border-radius: 16px;
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.12);
+    overflow: hidden;
+    min-width: 220px;
+    height: 56px;
+    z-index: 1050;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.18s ease, visibility 0.18s ease, transform 0.18s ease;
+}
+
+/* 避免滑鼠從按鈕移到面板時 hover 中斷 */
+.music-control-wrapper::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 200px;
+    height: 14px;
+}
+
+/* Hover 顯示面板 */
+.music-control-wrapper:hover .music-hover-panel,
+.music-hover-panel:hover {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+}
+
+/* =====================================================
+   左右控制按鈕
+   ===================================================== */
+
+.music-panel-btn {
+    width: 48px;
+    height: 56px;
+    border: none;
+    background: #ffffff;
+    color: #495057;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.15s ease, color 0.15s ease, transform 0.15s ease;
+}
+
+    .music-panel-btn:hover {
+        background: #f8f9fa;
+        color: #0d6efd;
+    }
+
+    .music-panel-btn i {
+        font-size: 1.1rem;
+    }
+
+/* =====================================================
+   音量區塊
+   ===================================================== */
+
+.music-volume-block {
+    width: 120px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #ffffff;
+    border-left: 1px solid #dee2e6;
+    border-right: 1px solid #dee2e6;
+    padding: 0 12px;
+}
+
+/* =====================================================
+   橫向音量 Slider
+   ===================================================== */
+
+.music-volume-slider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 6px;
+    background: transparent;
+    cursor: pointer;
+}
+
+    /* Chrome / Edge / Safari track */
+    .music-volume-slider::-webkit-slider-runnable-track {
+        width: 100%;
+        height: 6px;
+        background: #dee2e6;
+        border-radius: 999px;
+    }
+
+    /* Chrome / Edge / Safari thumb */
+    .music-volume-slider::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 14px;
+        height: 14px;
+        margin-top: -4px;
+        border-radius: 50%;
+        background: #0d6efd;
+        cursor: pointer;
+    }
+
+    /* Firefox track */
+    .music-volume-slider::-moz-range-track {
+        width: 100%;
+        height: 6px;
+        background: #dee2e6;
+        border-radius: 999px;
+    }
+
+    /* Firefox thumb */
+    .music-volume-slider::-moz-range-thumb {
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        border: none;
+        background: #0d6efd;
+        cursor: pointer;
+    }
+
+/* =====================================================
+   主播放按鈕動畫
+   ===================================================== */
+
+#musicToggleBtn {
+    transition: transform 0.15s ease;
+}
+
+    #musicToggleBtn:hover {
+        transform: scale(1.05);
+    }
+
+#musicToggleIcon {
+    font-size: 1.1rem;
+}
+
+/*HomepageBanner*/
+#BannerAutoplaying {
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
 }

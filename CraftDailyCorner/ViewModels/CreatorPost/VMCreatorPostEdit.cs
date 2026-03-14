@@ -8,6 +8,9 @@ namespace CraftDailyCorner.ViewModels.CreatorPost
         [Required]
         public string PostID { get; set; } = null!;
 
+        [Required]
+        public string CreatorID { get; set; } = null!;
+
         [Display(Name = "標題")]
         [Required(ErrorMessage = "請輸入標題")]
         [StringLength(50)]
@@ -30,8 +33,7 @@ namespace CraftDailyCorner.ViewModels.CreatorPost
         [Display(Name = "最後更新時間")]
         public DateTime UpdatedAt { get; set; }
 
-        // UI 屬性
         public string CoverImagePath =>
-            $"/Photos/05CreatorPost/Medium/{CurrentImageUrl}.png";
+            $"/Photos/05CreatorPost/{CreatorID}/Medium/{CurrentImageUrl}.png";
     }
 }

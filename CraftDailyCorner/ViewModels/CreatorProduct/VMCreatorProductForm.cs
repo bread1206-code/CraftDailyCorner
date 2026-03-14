@@ -20,10 +20,17 @@ namespace CraftDailyCorner.ViewModels.CreatorProduct
         [Display(Name = "商品描述")]
         public string Description { get; set; } = null!;
 
+        [Display(Name = "價格")]
+        [Required(ErrorMessage = "請輸入商品價格")]
         [Range(1, 1000000,ErrorMessage = "價格最少為1，最多為1,000,000")]
         [DisplayFormat(DataFormatString = "{0:0}", ApplyFormatInEditMode = true)]
-        [Display(Name = "價格")]
         public decimal Price { get; set; }
+
+        [Display(Name = "商品成本")]
+        [Required(ErrorMessage = "請輸入商品成本")]
+        [Range(1,1000000, ErrorMessage = "商品成本必須大於 0")]
+        [DisplayFormat(DataFormatString = "{0:0}", ApplyFormatInEditMode = true)]
+        public decimal CostPrice { get; set; }
 
         // 狀態
         [Required]

@@ -53,9 +53,7 @@
                             <tr>
                                 <td>
                                     <div class="d-flex align-items-center gap-3">
-                                        <img src="@(string.IsNullOrEmpty(item.CoverImageUrl)
-                                                    ? "/Photos/06Portfolio/default.png"
-                                                    : $"/Photos/06Portfolio/Medium/{item.CoverImageUrl}.png")"
+                                        <img src="@item.CoverImagePath"
                                              class="rounded border"
                                              style="width:60px;height:60px;object-fit:cover;" />
 

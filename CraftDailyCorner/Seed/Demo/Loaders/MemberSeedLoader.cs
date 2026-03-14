@@ -1,5 +1,6 @@
 ﻿using CraftDailyCorner.Seed.Demo.Sources;
 using System.Globalization;
+using System.Text;
 
 namespace CraftDailyCorner.Seed.Demo.Loaders
 {
@@ -13,7 +14,7 @@ namespace CraftDailyCorner.Seed.Demo.Loaders
             if (!File.Exists(csvPath))
                 throw new FileNotFoundException("找不到 Members.csv", csvPath);
 
-            var lines = File.ReadAllLines(csvPath);
+            var lines = File.ReadAllLines(csvPath, Encoding.UTF8);
 
             if (lines.Length <= 1)
                 return new List<MemberSeedRow>();
@@ -41,8 +42,8 @@ namespace CraftDailyCorner.Seed.Demo.Loaders
                     Email = parts[6].Trim(),
                     Password = parts[7].Trim(),
                     StatusID = byte.Parse(parts[8].Trim()),
-                    IsCreator = bool.Parse(parts[9].Trim()),
-                    IsAdmin = bool.Parse(parts[10].Trim()),
+                    IsCreator = ParseBool(parts[9]),
+                    IsAdmin = ParseBool(parts[10]),
                     AdminLevel = parts.Length > 11 ? ParseNullableString(parts[11]) : null
                 });
             }
@@ -63,6 +64,21 @@ namespace CraftDailyCorner.Seed.Demo.Loaders
                 return null;
 
             return DateTime.Parse(text, CultureInfo.InvariantCulture);
+        }
+
+        private static bool ParseBool(string value)
+        {
+            var text = value?.Trim();
+
+            if (string.IsNullOrWhiteSpace(text))
+                return false;
+
+            return text switch
+            {
+                "1" => true,
+                "0" => false,
+                _ => bool.Parse(text)
+            };
         }
     }
 }

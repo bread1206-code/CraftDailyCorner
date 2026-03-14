@@ -2,11 +2,14 @@
 @using CraftDailyCorner.ViewModels.Product
 @using CraftDailyCorner.ViewModels.Report
 @model VMProductDetail
+
 @{
-    ViewData["Title"] = @Model.ProductName;
+    ViewData["Title"] = Model.ProductName;
 }
+
 <div class="container my-5">
     @await Html.PartialAsync("_BreadcrumbPartial", Model.Breadcrumb)
+
     <div class="card shadow-sm">
         <div class="card-body">
 
@@ -44,7 +47,7 @@
                                     @for (int i = 0; i < Model.ImageUrls.Count; i++)
                                     {
                                         <div class="carousel-item @(i == 0 ? "active" : "")">
-                                            <img src=@($"/Photos/04ProductImage/{Model.CreatorID}/Large/{Model.ImageUrls[i]}.png")
+                                            <img src="@Model.GetLargeImagePath(Model.ImageUrls[i])"
                                                  class="d-block w-100"
                                                  style="height: 420px; object-fit: contain;"
                                                  alt="@Model.ProductName" />
@@ -56,7 +59,8 @@
                                     <div class="carousel-item active">
                                         <img src="/images/no-image.png"
                                              class="d-block w-100"
-                                             style="height: 420px; object-fit: contain;" />
+                                             style="height: 420px; object-fit: contain;"
+                                             alt="無圖片" />
                                     </div>
                                 }
                             </div>
@@ -76,9 +80,10 @@
                         <div class="d-flex gap-2 mt-3 justify-content-center">
                             @foreach (var img in Model.ImageUrls)
                             {
-                                <img src=@($"/Photos/04ProductImage/{Model.CreatorID}/Large/{img}.png")
+                                <img src="@Model.GetMediumImagePath(img)"
                                      class="img-thumbnail"
-                                     style="width: 80px; height: 80px; object-fit: cover;" />
+                                     style="width: 80px; height: 80px; object-fit: cover;"
+                                     alt="@Model.ProductName" />
                             }
                         </div>
                     }
@@ -94,7 +99,6 @@
                         <div class="col-auto">
                             @if (User.Identity?.IsAuthenticated == true)
                             {
-                                <!--收藏-->
                                 <button id="favoriteBtn"
                                         class="btn btn-outline-danger fs-5 favorite-btn focus-none"
                                         data-product-id="@Model.ProductId"
@@ -116,7 +120,6 @@
                                     收藏
                                 </button>
                             }
-
                         </div>
                     </div>
 
@@ -125,7 +128,10 @@
                         創作者：
                         @if (!string.IsNullOrEmpty(Model.CreatorName))
                         {
-                            <a asp-controller="Creator" asp-action="Profile" asp-route-id="@Model.CreatorID" class="text-decoration-none">
+                            <a asp-controller="Creator"
+                                   asp-action="Profile"
+                                   asp-route-id="@Model.CreatorID"
+                                   class="text-decoration-none">
                                 @Model.CreatorName
                             </a>
                         }
@@ -134,12 +140,13 @@
                             <span class="text-muted">未提供</span>
                         }
                     </p>
-                    <!--訊息功能-->
+
+                    <!-- 訊息功能 -->
                     @if (!Model.IsOwner)
                     {
                         <form asp-controller="Messages"
-                                asp-action="StartFromProduct"
-                                method="post">
+                              asp-action="StartFromProduct"
+                              method="post">
                             @Html.AntiForgeryToken()
                             <input type="hidden" name="productId" value="@Model.ProductId" />
                             <button type="submit" class="btn btn-outline-primary">
@@ -147,30 +154,32 @@
                             </button>
                         </form>
                     }
+
                     <hr />
 
                     <!-- 商品介紹 -->
                     <div class="d-flex justify-content-between align-items-center mb-3">
 
                         <h5 class="fw-bold mb-0">商品介紹</h5>
+
                         @if (User.Identity?.IsAuthenticated == true)
                         {
-                            <!--檢舉-->
                             @if (!Model.IsOwner)
                             {
                                 <span>
                                     <partial name="_ReportButtonPartial"
                                              model="new VMReport
-                                             {
-                                                 ReportType = ReportTargetType.Product,
-                                                 TargetID = Model.ProductId,
-                                                 IsReportBanned = Model.IsReportBanned,
-                                                 ReportBanUntil = Model.ReportBanUntil
-                                             }" />
-                                </span>
+                                                                                 {
+                                                                                     ReportType = ReportTargetType.Product,
+                                                                                     TargetID = Model.ProductId,
+                                                                                     IsReportBanned = Model.IsReportBanned,
+                                                                                     ReportBanUntil = Model.ReportBanUntil
+                                                                                 }" />
+</span>
                             }
                         }
                     </div>
+
                     <p class="text-content">@Model.Description</p>
 
                     <!-- Tags -->
@@ -178,9 +187,9 @@
                         @foreach (var tag in Model.Tags)
                         {
                             <a asp-controller="Products"
-                               asp-action="Index"
-                               asp-route-tagId="@tag.TagID"
-                               class="badge bg-secondary me-1 text-decoration-none">
+                                   asp-action="Index"
+                                   asp-route-tagId="@tag.TagID"
+                                   class="badge bg-secondary me-1 text-decoration-none">
                                 @tag.TagName
                             </a>
                         }
@@ -193,7 +202,6 @@
                             NT$ @Model.DisplayPrice
                         </h4>
 
-                        <!-- 庫存狀態 -->
                         <p class="mb-2">
                             @if (Model.IsOutOfStock)
                             {
@@ -213,7 +221,6 @@
                             }
                         </p>
 
-                        <!-- 加入購物車 -->
                         <div class="d-flex justify-content-end align-items-center gap-2 mt-2">
 
                             <input type="number"
@@ -223,25 +230,21 @@
                                    min="1"
                                    max="@Model.MaxPurchaseQty"
                                    value="@Model.DefaultQty"
-                                   @(Model.IsOutOfStock ? "disabled" : "") />
+                            @(Model.IsOutOfStock ? "disabled" : "") />
 
                             <button class="btn btn-primary ms-2 mt-3"
                                     onclick="addToCart('@Model.ProductId', this)"
                                     data-id="@Model.ProductId"
-                                    @(Model.IsOutOfStock ? "disabled" : "")>
-                                <i class="bi bi-cart"> </i> 加入購物車
+                                @(Model.IsOutOfStock ? "disabled" : "")>
+                                <i class="bi bi-cart"></i> 加入購物車
                             </button>
 
-                            <!-- 評價 -->
                             <button class="btn btn-info ms-2 mt-3"
                                     data-bs-toggle="modal"
                                     data-bs-target="#ProductReviewModal">
                                 <i class="bi bi-star"></i> 商品評價
                             </button>
-
                         </div>
-
-                        
                     </div>
 
                 </div>
@@ -264,8 +267,8 @@
 
             <div class="modal-body">
                 @await Component.InvokeAsync(
-                "VCProductReview",
-                                new { productID = Model.ProductId })
+                    "VCProductReview",
+                    new { productID = Model.ProductId })
             </div>
 
         </div>

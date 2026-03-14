@@ -2,6 +2,8 @@
 {
     public long ItemID { get; set; }
 
+    public string CreatorID { get; set; } = null!;
+
     public string ImageUrl { get; set; } = null!;
 
     public byte SortOrder { get; set; }
@@ -11,5 +13,5 @@
     public DateTime UpdatedAt { get; set; }
 
     public string ImagePath =>
-        $"/Photos/06Portfolio/Medium/{ImageUrl}.png";
+        $"/Photos/06Portfolio/{CreatorID}/Medium/{ImageUrl}.png";
 }

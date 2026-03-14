@@ -27,10 +27,8 @@ namespace CraftDailyCorner.ViewModels.CreatorPost
         [Display(Name = "留言數")]
         public int CommentCount { get; set; }
 
-        // ===== UI 屬性 =====
-
         public string CoverImagePath =>
-            $"/Photos/05CreatorPost/Medium/{ImageUrl}.png";
+            $"/Photos/05CreatorPost/{CreatorID}/Medium/{ImageUrl}.png";
 
         public string VisibilityText =>
             Visibility switch
@@ -49,9 +47,9 @@ namespace CraftDailyCorner.ViewModels.CreatorPost
                 CreatorPostVisibility.Private => "bg-secondary",
                 _ => "bg-dark"
             };
-        //心情反應摘要按鈕
-        public VMReactionButton ReactionSummary { get; set; }
-        //內容預覽
+
+        public VMReactionButton ReactionSummary { get; set; } = null!;
+
         public string Preview { get; set; } = "";
     }
 }

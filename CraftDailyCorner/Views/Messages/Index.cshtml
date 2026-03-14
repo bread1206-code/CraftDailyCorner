@@ -124,7 +124,7 @@
                                             <div class="flex-shrink-0">
                                                 @if (!string.IsNullOrWhiteSpace(Model.CurrentThread.ProductImageUrl))
                                                 {
-                                                    <img src="@($"/Photos/04ProductImage/Medium/{Model.CurrentThread.ProductImageUrl}.png")"
+                                                    <img src="@Model.CurrentThread.ProductImagePath"
                                                          alt="商品圖片"
                                                          class="rounded border border-white shadow-sm"
                                                          style="width:80px;height:80px;object-fit:cover;" />

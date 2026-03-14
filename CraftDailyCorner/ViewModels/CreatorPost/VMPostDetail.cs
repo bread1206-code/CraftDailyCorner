@@ -17,6 +17,7 @@ namespace CraftDailyCorner.ViewModels.CreatorPost
 
         [Display(Name = "創作者")]
         public string CreatorName { get; set; } = null!;
+
         public string CreatorID { get; set; } = null!;
 
         [Display(Name = "發佈時間")]
@@ -27,17 +28,15 @@ namespace CraftDailyCorner.ViewModels.CreatorPost
 
         public List<VMPostCommentItem> Comments { get; set; } = new();
 
-        // UI
-
         public string CoverImagePath =>
-            $"/Photos/05CreatorPost/Large/{ImageUrl}.png";
+            $"/Photos/05CreatorPost/{CreatorID}/Large/{ImageUrl}.png";
 
-        public bool IsUpdated =>
-            UpdatedAt > CreatedAt;
+        public bool IsUpdated => UpdatedAt > CreatedAt;
 
         public bool IsOwner { get; set; }
-        //心情反應按鈕
+
         public VMReactionButton ReactionButton { get; set; } = null!;
+
         public bool IsReportBanned { get; set; }
         public DateTime? ReportBanUntil { get; set; }
     }

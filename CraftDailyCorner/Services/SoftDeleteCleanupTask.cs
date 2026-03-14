@@ -20,6 +20,7 @@ namespace CraftDailyCorner.Services
 
             var expiredItems = await context.PortfolioItems
                 .IgnoreQueryFilters()
+                .Include(i => i.Portfolio)
                 .Where(i =>
                     i.IsDeleted &&
                     i.DeletedAt != null &&
@@ -28,7 +29,7 @@ namespace CraftDailyCorner.Services
 
             foreach (var item in expiredItems)
             {
-                fileService.DeletePortfolioImage(item.ImageUrl);
+                fileService.DeletePortfolioImage(item.Portfolio.CreatorID, item.ImageUrl);
                 context.PortfolioItems.Remove(item);
             }
 

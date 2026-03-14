@@ -29,7 +29,6 @@ namespace CraftDailyCorner.Services
             _notificationService = notificationService;
         }
 
-        //前台 Index（搜尋 + 分頁）
         public async Task<VMPortfolioIndex> GetPortfolioIndexAsync(
             VMPortfolioIndexQuery query)
         {
@@ -66,10 +65,8 @@ namespace CraftDailyCorner.Services
                         .Select(i => i.ImageUrl)
                         .FirstOrDefault(),
 
-                    //內文預覽
                     Preview = p.Description,
 
-                    // Reaction summary
                     ReactionSummary = new VMReactionButton
                     {
                         TargetType = ReactionTargetType.Portfolio,
@@ -99,7 +96,6 @@ namespace CraftDailyCorner.Services
             };
         }
 
-        //前台 Detail
         public async Task<VMPortfolioDetail?> GetPublicPortfolioDetailAsync(
             string portfolioId, string? currentMemberId)
         {
@@ -116,14 +112,15 @@ namespace CraftDailyCorner.Services
                     p.CreatedAt,
                     CreatorName = p.CreatorProfile.BrandName,
                     OwnerId = p.CreatorProfile.MemberID,
+                    CreatorID = p.CreatorID,
                     Items = p.PortfolioItems
                         .OrderBy(i => i.SortOrder)
                         .Select(i => new VMPortfolioDetailItem
                         {
                             ItemID = i.ItemID,
-                            ImageUrl = i.ImageUrl
-                        }).ToList(),
-                    p.CreatorID
+                            ImageUrl = i.ImageUrl,
+                            CreatorID = p.CreatorID
+                        }).ToList()
                 })
                 .FirstOrDefaultAsync();
 
@@ -167,15 +164,12 @@ namespace CraftDailyCorner.Services
                 Items = data.Items,
                 ReactionButton = reactionVm,
                 CreatorID = data.CreatorID,
-
                 IsReportBanned = isReportBanned,
                 ReportBanUntil = reportBanUntil
             };
         }
 
-        //後台列表
-        public async Task<List<VMCreatorPortfolioListItem>>
-            GetCreatorPortfoliosAsync(string creatorId)
+        public async Task<List<VMCreatorPortfolioListItem>> GetCreatorPortfoliosAsync(string creatorId)
         {
             return await _context.Portfolios
                 .Where(p => p.CreatorID == creatorId && p.StatusID == 1)
@@ -191,12 +185,12 @@ namespace CraftDailyCorner.Services
                     CoverImageUrl = p.PortfolioItems
                         .OrderBy(i => i.SortOrder)
                         .Select(i => i.ImageUrl)
-                        .FirstOrDefault()
+                        .FirstOrDefault(),
+                    CreatorID = p.CreatorID
                 })
                 .ToListAsync();
         }
 
-        //編輯頁資料
         public async Task<VMCreatorPortfolioEdit?> GetEditDataAsync(string portfolioId, string creatorId)
         {
             var portfolio = await _context.Portfolios
@@ -228,7 +222,6 @@ namespace CraftDailyCorner.Services
             };
         }
 
-        //建立
         public async Task CreateAsync(
             CreateCreatorPortfolioDTO dto,
             string creatorId,
@@ -259,7 +252,9 @@ namespace CraftDailyCorner.Services
                     file,
                     null,
                     "06Portfolio",
-                    ImageSizePresets.Portfolio
+                    ImageSizePresets.Portfolio,
+                    entityId: null,
+                    entitySubFolder: creatorId
                 );
 
                 _context.PortfolioItems.Add(new PortfolioItem
@@ -274,7 +269,6 @@ namespace CraftDailyCorner.Services
 
             await _context.SaveChangesAsync();
 
-            // ===== 第五階段：創作者新作品集通知 =====
             if (portfolio.Visibility == CreatorPostVisibility.Public)
             {
                 var followerMemberIds = await _context.FollowCreators
@@ -301,7 +295,6 @@ namespace CraftDailyCorner.Services
             }
         }
 
-        //更新
         public async Task UpdateAsync(
             UpdateCreatorPortfolioDTO dto,
             string creatorId)
@@ -324,7 +317,6 @@ namespace CraftDailyCorner.Services
             await _context.SaveChangesAsync();
         }
 
-        //軟刪除
         public async Task SoftDeleteAsync(
             string portfolioId,
             string creatorId)
@@ -341,11 +333,9 @@ namespace CraftDailyCorner.Services
 
             var now = DateTime.Now;
 
-            //軟刪作品集
-            portfolio.StatusID = 3; // Deleted
+            portfolio.StatusID = 3;
             portfolio.UpdatedAt = now;
 
-            //軟刪所有圖片
             foreach (var item in portfolio.PortfolioItems)
             {
                 if (!item.IsDeleted)

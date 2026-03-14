@@ -27,7 +27,7 @@ namespace CraftDailyCorner.Services
 
             foreach (var post in posts)
             {
-                fileService.DeleteCreatorPostImage(post.ImageUrl);
+                fileService.DeleteCreatorPostImage(post.CreatorID, post.ImageUrl);
 
                 var comments = await context.PostComments
                     .Where(c => c.PostID == post.PostID)

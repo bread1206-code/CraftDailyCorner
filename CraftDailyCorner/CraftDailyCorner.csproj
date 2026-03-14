@@ -16,4 +16,11 @@
     <PackageReference Include="SixLabors.ImageSharp" Version="3.1.12" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Seed\SeedAssets\CreatorBrand\" />
+    <Folder Include="Seed\SeedAssets\CreatorPortfolioSample\" />
+    <Folder Include="Seed\SeedAssets\ProductRaw\" />
+    <Folder Include="wwwroot\music\" />
+  </ItemGroup>
+
 </Project>

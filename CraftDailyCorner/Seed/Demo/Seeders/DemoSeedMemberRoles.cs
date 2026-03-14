@@ -21,8 +21,9 @@ namespace CraftDailyCorner.Seed.Demo.Seeders
             if (seedContext.Members == null || !seedContext.Members.Any())
                 throw new Exception("DemoSeedContext.Members 沒有資料");
 
-            if (_context.MemberRoles.Any())
-                return;
+            var existingRoles = _context.MemberRoles
+                .Select(x => new { x.MemberID, x.RoleID })
+                .ToHashSet();
 
             var memberRoles = new List<MemberRole>();
 
@@ -32,6 +33,9 @@ namespace CraftDailyCorner.Seed.Demo.Seeders
 
                 foreach (var roleId in roleIds)
                 {
+                    if (existingRoles.Contains(new { row.MemberID, RoleID = roleId }))
+                        continue;
+
                     memberRoles.Add(new MemberRole
                     {
                         MemberID = row.MemberID,
@@ -40,8 +44,11 @@ namespace CraftDailyCorner.Seed.Demo.Seeders
                 }
             }
 
-            _context.MemberRoles.AddRange(memberRoles);
-            _context.SaveChanges();
+            if (memberRoles.Any())
+            {
+                _context.MemberRoles.AddRange(memberRoles);
+                _context.SaveChanges();
+            }
         }
     }
 }

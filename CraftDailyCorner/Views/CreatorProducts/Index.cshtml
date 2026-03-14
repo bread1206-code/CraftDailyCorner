@@ -15,8 +15,8 @@
 
         <div class="d-flex gap-2">
             <a asp-controller="Creator"
-               asp-action="Dashboard"
-               class="btn btn-outline-secondary">
+                   asp-action="Dashboard"
+                   class="btn btn-outline-secondary">
                 回創作者中心
             </a>
 
@@ -55,15 +55,15 @@
                             <tr>
                                 <td>
                                     <div class="d-flex align-items-center gap-3">
-                                        <img src="@(string.IsNullOrEmpty(item.CoverImageUrl)
-                                                    ? "/Photos/04ProductImage/default.png" 
-                                                    : $"/Photos/04ProductImage/Medium/{item.CoverImageUrl}.png")"
+                                        <img src="@item.CoverImagePath"
                                              style="width:60px;height:60px;object-fit:cover;"
                                              class="rounded border" />
 
                                         <div class="fw-semibold">
-                                            <a asp-controller="Products" asp-action="Detail" asp-route-id="@item.ProductID"
-                                               class="text-decoration-none">
+                                            <a asp-controller="Products"
+                                                   asp-action="Detail"
+                                                   asp-route-id="@item.ProductID"
+                                                   class="text-decoration-none">
                                                 @item.ProductName
                                             </a>
                                         </div>
@@ -109,10 +109,9 @@
                                 </td>
 
                                 <td class="text-end">
-
                                     <a asp-action="Edit"
-                                       asp-route-id="@item.ProductID"
-                                       class="btn btn-sm btn-outline-secondary me-2">
+                                           asp-route-id="@item.ProductID"
+                                           class="btn btn-sm btn-outline-secondary me-2">
                                         編輯
                                     </a>
 
@@ -127,7 +126,6 @@
                                             下架
                                         </button>
                                     </form>
-
                                 </td>
                             </tr>
                         }

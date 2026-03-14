@@ -4,6 +4,7 @@
     {
         public string ProductID { get; set; } = null!;
         public string ProductName { get; set; } = null!;
+        public string CreatorID { get; set; } = null!;
         public string ImageUrl { get; set; } = null!;
         public decimal Price { get; set; }
         public DateTime CreatedAt { get; set; }
@@ -12,9 +13,8 @@
         public bool IsFavorite { get; set; }
 
         // ===== UI Helper（可選）=====
-        public int PriceInt => (int)Math.Floor(Price);
 
         public string CoverImagePath =>
-            $"/Photos/04ProductImage/Large/{ImageUrl}.png";
+            $"/Photos/04ProductImage/{CreatorID}/Large/{ImageUrl}.png";
     }
 }

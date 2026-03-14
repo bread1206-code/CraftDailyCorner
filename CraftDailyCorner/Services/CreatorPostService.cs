@@ -11,24 +11,24 @@ namespace CraftDailyCorner.Services
     {
         private readonly CraftDailyCornerContext _context;
         private readonly IImageUploadService _imageUploadService;
+        private readonly IImageFileService _imageFileService;
         private readonly IReactionService _reactionService;
         private readonly INotificationService _notificationService;
 
         public CreatorPostService(
             CraftDailyCornerContext context,
             IImageUploadService imageUploadService,
+            IImageFileService imageFileService,
             IReactionService reactionService,
             INotificationService notificationService)
         {
             _context = context;
             _imageUploadService = imageUploadService;
+            _imageFileService = imageFileService;
             _reactionService = reactionService;
             _notificationService = notificationService;
         }
 
-        // ===============================
-        // 前台列表（公開 + 搜尋 + 分頁）
-        // ===============================
         public async Task<VMPostIndex> GetPostIndexAsync(VMPostIndexQuery query)
         {
             var baseQuery = _context.CreatorPosts
@@ -92,9 +92,6 @@ namespace CraftDailyCorner.Services
             };
         }
 
-        // ===============================
-        // 前台單篇
-        // ===============================
         public async Task<VMPostDetail?> GetPostDetailAsync(
             string postId,
             string? currentMemberId)
@@ -157,15 +154,11 @@ namespace CraftDailyCorner.Services
                 UpdatedAt = post.UpdatedAt,
                 IsOwner = currentMemberId != null && post.OwnerId == currentMemberId,
                 ReactionButton = reactionVm,
-
                 IsReportBanned = isReportBanned,
                 ReportBanUntil = reportBanUntil
             };
         }
 
-        // ===============================
-        // 權限判斷
-        // ===============================
         public async Task<bool> CanViewPostAsync(string postId, string? memberId)
         {
             var post = await _context.CreatorPosts
@@ -180,7 +173,6 @@ namespace CraftDailyCorner.Services
             if (post.Visibility == CreatorPostVisibility.Public)
                 return true;
 
-            // 創作者自己可看
             if (memberId != null && post.CreatorProfile.MemberID == memberId)
                 return true;
 
@@ -201,11 +193,7 @@ namespace CraftDailyCorner.Services
             return false;
         }
 
-        // ===============================
-        // 後台列表
-        // ===============================
-        public async Task<List<VMPostListItem>>
-            GetCreatorPostsAsync(string creatorId)
+        public async Task<List<VMPostListItem>> GetCreatorPostsAsync(string creatorId)
         {
             return await _context.CreatorPosts
                 .Where(p =>
@@ -217,6 +205,7 @@ namespace CraftDailyCorner.Services
                     PostID = p.PostID,
                     Title = p.Title,
                     ImageUrl = p.ImageUrl,
+                    CreatorID=p.CreatorProfile.CreatorID,
                     Visibility = p.Visibility,
                     CreatedAt = p.CreatedAt,
                     UpdatedAt = p.UpdatedAt,
@@ -226,9 +215,6 @@ namespace CraftDailyCorner.Services
                 .ToListAsync();
         }
 
-        // ===============================
-        // 建立
-        // ===============================
         public async Task CreateAsync(
             CreateCreatorPostDTO dto,
             string creatorId)
@@ -244,7 +230,8 @@ namespace CraftDailyCorner.Services
                 null,
                 "05CreatorPost",
                 ImageSizePresets.Post,
-                postId
+                entityId: postId,
+                entitySubFolder: creatorId
             );
 
             var post = new CreatorPost
@@ -252,7 +239,7 @@ namespace CraftDailyCorner.Services
                 PostID = postId,
                 Title = dto.Title,
                 Content = dto.Content,
-                ImageUrl = postId,
+                ImageUrl = imageKey,
                 Visibility = dto.Visibility,
                 CreatorID = creatorId,
                 StatusID = 1,
@@ -263,9 +250,6 @@ namespace CraftDailyCorner.Services
             _context.CreatorPosts.Add(post);
             await _context.SaveChangesAsync();
 
-            // ===== 第五階段：創作者新日誌通知 =====
-            // 規格：建立新日誌時通知追蹤者（下架再上架不算）
-            // 所以只在 Create 時送
             if (post.Visibility == CreatorPostVisibility.Public)
             {
                 var followerMemberIds = await _context.FollowCreators
@@ -292,9 +276,6 @@ namespace CraftDailyCorner.Services
             }
         }
 
-        // ===============================
-        // 更新
-        // ===============================
         public async Task UpdateAsync(
             UpdateCreatorPostDTO dto,
             string creatorId)
@@ -315,23 +296,24 @@ namespace CraftDailyCorner.Services
 
             if (dto.NewImageFile != null)
             {
+                var oldImageKey = post.ImageUrl;
+
                 var imageKey = _imageUploadService.UploadImage(
                     dto.NewImageFile,
                     null,
                     "05CreatorPost",
                     ImageSizePresets.Post,
-                    dto.PostID
+                    entityId: dto.PostID,
+                    entitySubFolder: creatorId
                 );
 
-                post.ImageUrl = dto.PostID;
+                post.ImageUrl = imageKey;
+                _imageFileService.DeleteCreatorPostImage(creatorId, oldImageKey);
             }
 
             await _context.SaveChangesAsync();
         }
 
-        // ===============================
-        // 軟刪除
-        // ===============================
         public async Task SoftDeleteAsync(
             string postId,
             string creatorId)
@@ -365,6 +347,7 @@ namespace CraftDailyCorner.Services
                     Content = p.Content,
                     Visibility = p.Visibility,
                     CurrentImageUrl = p.ImageUrl,
+                    CreatorID = p.CreatorID,
                     UpdatedAt = p.UpdatedAt
                 })
                 .FirstOrDefaultAsync();

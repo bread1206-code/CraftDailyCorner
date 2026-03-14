@@ -116,6 +116,7 @@ namespace CraftDailyCorner.Services
                     ProductID = p.ProductID,
                     ProductName = p.ProductName,
                     Price = p.Price,
+                    CreatorID = p.CreatorID,
                     CoverImageUrl = cover,
                     IsFavorite = favoriteIds.Contains(p.ProductID)
                 };

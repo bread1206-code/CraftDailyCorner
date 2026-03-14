@@ -71,7 +71,7 @@
                 var a = item == Model.Items.First() ? "active" : "";
 
                 <div class="carousel-item @a">
-                    <img src="@($"/Photos/06Portfolio/Large/{item.ImageUrl}.png")"
+                    <img src="@item.ImagePath"
                          class="d-block w-100" />
                 </div>
             }

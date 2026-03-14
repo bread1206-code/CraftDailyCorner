@@ -2,8 +2,8 @@
 {
     public interface IImageFileService
     {
-        void DeletePortfolioImage(string imageName);
-        void DeleteProductImage(string imageName);
-        void DeleteCreatorPostImage(string imageName);
+        void DeletePortfolioImage(string creatorId, string imageName);
+        void DeleteProductImage(string creatorId, string imageName);
+        void DeleteCreatorPostImage(string creatorId, string imageName);
     }
 }

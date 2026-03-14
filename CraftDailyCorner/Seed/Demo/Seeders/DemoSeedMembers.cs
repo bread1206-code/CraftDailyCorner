@@ -20,23 +20,30 @@ namespace CraftDailyCorner.Seed.Demo.Seeders
             if (seedContext.Members == null || !seedContext.Members.Any())
                 throw new Exception("DemoSeedContext.Members 沒有資料");
 
-            if (_context.Members.Any())
-                return;
+            var existingIds = _context.Members
+                .Select(x => x.MemberID)
+                .ToHashSet();
 
-            var members = seedContext.Members.Select(row => new Member
+            var members = seedContext.Members
+                .Where(x => !existingIds.Contains(x.MemberID))
+                .Select(x => new Member
+                {
+                    MemberID = x.MemberID,
+                    ImageUrl = "default",
+                    DisplayName = x.DisplayName,
+                    StatusID = x.StatusID,
+                    MaliciousReportCount = 0,
+                    ReportBanUntil = null,
+                    ViolationCount = 0,
+                    CreatedAt = x.CreatedAt
+                })
+                .ToList();
+
+            if (members.Any())
             {
-                MemberID = row.MemberID,
-                ImageUrl = "default",
-                DisplayName = row.DisplayName,
-                StatusID = row.StatusID,
-                MaliciousReportCount = 0,
-                ReportBanUntil = null,
-                ViolationCount = 0,
-                CreatedAt = row.CreatedAt
-            }).ToList();
-
-            _context.Members.AddRange(members);
-            _context.SaveChanges();
+                _context.Members.AddRange(members);
+                _context.SaveChanges();
+            }
         }
     }
 }

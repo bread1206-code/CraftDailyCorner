@@ -15,5 +15,10 @@ namespace CraftDailyCorner.ViewModels.Homepage
 
         public string CreatorID { get; set; } = null!;
         public string BrandName { get; set; } = null!;
+
+        public string ImagePath =>
+            string.IsNullOrWhiteSpace(ImageUrl)
+                ? "/images/no-image.png"
+                : $"/Photos/05CreatorPost/{CreatorID}/Medium/{ImageUrl}.png";
     }
 }

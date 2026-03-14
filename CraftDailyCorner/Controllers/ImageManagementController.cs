@@ -12,11 +12,9 @@ public class ImageManagementController : Controller
 {
     private readonly Dictionary<string, IImageManagementService> _services;
 
-    public ImageManagementController(
-        IEnumerable<IImageManagementService> services)
+    public ImageManagementController(IEnumerable<IImageManagementService> services)
     {
-        _services = services
-            .ToDictionary(s => s.EntityType, s => s);
+        _services = services.ToDictionary(s => s.EntityType, s => s);
     }
 
     private IImageManagementService GetService(string entityType)
@@ -30,7 +28,6 @@ public class ImageManagementController : Controller
     // =============================
     // Upload
     // =============================
-
     [HttpPost("Upload")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Upload(
@@ -43,10 +40,7 @@ public class ImageManagementController : Controller
 
         foreach (var file in files)
         {
-            await service.AddWithUploadAsync(
-                file,
-                entityId,
-                creatorId);
+            await service.AddWithUploadAsync(file, entityId, creatorId);
         }
 
         return await ReloadPartial(entityId, entityType);
@@ -55,7 +49,6 @@ public class ImageManagementController : Controller
     // =============================
     // Delete
     // =============================
-
     [HttpPost("Delete")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(
@@ -68,9 +61,7 @@ public class ImageManagementController : Controller
             var creatorId = User.GetCreatorId();
             var service = GetService(entityType);
 
-            await service.DeleteWithValidationAsync(
-                imageId,
-                creatorId);
+            await service.DeleteWithValidationAsync(imageId, creatorId);
 
             return await ReloadPartial(entityId, entityType);
         }
@@ -83,7 +74,6 @@ public class ImageManagementController : Controller
     // =============================
     // Sort
     // =============================
-
     [HttpPost("UpdateSort")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> UpdateSort(
@@ -94,10 +84,7 @@ public class ImageManagementController : Controller
         var creatorId = User.GetCreatorId();
         var service = GetService(entityType);
 
-        await service.UpdateSortWithValidationAsync(
-            entityId,
-            orderedIds,
-            creatorId);
+        await service.UpdateSortWithValidationAsync(entityId, orderedIds, creatorId);
 
         return Ok();
     }
@@ -119,10 +106,7 @@ public class ImageManagementController : Controller
     // =============================
     // Reload Partial
     // =============================
-
-    private async Task<IActionResult> ReloadPartial(
-        string entityId,
-        string entityType)
+    private async Task<IActionResult> ReloadPartial(string entityId, string entityType)
     {
         var service = GetService(entityType);
         var images = await service.GetImagesAsync(entityId);

@@ -40,12 +40,13 @@
                 <div class="card h-100 shadow-sm p-card">
 
                     <a asp-action="Detail"
-                       asp-route-id="@item.ProductID"
-                       class="text-decoration-none text-dark">
+                           asp-route-id="@item.ProductID"
+                           class="text-decoration-none text-dark">
 
-                        <img src="@($"/Photos/04ProductImage/Large/{item.CoverImageUrl}.png")"
+                        <img src="@item.CoverImagePath"
                              class="card-img-top"
-                             style="height:200px;object-fit:cover;" />
+                             style="height:200px;object-fit:cover;"
+                             alt="@item.ProductName" />
                     </a>
 
                     <div class="card-body">

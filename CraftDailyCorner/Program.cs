@@ -4,6 +4,10 @@ using CraftDailyCorner.ImageManagementCore.Services.Interfaces;
 using CraftDailyCorner.Models;
 using CraftDailyCorner.Seed;
 using CraftDailyCorner.Seed.Datas;
+using CraftDailyCorner.Seed.Demo;
+using CraftDailyCorner.Seed.Demo.Helpers;
+using CraftDailyCorner.Seed.Demo.Loaders;
+using CraftDailyCorner.Seed.Demo.Seeders;
 using CraftDailyCorner.Services;
 using CraftDailyCorner.Services.BackgroundServices;
 using CraftDailyCorner.Services.Creator;
@@ -68,6 +72,9 @@ builder.Services.AddScoped<IProductReviewService, ProductReviewService>();
 
 builder.Services.AddHostedService<SoftDeleteCleanupBackgroundService>();
 builder.Services.AddHostedService<OrderAutoCompleteHostedBackgroundService>();
+
+/*
+ */
 builder.Services.AddScoped <SeedRunner>();
 builder.Services.AddScoped <SeedMember>();
 builder.Services.AddScoped <SeedPrivacy>();
@@ -119,6 +126,34 @@ builder.Services.AddScoped <SeedPlatformAnnouncementStatus>();
 builder.Services.AddScoped <SeedHomepageBannerStatus>();
 builder.Services.AddScoped <SeedPlatformSettingCategory>();
 builder.Services.AddScoped <SeedReportStatus>();
+
+/*Demo*/
+// Demo Seeder
+builder.Services.AddScoped<DemoSeedRunner>();
+
+// Demo Seeders
+builder.Services.AddScoped<DemoSeedMembers>();
+builder.Services.AddScoped<DemoSeedPrivacies>();
+builder.Services.AddScoped<DemoSeedMemberRoles>();
+builder.Services.AddScoped<DemoSeedMemberRoleHistories>();
+builder.Services.AddScoped<DemoSeedCreatorApplications>();
+builder.Services.AddScoped<DemoSeedCreatorProfiles>();
+builder.Services.AddScoped<DemoSeedProducts>();
+builder.Services.AddScoped<DemoSeedProductImages>();
+builder.Services.AddScoped<DemoSeedProductRelations>();
+builder.Services.AddScoped<DemoSeedInventories>();
+builder.Services.AddScoped<DemoSeedCarts>();
+builder.Services.AddScoped<DemoSeedNotificationPreferences>();
+
+// Demo Loaders
+builder.Services.AddScoped<MemberSeedLoader>();
+builder.Services.AddScoped<CreatorSeedLoader>();
+builder.Services.AddScoped<ProductSeedLoader>();
+builder.Services.AddScoped<ProductImageSeedLoader>();
+
+// Demo Helpers
+builder.Services.AddScoped<DemoSeedImageHelper>();
+
 builder.Services.AddAuthentication("CraftDailyCornerLogin").AddCookie("CraftDailyCornerLogin", option =>
 {
     option.LoginPath = "/Account/Login";//設定登入頁面路徑(入口)，若需登入而未登入時強制導到此路徑
@@ -156,6 +191,8 @@ builder.WebHost.ConfigureKestrel(options =>
 
 
 var app = builder.Build();
+
+/*Seed*/
 using (var scope = app.Services.CreateScope())
 {
     //SeedData.Initialize(scope.ServiceProvider);
@@ -163,6 +200,14 @@ using (var scope = app.Services.CreateScope())
     var runner = services.GetRequiredService<SeedRunner>();
     runner.Run();
 }
+
+/*DemoSeed*/
+using (var scope = app.Services.CreateScope())
+{
+    var demoSeedRunner = scope.ServiceProvider.GetRequiredService<DemoSeedRunner>();
+    demoSeedRunner.Run();
+}
+
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())

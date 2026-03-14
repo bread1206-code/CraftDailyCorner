@@ -66,7 +66,7 @@ namespace CraftDailyCorner.Seed.Demo.Seeders
                     ReviewedAt = reviewedAt,
                     ReviewNote = "審核通過，已完成創作者資格確認。",
                     MemberID = row.MemberID,
-                    ReviewedBy = "M0000001"
+                    ReviewedBy = "M0000000"
                 });
 
                 seedContext.MemberToCreatorMap[row.MemberID] = row.CreatorID;

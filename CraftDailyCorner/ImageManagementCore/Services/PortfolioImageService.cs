@@ -24,12 +24,12 @@ public class PortfolioImageService
     }
 
     // =========================================================
-    // 取得圖片（只抓未刪除）
+    // 取得圖片（只抓未刪除，並載入 Portfolio）
     // =========================================================
-
     public override async Task<List<IEntityImage>> GetImagesAsync(string portfolioId)
     {
         var result = await _dbSet
+            .Include(x => x.Portfolio)
             .Where(x => x.PortfolioID == portfolioId && !x.IsDeleted)
             .OrderBy(x => x.SortOrder)
             .ToListAsync();
@@ -40,7 +40,6 @@ public class PortfolioImageService
     // =========================================================
     // 新增圖片
     // =========================================================
-
     public async Task AddWithUploadAsync(
         IFormFile file,
         string portfolioId,
@@ -52,8 +51,7 @@ public class PortfolioImageService
             .Where(x => x.PortfolioID == portfolioId && !x.IsDeleted)
             .CountAsync();
 
-        if (MaxImageCount.HasValue &&
-            currentCount >= MaxImageCount.Value)
+        if (MaxImageCount.HasValue && currentCount >= MaxImageCount.Value)
         {
             throw new InvalidOperationException(HintMessage);
         }
@@ -65,7 +63,8 @@ public class PortfolioImageService
             null,
             "06Portfolio",
             ImageSizePresets.Portfolio,
-            fileName
+            entityId: fileName,
+            entitySubFolder: creatorId
         );
 
         var nextSort = await GetNextSortOrderAsync(
@@ -87,7 +86,6 @@ public class PortfolioImageService
     // =========================================================
     // 軟刪除（含重排）
     // =========================================================
-
     public async Task DeleteWithValidationAsync(
         long imageId,
         string creatorId)
@@ -102,7 +100,6 @@ public class PortfolioImageService
         if (item.Portfolio.CreatorID != creatorId)
             throw new UnauthorizedAccessException("無權限刪除");
 
-        // 至少保留一張
         var count = await _dbSet
             .Where(x => x.PortfolioID == item.PortfolioID && !x.IsDeleted)
             .CountAsync();
@@ -115,14 +112,12 @@ public class PortfolioImageService
         item.UpdatedAt = DateTime.Now;
 
         await ReorderAfterDelete(item.PortfolioID);
-
         await _db.SaveChangesAsync();
     }
 
     // =========================================================
     // 更新排序（只作用於未刪除）
     // =========================================================
-
     public async Task UpdateSortWithValidationAsync(
         string portfolioId,
         List<long> orderedIds,
@@ -147,7 +142,6 @@ public class PortfolioImageService
     // =========================================================
     // 重排排序
     // =========================================================
-
     private async Task ReorderAfterDelete(string portfolioId)
     {
         var items = await _dbSet
@@ -165,7 +159,6 @@ public class PortfolioImageService
     // =========================================================
     // 驗證擁有者
     // =========================================================
-
     private async Task ValidateOwnerAsync(
         string portfolioId,
         string creatorId)

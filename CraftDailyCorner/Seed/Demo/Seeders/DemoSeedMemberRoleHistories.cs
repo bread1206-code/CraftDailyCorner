@@ -22,8 +22,9 @@ namespace CraftDailyCorner.Seed.Demo.Seeders
             if (seedContext.Members == null || !seedContext.Members.Any())
                 throw new Exception("DemoSeedContext.Members 沒有資料");
 
-            if (_context.MemberRoleHistories.Any())
-                return;
+            var existingHistories = _context.MemberRoleHistories
+                .Select(x => new { x.MemberID, x.RoleID })
+                .ToHashSet();
 
             var histories = new List<MemberRoleHistory>();
 
@@ -33,6 +34,9 @@ namespace CraftDailyCorner.Seed.Demo.Seeders
 
                 foreach (var roleId in roleIds)
                 {
+                    if (existingHistories.Contains(new { row.MemberID, RoleID = roleId }))
+                        continue;
+
                     histories.Add(new MemberRoleHistory
                     {
                         MemberID = row.MemberID,
@@ -46,7 +50,7 @@ namespace CraftDailyCorner.Seed.Demo.Seeders
                             : MemberRoleHistoryOperated.System,
 
                         OperatorMemberID = roleId == "02"
-                            ? "M0000001"
+                            ? "M0000000"
                             : null,
 
                         OperatedAt = row.CreatedAt
@@ -54,8 +58,11 @@ namespace CraftDailyCorner.Seed.Demo.Seeders
                 }
             }
 
-            _context.MemberRoleHistories.AddRange(histories);
-            _context.SaveChanges();
+            if (histories.Any())
+            {
+                _context.MemberRoleHistories.AddRange(histories);
+                _context.SaveChanges();
+            }
         }
     }
 }

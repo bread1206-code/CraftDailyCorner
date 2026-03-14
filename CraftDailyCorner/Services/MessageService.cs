@@ -350,6 +350,7 @@ namespace CraftDailyCorner.Services
                 ProductID = thread.ProductID,
                 ProductName = thread.Product?.ProductName,
                 ProductPrice = thread.Product?.Price,
+                ProductCreatorID = thread.Product.CreatorID,
                 ProductImageUrl = thread.Product?.ProductImages
                     .Where(pi => pi.StatusID == 1)
                     .OrderBy(pi => pi.SortOrder)
