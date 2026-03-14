@@ -23,7 +23,7 @@ namespace CraftDailyCorner.Seed.Datas
                         Subtitle = "探索手工與在地溫暖",
                         StatusID = 1,
                         CreatedAt = DateTime.Now,
-                        CreatedBy = "M0000001"
+                        CreatedBy = "M0000000"
                     },new HomepageBanner
                     {
                         ImageUrl = imageGuids[1],
@@ -31,7 +31,7 @@ namespace CraftDailyCorner.Seed.Datas
                         Subtitle = "日作市集祝賀您",
                         StatusID = 1,
                         CreatedAt = DateTime.Now,
-                        CreatedBy = "M0000001"
+                        CreatedBy = "M0000000"
                     },new HomepageBanner
                     {
                         ImageUrl = imageGuids[2],
@@ -39,7 +39,7 @@ namespace CraftDailyCorner.Seed.Datas
                         Subtitle = "發現手工美好，感受春光溫煦",
                         StatusID = 1,
                         CreatedAt = DateTime.Now,
-                        CreatedBy = "M0000001"
+                        CreatedBy = "M0000000"
                     },new HomepageBanner
                     {
                         ImageUrl = imageGuids[3],
@@ -47,7 +47,7 @@ namespace CraftDailyCorner.Seed.Datas
                         Subtitle = "",
                         StatusID = 1,
                         CreatedAt = DateTime.Now,
-                        CreatedBy = "M0000001"
+                        CreatedBy = "M0000000"
                     },new HomepageBanner
                     {
                         ImageUrl = imageGuids[4],
@@ -55,7 +55,7 @@ namespace CraftDailyCorner.Seed.Datas
                         Subtitle = "",
                         StatusID = 1,
                         CreatedAt = DateTime.Now,
-                        CreatedBy = "M0000001"
+                        CreatedBy = "M0000000"
                     },new HomepageBanner
                     {
                         ImageUrl = imageGuids[5],
@@ -63,7 +63,7 @@ namespace CraftDailyCorner.Seed.Datas
                         Subtitle = "",
                         StatusID = 1,
                         CreatedAt = DateTime.Now,
-                        CreatedBy = "M0000001"
+                        CreatedBy = "M0000000"
                     }
                 };
                 _context.HomepageBanners.AddRange(homepageBanners);

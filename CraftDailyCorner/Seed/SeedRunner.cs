@@ -189,26 +189,26 @@ namespace CraftDailyCorner.Seed
             if (!_context.Members.Any())
             {
                 // 1️ 準備 GUID
-            var memberGuids = GenerateGuids(5);
-            var creatorApplicationGuids = GenerateGuids(3);
-            var creatorBrandGuids = GenerateGuids(2);
-            var productImageGuids = GenerateGuids(6);
-            var creatorPostGuids = GenerateGuids(7);
-            var seedPortfolioItemGuids = GenerateGuids(2);
-            var prtfolioGuids = GenerateGuids(1);
+            var memberGuids = GenerateGuids(1);
+            //var creatorApplicationGuids = GenerateGuids(3);
+            //var creatorBrandGuids = GenerateGuids(2);
+            //var productImageGuids = GenerateGuids(6);
+            //var creatorPostGuids = GenerateGuids(7);
+            //var seedPortfolioItemGuids = GenerateGuids(2);
+            //var prtfolioGuids = GenerateGuids(1);
             var homepageBannerGuids = GenerateGuids(6);
             Console.WriteLine("準備 GUID 完成");
 
             
             // 2 上傳圖片
             UploadImages(memberGuids, "01Member");
-            UploadImages(creatorApplicationGuids, "02CreatorApplication");
-            UploadImages(creatorBrandGuids, "03CreatorBrand");
-            UploadImages(productImageGuids, "04ProductImage");
-            UploadImages(creatorPostGuids, "05CreatorPost");
-            UploadImages(seedPortfolioItemGuids, "06Portfolio");
+            //UploadImages(creatorApplicationGuids, "02CreatorApplication");
+            //UploadImages(creatorBrandGuids, "03CreatorBrand");
+            //UploadImages(productImageGuids, "04ProductImage");
+            //UploadImages(creatorPostGuids, "05CreatorPost");
+            //UploadImages(seedPortfolioItemGuids, "06Portfolio");
             UploadImages(homepageBannerGuids, "08HomepageBanner");
-            UploadImages();// 上傳預設會員圖片
+            UploadImages();// 上傳預設會員圖片、預設Logo圖片
             Console.WriteLine("上傳圖片 完成");
 
 
@@ -237,32 +237,32 @@ namespace CraftDailyCorner.Seed
             _seedPrivacy.Run();
             _seedMemberRole.Run();
             _seedMemberRoleHistory.Run();
-            _seedCreatorApplication.Run(creatorApplicationGuids);
-            _seedCreatorProfile.Run(creatorBrandGuids);
-            _seedProduct.Run();
-            _seedProductImage.Run(productImageGuids);
-            _seedProductRelation.Run();
+            //_seedCreatorApplication.Run(creatorApplicationGuids);
+            //_seedCreatorProfile.Run(creatorBrandGuids);
+            //_seedProduct.Run();
+            //_seedProductImage.Run(productImageGuids);
+            //_seedProductRelation.Run();
             _seedCart.Run();
             //_seedCartItem.Run();
             //_seedOrder.Run();
             //_seedOrderDetail.Run();
             //_seedPayment.Run();
             //_seedShipment.Run();
-            _seedFavoriteProduct.Run();
-            _seedFollowCreator.Run();
+            //_seedFavoriteProduct.Run();
+            //_seedFollowCreator.Run();
             //_seedProductReview.Run();
-            _seedMessageThread.Run();
-            _seedMessage.Run();
-            _seedAutoReplyTemplate.Run();
-            _seedCreatorPost.Run(creatorPostGuids);
-            _seedPostComment.Run(creatorPostGuids);
-            _seedInventory.Run();
-            _seedInventoryAlert.Run();
+            //_seedMessageThread.Run();
+            //_seedMessage.Run();
+            //_seedAutoReplyTemplate.Run();
+            //_seedCreatorPost.Run(creatorPostGuids);
+            //_seedPostComment.Run(creatorPostGuids);
+            //_seedInventory.Run();
+            //_seedInventoryAlert.Run();
             _seedPlatformAnnouncement.Run();
             _seedHomepageBanner.Run(homepageBannerGuids);
             _seedPlatformSetting.Run();
-            _seedPortfolio.Run(prtfolioGuids);
-            _seedPortfolioItem.Run(prtfolioGuids, seedPortfolioItemGuids);
+            //_seedPortfolio.Run(prtfolioGuids);
+            //_seedPortfolioItem.Run(prtfolioGuids, seedPortfolioItemGuids);
             //_seedNotificationPreference.Run();
             //_seedNotificationEvent.Run();
 

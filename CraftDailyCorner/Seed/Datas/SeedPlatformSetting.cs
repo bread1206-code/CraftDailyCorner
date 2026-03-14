@@ -24,7 +24,7 @@ namespace CraftDailyCorner.Seed.Datas
                         CategoryID = 1,
                         Description = "平台顯示名稱",
                         UpdatedAt = DateTime.Now,
-                        UpdatedBy = "M0000001"
+                        UpdatedBy = "M0000000"
                     },
                     new PlatformSetting
                     {
@@ -34,7 +34,7 @@ namespace CraftDailyCorner.Seed.Datas
                         CategoryID = 1,
                         Description = "客服聯絡信箱",
                         UpdatedAt = DateTime.Now,
-                        UpdatedBy = "M0000001"
+                        UpdatedBy = "M0000000"
                     },
                     new PlatformSetting
                     {
@@ -44,7 +44,7 @@ namespace CraftDailyCorner.Seed.Datas
                         CategoryID = 2,
                         Description = "首頁精選商品數",
                         UpdatedAt = DateTime.Now,
-                        UpdatedBy = "M0000001"
+                        UpdatedBy = "M0000000"
                     },
                     new PlatformSetting
                     {
@@ -54,7 +54,7 @@ namespace CraftDailyCorner.Seed.Datas
                         CategoryID = 2,
                         Description = "Banner 輪播秒數",
                         UpdatedAt = DateTime.Now,
-                        UpdatedBy = "M0000001"
+                        UpdatedBy = "M0000000"
                     },
                     new PlatformSetting
                     {
@@ -64,7 +64,7 @@ namespace CraftDailyCorner.Seed.Datas
                         CategoryID = 2,
                         Description = "商品列表每頁筆數",
                         UpdatedAt = DateTime.Now,
-                        UpdatedBy = "M0000001"
+                        UpdatedBy = "M0000000"
                     },
                     new PlatformSetting
                     {
@@ -74,7 +74,7 @@ namespace CraftDailyCorner.Seed.Datas
                         CategoryID = 1,
                         Description = "是否開放會員註冊",
                         UpdatedAt = DateTime.Now,
-                        UpdatedBy = "M0000001"
+                        UpdatedBy = "M0000000"
                     },
                     new PlatformSetting
                     {
@@ -84,7 +84,7 @@ namespace CraftDailyCorner.Seed.Datas
                         CategoryID = 2,
                         Description = "平台 LOGO 圖片",
                         UpdatedAt = DateTime.Now,
-                        UpdatedBy = "M0000001"
+                        UpdatedBy = "M0000000"
                     }
                 };
                 _context.PlatformSettings.AddRange(platformSettings);

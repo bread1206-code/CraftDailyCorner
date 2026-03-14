@@ -28,9 +28,9 @@ namespace CraftDailyCorner.Seed.Datas
                     StatusID = 2, // Active
                     AudienceType = AnnouncementAudienceType.AllMembers,
                     CreatedAt = now,
-                    CreatedBy = "M0000001",
+                    CreatedBy = "M0000000",
                     UpdatedAt = now,
-                    UpdatedBy = "M0000001",
+                    UpdatedBy = "M0000000",
                     PublishedAt = now
                 },
                 new PlatformAnnouncement
@@ -40,9 +40,9 @@ namespace CraftDailyCorner.Seed.Datas
                     StatusID = 2, // Active
                     AudienceType = AnnouncementAudienceType.AllMembers,
                     CreatedAt = now,
-                    CreatedBy = "M0000001",
+                    CreatedBy = "M0000000",
                     UpdatedAt = now,
-                    UpdatedBy = "M0000001",
+                    UpdatedBy = "M0000000",
                     PublishedAt = now
                 },
                 new PlatformAnnouncement
@@ -52,9 +52,9 @@ namespace CraftDailyCorner.Seed.Datas
                     StatusID = 2, // Active
                     AudienceType = AnnouncementAudienceType.CreatorsOnly,
                     CreatedAt = now,
-                    CreatedBy = "M0000001",
+                    CreatedBy = "M0000000",
                     UpdatedAt = now,
-                    UpdatedBy = "M0000001",
+                    UpdatedBy = "M0000000",
                     PublishedAt = now
                 },
                 new PlatformAnnouncement
@@ -64,9 +64,9 @@ namespace CraftDailyCorner.Seed.Datas
                     StatusID = 1, // Draft
                     AudienceType = AnnouncementAudienceType.AdminsOnly,
                     CreatedAt = now,
-                    CreatedBy = "M0000001",
+                    CreatedBy = "M0000000",
                     UpdatedAt = now,
-                    UpdatedBy = "M0000001",
+                    UpdatedBy = "M0000000",
                     PublishedAt = null
                 }
             };
