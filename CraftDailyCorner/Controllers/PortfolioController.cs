@@ -17,8 +17,7 @@ namespace CraftDailyCorner.Controllers.Front
             _portfolioService = portfolioService;
         }
 
-        //前台列表（公開）
-
+        // 前台列表
         public async Task<IActionResult> Index(string? keyword, int page = 1)
         {
             var query = new VMPortfolioIndexQuery
@@ -28,18 +27,29 @@ namespace CraftDailyCorner.Controllers.Front
                 PageSize = 16
             };
 
+            var currentMemberId = User.Identity?.IsAuthenticated == true
+                ? User.GetMemberId()
+                : null;
+
             var vm = await _portfolioService
-                .GetPortfolioIndexAsync(query);
+                .GetPortfolioIndexAsync(query, currentMemberId);
 
             return View(vm);
         }
 
-        //前台單篇
-
+        // 前台單篇
         public async Task<IActionResult> Detail(string id)
         {
-            var currentMemberId = User.GetMemberId();
-               
+            var currentMemberId = User.Identity?.IsAuthenticated == true
+                ? User.GetMemberId()
+                : null;
+
+            var canView = await _portfolioService
+                .CanViewPortfolioAsync(id, currentMemberId);
+
+            if (!canView)
+                return Forbid();
+
             var vm = await _portfolioService
                 .GetPublicPortfolioDetailAsync(id, currentMemberId);
 
@@ -49,8 +59,7 @@ namespace CraftDailyCorner.Controllers.Front
             return View(vm);
         }
 
-        //後台列表
-
+        // 後台列表
         [Authorize(Roles = "02")]
         public async Task<IActionResult> List()
         {
@@ -61,8 +70,7 @@ namespace CraftDailyCorner.Controllers.Front
             return View(portfolios);
         }
 
-        //建立
-
+        // 建立
         [Authorize(Roles = "02")]
         public IActionResult Create()
         {
@@ -91,8 +99,7 @@ namespace CraftDailyCorner.Controllers.Front
             return RedirectToAction(nameof(List));
         }
 
-        //編輯
-
+        // 編輯
         [Authorize(Roles = "02")]
         public async Task<IActionResult> Edit(string id)
         {
@@ -111,9 +118,9 @@ namespace CraftDailyCorner.Controllers.Front
         public async Task<IActionResult> Edit(VMCreatorPortfolioEdit vm)
         {
             var errors = ModelState.Values
-        .SelectMany(v => v.Errors)
-        .Select(e => e.ErrorMessage)
-        .ToList();
+                .SelectMany(v => v.Errors)
+                .Select(e => e.ErrorMessage)
+                .ToList();
 
             if (!ModelState.IsValid)
                 return View(vm);
@@ -132,8 +139,7 @@ namespace CraftDailyCorner.Controllers.Front
             return RedirectToAction(nameof(List));
         }
 
-        //軟刪除
-
+        // 軟刪除
         [HttpPost]
         [Authorize(Roles = "02")]
         [ValidateAntiForgeryToken]

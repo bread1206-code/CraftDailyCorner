@@ -22,6 +22,38 @@
             Path.Combine(Directory.GetCurrentDirectory(),
                 "Seed", "Demo", "DataFiles", "ProductImages.csv");
 
+        public static string CreatorPostsCsv =>
+            Path.Combine(Directory.GetCurrentDirectory(),
+                "Seed", "Demo", "DataFiles", "CreatorPosts.csv");
+
+        public static string PostCommentsCsv =>
+            Path.Combine(Directory.GetCurrentDirectory(),
+                "Seed", "Demo", "DataFiles", "PostComments.csv");
+
+        public static string ReactionsCsv =>
+            Path.Combine(Directory.GetCurrentDirectory(),
+                "Seed", "Demo", "DataFiles", "Reactions.csv");
+
+        public static string FollowsCsv =>
+            Path.Combine(Directory.GetCurrentDirectory(),
+                "Seed", "Demo", "DataFiles", "Follows.csv");
+
+        public static string OrdersCsv =>
+            Path.Combine(Directory.GetCurrentDirectory(),
+                "Seed", "Demo", "DataFiles", "Orders.csv");
+
+        public static string OrderDetailsCsv =>
+            Path.Combine(Directory.GetCurrentDirectory(),
+                "Seed", "Demo", "DataFiles", "OrderDetails.csv");
+
+        public static string PaymentsCsv =>
+            Path.Combine(Directory.GetCurrentDirectory(),
+                "Seed", "Demo", "DataFiles", "Payments.csv");
+
+        public static string ShipmentsCsv =>
+            Path.Combine(Directory.GetCurrentDirectory(),
+                "Seed", "Demo", "DataFiles", "Shipments.csv");
+
         // ================================
         // Seed 圖片素材
         // ================================
@@ -33,6 +65,10 @@
         public static string CreatorPortfolioSample =>
             Path.Combine(Directory.GetCurrentDirectory(),
                 "Seed", "SeedAssets", "CreatorPortfolioSample");
+
+        public static string PostSample =>
+            Path.Combine(Directory.GetCurrentDirectory(),
+                "Seed", "SeedAssets", "PostSample");
 
         public static string ProductRaw =>
             Path.Combine(Directory.GetCurrentDirectory(),

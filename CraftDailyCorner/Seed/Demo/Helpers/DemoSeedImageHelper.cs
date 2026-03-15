@@ -45,6 +45,23 @@ namespace CraftDailyCorner.Seed.Demo.Helpers
             return imageGuid;
         }
 
+        public string UploadCreatorPostImage(
+            string sourceFilePath,
+            string creatorId)
+        {
+            var imageGuid = Guid.NewGuid().ToString();
+
+            _imageUploadService.UploadFromSeed(
+                seedFolder: "05CreatorPost",
+                sourceFile: sourceFilePath,
+                fileNameWithoutExt: imageGuid,
+                sizes: ImageSizePresets.Post,
+                entitySubFolder: creatorId
+            );
+
+            return imageGuid;
+        }
+
         public string UploadProductImage(
             string sourceFilePath,
             string creatorId)

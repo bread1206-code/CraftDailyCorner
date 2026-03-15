@@ -1,4 +1,5 @@
-﻿using CraftDailyCorner.ViewModels.Reaction;
+﻿using CraftDailyCorner.Models.enums;
+using CraftDailyCorner.ViewModels.Reaction;
 using System.ComponentModel.DataAnnotations;
 
 namespace CraftDailyCorner.ViewModels.CreatorPortfolio.Front
@@ -24,12 +25,14 @@ namespace CraftDailyCorner.ViewModels.CreatorPortfolio.Front
 
         public string? Preview { get; set; }
 
+        public CreatorVisibility Visibility { get; set; }
+
         public VMReactionButton ReactionSummary { get; set; } = new VMReactionButton();
 
         public string CoverImagePath =>
             string.IsNullOrEmpty(CoverImageUrl)
                 ? "/images/default-cover.jpg"
-                : $"/Photos/06Portfolio/{CreatorID}/Medium/{CoverImageUrl}.png";
+                : $"/Photos/06Portfolio/{CreatorID}/Large/{CoverImageUrl}.png";
 
         public string Url => $"/Portfolio/Detail/{PortfolioID}";
     }

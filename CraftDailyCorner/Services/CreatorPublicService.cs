@@ -42,7 +42,7 @@ namespace CraftDailyCorner.Services.Creator
                     // ================= POSTS =================
                     LatestPosts = c.CreatorPosts
                         .Where(p => p.StatusID == 1 &&
-                                    p.Visibility == CreatorPostVisibility.Public)
+                                    p.Visibility == CreatorVisibility.Public)
                         .OrderByDescending(p => p.CreatedAt)
                         .Take(3)
                         .Select(p => new VMPostListItem
@@ -89,7 +89,7 @@ namespace CraftDailyCorner.Services.Creator
                     // ================= PORTFOLIOS =================
                     LatestPortfolios = c.Portfolios
                         .Where(p => p.StatusID == 1 &&
-                                    p.Visibility == CreatorPostVisibility.Public)
+                                    p.Visibility == CreatorVisibility.Public)
                         .OrderByDescending(p => p.CreatedAt)
                         .Take(3)
                         .Select(p => new VMCreatorPortfolioPublicListItem

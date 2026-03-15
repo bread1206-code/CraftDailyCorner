@@ -23,7 +23,7 @@ namespace CraftDailyCorner.Models
         [Display(Name = "簡介")]
         public string? Description { get; set; }
         [Display(Name = "誰可以看")]
-        public CreatorPostVisibility Visibility { get; set; }
+        public CreatorVisibility Visibility { get; set; }
 
         [Display(Name = "狀態")]
         public byte StatusID { get; set; } = 1;

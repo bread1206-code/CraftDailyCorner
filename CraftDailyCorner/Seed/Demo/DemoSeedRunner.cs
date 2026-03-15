@@ -20,10 +20,22 @@ namespace CraftDailyCorner.Seed.Demo
         private readonly DemoSeedCarts _demoSeedCarts;
         private readonly DemoSeedNotificationPreferences _demoSeedNotificationPreferences;
 
+        private readonly DemoSeedCreatorPosts _demoSeedCreatorPosts;
+        private readonly DemoSeedPostComments _demoSeedPostComments;
+        private readonly DemoSeedFollowCreators _demoSeedFollowCreators;
+        private readonly DemoSeedReactions _demoSeedReactions;
+
+        private readonly DemoSeedOrders _demoSeedOrders;
+        private readonly DemoSeedOrderDetails _demoSeedOrderDetails;
+        private readonly DemoSeedPayments _demoSeedPayments;
+        private readonly DemoSeedShipments _demoSeedShipments;
+
         private readonly MemberSeedLoader _memberSeedLoader;
         private readonly CreatorSeedLoader _creatorSeedLoader;
         private readonly ProductSeedLoader _productSeedLoader;
         private readonly ProductImageSeedLoader _productImageSeedLoader;
+        private readonly CreatorPostSeedLoader _creatorPostSeedLoader;
+        private readonly OrderSeedLoader _orderSeedLoader;
 
         public DemoSeedRunner(
             DemoSeedMembers demoSeedMembers,
@@ -38,10 +50,20 @@ namespace CraftDailyCorner.Seed.Demo
             DemoSeedInventories demoSeedInventories,
             DemoSeedCarts demoSeedCarts,
             DemoSeedNotificationPreferences demoSeedNotificationPreferences,
+            DemoSeedCreatorPosts demoSeedCreatorPosts,
+            DemoSeedPostComments demoSeedPostComments,
+            DemoSeedFollowCreators demoSeedFollowCreators,
+            DemoSeedReactions demoSeedReactions,
+            DemoSeedOrders demoSeedOrders,
+            DemoSeedOrderDetails demoSeedOrderDetails,
+            DemoSeedPayments demoSeedPayments,
+            DemoSeedShipments demoSeedShipments,
             MemberSeedLoader memberSeedLoader,
             CreatorSeedLoader creatorSeedLoader,
             ProductSeedLoader productSeedLoader,
-            ProductImageSeedLoader productImageSeedLoader)
+            ProductImageSeedLoader productImageSeedLoader,
+            CreatorPostSeedLoader creatorPostSeedLoader,
+            OrderSeedLoader orderSeedLoader)
         {
             _demoSeedMembers = demoSeedMembers;
             _demoSeedPrivacies = demoSeedPrivacies;
@@ -56,10 +78,22 @@ namespace CraftDailyCorner.Seed.Demo
             _demoSeedCarts = demoSeedCarts;
             _demoSeedNotificationPreferences = demoSeedNotificationPreferences;
 
+            _demoSeedCreatorPosts = demoSeedCreatorPosts;
+            _demoSeedPostComments = demoSeedPostComments;
+            _demoSeedFollowCreators = demoSeedFollowCreators;
+            _demoSeedReactions = demoSeedReactions;
+
+            _demoSeedOrders = demoSeedOrders;
+            _demoSeedOrderDetails = demoSeedOrderDetails;
+            _demoSeedPayments = demoSeedPayments;
+            _demoSeedShipments = demoSeedShipments;
+
             _memberSeedLoader = memberSeedLoader;
             _creatorSeedLoader = creatorSeedLoader;
             _productSeedLoader = productSeedLoader;
             _productImageSeedLoader = productImageSeedLoader;
+            _creatorPostSeedLoader = creatorPostSeedLoader;
+            _orderSeedLoader = orderSeedLoader;
         }
 
         public void Run()
@@ -78,6 +112,16 @@ namespace CraftDailyCorner.Seed.Demo
             _demoSeedInventories.Run(seedContext);
             _demoSeedCarts.Run(seedContext);
             _demoSeedNotificationPreferences.Run(seedContext);
+
+            _demoSeedCreatorPosts.Run(seedContext);
+            _demoSeedPostComments.Run(seedContext);
+            _demoSeedFollowCreators.Run(seedContext);
+            _demoSeedReactions.Run(seedContext);
+
+            _demoSeedOrders.Run(seedContext);
+            _demoSeedOrderDetails.Run(seedContext);
+            _demoSeedPayments.Run(seedContext);
+            _demoSeedShipments.Run(seedContext);
         }
 
         private DemoSeedContext BuildContext()
@@ -87,7 +131,17 @@ namespace CraftDailyCorner.Seed.Demo
                 Members = _memberSeedLoader.Load(DemoSeedPaths.MembersCsv),
                 Creators = _creatorSeedLoader.Load(DemoSeedPaths.CreatorsCsv),
                 Products = _productSeedLoader.Load(DemoSeedPaths.ProductsCsv),
-                ProductImages = _productImageSeedLoader.Load(DemoSeedPaths.ProductImagesCsv)
+                ProductImages = _productImageSeedLoader.Load(DemoSeedPaths.ProductImagesCsv),
+
+                CreatorPosts = _creatorPostSeedLoader.LoadPosts(DemoSeedPaths.CreatorPostsCsv),
+                PostComments = _creatorPostSeedLoader.LoadComments(DemoSeedPaths.PostCommentsCsv),
+                Reactions = _creatorPostSeedLoader.LoadReactions(DemoSeedPaths.ReactionsCsv),
+                Follows = _creatorPostSeedLoader.LoadFollows(DemoSeedPaths.FollowsCsv),
+
+                Orders = _orderSeedLoader.LoadOrders(DemoSeedPaths.OrdersCsv),
+                OrderDetails = _orderSeedLoader.LoadOrderDetails(DemoSeedPaths.OrderDetailsCsv),
+                Payments = _orderSeedLoader.LoadPayments(DemoSeedPaths.PaymentsCsv),
+                Shipments = _orderSeedLoader.LoadShipments(DemoSeedPaths.ShipmentsCsv)
             };
 
             return seedContext;

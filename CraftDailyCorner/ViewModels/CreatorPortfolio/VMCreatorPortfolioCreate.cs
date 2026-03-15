@@ -16,7 +16,7 @@ namespace CraftDailyCorner.ViewModels.CreatorPortfolio
 
         [Display(Name = "觀看權限")]
         [Required]
-        public CreatorPostVisibility Visibility { get; set; }
+        public CreatorVisibility Visibility { get; set; }
 
         [Display(Name = "作品圖片")]
         public List<IFormFile>? Files { get; set; } = new();

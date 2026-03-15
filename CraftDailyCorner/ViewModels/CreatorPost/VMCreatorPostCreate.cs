@@ -20,6 +20,6 @@ namespace CraftDailyCorner.ViewModels.CreatorPost
 
         [Display(Name = "觀看權限")]
         [Required]
-        public CreatorPostVisibility Visibility { get; set; }
+        public CreatorVisibility Visibility { get; set; }
     }
 }

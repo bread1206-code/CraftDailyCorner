@@ -24,7 +24,7 @@ namespace CraftDailyCorner.Models
         [Display(Name ="日誌圖片")]
         public string ImageUrl { get; set; } = null!;
         [Display(Name = "誰可以看")]
-        public CreatorPostVisibility Visibility { get; set; }
+        public CreatorVisibility Visibility { get; set; }
         [Display(Name = "狀態")]
         public byte StatusID { get; set; } = 0;
         [Display(Name = "建立日期")]

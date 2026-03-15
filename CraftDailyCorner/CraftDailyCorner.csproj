@@ -19,6 +19,7 @@
   <ItemGroup>
     <Folder Include="Seed\SeedAssets\CreatorBrand\" />
     <Folder Include="Seed\SeedAssets\CreatorPortfolioSample\" />
+    <Folder Include="Seed\SeedAssets\PostSample\" />
     <Folder Include="Seed\SeedAssets\ProductRaw\" />
     <Folder Include="wwwroot\music\" />
   </ItemGroup>

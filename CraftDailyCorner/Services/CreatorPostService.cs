@@ -29,12 +29,13 @@ namespace CraftDailyCorner.Services
             _notificationService = notificationService;
         }
 
-        public async Task<VMPostIndex> GetPostIndexAsync(VMPostIndexQuery query)
+        public async Task<VMPostIndex> GetPostIndexAsync(
+            VMPostIndexQuery query,
+            string? currentMemberId)
         {
             var baseQuery = _context.CreatorPosts
-                .Where(p =>
-                    p.StatusID == 1 &&
-                    p.Visibility == CreatorPostVisibility.Public);
+                .AsNoTracking()
+                .Where(p => p.StatusID == 1);
 
             if (!string.IsNullOrWhiteSpace(query.Keyword))
             {
@@ -42,6 +43,23 @@ namespace CraftDailyCorner.Services
                     p.Title.Contains(query.Keyword) ||
                     p.Content.Contains(query.Keyword));
             }
+
+            baseQuery = baseQuery.Where(p =>
+                // 一般訪客：只能看公開
+                p.Visibility == CreatorVisibility.Public
+
+                // 作者本人：可看自己的全部日誌（公開 / 追蹤者限定 / 私密）
+                || (currentMemberId != null && p.CreatorProfile.MemberID == currentMemberId)
+
+                // 已追蹤會員：可看追蹤者限定
+                || (
+                    p.Visibility == CreatorVisibility.Followers &&
+                    currentMemberId != null &&
+                    _context.FollowCreators.Any(f =>
+                        f.CreatorID == p.CreatorID &&
+                        f.MemberID == currentMemberId)
+                )
+            );
 
             var totalCount = await baseQuery.CountAsync();
 
@@ -170,16 +188,16 @@ namespace CraftDailyCorner.Services
             if (post == null)
                 return false;
 
-            if (post.Visibility == CreatorPostVisibility.Public)
+            if (post.Visibility == CreatorVisibility.Public)
                 return true;
 
             if (memberId != null && post.CreatorProfile.MemberID == memberId)
                 return true;
 
-            if (post.Visibility == CreatorPostVisibility.Private)
+            if (post.Visibility == CreatorVisibility.Private)
                 return false;
 
-            if (post.Visibility == CreatorPostVisibility.Followers)
+            if (post.Visibility == CreatorVisibility.Followers)
             {
                 if (memberId == null)
                     return false;
@@ -250,7 +268,7 @@ namespace CraftDailyCorner.Services
             _context.CreatorPosts.Add(post);
             await _context.SaveChangesAsync();
 
-            if (post.Visibility == CreatorPostVisibility.Public)
+            if (post.Visibility == CreatorVisibility.Public)
             {
                 var followerMemberIds = await _context.FollowCreators
                     .Where(x => x.CreatorID == creatorId)

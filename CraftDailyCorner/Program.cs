@@ -144,12 +144,22 @@ builder.Services.AddScoped<DemoSeedProductRelations>();
 builder.Services.AddScoped<DemoSeedInventories>();
 builder.Services.AddScoped<DemoSeedCarts>();
 builder.Services.AddScoped<DemoSeedNotificationPreferences>();
+builder.Services.AddScoped<DemoSeedOrders>();
+builder.Services.AddScoped<DemoSeedOrderDetails>();
+builder.Services.AddScoped<DemoSeedPayments>();
+builder.Services.AddScoped<DemoSeedShipments>();
+builder.Services.AddScoped<DemoSeedCreatorPosts>();
+builder.Services.AddScoped<DemoSeedPostComments>();
+builder.Services.AddScoped<DemoSeedFollowCreators>();
+builder.Services.AddScoped<DemoSeedReactions>();
 
 // Demo Loaders
 builder.Services.AddScoped<MemberSeedLoader>();
 builder.Services.AddScoped<CreatorSeedLoader>();
 builder.Services.AddScoped<ProductSeedLoader>();
 builder.Services.AddScoped<ProductImageSeedLoader>();
+builder.Services.AddScoped<OrderSeedLoader>();
+builder.Services.AddScoped<CreatorPostSeedLoader>();
 
 // Demo Helpers
 builder.Services.AddScoped<DemoSeedImageHelper>();

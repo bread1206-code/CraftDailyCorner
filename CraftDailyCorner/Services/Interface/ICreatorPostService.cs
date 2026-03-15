@@ -6,7 +6,7 @@ namespace CraftDailyCorner.Services.Interface
     public interface ICreatorPostService
     {
         // 前台
-        Task<VMPostIndex> GetPostIndexAsync(VMPostIndexQuery query);
+        Task<VMPostIndex> GetPostIndexAsync(VMPostIndexQuery query, string? currentMemberId);
         Task<VMPostDetail?> GetPostDetailAsync(string postId, string? currentMemberId);
         Task<bool> CanViewPostAsync(string postId, string? memberId);
 

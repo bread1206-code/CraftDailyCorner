@@ -6,6 +6,6 @@ namespace CraftDailyCorner.DTOs
     {
         public string Title { get; set; } = null!;
         public string Description { get; set; } = null!;
-        public CreatorPostVisibility Visibility { get; set; }
+        public CreatorVisibility Visibility { get; set; }
     }
 }

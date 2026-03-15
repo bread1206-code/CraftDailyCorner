@@ -16,7 +16,7 @@ namespace CraftDailyCorner.ViewModels.CreatorPost
         public string ImageUrl { get; set; } = null!;
 
         [Display(Name = "觀看權限")]
-        public CreatorPostVisibility Visibility { get; set; }
+        public CreatorVisibility Visibility { get; set; }
 
         [Display(Name = "建立時間")]
         public DateTime CreatedAt { get; set; }
@@ -33,18 +33,18 @@ namespace CraftDailyCorner.ViewModels.CreatorPost
         public string VisibilityText =>
             Visibility switch
             {
-                CreatorPostVisibility.Public => "公開",
-                CreatorPostVisibility.Followers => "僅追蹤者",
-                CreatorPostVisibility.Private => "私人",
+                CreatorVisibility.Public => "公開",
+                CreatorVisibility.Followers => "僅追蹤者",
+                CreatorVisibility.Private => "私人",
                 _ => ""
             };
 
         public string VisibilityBadgeClass =>
             Visibility switch
             {
-                CreatorPostVisibility.Public => "bg-success",
-                CreatorPostVisibility.Followers => "bg-warning",
-                CreatorPostVisibility.Private => "bg-secondary",
+                CreatorVisibility.Public => "bg-success",
+                CreatorVisibility.Followers => "bg-warning",
+                CreatorVisibility.Private => "bg-secondary",
                 _ => "bg-dark"
             };
 

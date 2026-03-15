@@ -42,10 +42,9 @@
                 <div class="col-md-6 col-lg-4">
                     <div class="card shadow-sm border-0 h-100 p-card">
 
-                        <!-- ✅整張卡都是連結 -->
                         <a asp-action="Detail"
-                           asp-route-id="@portfolio.PortfolioID"
-                           class="text-decoration-none text-dark">
+                               asp-route-id="@portfolio.PortfolioID"
+                               class="text-decoration-none text-dark">
 
                             <!-- 封面圖片 -->
                             <img src="@portfolio.CoverImagePath"
@@ -69,6 +68,20 @@
                                     </div>
                                 </div>
 
+                                <!-- 可見性標籤 -->
+                                <div class="mb-2">
+                                    @switch (portfolio.Visibility)
+                                    {
+                                        case CraftDailyCorner.Models.enums.CreatorVisibility.Followers:
+                                            <span class="badge bg-warning text-dark">追蹤者限定</span>
+                                            break;
+
+                                        case CraftDailyCorner.Models.enums.CreatorVisibility.Private:
+                                            <span class="badge bg-secondary">私密</span>
+                                            break;
+                                    }
+                                </div>
+
                                 <!-- 第2行：內文預覽(左) -->
                                 <div class="text-muted small p-preview mb-2">
                                     @portfolio.Preview
@@ -76,8 +89,10 @@
 
                                 <!-- 第3行：作者 + 日期（靠右） -->
                                 <div class="text-muted small text-end mt-auto">
-                                    <a asp-controller="Creator" asp-action="Profile" asp-route-id="@portfolio.CreatorID"
-                                       class="text-decoration-none text-success">
+                                    <a asp-controller="Creator"
+                                           asp-action="Profile"
+                                           asp-route-id="@portfolio.CreatorID"
+                                           class="text-decoration-none text-success">
                                         @portfolio.CreatorName
                                     </a>
 
@@ -102,9 +117,9 @@
                 {
                     <li class="page-item">
                         <a class="page-link"
-                           asp-action="Index"
-                           asp-route-page="@(Model.Query.Page - 1)"
-                           asp-route-keyword="@Model.Query.Keyword">
+                               asp-action="Index"
+                               asp-route-page="@(Model.Query.Page - 1)"
+                               asp-route-keyword="@Model.Query.Keyword">
                             上一頁
                         </a>
                     </li>
@@ -114,9 +129,9 @@
                 {
                     <li class="page-item @(i == Model.Query.Page ? "active" : "")">
                         <a class="page-link"
-                           asp-action="Index"
-                           asp-route-page="@i"
-                           asp-route-keyword="@Model.Query.Keyword">
+                               asp-action="Index"
+                               asp-route-page="@i"
+                               asp-route-keyword="@Model.Query.Keyword">
                             @i
                         </a>
                     </li>
@@ -126,9 +141,9 @@
                 {
                     <li class="page-item">
                         <a class="page-link"
-                           asp-action="Index"
-                           asp-route-page="@(Model.Query.Page + 1)"
-                           asp-route-keyword="@Model.Query.Keyword">
+                               asp-action="Index"
+                               asp-route-page="@(Model.Query.Page + 1)"
+                               asp-route-keyword="@Model.Query.Keyword">
                             下一頁
                         </a>
                     </li>

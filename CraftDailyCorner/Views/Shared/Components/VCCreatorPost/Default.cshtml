@@ -1,36 +1,98 @@
 ﻿@using CraftDailyCorner.ViewModels
 @using CraftDailyCorner.ViewModels.Homepage
 @model IEnumerable<VMHotPostCard>
+
 @{
     Layout = null;
+
+    var items = Model?.ToList() ?? new List<VMHotPostCard>();
+
+    var groups = items
+        .Select((item, index) => new { item, index })
+        .GroupBy(x => x.index / 4)
+        .Select(g => g.Select(x => x.item).ToList())
+        .ToList();
 }
-<div class="card" id="hotpost">
+
+<div class="card hotpost-wrapper" id="hotpost">
     <div class="card-body">
-        <h2 class="fw-bold mb-3"><i class="bi bi-book text-primary"> </i>精選創作者故事</h2>
-        @if (Model.Any())
+        <h2 class="fw-bold mb-3">
+            <i class="bi bi-book text-primary"></i> 精選創作者故事
+        </h2>
+
+        @if (items.Any())
         {
-            <div class="row smallimg px-3">
-                @foreach (var item in Model)
-                {
-                    <div class="col-md-3 px-3">
-                        <a asp-controller="Post" asp-action="Detail" asp-route-id="@item.PostID" class="text-decoration-none text-dark">
-                            <div class="card hover-card p-2">
-                                @if (item.ImageUrl != null)
+            <div id="hotPostCarousel"
+                 class="carousel slide"
+                 data-bs-ride="carousel"
+                 data-bs-interval="5000">
+
+                <div class="carousel-inner">
+                    @for (int i = 0; i < groups.Count; i++)
+                    {
+                        var group = groups[i];
+                        var activeClass = i == 0 ? "active" : "";
+
+                        <div class="carousel-item @activeClass">
+                            <div class="row smallimg px-3">
+                                @foreach (var item in group)
                                 {
-                                    <img src="@item.ImagePath" alt="Photo" class="img-thumbnail rounded-circle m-2" />
-                                }
-                                <div class="card-body p-0">
-                                    <div class="fw-bold hotpost-title text-center"><i class="bi bi-filter-right"></i>@Html.DisplayFor(modelItem => item.Title)<i class="bi bi-filter-left"></i></div>
-                                    <div class="fw-bold hotpost-Author text-end mx-2">
-                                        <a asp-controller="Creator" asp-action="Profile" asp-route-id="@item.CreatorID" class="text-decoration-none text-success">
-                                            @Html.DisplayFor(modelItem => item.BrandName)
+                                    <div class="col-md-3 px-3">
+                                        <a asp-controller="Post"
+                                               asp-action="Detail"
+                                               asp-route-id="@item.PostID"
+                                               class="text-decoration-none text-dark">
+                                            <div class="card hover-card p-2 h-100">
+                                                @if (!string.IsNullOrWhiteSpace(item.ImageUrl))
+                                                {
+                                                    <img src="@item.ImagePath"
+                                                         alt="Photo"
+                                                         class="img-thumbnail rounded-circle m-2 hotpost-img" />
+                                                }
+
+                                                <div class="card-body p-0">
+                                                    <div class="fw-bold hotpost-title text-center">
+                                                        <i class="bi bi-filter-right"></i>
+                                                        @Html.DisplayFor(modelItem => item.Title)
+                                                        <i class="bi bi-filter-left"></i>
+                                                    </div>
+
+                                                    <div class="fw-bold hotpost-Author text-end mx-2">
+                                                        <a asp-controller="Creator"
+                                                               asp-action="Profile"
+                                                               asp-route-id="@item.CreatorID"
+                                                               class="text-decoration-none text-success">
+                                                            @Html.DisplayFor(modelItem => item.BrandName)
+                                                        </a>
+                                                        <div>@item.CreatedAt.ToString("yyyy/MM/dd")</div>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </a>
-                                        <div>@Html.DisplayFor(modelItem => item.CreatedAt)</div>
                                     </div>
-                                </div>
+                                }
                             </div>
-                        </a>
-                    </div>
+                        </div>
+                    }
+                </div>
+
+                @if (groups.Count > 1)
+                {
+                    <button class="carousel-control-prev"
+                            type="button"
+                            data-bs-target="#hotPostCarousel"
+                            data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Previous</span>
+                    </button>
+
+                    <button class="carousel-control-next"
+                            type="button"
+                            data-bs-target="#hotPostCarousel"
+                            data-bs-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Next</span>
+                    </button>
                 }
             </div>
         }

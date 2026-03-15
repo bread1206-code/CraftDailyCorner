@@ -30,20 +30,36 @@ namespace CraftDailyCorner.Services
         }
 
         public async Task<VMPortfolioIndex> GetPortfolioIndexAsync(
-            VMPortfolioIndexQuery query)
+            VMPortfolioIndexQuery query,
+            string? currentMemberId)
         {
             var baseQuery = _context.Portfolios
-                .Where(p =>
-                    p.StatusID == 1 &&
-                    p.Visibility == CreatorPostVisibility.Public);
+                .AsNoTracking()
+                .Where(p => p.StatusID == 1);
 
             if (!string.IsNullOrWhiteSpace(query.Keyword))
             {
                 baseQuery = baseQuery.Where(p =>
                     p.Title.Contains(query.Keyword) ||
-                    p.Description != null &&
-                    p.Description.Contains(query.Keyword));
+                    (p.Description != null && p.Description.Contains(query.Keyword)));
             }
+
+            baseQuery = baseQuery.Where(p =>
+                // 一般訪客：只能看公開
+                p.Visibility == CreatorVisibility.Public
+
+                // 作者本人：可看自己的全部作品集
+                || (currentMemberId != null && p.CreatorProfile.MemberID == currentMemberId)
+
+                // 已追蹤會員：可看追蹤者限定
+                || (
+                    p.Visibility == CreatorVisibility.Followers &&
+                    currentMemberId != null &&
+                    _context.FollowCreators.Any(f =>
+                        f.CreatorID == p.CreatorID &&
+                        f.MemberID == currentMemberId)
+                )
+            );
 
             var totalCount = await baseQuery.CountAsync();
 
@@ -59,6 +75,7 @@ namespace CraftDailyCorner.Services
                     CreatorName = p.CreatorProfile.BrandName,
                     CreatorID = p.CreatorID,
                     ItemCount = p.PortfolioItems.Count(),
+                    Visibility = p.Visibility,
 
                     CoverImageUrl = p.PortfolioItems
                         .OrderBy(i => i.SortOrder)
@@ -97,13 +114,13 @@ namespace CraftDailyCorner.Services
         }
 
         public async Task<VMPortfolioDetail?> GetPublicPortfolioDetailAsync(
-            string portfolioId, string? currentMemberId)
+            string portfolioId,
+            string? currentMemberId)
         {
             var data = await _context.Portfolios
                 .Where(p =>
                     p.PortfolioID == portfolioId &&
-                    p.StatusID == 1 &&
-                    p.Visibility == CreatorPostVisibility.Public)
+                    p.StatusID == 1)
                 .Select(p => new
                 {
                     p.PortfolioID,
@@ -167,6 +184,40 @@ namespace CraftDailyCorner.Services
                 IsReportBanned = isReportBanned,
                 ReportBanUntil = reportBanUntil
             };
+        }
+
+        public async Task<bool> CanViewPortfolioAsync(string portfolioId, string? memberId)
+        {
+            var portfolio = await _context.Portfolios
+                .Include(p => p.CreatorProfile)
+                .FirstOrDefaultAsync(p =>
+                    p.PortfolioID == portfolioId &&
+                    p.StatusID == 1);
+
+            if (portfolio == null)
+                return false;
+
+            if (portfolio.Visibility == CreatorVisibility.Public)
+                return true;
+
+            if (memberId != null && portfolio.CreatorProfile.MemberID == memberId)
+                return true;
+
+            if (portfolio.Visibility == CreatorVisibility.Private)
+                return false;
+
+            if (portfolio.Visibility == CreatorVisibility.Followers)
+            {
+                if (memberId == null)
+                    return false;
+
+                return await _context.FollowCreators
+                    .AnyAsync(f =>
+                        f.CreatorID == portfolio.CreatorID &&
+                        f.MemberID == memberId);
+            }
+
+            return false;
         }
 
         public async Task<List<VMCreatorPortfolioListItem>> GetCreatorPortfoliosAsync(string creatorId)
@@ -269,7 +320,7 @@ namespace CraftDailyCorner.Services
 
             await _context.SaveChangesAsync();
 
-            if (portfolio.Visibility == CreatorPostVisibility.Public)
+            if (portfolio.Visibility == CreatorVisibility.Public)
             {
                 var followerMemberIds = await _context.FollowCreators
                     .Where(x => x.CreatorID == creatorId)

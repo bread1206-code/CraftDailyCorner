@@ -60,7 +60,7 @@ namespace CraftDailyCorner.Seed.Datas
                         Title = "選材筆記",
                         Content = "最近偏好使用樟木，氣味溫潤，紋理也很適合做小型作品。",
                         ImageUrl = imageGuids[3],
-                        Visibility = (CreatorPostVisibility)1,
+                        Visibility = (CreatorVisibility)1,
                         StatusID = 1,
                         CreatedAt = DateTime.Now,
                         UpdatedAt = DateTime.Now,

@@ -72,6 +72,21 @@
                                     </div>
                                 </div>
 
+                                <div class="mb-2">
+                                    @switch (item.Visibility)
+                                    {
+                                        
+
+                                        case CraftDailyCorner.Models.enums.CreatorVisibility.Followers:
+                                            <span class="badge bg-warning text-dark">追蹤者限定</span>
+                                            break;
+
+                                        case CraftDailyCorner.Models.enums.CreatorVisibility.Private:
+                                            <span class="badge bg-secondary">私密</span>
+                                            break;
+                                    }
+                                </div>
+
                                 <!-- 第2行：內文預覽(左) -->
                                 <div class="text-muted small p-preview mb-2">
                                     @item.Preview

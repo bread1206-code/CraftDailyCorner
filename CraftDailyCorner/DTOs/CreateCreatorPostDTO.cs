@@ -6,7 +6,7 @@ namespace CraftDailyCorner.DTOs
     {
         public string Title { get; set; } = null!;
         public string Content { get; set; } = null!;
-        public CreatorPostVisibility Visibility { get; set; }
+        public CreatorVisibility Visibility { get; set; }
         
         public IFormFile ImageFile { get; set; } = null!;
     }

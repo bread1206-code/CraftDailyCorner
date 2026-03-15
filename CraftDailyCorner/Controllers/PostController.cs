@@ -30,7 +30,11 @@ namespace CraftDailyCorner.Controllers
                 PageSize = 16
             };
 
-            var vm = await _postService.GetPostIndexAsync(query);
+            var currentMemberId = User.Identity?.IsAuthenticated == true
+                ? User.GetMemberId()
+                : null;
+
+            var vm = await _postService.GetPostIndexAsync(query, currentMemberId);
 
             return View(vm);
         }
@@ -38,20 +42,16 @@ namespace CraftDailyCorner.Controllers
         // 前台單篇
         public async Task<IActionResult> Detail(string id)
         {
-            var memberId = User.Identity?.IsAuthenticated == true
-                ? User.GetMemberId()
-                : null;
-
-            var canView = await _postService
-                .CanViewPostAsync(id, memberId);
-
-            if (!canView)
-                return Forbid();
             var currentMemberId = User.Identity?.IsAuthenticated == true
                 ? User.GetMemberId()
                 : null;
-            var post = await _postService
-                .GetPostDetailAsync(id, currentMemberId);
+
+            var canView = await _postService.CanViewPostAsync(id, currentMemberId);
+
+            if (!canView)
+                return Forbid();
+
+            var post = await _postService.GetPostDetailAsync(id, currentMemberId);
 
             if (post == null)
                 return NotFound();

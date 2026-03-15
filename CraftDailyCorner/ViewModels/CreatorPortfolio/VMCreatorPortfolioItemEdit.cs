@@ -13,5 +13,5 @@
     public DateTime UpdatedAt { get; set; }
 
     public string ImagePath =>
-        $"/Photos/06Portfolio/{CreatorID}/Medium/{ImageUrl}.png";
+        $"/Photos/06Portfolio/{CreatorID}/Large/{ImageUrl}.png";
 }

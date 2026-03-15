@@ -7,8 +7,15 @@ namespace CraftDailyCorner.Services.Interface
     public interface ICreatorPortfolioService
     {
         // 前台
-        Task<VMPortfolioIndex> GetPortfolioIndexAsync(VMPortfolioIndexQuery query);
-        Task<VMPortfolioDetail?> GetPublicPortfolioDetailAsync(string portfolioId, string? currentMemberId);
+        Task<VMPortfolioIndex> GetPortfolioIndexAsync(
+            VMPortfolioIndexQuery query,
+            string? currentMemberId);
+
+        Task<VMPortfolioDetail?> GetPublicPortfolioDetailAsync(
+            string portfolioId,
+            string? currentMemberId);
+
+        Task<bool> CanViewPortfolioAsync(string portfolioId, string? memberId);
 
         // 後台
         Task<List<VMCreatorPortfolioListItem>> GetCreatorPortfoliosAsync(string creatorId);

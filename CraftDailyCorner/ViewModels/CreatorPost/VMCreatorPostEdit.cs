@@ -28,12 +28,12 @@ namespace CraftDailyCorner.ViewModels.CreatorPost
 
         [Display(Name = "觀看權限")]
         [Required]
-        public CreatorPostVisibility Visibility { get; set; }
+        public CreatorVisibility Visibility { get; set; }
 
         [Display(Name = "最後更新時間")]
         public DateTime UpdatedAt { get; set; }
 
         public string CoverImagePath =>
-            $"/Photos/05CreatorPost/{CreatorID}/Medium/{CurrentImageUrl}.png";
+            $"/Photos/05CreatorPost/{CreatorID}/Large/{CurrentImageUrl}.png";
     }
 }

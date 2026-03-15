@@ -32,12 +32,12 @@ namespace CraftDailyCorner.ViewModels.CreatorPortfolio
         public string VisibilityText =>
             Visibility switch
             {
-                CreatorPostVisibility.Public => "公開",
-                CreatorPostVisibility.Followers => "僅追蹤者",
-                CreatorPostVisibility.Private => "私人",
+                CreatorVisibility.Public => "公開",
+                CreatorVisibility.Followers => "僅追蹤者",
+                CreatorVisibility.Private => "私人",
                 _ => ""
             };
 
-        public CreatorPostVisibility Visibility { get; set; }
+        public CreatorVisibility Visibility { get; set; }
     }
 }

@@ -7,6 +7,6 @@ namespace CraftDailyCorner.DTOs
         public string PortfolioID { get; set; } = null!;
         public string Title { get; set; } = null!;
         public string Description { get; set; } = null!;
-        public CreatorPostVisibility Visibility { get; set; }
+        public CreatorVisibility Visibility { get; set; }
     }
 }
