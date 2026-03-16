@@ -269,7 +269,7 @@ namespace CraftDailyCorner.Services
             product.CostPrice = vm.CostPrice;
             product.StatusID = vm.StatusID;
 
-            product.Inventory.StockQty = vm.StockQty;
+            product.Inventory!.StockQty = vm.StockQty;
             product.Inventory.AlertQty = vm.AlertQty;
             product.Inventory.UpdatedAt = DateTime.Now;
 

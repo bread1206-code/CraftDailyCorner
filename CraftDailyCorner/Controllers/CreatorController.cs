@@ -42,8 +42,11 @@ namespace CraftDailyCorner.Controllers.Front
 
         public async Task<IActionResult> Apply()
         {
-            var result = await _applicationService
-                .GetApplyPageAsync(User.GetMemberId());
+            var memberId = User.GetMemberId();
+            if (string.IsNullOrWhiteSpace(memberId))
+                return Unauthorized();
+
+            var result = await _applicationService.GetApplyPageAsync(memberId);
 
             return result switch
             {
@@ -57,6 +60,10 @@ namespace CraftDailyCorner.Controllers.Front
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Apply(VMCreatorApplicationApply vm)
         {
+            var memberId = User.GetMemberId();
+            if (string.IsNullOrWhiteSpace(memberId))
+                return Unauthorized();
+
             if (!ModelState.IsValid)
                 return View(vm);
 
@@ -78,7 +85,7 @@ namespace CraftDailyCorner.Controllers.Front
 
             await _applicationService.CreateAsync(new CreatorApplicationCreateDTO
             {
-                MemberId = User.GetMemberId(),
+                MemberId = memberId,
                 BrandName = vm.BrandName,
                 BrandIntro = vm.BrandIntro,
                 PortfolioSampleUrl = imageKey,
@@ -95,8 +102,11 @@ namespace CraftDailyCorner.Controllers.Front
         [Authorize(Roles = "02")]
         public async Task<IActionResult> Dashboard()
         {
-            var vm = await _dashboardService
-                .GetDashboardAsync(User.GetMemberId());
+            var memberId = User.GetMemberId();
+            if (string.IsNullOrWhiteSpace(memberId))
+                return Unauthorized();
+
+            var vm = await _dashboardService.GetDashboardAsync(memberId);
 
             if (vm == null)
                 return RedirectToAction("Index", "Member");
@@ -144,10 +154,12 @@ namespace CraftDailyCorner.Controllers.Front
         public async Task<IActionResult> BrandEdit()
         {
             var creatorId = User.GetCreatorId();
-            if (string.IsNullOrEmpty(creatorId)) return Unauthorized();
+            if (string.IsNullOrWhiteSpace(creatorId))
+                return Unauthorized();
 
             var vm = await _creatorProfileService.GetBrandEditAsync(creatorId);
-            if (vm == null) return NotFound();
+            if (vm == null)
+                return NotFound();
 
             return View(vm);
         }
@@ -158,7 +170,8 @@ namespace CraftDailyCorner.Controllers.Front
         public async Task<IActionResult> BrandEdit(VMCreatorBrandEdit vm)
         {
             var creatorId = User.GetCreatorId();
-            if (string.IsNullOrEmpty(creatorId)) return Unauthorized();
+            if (string.IsNullOrWhiteSpace(creatorId))
+                return Unauthorized();
 
             if (!ModelState.IsValid)
                 return View(vm);
@@ -184,6 +197,8 @@ namespace CraftDailyCorner.Controllers.Front
         public async Task<IActionResult> ApprovedConfirm(int? applicationId = null)
         {
             var memberId = User.GetMemberId();
+            if (string.IsNullOrWhiteSpace(memberId))
+                return Unauthorized();
 
             var vm = await _applicationService.GetApprovedConfirmAsync(memberId, applicationId);
             if (vm == null)
@@ -200,6 +215,8 @@ namespace CraftDailyCorner.Controllers.Front
         public async Task<IActionResult> ApprovedConfirm(VMApprovedConfirm vm)
         {
             var memberId = User.GetMemberId();
+            if (string.IsNullOrWhiteSpace(memberId))
+                return Unauthorized();
 
             if (vm.BrandImageFile == null || vm.BrandImageFile.Length == 0)
                 ModelState.AddModelError("BrandImageFile", "請上傳品牌圖片");
@@ -211,6 +228,7 @@ namespace CraftDailyCorner.Controllers.Front
                 {
                     vm.BrandName = readonlyVm.BrandName;
                     vm.BrandIntro = readonlyVm.BrandIntro;
+                    vm.StartDate = readonlyVm.StartDate;
                 }
                 return View(vm);
             }
@@ -219,7 +237,6 @@ namespace CraftDailyCorner.Controllers.Front
             {
                 await _applicationService.SubmitApprovedConfirmAsync(memberId, vm);
 
-                // ✅ 核心：刷新 Cookie claims（Role=02 / CreatorID）=> Navbar 立刻顯示創作者入口
                 await _authService.RefreshSignInAsync(HttpContext, memberId);
 
                 TempData["Success"] = "創作者資料建立完成！歡迎加入創作者行列。";
@@ -248,6 +265,8 @@ namespace CraftDailyCorner.Controllers.Front
         public async Task<IActionResult> RejectedConfirm(int? applicationId = null)
         {
             var memberId = User.GetMemberId();
+            if (string.IsNullOrWhiteSpace(memberId))
+                return Unauthorized();
 
             var vm = await _applicationService.GetRejectedConfirmAsync(memberId, applicationId);
             if (vm == null)
@@ -264,6 +283,8 @@ namespace CraftDailyCorner.Controllers.Front
         public async Task<IActionResult> RejectedConfirm(VMRejectedConfirm vm)
         {
             var memberId = User.GetMemberId();
+            if (string.IsNullOrWhiteSpace(memberId))
+                return Unauthorized();
 
             if (!ModelState.IsValid)
                 return View(vm);

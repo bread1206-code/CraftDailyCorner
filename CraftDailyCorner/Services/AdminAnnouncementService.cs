@@ -61,7 +61,7 @@ namespace CraftDailyCorner.Services
             var vm = new VMAdminAnnouncementUpsert
             {
                 StatusID = STATUS_DRAFT,
-                AudienceOptions = await BuildAudienceOptionsAsync(isSuperAdmin),
+                AudienceOptions = BuildAudienceOptionsAsync(isSuperAdmin),
                 StatusOptions = await BuildStatusOptionsAsync()
             };
 
@@ -87,7 +87,7 @@ namespace CraftDailyCorner.Services
                 Content = entity.Content,
                 AudienceType = (byte)entity.AudienceType,
                 StatusID = entity.StatusID,
-                AudienceOptions = await BuildAudienceOptionsAsync(isSuperAdmin),
+                AudienceOptions = BuildAudienceOptionsAsync(isSuperAdmin),
                 StatusOptions = await BuildStatusOptionsAsync()
             };
         }
@@ -259,7 +259,7 @@ namespace CraftDailyCorner.Services
                 throw new ArgumentException("只有超級管理者可以發布「僅管理者」公告");
         }
 
-        private async Task<SelectList> BuildAudienceOptionsAsync(bool isSuperAdmin)
+        private SelectList BuildAudienceOptionsAsync(bool isSuperAdmin)
         {
             var items = new List<SelectListItem>
             {

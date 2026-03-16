@@ -77,7 +77,7 @@ namespace CraftDailyCorner.ViewModels.CreatorProduct
                     "請至少選擇一個分類",
                     new[] { nameof(SelectedCategoryIds) });
 
-            if (SelectedCategoryIds.Count > 3)
+            if (SelectedCategoryIds!.Count > 3)
                 yield return new ValidationResult(
                     "分類最多3個",
                     new[] { nameof(SelectedCategoryIds) });

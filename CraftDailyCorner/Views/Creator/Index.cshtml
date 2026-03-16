@@ -88,44 +88,115 @@
     }
     @if (Model.TotalPages > 1)
     {
-        <nav class="mt-5">
-            <ul class="pagination justify-content-center">
+        var currentPage = Model.Query.Page;
+        var totalPages = Model.TotalPages;
 
-                @if (Model.HasPreviousPage)
+        var startPage = Math.Max(1, currentPage - 2);
+        var endPage = Math.Min(totalPages, currentPage + 2);
+
+        if (currentPage <= 3)
+        {
+            endPage = Math.Min(totalPages, 5);
+        }
+
+        if (currentPage >= totalPages - 2)
+        {
+            startPage = Math.Max(1, totalPages - 4);
+        }
+
+        <nav class="mt-5" aria-label="創作者分頁">
+            <ul class="pagination pagination-sm justify-content-center flex-wrap">
+
+                <!-- 第一頁 -->
+                <li class="page-item @(currentPage == 1 ? "disabled" : "")">
+                    <a class="page-link"
+                       asp-action="Index"
+                       asp-route-page="1"
+                       asp-route-keyword="@Model.Query.Keyword"
+                       aria-label="第一頁">
+                        &laquo;
+                    </a>
+                </li>
+
+                <!-- 上一頁 -->
+                <li class="page-item @(currentPage == 1 ? "disabled" : "")">
+                    <a class="page-link"
+                       asp-action="Index"
+                       asp-route-page="@(currentPage - 1)"
+                       asp-route-keyword="@Model.Query.Keyword"
+                       aria-label="上一頁">
+                        &lsaquo;
+                    </a>
+                </li>
+
+                <!-- 開頭頁碼 -->
+                @if (startPage > 1)
                 {
                     <li class="page-item">
                         <a class="page-link"
                            asp-action="Index"
-                           asp-route-page="@(Model.Query.Page - 1)"
-                           asp-route-keyword="@Model.Query.Keyword">
-                            上一頁
-                        </a>
+                           asp-route-page="1"
+                           asp-route-keyword="@Model.Query.Keyword">1</a>
                     </li>
+
+                    @if (startPage > 2)
+                    {
+                        <li class="page-item disabled">
+                            <span class="page-link">...</span>
+                        </li>
+                    }
                 }
 
-                @for (int i = 1; i <= Model.TotalPages; i++)
+                <!-- 中間頁碼 -->
+                @for (int i = startPage; i <= endPage; i++)
                 {
-                    <li class="page-item @(i == Model.Query.Page ? "active" : "")">
+                    <li class="page-item @(i == currentPage ? "active" : "")">
                         <a class="page-link"
                            asp-action="Index"
                            asp-route-page="@i"
-                           asp-route-keyword="@Model.Query.Keyword">
-                            @i
-                        </a>
+                           asp-route-keyword="@Model.Query.Keyword">@i</a>
                     </li>
                 }
 
-                @if (Model.HasNextPage)
+                <!-- 結尾頁碼 -->
+                @if (endPage < totalPages)
                 {
+                    @if (endPage < totalPages - 1)
+                    {
+                        <li class="page-item disabled">
+                            <span class="page-link">...</span>
+                        </li>
+                    }
+
                     <li class="page-item">
                         <a class="page-link"
                            asp-action="Index"
-                           asp-route-page="@(Model.Query.Page + 1)"
-                           asp-route-keyword="@Model.Query.Keyword">
-                            下一頁
-                        </a>
+                           asp-route-page="@totalPages"
+                           asp-route-keyword="@Model.Query.Keyword">@totalPages</a>
                     </li>
                 }
+
+                <!-- 下一頁 -->
+                <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
+                    <a class="page-link"
+                       asp-action="Index"
+                       asp-route-page="@(currentPage + 1)"
+                       asp-route-keyword="@Model.Query.Keyword"
+                       aria-label="下一頁">
+                        &rsaquo;
+                    </a>
+                </li>
+
+                <!-- 最後頁 -->
+                <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
+                    <a class="page-link"
+                       asp-action="Index"
+                       asp-route-page="@totalPages"
+                       asp-route-keyword="@Model.Query.Keyword"
+                       aria-label="最後頁">
+                        &raquo;
+                    </a>
+                </li>
 
             </ul>
         </nav>

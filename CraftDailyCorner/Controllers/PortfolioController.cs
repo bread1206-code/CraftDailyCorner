@@ -89,7 +89,7 @@ namespace CraftDailyCorner.Controllers.Front
                 new CreateCreatorPortfolioDTO
                 {
                     Title = vm.Title,
-                    Description = vm.Description,
+                    Description = vm.Description ?? "",
                     Visibility = vm.Visibility
                 },
                 User.GetCreatorId(),
@@ -130,7 +130,7 @@ namespace CraftDailyCorner.Controllers.Front
                 {
                     PortfolioID = vm.PortfolioID,
                     Title = vm.Title,
-                    Description = vm.Description,
+                    Description = vm.Description ?? "",
                     Visibility = vm.Visibility
                 },
                 User.GetCreatorId()

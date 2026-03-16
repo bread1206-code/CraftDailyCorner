@@ -14,7 +14,7 @@ namespace CraftDailyCorner.Services
             _context = context;
         }
 
-        public async Task<VMCreatorPickList?> GeneratePickListPreviewAsync(string creatorId,List<string> orderIds)
+        public async Task<VMCreatorPickList?> GeneratePickListPreviewAsync(string creatorId, List<string> orderIds)
         {
             var orders = await _context.Orders
                 .Include(o => o.OrderDetails)
@@ -22,6 +22,7 @@ namespace CraftDailyCorner.Services
                 .Where(o =>
                     orderIds.Contains(o.OrderID) &&
                     o.StatusID == 2 &&
+                    o.OrderDetails != null &&
                     o.OrderDetails.Any(d => d.Product.CreatorID == creatorId))
                 .ToListAsync();
 
@@ -29,7 +30,7 @@ namespace CraftDailyCorner.Services
                 return null;
 
             var summary = orders
-                .SelectMany(o => o.OrderDetails)
+                .SelectMany(o => o.OrderDetails ?? Enumerable.Empty<OrderDetail>())
                 .GroupBy(d => new { d.ProductID, d.ProductNameSnapshot })
                 .Select(g => new VMPickListSummaryItem
                 {
@@ -48,19 +49,22 @@ namespace CraftDailyCorner.Services
                     ReceiverPhone = o.ReceiverPhone,
                     ShippingAddress = o.ShippingAddress,
                     CreatedAt = o.CreatedAt,
-                    Items = o.OrderDetails.Select(d => new VMPickListOrderItem
-                    {
-                        ProductID = d.ProductID,
-                        ProductName = d.ProductNameSnapshot,
-                        Quantity = d.Quantity
-                    }).ToList()
+                    Items = (o.OrderDetails ?? Enumerable.Empty<OrderDetail>())
+                        .Select(d => new VMPickListOrderItem
+                        {
+                            ProductID = d.ProductID,
+                            ProductName = d.ProductNameSnapshot,
+                            Quantity = d.Quantity
+                        })
+                        .ToList()
                 }).ToList(),
 
                 SummaryItems = summary,
                 TotalOrderCount = orders.Count
             };
         }
-        public async Task<bool> ConfirmPrintAsync(string creatorId,List<string> orderIds)
+
+        public async Task<bool> ConfirmPrintAsync(string creatorId, List<string> orderIds)
         {
             var orders = await _context.Orders
                 .Include(o => o.OrderDetails)
@@ -68,6 +72,7 @@ namespace CraftDailyCorner.Services
                 .Where(o =>
                     orderIds.Contains(o.OrderID) &&
                     o.StatusID == 2 &&
+                    o.OrderDetails != null &&
                     o.OrderDetails.Any(d => d.Product.CreatorID == creatorId))
                 .ToListAsync();
 
@@ -76,7 +81,7 @@ namespace CraftDailyCorner.Services
 
             foreach (var order in orders)
             {
-                order.StatusID = 3; // Processing
+                order.StatusID = 3;
                 order.UpdatedAt = DateTime.Now;
             }
 

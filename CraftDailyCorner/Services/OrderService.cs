@@ -267,7 +267,7 @@ namespace CraftDailyCorner.Services
                 .AsNoTracking()
                 .Include(o => o.OrderStatus)
                 .Include(o => o.Shipment)
-                    .ThenInclude(s => s.ShipmentStatus)
+                    .ThenInclude(s => s!.ShipmentStatus)
                 .Include(o => o.OrderDetails!)
                     .ThenInclude(od => od.Product)
                         .ThenInclude(p => p.CreatorProfile)

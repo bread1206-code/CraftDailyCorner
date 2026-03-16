@@ -84,7 +84,7 @@ namespace CraftDailyCorner.Services
                 {
                     r.ReportID,
                     r.StatusID,
-                    StatusName = r.ReportStatus.StatusName,
+                    StatusName = r.ReportStatus!.StatusName,
                     r.CreatedAt,
 
                     ReporterMemberId = r.MemberID,
@@ -153,7 +153,7 @@ namespace CraftDailyCorner.Services
             {
                 ReportID = (int)report.ReportID,
                 StatusID = report.StatusID,
-                StatusName = report.ReportStatus.StatusName,
+                StatusName = report.ReportStatus!.StatusName,
                 CreatedAt = report.CreatedAt,
 
                 ReporterMemberID = report.MemberID,

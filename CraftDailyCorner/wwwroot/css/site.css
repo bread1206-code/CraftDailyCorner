@@ -1636,3 +1636,12 @@ body {
     box-shadow: 0 10px 25px rgba(0,0,0,0.15);
 }
 
+/*分頁*/
+.pagination .page-link {
+    min-width: 40px;
+    text-align: center;
+}
+
+.pagination .page-item.disabled .page-link {
+    pointer-events: none;
+}

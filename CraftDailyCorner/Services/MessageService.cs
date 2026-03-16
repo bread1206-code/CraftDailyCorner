@@ -296,7 +296,7 @@ namespace CraftDailyCorner.Services
                 .Include(t => t.Member)
                 .Include(t => t.CreatorProfile)
                 .Include(t => t.Product)
-                    .ThenInclude(p => p.ProductImages)
+                    .ThenInclude(p => p!.ProductImages)
                 .Include(t => t.Messages)
                     .ThenInclude(m => m.Member)
                 .FirstOrDefaultAsync(t => t.ThreadID == threadId);
@@ -350,7 +350,7 @@ namespace CraftDailyCorner.Services
                 ProductID = thread.ProductID,
                 ProductName = thread.Product?.ProductName,
                 ProductPrice = thread.Product?.Price,
-                ProductCreatorID = thread.Product.CreatorID,
+                ProductCreatorID = thread.Product!.CreatorID,
                 ProductImageUrl = thread.Product?.ProductImages
                     .Where(pi => pi.StatusID == 1)
                     .OrderBy(pi => pi.SortOrder)

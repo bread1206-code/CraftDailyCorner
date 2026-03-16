@@ -387,7 +387,7 @@ namespace CraftDailyCorner.Services
             portfolio.StatusID = 3;
             portfolio.UpdatedAt = now;
 
-            foreach (var item in portfolio.PortfolioItems)
+            foreach (var item in portfolio.PortfolioItems!)
             {
                 if (!item.IsDeleted)
                 {

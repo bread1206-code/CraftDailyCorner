@@ -203,7 +203,7 @@ namespace CraftDailyCorner.Services
 
                 IsFavorite = isFavorite,
                 IsOwner = memberId != null &&
-                          product.CreatorProfile.MemberID == memberId,
+                          product.CreatorProfile!.MemberID == memberId,
                 Breadcrumb = BuildProductDetailBreadcrumb(product),
 
                 IsReportBanned = isReportBanned,

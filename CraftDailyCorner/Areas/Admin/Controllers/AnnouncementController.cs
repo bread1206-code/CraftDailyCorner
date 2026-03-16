@@ -34,6 +34,9 @@ namespace CraftDailyCorner.Areas.Admin.Controllers
         public async Task<IActionResult> Create()
         {
             var currentMemberId = User.GetMemberId();
+            if (string.IsNullOrWhiteSpace(currentMemberId))
+                return Unauthorized();
+
             var isSuperAdmin = User.IsInRole("04");
 
             var vm = await _service.GetCreateVmAsync(currentMemberId, isSuperAdmin);
@@ -45,6 +48,9 @@ namespace CraftDailyCorner.Areas.Admin.Controllers
         public async Task<IActionResult> Create(VMAdminAnnouncementUpsert vm)
         {
             var currentMemberId = User.GetMemberId();
+            if (string.IsNullOrWhiteSpace(currentMemberId))
+                return Unauthorized();
+
             var isSuperAdmin = User.IsInRole("04");
 
             if (!ModelState.IsValid)
@@ -75,6 +81,9 @@ namespace CraftDailyCorner.Areas.Admin.Controllers
         public async Task<IActionResult> Edit(int id)
         {
             var currentMemberId = User.GetMemberId();
+            if (string.IsNullOrWhiteSpace(currentMemberId))
+                return Unauthorized();
+
             var isSuperAdmin = User.IsInRole("04");
 
             var vm = await _service.GetEditVmAsync(id, currentMemberId, isSuperAdmin);
@@ -88,6 +97,9 @@ namespace CraftDailyCorner.Areas.Admin.Controllers
         public async Task<IActionResult> Edit(VMAdminAnnouncementUpsert vm)
         {
             var currentMemberId = User.GetMemberId();
+            if (string.IsNullOrWhiteSpace(currentMemberId))
+                return Unauthorized();
+
             var isSuperAdmin = User.IsInRole("04");
 
             if (!ModelState.IsValid)
@@ -135,6 +147,9 @@ namespace CraftDailyCorner.Areas.Admin.Controllers
         public async Task<IActionResult> Activate(int id)
         {
             var currentMemberId = User.GetMemberId();
+            if (string.IsNullOrWhiteSpace(currentMemberId))
+                return Unauthorized();
+
             var isSuperAdmin = User.IsInRole("04");
 
             var (ok, message) = await _service.ActivateAsync(id, currentMemberId, isSuperAdmin);
@@ -154,6 +169,9 @@ namespace CraftDailyCorner.Areas.Admin.Controllers
         public async Task<IActionResult> Inactivate(int id)
         {
             var currentMemberId = User.GetMemberId();
+            if (string.IsNullOrWhiteSpace(currentMemberId))
+                return Unauthorized();
+
             var isSuperAdmin = User.IsInRole("04");
 
             var (ok, message) = await _service.InactivateAsync(id, currentMemberId, isSuperAdmin);

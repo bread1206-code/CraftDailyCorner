@@ -149,7 +149,7 @@ namespace CraftDailyCorner.Services.Creator
                             ImageUrl = p.ProductImages
                                 .OrderBy(i => i.SortOrder)
                                 .Select(i => i.ImageUrl)
-                                .FirstOrDefault(),
+                                .FirstOrDefault() ?? "",
                             Price = p.Price,
                             CreatedAt = p.CreatedAt,
 

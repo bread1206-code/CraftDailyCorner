@@ -79,7 +79,7 @@ namespace CraftDailyCorner.Services
         {
             var cacheKey = $"Dashboard_{range}";
 
-            if (_memoryCache.TryGetValue(cacheKey, out object cached))
+            if (_memoryCache.TryGetValue(cacheKey, out var cached) && cached is not null)
                 return cached;
 
             var days = range switch
@@ -137,7 +137,7 @@ namespace CraftDailyCorner.Services
         {
             var cacheKey = $"History_{month}";
 
-            if (_memoryCache.TryGetValue(cacheKey, out object cached))
+            if (_memoryCache.TryGetValue(cacheKey, out var cached) && cached is not null)
                 return cached;
 
             var date = DateTime.Parse($"{month}-01");

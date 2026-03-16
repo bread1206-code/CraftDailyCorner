@@ -138,6 +138,7 @@ builder.Services.AddScoped<DemoSeedMemberRoles>();
 builder.Services.AddScoped<DemoSeedMemberRoleHistories>();
 builder.Services.AddScoped<DemoSeedCreatorApplications>();
 builder.Services.AddScoped<DemoSeedCreatorProfiles>();
+builder.Services.AddScoped<DemoSeedAutoReplyTemplates>();
 builder.Services.AddScoped<DemoSeedProducts>();
 builder.Services.AddScoped<DemoSeedProductImages>();
 builder.Services.AddScoped<DemoSeedProductRelations>();

@@ -13,6 +13,7 @@ namespace CraftDailyCorner.Seed.Demo
         private readonly DemoSeedMemberRoleHistories _demoSeedMemberRoleHistories;
         private readonly DemoSeedCreatorApplications _demoSeedCreatorApplications;
         private readonly DemoSeedCreatorProfiles _demoSeedCreatorProfiles;
+        private readonly DemoSeedAutoReplyTemplates _demoSeedAutoReplyTemplates;
         private readonly DemoSeedProducts _demoSeedProducts;
         private readonly DemoSeedProductImages _demoSeedProductImages;
         private readonly DemoSeedProductRelations _demoSeedProductRelations;
@@ -44,6 +45,7 @@ namespace CraftDailyCorner.Seed.Demo
             DemoSeedMemberRoleHistories demoSeedMemberRoleHistories,
             DemoSeedCreatorApplications demoSeedCreatorApplications,
             DemoSeedCreatorProfiles demoSeedCreatorProfiles,
+            DemoSeedAutoReplyTemplates demoSeedAutoReplyTemplates,
             DemoSeedProducts demoSeedProducts,
             DemoSeedProductImages demoSeedProductImages,
             DemoSeedProductRelations demoSeedProductRelations,
@@ -71,6 +73,7 @@ namespace CraftDailyCorner.Seed.Demo
             _demoSeedMemberRoleHistories = demoSeedMemberRoleHistories;
             _demoSeedCreatorApplications = demoSeedCreatorApplications;
             _demoSeedCreatorProfiles = demoSeedCreatorProfiles;
+            _demoSeedAutoReplyTemplates = demoSeedAutoReplyTemplates;
             _demoSeedProducts = demoSeedProducts;
             _demoSeedProductImages = demoSeedProductImages;
             _demoSeedProductRelations = demoSeedProductRelations;
@@ -106,6 +109,7 @@ namespace CraftDailyCorner.Seed.Demo
             _demoSeedMemberRoleHistories.Run(seedContext);
             _demoSeedCreatorApplications.Run(seedContext);
             _demoSeedCreatorProfiles.Run(seedContext);
+            _demoSeedAutoReplyTemplates.Run(seedContext);
             _demoSeedProducts.Run(seedContext);
             _demoSeedProductImages.Run(seedContext);
             _demoSeedProductRelations.Run(seedContext);
@@ -113,10 +117,10 @@ namespace CraftDailyCorner.Seed.Demo
             _demoSeedCarts.Run(seedContext);
             _demoSeedNotificationPreferences.Run(seedContext);
 
-            _demoSeedCreatorPosts.Run(seedContext);
-            _demoSeedPostComments.Run(seedContext);
-            _demoSeedFollowCreators.Run(seedContext);
-            _demoSeedReactions.Run(seedContext);
+            //_demoSeedCreatorPosts.Run(seedContext);
+            //_demoSeedPostComments.Run(seedContext);
+            //_demoSeedFollowCreators.Run(seedContext);
+            //_demoSeedReactions.Run(seedContext);
 
             _demoSeedOrders.Run(seedContext);
             _demoSeedOrderDetails.Run(seedContext);
