@@ -56,5 +56,11 @@ namespace CraftDailyCorner.Seed.Demo.Context
 
         // OrderID -> CreatedAt
         public Dictionary<string, DateTime> OrderCreatedAtMap { get; set; } = new();
+
+        // 品牌代碼(001) -> CreatorID
+        public Dictionary<string, string> BrandCodeToCreatorMap { get; set; } = new();
+
+        // CreatorID -> PortfolioID
+        public Dictionary<string, string> CreatorPortfolioMap { get; set; } = new();
     }
 }

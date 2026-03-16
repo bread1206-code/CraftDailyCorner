@@ -153,7 +153,8 @@ builder.Services.AddScoped<DemoSeedCreatorPosts>();
 builder.Services.AddScoped<DemoSeedPostComments>();
 builder.Services.AddScoped<DemoSeedFollowCreators>();
 builder.Services.AddScoped<DemoSeedReactions>();
-
+builder.Services.AddScoped<DemoSeedPortfolios>();
+builder.Services.AddScoped<DemoSeedPortfolioItems>();
 // Demo Loaders
 builder.Services.AddScoped<MemberSeedLoader>();
 builder.Services.AddScoped<CreatorSeedLoader>();

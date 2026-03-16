@@ -79,6 +79,23 @@ namespace CraftDailyCorner.Seed.Demo.Helpers
             return imageGuid;
         }
 
+        public string UploadPortfolioImage(
+            string sourceFilePath,
+            string creatorId)
+        {
+            var imageGuid = Guid.NewGuid().ToString();
+
+            _imageUploadService.UploadFromSeed(
+                seedFolder: "06Portfolio",
+                sourceFile: sourceFilePath,
+                fileNameWithoutExt: imageGuid,
+                sizes: ImageSizePresets.Portfolio,
+                entitySubFolder: creatorId
+            );
+
+            return imageGuid;
+        }
+
         public List<string> GetOrderedFiles(string folderPath)
         {
             if (string.IsNullOrWhiteSpace(folderPath))

@@ -31,6 +31,9 @@ namespace CraftDailyCorner.Seed.Demo
         private readonly DemoSeedPayments _demoSeedPayments;
         private readonly DemoSeedShipments _demoSeedShipments;
 
+        private readonly DemoSeedPortfolios _demoSeedPortfolios;
+        private readonly DemoSeedPortfolioItems _demoSeedPortfolioItems;
+
         private readonly MemberSeedLoader _memberSeedLoader;
         private readonly CreatorSeedLoader _creatorSeedLoader;
         private readonly ProductSeedLoader _productSeedLoader;
@@ -65,7 +68,9 @@ namespace CraftDailyCorner.Seed.Demo
             ProductSeedLoader productSeedLoader,
             ProductImageSeedLoader productImageSeedLoader,
             CreatorPostSeedLoader creatorPostSeedLoader,
-            OrderSeedLoader orderSeedLoader)
+            OrderSeedLoader orderSeedLoader,
+            DemoSeedPortfolios demoSeedPortfolios,
+            DemoSeedPortfolioItems demoSeedPortfolioItems)
         {
             _demoSeedMembers = demoSeedMembers;
             _demoSeedPrivacies = demoSeedPrivacies;
@@ -90,6 +95,9 @@ namespace CraftDailyCorner.Seed.Demo
             _demoSeedOrderDetails = demoSeedOrderDetails;
             _demoSeedPayments = demoSeedPayments;
             _demoSeedShipments = demoSeedShipments;
+
+            _demoSeedPortfolios = demoSeedPortfolios;
+            _demoSeedPortfolioItems = demoSeedPortfolioItems;
 
             _memberSeedLoader = memberSeedLoader;
             _creatorSeedLoader = creatorSeedLoader;
@@ -116,6 +124,9 @@ namespace CraftDailyCorner.Seed.Demo
             _demoSeedInventories.Run(seedContext);
             _demoSeedCarts.Run(seedContext);
             _demoSeedNotificationPreferences.Run(seedContext);
+
+            _demoSeedPortfolios.Run(seedContext);
+            _demoSeedPortfolioItems.Run(seedContext);
 
             //_demoSeedCreatorPosts.Run(seedContext);
             //_demoSeedPostComments.Run(seedContext);
