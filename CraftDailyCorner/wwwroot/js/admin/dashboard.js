@@ -221,6 +221,11 @@ async function loadHistoryData(month) {
 //更新圖表
 
 function updateChart(data) {
+    console.log("chart data =", data);
+    console.log("labels =", data.labels);
+    console.log("orderData =", data.orderData);
+    console.log("revenueData =", data.revenueData);
+    console.log("memberData =", data.memberData);
 
     transactionChart.data.labels = data.labels;
     transactionChart.data.datasets[0].data = data.orderData || [];

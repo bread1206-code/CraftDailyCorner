@@ -154,6 +154,16 @@ namespace CraftDailyCorner.Services
                 })
                 .ToListAsync();
 
+            var members = await _context.Members
+                .Where(m => m.CreatedAt >= date && m.CreatedAt < endDate)
+                .GroupBy(m => m.CreatedAt.Date)
+                .Select(g => new
+                {
+                    Date = g.Key,
+                    Count = g.Count()
+                })
+                .ToListAsync();
+
             var days = DateTime.DaysInMonth(date.Year, date.Month);
 
             var dateRange = Enumerable.Range(0, days)
@@ -164,7 +174,8 @@ namespace CraftDailyCorner.Services
             {
                 labels = dateRange.Select(d => d.ToString("MM/dd")),
                 orderData = dateRange.Select(d => orders.FirstOrDefault(o => o.Date == d)?.Count ?? 0),
-                revenueData = dateRange.Select(d => orders.FirstOrDefault(o => o.Date == d)?.Revenue ?? 0)
+                revenueData = dateRange.Select(d => orders.FirstOrDefault(o => o.Date == d)?.Revenue ?? 0),
+                memberData = dateRange.Select(d => members.FirstOrDefault(m => m.Date == d)?.Count ?? 0)
             };
 
             _memoryCache.Set(cacheKey, result, TimeSpan.FromMinutes(30));
@@ -196,15 +207,37 @@ namespace CraftDailyCorner.Services
 
         private async Task<List<string>> GenerateAvailableMonths()
         {
-            var oldest = await _context.Orders
+            var oldestOrderDate = await _context.Orders
                 .OrderBy(o => o.CreatedAt)
-                .Select(o => o.CreatedAt)
+                .Select(o => (DateTime?)o.CreatedAt)
                 .FirstOrDefaultAsync();
 
-            if (oldest == default)
+            var oldestMemberDate = await _context.Members
+                .OrderBy(m => m.CreatedAt)
+                .Select(m => (DateTime?)m.CreatedAt)
+                .FirstOrDefaultAsync();
+
+            DateTime? oldestDate = null;
+
+            if (oldestOrderDate.HasValue && oldestMemberDate.HasValue)
+            {
+                oldestDate = oldestOrderDate.Value <= oldestMemberDate.Value
+                    ? oldestOrderDate.Value
+                    : oldestMemberDate.Value;
+            }
+            else if (oldestOrderDate.HasValue)
+            {
+                oldestDate = oldestOrderDate.Value;
+            }
+            else if (oldestMemberDate.HasValue)
+            {
+                oldestDate = oldestMemberDate.Value;
+            }
+
+            if (!oldestDate.HasValue)
                 return new List<string>();
 
-            var firstMonth = new DateTime(oldest.Year, oldest.Month, 1);
+            var firstMonth = new DateTime(oldestDate.Value.Year, oldestDate.Value.Month, 1);
             var lastMonth = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1)
                 .AddMonths(-1);
 
