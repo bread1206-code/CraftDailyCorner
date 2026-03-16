@@ -1,6 +1,5 @@
 ﻿using CraftDailyCorner.DTOs;
 using CraftDailyCorner.Extensions;
-
 using CraftDailyCorner.Services.Interface;
 using CraftDailyCorner.ViewModels.CreatorPost;
 using Microsoft.AspNetCore.Authorization;
@@ -16,10 +15,12 @@ namespace CraftDailyCorner.Controllers
         {
             _postService = postService;
         }
+
         public IActionResult Test()
         {
             return Content("OK");
         }
+
         // 前台列表
         public async Task<IActionResult> Index(string? keyword, int page = 1)
         {
@@ -64,8 +65,10 @@ namespace CraftDailyCorner.Controllers
         public async Task<IActionResult> List()
         {
             var creatorId = User.GetCreatorId();
-            var posts = await _postService
-                .GetCreatorPostsAsync(creatorId);
+            if (string.IsNullOrWhiteSpace(creatorId))
+                return Unauthorized();
+
+            var posts = await _postService.GetCreatorPostsAsync(creatorId);
 
             return View(posts);
         }
@@ -82,6 +85,10 @@ namespace CraftDailyCorner.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(VMCreatorPostCreate vm)
         {
+            var creatorId = User.GetCreatorId();
+            if (string.IsNullOrWhiteSpace(creatorId))
+                return Unauthorized();
+
             if (!ModelState.IsValid)
                 return View(vm);
 
@@ -93,7 +100,7 @@ namespace CraftDailyCorner.Controllers
                     Visibility = vm.Visibility,
                     ImageFile = vm.ImageFile
                 },
-                User.GetCreatorId()
+                creatorId
             );
 
             return RedirectToAction(nameof(List));
@@ -103,8 +110,11 @@ namespace CraftDailyCorner.Controllers
         [Authorize(Roles = "02")]
         public async Task<IActionResult> Edit(string id)
         {
-            var vm = await _postService
-                .GetEditDataAsync(id, User.GetCreatorId());
+            var creatorId = User.GetCreatorId();
+            if (string.IsNullOrWhiteSpace(creatorId))
+                return Unauthorized();
+
+            var vm = await _postService.GetEditDataAsync(id, creatorId);
 
             if (vm == null)
                 return NotFound();
@@ -117,6 +127,10 @@ namespace CraftDailyCorner.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(VMCreatorPostEdit vm)
         {
+            var creatorId = User.GetCreatorId();
+            if (string.IsNullOrWhiteSpace(creatorId))
+                return Unauthorized();
+
             if (!ModelState.IsValid)
             {
                 Console.WriteLine("=== ModelState Invalid ===");
@@ -142,7 +156,7 @@ namespace CraftDailyCorner.Controllers
                     Visibility = vm.Visibility,
                     NewImageFile = vm.NewImageFile
                 },
-                User.GetCreatorId()
+                creatorId
             );
 
             return RedirectToAction(nameof(List));
@@ -154,11 +168,13 @@ namespace CraftDailyCorner.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(string id)
         {
-            await _postService
-                .SoftDeleteAsync(id, User.GetCreatorId());
+            var creatorId = User.GetCreatorId();
+            if (string.IsNullOrWhiteSpace(creatorId))
+                return Unauthorized();
+
+            await _postService.SoftDeleteAsync(id, creatorId);
 
             return RedirectToAction(nameof(List));
         }
-
     }
 }

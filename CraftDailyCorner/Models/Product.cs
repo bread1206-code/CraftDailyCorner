@@ -49,6 +49,6 @@ namespace CraftDailyCorner.Models
         public virtual List<FavoriteProduct> FavoriteProducts { get; set; } = new();
         public virtual List<ProductReview> ProductReviews { get; set; } = new();
         public virtual ProductStatus ProductStatus { get; set; } = null!;
-        public virtual List<MessageThread>? MessageThreads { get; set; }
+        public virtual List<MessageThread> MessageThreads { get; set; } = new();
     }
 }

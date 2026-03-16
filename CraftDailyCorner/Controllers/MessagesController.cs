@@ -25,6 +25,9 @@ namespace CraftDailyCorner.Controllers
         public async Task<IActionResult> Index(int? threadId = null)
         {
             var memberId = User.GetMemberId();
+            if (string.IsNullOrWhiteSpace(memberId))
+                return Unauthorized();
+
             var creatorId = User.IsInRole("02") ? User.GetCreatorId() : null;
 
             var vm = await _messageService.GetInboxAsync(memberId, creatorId, threadId);
@@ -38,6 +41,8 @@ namespace CraftDailyCorner.Controllers
         public async Task<IActionResult> StartFromProduct(string productId)
         {
             var memberId = User.GetMemberId();
+            if (string.IsNullOrWhiteSpace(memberId))
+                return Unauthorized();
 
             if (string.IsNullOrWhiteSpace(productId))
                 return BadRequest("商品編號不可為空");
@@ -53,6 +58,8 @@ namespace CraftDailyCorner.Controllers
         public async Task<IActionResult> Send(int threadId, string content)
         {
             var senderId = User.GetMemberId();
+            if (string.IsNullOrWhiteSpace(senderId))
+                return Unauthorized();
 
             try
             {

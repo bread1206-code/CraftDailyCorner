@@ -34,6 +34,9 @@ namespace CraftDailyCorner.Controllers
         public IActionResult Index()
         {
             var memberId = User.GetMemberId();
+            if (string.IsNullOrWhiteSpace(memberId))
+                return Unauthorized();
+
             var vm = _memberCenterService.GetDashboard(memberId);
             return View(vm);
         }
@@ -43,6 +46,9 @@ namespace CraftDailyCorner.Controllers
         public IActionResult Profile()
         {
             var memberId = User.GetMemberId();
+            if (string.IsNullOrWhiteSpace(memberId))
+                return Unauthorized();
+
             var vm = _memberCenterService.GetProfile(memberId);
             return View(vm);
         }
@@ -50,13 +56,15 @@ namespace CraftDailyCorner.Controllers
         // POST: /Member/Profile
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ProfileAsync(CraftDailyCorner.ViewModels.Member.VMEditProfile vm)
+        public async Task<IActionResult> ProfileAsync(VMEditProfile vm)
         {
             if (!ModelState.IsValid)
                 return View(vm);
 
             var memberId = User.GetMemberId();
-            //手機重複檢查
+            if (string.IsNullOrWhiteSpace(memberId))
+                return Unauthorized();
+
             try
             {
                 _memberCenterService.UpdateProfile(memberId, vm);
@@ -67,16 +75,14 @@ namespace CraftDailyCorner.Controllers
                 return View(vm);
             }
 
-
             var claims = User.Claims
-            .Where(c => c.Type != ClaimTypes.Name) // 移除舊的 Name
-            .ToList();
+                .Where(c => c.Type != ClaimTypes.Name)
+                .ToList();
 
             claims.Add(new Claim(ClaimTypes.Name, vm.DisplayName));
             var identity = new ClaimsIdentity(claims, "CraftDailyCornerLogin");
             var principal = new ClaimsPrincipal(identity);
 
-            // 重新簽入（刷新 Cookie）
             await HttpContext.SignInAsync("CraftDailyCornerLogin", principal);
 
             TempData["Success"] = "個人資料已更新";
@@ -87,6 +93,9 @@ namespace CraftDailyCorner.Controllers
         public IActionResult Favorites()
         {
             var memberId = User.GetMemberId();
+            if (string.IsNullOrWhiteSpace(memberId))
+                return Unauthorized();
+
             var favorites = _favoriteService.GetMyFavorites(memberId);
             return View(favorites);
         }
@@ -95,11 +104,12 @@ namespace CraftDailyCorner.Controllers
         public async Task<IActionResult> Follows()
         {
             var memberId = User.GetMemberId();
+            if (string.IsNullOrWhiteSpace(memberId))
+                return Unauthorized();
+
             var list = await _followService.GetMyFollowingAsync(memberId);
             return View(list);
         }
-
-        // Change Password
 
         [HttpGet]
         public IActionResult ChangePassword()
@@ -115,7 +125,7 @@ namespace CraftDailyCorner.Controllers
                 return View(vm);
 
             var memberId = User.GetMemberId();
-            if (string.IsNullOrEmpty(memberId))
+            if (string.IsNullOrWhiteSpace(memberId))
                 return Unauthorized();
 
             var (ok, message) = await _memberSecurityService.ChangePasswordAsync(

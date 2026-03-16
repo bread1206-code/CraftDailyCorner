@@ -18,6 +18,6 @@ namespace CraftDailyCorner.Models
         public string? Description { get; set; }
         [Display(Name = "是否啟用")]
         public bool IsActive { get; set; }
-        public virtual List<Product>? Products { get; set; }
+        public virtual List<Product> Products { get; set; } = new List<Product>();
     }
 }

@@ -24,15 +24,25 @@ namespace CraftDailyCorner.Controllers
             if (!ModelState.IsValid)
                 return BadRequest("留言資料錯誤");
 
+            var memberId = User.GetMemberId();
+            if (memberId == null)
+                return Unauthorized();
+
+            string? creatorId = null;
+
+            if (User.IsInRole("02"))
+            {
+                creatorId = User.GetCreatorId();
+            }
+
             var vm = await _creatorPostCommentService.CreateAsync(
                 dto,
-                User.GetMemberId(),
-                User.IsInRole("02") ? User.GetCreatorId() : null);
+                memberId,
+                creatorId);
 
             return PartialView(
                 "~/Views/Shared/_PostCommentItem.cshtml",
                 vm);
         }
-
     }
 }

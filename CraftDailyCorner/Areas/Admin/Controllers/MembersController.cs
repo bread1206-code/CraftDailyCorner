@@ -50,6 +50,8 @@ namespace CraftDailyCorner.Areas.Admin.Controllers
         public async Task<IActionResult> Suspend(string id, string mode = "all")
         {
             var adminMemberId = User.GetMemberId();
+            if (string.IsNullOrWhiteSpace(adminMemberId))
+                return Unauthorized();
 
             var (ok, message) = await _service.SuspendAsync(id, adminMemberId);
 
@@ -68,6 +70,8 @@ namespace CraftDailyCorner.Areas.Admin.Controllers
         public async Task<IActionResult> Activate(string id, string mode = "all")
         {
             var adminMemberId = User.GetMemberId();
+            if (string.IsNullOrWhiteSpace(adminMemberId))
+                return Unauthorized();
 
             var (ok, message) = await _service.ActivateAsync(id, adminMemberId);
 

@@ -64,14 +64,14 @@
                                              ReportType = ReportTargetType.Comment,
                                              TargetID = Model.CommentID
                                          }" />
-                            }
-                        </div>        
+                                                }
+                        </div>
                     }
                 </div>
 
-                <!--Reaction 按鈕 -->
+                <!-- Reaction 按鈕 -->
                 <div>
-                    @if (User.Identity?.IsAuthenticated == true)
+                    @if (User.Identity?.IsAuthenticated == true && Model.ReactionButton != null)
                     {
                         <partial name="_ReactionButtonPartial"
                                  model="Model.ReactionButton" />
@@ -82,13 +82,14 @@
 
             <div class="mt-1 text-content">@Model.Content</div>
 
-            @if (Model.ReactionButton.TotalCount > 0)
+            @if (Model.ReactionButton?.TotalCount > 0)
             {
                 <div class="mt-2 small">
                     <partial name="_ReactionSummaryPartial"
                              model="Model.ReactionButton" />
                 </div>
             }
+
         </div>
     </div>
 

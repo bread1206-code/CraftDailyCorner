@@ -25,6 +25,9 @@ namespace CraftDailyCorner.Controllers
 
             var memberId = User.GetMemberId();
 
+            if (memberId == null)
+                return Unauthorized();
+
             var result = await _reportService
                 .ReportAsync(dto, memberId);
 
@@ -33,6 +36,5 @@ namespace CraftDailyCorner.Controllers
                 result = result.Result.ToString()
             });
         }
-
     }
 }

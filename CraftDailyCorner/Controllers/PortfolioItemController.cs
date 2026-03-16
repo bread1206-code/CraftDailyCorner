@@ -11,7 +11,6 @@ public class PortfolioItemController : Controller
     private readonly ICreatorPortfolioItemService _service;
     private readonly ICreatorPortfolioService _creatorPortfolioService;
 
-
     public PortfolioItemController(
         ICreatorPortfolioItemService service,
         ICreatorPortfolioService creatorPortfolioService)
@@ -23,18 +22,23 @@ public class PortfolioItemController : Controller
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Upload(
-    string portfolioId,
-    List<IFormFile> files)
+        string portfolioId,
+        List<IFormFile> files)
     {
+        var creatorId = User.GetCreatorId();
+        if (string.IsNullOrWhiteSpace(creatorId))
+            return Unauthorized();
+
         try
         {
             await _service.UploadAsync(
                 portfolioId,
-                User.GetCreatorId(),
+                creatorId,
                 files);
 
-            var vm = await _creatorPortfolioService
-                .GetEditDataAsync(portfolioId, User.GetCreatorId());
+            var vm = await _creatorPortfolioService.GetEditDataAsync(portfolioId, creatorId);
+            if (vm == null)
+                return NotFound();
 
             return PartialView("_PortfolioItemListPartial", vm);
         }
@@ -48,26 +52,28 @@ public class PortfolioItemController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(int itemId)
     {
-        var portfolioId = await _service.DeleteAsync(
-            itemId,
-            User.GetCreatorId());
+        var creatorId = User.GetCreatorId();
+        if (string.IsNullOrWhiteSpace(creatorId))
+            return Unauthorized();
 
-        var vm = await _creatorPortfolioService
-            .GetEditDataAsync(portfolioId,
-                User.GetCreatorId());
+        var portfolioId = await _service.DeleteAsync(itemId, creatorId);
+
+        var vm = await _creatorPortfolioService.GetEditDataAsync(portfolioId, creatorId);
+        if (vm == null)
+            return NotFound();
 
         return PartialView("_PortfolioItemListPartial", vm);
     }
 
-
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> UpdateSort(
-    [FromBody] List<SortUpdateDTO> items)
+    public async Task<IActionResult> UpdateSort([FromBody] List<SortUpdateDTO> items)
     {
-        await _service.UpdateSortBatchAsync(
-            items,
-            User.GetCreatorId());
+        var creatorId = User.GetCreatorId();
+        if (string.IsNullOrWhiteSpace(creatorId))
+            return Unauthorized();
+
+        await _service.UpdateSortBatchAsync(items, creatorId);
 
         return Ok();
     }

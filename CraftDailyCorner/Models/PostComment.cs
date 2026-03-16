@@ -30,6 +30,5 @@ namespace CraftDailyCorner.Models
 
         public virtual CreatorPost CreatorPost { get; set; } = null!;
         public virtual Member Member { get; set; } = null!;
-        //public virtual List<Report>? PostCommentReports { get; set; }
         }
 }

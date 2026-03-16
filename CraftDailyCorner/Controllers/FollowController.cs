@@ -15,13 +15,17 @@ namespace CraftDailyCorner.Controllers.Front
             _followService = followService;
         }
 
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Toggle(string creatorId)
         {
             var memberId = User.GetMemberId();
-            await _followService.ToggleAsync(creatorId, memberId, User.GetCreatorId());
+            if (memberId == null)
+                return Unauthorized();
+
+            var currentCreatorId = User.GetCreatorId();
+
+            await _followService.ToggleAsync(creatorId, memberId, currentCreatorId);
 
             var isFollowing = await _followService.IsFollowingAsync(creatorId, memberId);
             var followerCount = await _followService.GetFollowerCountAsync(creatorId);
@@ -35,6 +39,5 @@ namespace CraftDailyCorner.Controllers.Front
             // 非 AJAX：維持原本導回上一頁
             return Redirect(Request.Headers.Referer.ToString());
         }
-
     }
 }

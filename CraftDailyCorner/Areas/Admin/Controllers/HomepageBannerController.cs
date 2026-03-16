@@ -41,7 +41,12 @@ namespace CraftDailyCorner.Areas.Admin.Controllers
 
             try
             {
-                await _service.CreateAsync(vm, User.GetMemberId());
+                var adminId = User.GetMemberId();
+                if (adminId == null)
+                    return Unauthorized();
+
+                await _service.CreateAsync(vm, adminId);
+
                 TempData["Success"] = "首頁輪播圖片已新增";
                 return RedirectToAction(nameof(Index));
             }

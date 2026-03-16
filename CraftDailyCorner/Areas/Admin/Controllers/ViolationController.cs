@@ -1,5 +1,4 @@
-﻿using CraftDailyCorner.Areas.Admin.ViewModels.Violation;
-using CraftDailyCorner.Extensions;
+﻿using CraftDailyCorner.Extensions;
 using CraftDailyCorner.Services.Interface;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -38,15 +37,20 @@ namespace CraftDailyCorner.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> MarkViolation(int id, string? adminNote)
         {
+            var adminMemberId = User.GetMemberId();
+            if (string.IsNullOrWhiteSpace(adminMemberId))
+                return Unauthorized();
+
             try
             {
-                await _service.MarkViolationAsync(id, User.GetMemberId(), adminNote);
+                await _service.MarkViolationAsync(id, adminMemberId, adminNote);
                 TempData["Danger"] = "已判定為違規，並已更新目標狀態。";
             }
             catch (ValidationException ex)
             {
                 TempData["Warning"] = ex.Message;
             }
+
             return RedirectToAction(nameof(Detail), new { id });
         }
 
@@ -55,6 +59,8 @@ namespace CraftDailyCorner.Areas.Admin.Controllers
         public async Task<IActionResult> MarkNormal(long id, string? adminNote, bool isMalicious = false)
         {
             var adminMemberId = User.GetMemberId();
+            if (string.IsNullOrWhiteSpace(adminMemberId))
+                return Unauthorized();
 
             await _service.MarkNormalAsync(id, adminMemberId, adminNote, isMalicious);
 
@@ -69,7 +75,11 @@ namespace CraftDailyCorner.Areas.Admin.Controllers
         [HttpGet]
         public async Task<IActionResult> Next(long id)
         {
-            var nextId = await _service.GetNextPendingIdAsync(id, User.GetMemberId());
+            var adminMemberId = User.GetMemberId();
+            if (string.IsNullOrWhiteSpace(adminMemberId))
+                return Unauthorized();
+
+            var nextId = await _service.GetNextPendingIdAsync(id, adminMemberId);
 
             if (nextId.HasValue)
                 return RedirectToAction(nameof(Detail), new { id = nextId.Value });

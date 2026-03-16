@@ -20,14 +20,18 @@ public class ProductImageController : Controller
         string productId,
         List<IFormFile> files)
     {
+        var creatorId = User.GetCreatorId();
+        if (string.IsNullOrWhiteSpace(creatorId))
+            return Unauthorized();
+
         await _service.UploadAsync(
             productId,
-            User.GetCreatorId(),
+            creatorId,
             files);
 
         var images = await _service.GetImagesAsync(
             productId,
-            User.GetCreatorId());
+            creatorId);
 
         return PartialView("_ProductImageListPartial", images);
     }
@@ -37,11 +41,12 @@ public class ProductImageController : Controller
     public async Task<IActionResult> Delete(long imageId)
     {
         var creatorId = User.GetCreatorId();
+        if (string.IsNullOrWhiteSpace(creatorId))
+            return Unauthorized();
 
         var productId = await _service.DeleteAsync(imageId, creatorId);
 
-        var images = await _service
-            .GetImagesAsync(productId, creatorId);
+        var images = await _service.GetImagesAsync(productId, creatorId);
 
         return PartialView("_ProductImageListPartial", images);
     }
@@ -51,9 +56,11 @@ public class ProductImageController : Controller
     public async Task<IActionResult> UpdateSort(
         [FromBody] List<ImageSortDTO> items)
     {
-        await _service.UpdateSortBatchAsync(
-            items,
-            User.GetCreatorId());
+        var creatorId = User.GetCreatorId();
+        if (string.IsNullOrWhiteSpace(creatorId))
+            return Unauthorized();
+
+        await _service.UpdateSortBatchAsync(items, creatorId);
 
         return Ok();
     }

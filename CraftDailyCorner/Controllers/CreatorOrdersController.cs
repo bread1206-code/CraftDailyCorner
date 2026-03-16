@@ -22,17 +22,29 @@ public class CreatorOrdersController : Controller
         _shipmentService = shipmentService;
     }
 
-    private string CreatorId => User.GetCreatorId();
+    private string GetRequiredCreatorId()
+    {
+        var creatorId = User.GetCreatorId();
+
+        if (string.IsNullOrWhiteSpace(creatorId))
+            throw new UnauthorizedAccessException("找不到創作者身分");
+
+        return creatorId;
+    }
 
     public async Task<IActionResult> Index(string status = "new", int page = 1)
     {
-        var vm = await _orderService.GetOrdersAsync(CreatorId, status, page);
+        var creatorId = GetRequiredCreatorId();
+
+        var vm = await _orderService.GetOrdersAsync(creatorId, status, page);
         return View(vm);
     }
 
     public async Task<IActionResult> Detail(string id)
     {
-        var vm = await _orderService.GetOrderDetailAsync(CreatorId, id);
+        var creatorId = GetRequiredCreatorId();
+
+        var vm = await _orderService.GetOrderDetailAsync(creatorId, id);
 
         if (vm == null)
             return NotFound();
@@ -48,7 +60,9 @@ public class CreatorOrdersController : Controller
     [HttpPost]
     public async Task<IActionResult> StartProcessing(string id)
     {
-        var success = await _orderService.StartProcessingAsync(CreatorId, id);
+        var creatorId = GetRequiredCreatorId();
+
+        var success = await _orderService.StartProcessingAsync(creatorId, id);
 
         if (!success)
             return NotFound();
@@ -60,13 +74,15 @@ public class CreatorOrdersController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Ship(string orderId, string trackingNo)
     {
+        var creatorId = GetRequiredCreatorId();
+
         if (string.IsNullOrWhiteSpace(trackingNo))
         {
             TempData["Error"] = "請輸入物流編號";
             return RedirectToAction(nameof(Detail), new { id = orderId });
         }
 
-        var result = await _orderService.ShipAndGetNextAsync(CreatorId, orderId, trackingNo);
+        var result = await _orderService.ShipAndGetNextAsync(creatorId, orderId, trackingNo);
 
         if (!result.Success)
         {
@@ -84,7 +100,9 @@ public class CreatorOrdersController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> MarkDelivered(string orderId)
     {
-        var success = await _orderService.MarkDeliveredAsync(CreatorId, orderId);
+        var creatorId = GetRequiredCreatorId();
+
+        var success = await _orderService.MarkDeliveredAsync(creatorId, orderId);
 
         TempData[success ? "Success" : "Error"] = success
             ? "已更新為商品送達"
@@ -96,7 +114,9 @@ public class CreatorOrdersController : Controller
     [HttpPost]
     public async Task<IActionResult> BatchPrint(List<string> SelectedOrderIDs)
     {
-        var vm = await _pickListService.GeneratePickListPreviewAsync(CreatorId, SelectedOrderIDs);
+        var creatorId = GetRequiredCreatorId();
+
+        var vm = await _pickListService.GeneratePickListPreviewAsync(creatorId, SelectedOrderIDs);
 
         if (vm == null)
             return RedirectToAction(nameof(Index), new { status = "new" });
@@ -109,6 +129,8 @@ public class CreatorOrdersController : Controller
     [HttpPost]
     public async Task<IActionResult> ConfirmPrint()
     {
+        var creatorId = GetRequiredCreatorId();
+
         if (TempData["PickListOrderIDs"] == null)
             return RedirectToAction(nameof(Index), new { status = "new" });
 
@@ -117,7 +139,7 @@ public class CreatorOrdersController : Controller
             .Split(',')
             .ToList();
 
-        await _pickListService.ConfirmPrintAsync(CreatorId, orderIds);
+        await _pickListService.ConfirmPrintAsync(creatorId, orderIds);
 
         return RedirectToAction(nameof(Index), new { status = "processing" });
     }

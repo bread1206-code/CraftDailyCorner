@@ -24,6 +24,6 @@ namespace CraftDailyCorner.Models
         public DateTime UpdatedAt { get; set; }
 
         public virtual Product Product { get; set; } = null!;
-        public virtual List<InventoryAlert>? InventoryAlerts { get; set; }
+        public virtual List<InventoryAlert> InventoryAlerts { get; set; } = new List<InventoryAlert>();
     }
 }

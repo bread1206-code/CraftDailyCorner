@@ -27,7 +27,7 @@ namespace CraftDailyCorner.ViewModels.CreatorPortfolio.Front
 
         public CreatorVisibility Visibility { get; set; }
 
-        public VMReactionButton ReactionSummary { get; set; } = new VMReactionButton();
+        public VMReactionButton? ReactionSummary { get; set; }
 
         public string CoverImagePath =>
             string.IsNullOrEmpty(CoverImageUrl)

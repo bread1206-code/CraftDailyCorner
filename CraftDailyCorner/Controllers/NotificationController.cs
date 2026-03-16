@@ -29,6 +29,9 @@ namespace CraftDailyCorner.Controllers
             NotificationFilterType filterType = NotificationFilterType.All)
         {
             var memberId = User.GetMemberId();
+            if (string.IsNullOrWhiteSpace(memberId))
+                return Unauthorized();
+
             var vm = await _notificationService.GetPagedAsync(memberId, page, 10, unreadOnly, filterType);
 
             return View(vm);
@@ -39,6 +42,8 @@ namespace CraftDailyCorner.Controllers
         public async Task<IActionResult> MarkAsRead(long id)
         {
             var memberId = User.GetMemberId();
+            if (string.IsNullOrWhiteSpace(memberId))
+                return Unauthorized();
 
             var ok = await _notificationService.MarkAsReadAsync(id, memberId);
 
@@ -54,6 +59,8 @@ namespace CraftDailyCorner.Controllers
         public async Task<IActionResult> MarkAllAsRead()
         {
             var memberId = User.GetMemberId();
+            if (string.IsNullOrWhiteSpace(memberId))
+                return Unauthorized();
 
             await _notificationService.MarkAllAsReadAsync(memberId);
 
@@ -66,6 +73,9 @@ namespace CraftDailyCorner.Controllers
         public IActionResult Preferences()
         {
             var memberId = User.GetMemberId();
+            if (string.IsNullOrWhiteSpace(memberId))
+                return Unauthorized();
+
             var vm = _notificationPreferenceService.GetPreference(memberId);
 
             return View(vm);
@@ -76,10 +86,12 @@ namespace CraftDailyCorner.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Preferences(VMNotificationPreference vm)
         {
+            var memberId = User.GetMemberId();
+            if (string.IsNullOrWhiteSpace(memberId))
+                return Unauthorized();
+
             if (!ModelState.IsValid)
                 return View(vm);
-
-            var memberId = User.GetMemberId();
 
             _notificationPreferenceService.UpdatePreference(memberId, vm);
 

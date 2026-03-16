@@ -16,7 +16,7 @@ namespace CraftDailyCorner.Services
             _context = context;
         }
 
-        //社群經營儀表板
+        // 社群經營儀表板
         public async Task<VMCommunityDashboard> GetCommunityDashboardAsync(string creatorId)
         {
             var now = DateTime.Now;
@@ -123,7 +123,8 @@ namespace CraftDailyCorner.Services
             var postMonthlyRaw = await postsQuery
                 .GroupBy(p => new { p.CreatedAt.Year, p.CreatedAt.Month })
                 .Select(g => new { g.Key.Year, g.Key.Month, PostCount = g.Count() })
-                .OrderBy(g => g.Year).ThenBy(g => g.Month)
+                .OrderBy(g => g.Year)
+                .ThenBy(g => g.Month)
                 .ToListAsync();
 
             dashboard.ContentAnalysis = new VMCommunityContentAnalysis
@@ -140,7 +141,7 @@ namespace CraftDailyCorner.Services
                     .ToList()
             };
 
-            // ===== Portfolio Analysis（新增）=====
+            // ===== Portfolio Analysis =====
             var portfoliosLastMonth = await portfoliosQuery
                 .Where(p => p.CreatedAt >= firstDayLastMonth && p.CreatedAt < firstDayThisMonth)
                 .CountAsync();
@@ -152,7 +153,8 @@ namespace CraftDailyCorner.Services
             var portfolioMonthlyRaw = await portfoliosQuery
                 .GroupBy(p => new { p.CreatedAt.Year, p.CreatedAt.Month })
                 .Select(g => new { g.Key.Year, g.Key.Month, PortfolioCount = g.Count() })
-                .OrderBy(g => g.Year).ThenBy(g => g.Month)
+                .OrderBy(g => g.Year)
+                .ThenBy(g => g.Month)
                 .ToListAsync();
 
             dashboard.PortfolioAnalysis = new VMCommunityPortfolioAnalysis
@@ -181,7 +183,8 @@ namespace CraftDailyCorner.Services
             var commentMonthlyRaw = await commentsQuery
                 .GroupBy(c => new { c.CreatedAt.Year, c.CreatedAt.Month })
                 .Select(g => new { g.Key.Year, g.Key.Month, CommentCount = g.Count() })
-                .OrderBy(g => g.Year).ThenBy(g => g.Month)
+                .OrderBy(g => g.Year)
+                .ThenBy(g => g.Month)
                 .ToListAsync();
 
             var topCommentPosts = await postsQuery
@@ -189,7 +192,7 @@ namespace CraftDailyCorner.Services
                 {
                     PostID = p.PostID,
                     Title = p.Title,
-                    CommentCount = p.PostComments.Count(),
+                    CommentCount = _context.PostComments.Count(c => c.PostID == p.PostID),
                     CreatedAt = p.CreatedAt
                 })
                 .OrderByDescending(x => x.CommentCount)
@@ -211,7 +214,7 @@ namespace CraftDailyCorner.Services
                 TopCommentPosts = topCommentPosts
             };
 
-            // ===== Reaction Analysis（新增：趨勢 + 成長率 + Top內容）=====
+            // ===== Reaction Analysis（趨勢 + 成長率 + Top內容）=====
             var reactionsLastMonth = await allReactionsQuery
                 .Where(r => r.CreatedAt >= firstDayLastMonth && r.CreatedAt < firstDayThisMonth)
                 .CountAsync();
@@ -223,10 +226,10 @@ namespace CraftDailyCorner.Services
             var reactionMonthlyRaw = await allReactionsQuery
                 .GroupBy(r => new { r.CreatedAt.Year, r.CreatedAt.Month })
                 .Select(g => new { g.Key.Year, g.Key.Month, ReactionCount = g.Count() })
-                .OrderBy(g => g.Year).ThenBy(g => g.Month)
+                .OrderBy(g => g.Year)
+                .ThenBy(g => g.Month)
                 .ToListAsync();
 
-            // Top Reacted Posts
             var topReactedPosts = await postReactionsQuery
                 .GroupBy(r => r.TargetID)
                 .Select(g => new
@@ -250,7 +253,6 @@ namespace CraftDailyCorner.Services
                 )
                 .ToListAsync();
 
-            // Top Reacted Portfolios
             var topReactedPortfolios = await portfolioReactionsQuery
                 .GroupBy(r => r.TargetID)
                 .Select(g => new
@@ -292,7 +294,8 @@ namespace CraftDailyCorner.Services
 
             return dashboard;
         }
-        //電商銷售儀表板
+
+        // 電商銷售儀表板
         public async Task<VMCommerceDashboard> GetCommerceDashboardAsync(string creatorId)
         {
             var now = DateTime.Now;
@@ -305,23 +308,29 @@ namespace CraftDailyCorner.Services
                 .Where(od => od.Product.CreatorID == creatorId);
 
             // ===== 本月 / 上月 KPI =====
-            var thisMonthQuery = orderQuery.Where(od => od.Order.CreatedAt >= firstDayThisMonth);
-            var lastMonthQuery = orderQuery.Where(od => od.Order.CreatedAt >= firstDayLastMonth &&
-                                                       od.Order.CreatedAt < firstDayThisMonth);
+            var thisMonthQuery = orderQuery
+                .Where(od => od.Order.CreatedAt >= firstDayThisMonth);
 
-            // Orders（distinct order id）
-            var thisMonthOrders = await thisMonthQuery.Select(x => x.OrderID).Distinct().CountAsync();
-            var lastMonthOrders = await lastMonthQuery.Select(x => x.OrderID).Distinct().CountAsync();
+            var lastMonthQuery = orderQuery
+                .Where(od => od.Order.CreatedAt >= firstDayLastMonth &&
+                             od.Order.CreatedAt < firstDayThisMonth);
 
-            // Quantity（sum）
+            var thisMonthOrders = await thisMonthQuery
+                .Select(x => x.OrderID)
+                .Distinct()
+                .CountAsync();
+
+            var lastMonthOrders = await lastMonthQuery
+                .Select(x => x.OrderID)
+                .Distinct()
+                .CountAsync();
+
             var thisMonthQty = await thisMonthQuery.SumAsync(x => (int?)x.Quantity) ?? 0;
             var lastMonthQty = await lastMonthQuery.SumAsync(x => (int?)x.Quantity) ?? 0;
 
-            // Revenue（sum qty * price）
-            var thisMonthRevenue = await thisMonthQuery.SumAsync(x => (decimal?)x.Quantity * x.Product.Price) ?? 0;
-            var lastMonthRevenue = await lastMonthQuery.SumAsync(x => (decimal?)x.Quantity * x.Product.Price) ?? 0;
+            var thisMonthRevenue = await thisMonthQuery.SumAsync(x => (decimal?)x.Quantity * x.PriceSnapshot) ?? 0;
+            var lastMonthRevenue = await lastMonthQuery.SumAsync(x => (decimal?)x.Quantity * x.PriceSnapshot) ?? 0;
 
-            // AOV（本月）
             var aov = thisMonthOrders > 0 ? thisMonthRevenue / thisMonthOrders : 0;
 
             dashboard.Overview = new VMCommerceOverview
@@ -354,9 +363,10 @@ namespace CraftDailyCorner.Services
                 {
                     g.Key.Year,
                     g.Key.Month,
-                    Revenue = g.Sum(x => x.Quantity * x.Product.Price)
+                    Revenue = g.Sum(x => x.Quantity * x.PriceSnapshot)
                 })
-                .OrderBy(x => x.Year).ThenBy(x => x.Month)
+                .OrderBy(x => x.Year)
+                .ThenBy(x => x.Month)
                 .ToListAsync();
 
             var revenueTrend = revenueRaw
@@ -373,7 +383,7 @@ namespace CraftDailyCorner.Services
                 MonthlyGrowthRate = CalculateGrowth(thisMonthRevenue, lastMonthRevenue)
             };
 
-            // ===== 月訂單趨勢（新增）=====
+            // ===== 月訂單趨勢 =====
             var orderRaw = await orderQuery
                 .GroupBy(x => new { x.Order.CreatedAt.Year, x.Order.CreatedAt.Month })
                 .Select(g => new
@@ -382,7 +392,8 @@ namespace CraftDailyCorner.Services
                     g.Key.Month,
                     OrderCount = g.Select(x => x.OrderID).Distinct().Count()
                 })
-                .OrderBy(x => x.Year).ThenBy(x => x.Month)
+                .OrderBy(x => x.Year)
+                .ThenBy(x => x.Month)
                 .ToListAsync();
 
             dashboard.OrderTrend = new VMCommerceOrderTrend
@@ -404,7 +415,7 @@ namespace CraftDailyCorner.Services
                     ProductID = g.Key.ProductID,
                     ProductName = g.Key.ProductName,
                     QuantitySold = g.Sum(x => x.Quantity),
-                    Revenue = g.Sum(x => x.Quantity * x.Product.Price)
+                    Revenue = g.Sum(x => x.Quantity * x.PriceSnapshot)
                 })
                 .OrderByDescending(x => x.Revenue)
                 .Take(5)
@@ -417,7 +428,7 @@ namespace CraftDailyCorner.Services
                     ProductID = g.Key.ProductID,
                     ProductName = g.Key.ProductName,
                     QuantitySold = g.Sum(x => x.Quantity),
-                    Revenue = g.Sum(x => x.Quantity * x.Product.Price)
+                    Revenue = g.Sum(x => x.Quantity * x.PriceSnapshot)
                 })
                 .OrderByDescending(x => x.QuantitySold)
                 .Take(5)

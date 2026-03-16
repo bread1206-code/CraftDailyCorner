@@ -77,8 +77,8 @@ namespace CraftDailyCorner.Services
                     Visibility = p.Visibility,
                     CreatedAt = p.CreatedAt,
                     UpdatedAt = p.UpdatedAt,
-                    CommentCount = p.PostComments
-                        .Count(c => c.Status == PostCommentStatus.Visible),
+                    CommentCount = _context.PostComments
+                        .Count(c => c.PostID == p.PostID && c.Status == PostCommentStatus.Visible),
 
                     ReactionSummary = new CraftDailyCorner.ViewModels.Reaction.VMReactionButton
                     {
@@ -223,12 +223,12 @@ namespace CraftDailyCorner.Services
                     PostID = p.PostID,
                     Title = p.Title,
                     ImageUrl = p.ImageUrl,
-                    CreatorID=p.CreatorProfile.CreatorID,
+                    CreatorID = p.CreatorProfile.CreatorID,
                     Visibility = p.Visibility,
                     CreatedAt = p.CreatedAt,
                     UpdatedAt = p.UpdatedAt,
-                    CommentCount = p.PostComments
-                        .Count(c => c.Status == PostCommentStatus.Visible)
+                    CommentCount = _context.PostComments
+                        .Count(c => c.PostID == p.PostID && c.Status == PostCommentStatus.Visible)
                 })
                 .ToListAsync();
         }

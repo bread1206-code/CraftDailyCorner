@@ -5,7 +5,7 @@ namespace CraftDailyCorner.ViewModels.Reaction
     public class VMReactionButton
     {
         public ReactionTargetType TargetType { get; set; }
-        public string TargetID { get; set; }
+        public required string TargetID { get; set; }
 
         // 使用者自己的狀態（留言右側按鈕高亮用）
         public ReactionType? UserReactionType { get; set; }

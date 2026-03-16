@@ -21,7 +21,7 @@ namespace CraftDailyCorner.Models
         [Display(Name = "是否啟用")]
         public bool IsActive { get; set; }
 
-        public virtual List<Report>? Reports { get; set; }
+        public virtual List<Report> Reports { get; set; } = new List<Report>();
 
     }
 }

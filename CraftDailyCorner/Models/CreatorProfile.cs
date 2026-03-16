@@ -57,12 +57,12 @@ namespace CraftDailyCorner.Models
         // 導覽屬性
         [Display(Name = "會員")]
         public virtual Member Member { get; set; } = null!;
-        public virtual List<Product>? Products { get; set; }
-        public virtual List<AutoReplyTemplate>? AutoReplyTemplates { get; set; }
-        public virtual List<CreatorPost>? CreatorPosts { get; set; }
-        public virtual List<Portfolio>? Portfolios { get; set; }
-        public virtual List<FollowCreator>? FollowCreators { get; set; }
-        public virtual List<MessageThread>? MessageThreads { get; set; }
+        public virtual List<Product> Products { get; set; } = new List<Product>();
+        public virtual List<AutoReplyTemplate> AutoReplyTemplates { get; set; } = new List<AutoReplyTemplate>();
+        public virtual List<CreatorPost> CreatorPosts { get; set; } = new List<CreatorPost>();
+        public virtual List<Portfolio> Portfolios { get; set; } = new List<Portfolio>();
+        public virtual List<FollowCreator> FollowCreators { get; set; } = new List<FollowCreator>();
+        public virtual List<MessageThread> MessageThreads { get; set; } = new List<MessageThread>();
         public virtual CreatorProfileStatus? CreatorProfileStatus { get; set; }
     }
 }

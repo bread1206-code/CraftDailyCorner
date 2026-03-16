@@ -31,8 +31,7 @@ namespace CraftDailyCorner.Controllers.Front
                 ? User.GetMemberId()
                 : null;
 
-            var vm = await _portfolioService
-                .GetPortfolioIndexAsync(query, currentMemberId);
+            var vm = await _portfolioService.GetPortfolioIndexAsync(query, currentMemberId);
 
             return View(vm);
         }
@@ -44,14 +43,12 @@ namespace CraftDailyCorner.Controllers.Front
                 ? User.GetMemberId()
                 : null;
 
-            var canView = await _portfolioService
-                .CanViewPortfolioAsync(id, currentMemberId);
+            var canView = await _portfolioService.CanViewPortfolioAsync(id, currentMemberId);
 
             if (!canView)
                 return Forbid();
 
-            var vm = await _portfolioService
-                .GetPublicPortfolioDetailAsync(id, currentMemberId);
+            var vm = await _portfolioService.GetPublicPortfolioDetailAsync(id, currentMemberId);
 
             if (vm == null)
                 return NotFound();
@@ -64,8 +61,10 @@ namespace CraftDailyCorner.Controllers.Front
         public async Task<IActionResult> List()
         {
             var creatorId = User.GetCreatorId();
-            var portfolios = await _portfolioService
-                .GetCreatorPortfoliosAsync(creatorId);
+            if (string.IsNullOrWhiteSpace(creatorId))
+                return Unauthorized();
+
+            var portfolios = await _portfolioService.GetCreatorPortfoliosAsync(creatorId);
 
             return View(portfolios);
         }
@@ -82,6 +81,10 @@ namespace CraftDailyCorner.Controllers.Front
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(VMCreatorPortfolioCreate vm)
         {
+            var creatorId = User.GetCreatorId();
+            if (string.IsNullOrWhiteSpace(creatorId))
+                return Unauthorized();
+
             if (!ModelState.IsValid)
                 return View(vm);
 
@@ -92,8 +95,8 @@ namespace CraftDailyCorner.Controllers.Front
                     Description = vm.Description ?? "",
                     Visibility = vm.Visibility
                 },
-                User.GetCreatorId(),
-                vm.Files
+                creatorId,
+                vm.Files ?? new List<IFormFile>()
             );
 
             return RedirectToAction(nameof(List));
@@ -103,11 +106,14 @@ namespace CraftDailyCorner.Controllers.Front
         [Authorize(Roles = "02")]
         public async Task<IActionResult> Edit(string id)
         {
-            var vm = await _portfolioService
-                .GetEditDataAsync(id, User.GetCreatorId());
+            var creatorId = User.GetCreatorId();
+            if (string.IsNullOrWhiteSpace(creatorId))
+                return Unauthorized();
+
+            var vm = await _portfolioService.GetEditDataAsync(id, creatorId);
 
             if (vm == null)
-                return NotFound("123");
+                return NotFound();
 
             return View(vm);
         }
@@ -117,6 +123,10 @@ namespace CraftDailyCorner.Controllers.Front
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(VMCreatorPortfolioEdit vm)
         {
+            var creatorId = User.GetCreatorId();
+            if (string.IsNullOrWhiteSpace(creatorId))
+                return Unauthorized();
+
             var errors = ModelState.Values
                 .SelectMany(v => v.Errors)
                 .Select(e => e.ErrorMessage)
@@ -133,7 +143,7 @@ namespace CraftDailyCorner.Controllers.Front
                     Description = vm.Description ?? "",
                     Visibility = vm.Visibility
                 },
-                User.GetCreatorId()
+                creatorId
             );
 
             return RedirectToAction(nameof(List));
@@ -145,8 +155,11 @@ namespace CraftDailyCorner.Controllers.Front
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(string id)
         {
-            await _portfolioService
-                .SoftDeleteAsync(id, User.GetCreatorId());
+            var creatorId = User.GetCreatorId();
+            if (string.IsNullOrWhiteSpace(creatorId))
+                return Unauthorized();
+
+            await _portfolioService.SoftDeleteAsync(id, creatorId);
 
             return RedirectToAction(nameof(List));
         }

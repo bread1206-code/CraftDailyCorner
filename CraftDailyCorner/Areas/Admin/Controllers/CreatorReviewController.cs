@@ -37,7 +37,11 @@ namespace CraftDailyCorner.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Approve(int id, string? reviewNote)
         {
-            await _reviewService.ApproveAsync(id, User.GetMemberId(), reviewNote);
+            var adminMemberId = User.GetMemberId();
+            if (string.IsNullOrWhiteSpace(adminMemberId))
+                return Unauthorized();
+
+            await _reviewService.ApproveAsync(id, adminMemberId, reviewNote);
             TempData["Success"] = "已通過創作者申請。";
             return RedirectToAction(nameof(Detail), new { id });
         }
@@ -46,7 +50,11 @@ namespace CraftDailyCorner.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Reject(int id, string reviewNote)
         {
-            await _reviewService.RejectAsync(id, User.GetMemberId(), reviewNote);
+            var adminMemberId = User.GetMemberId();
+            if (string.IsNullOrWhiteSpace(adminMemberId))
+                return Unauthorized();
+
+            await _reviewService.RejectAsync(id, adminMemberId, reviewNote);
             TempData["Warning"] = "已駁回創作者申請。";
             return RedirectToAction(nameof(Detail), new { id });
         }
@@ -56,13 +64,14 @@ namespace CraftDailyCorner.Areas.Admin.Controllers
         public async Task<IActionResult> Next(int id)
         {
             var adminMemberId = User.GetMemberId();
+            if (string.IsNullOrWhiteSpace(adminMemberId))
+                return Unauthorized();
 
             var nextId = await _reviewService.GetNextPendingIdAsync(id, adminMemberId);
 
             if (nextId.HasValue)
                 return RedirectToAction(nameof(Detail), new { id = nextId.Value });
 
-            // 沒有下一筆 -> 回列表
             return RedirectToAction(nameof(Index));
         }
     }

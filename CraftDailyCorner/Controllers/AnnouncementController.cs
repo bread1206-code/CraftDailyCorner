@@ -18,6 +18,9 @@ namespace CraftDailyCorner.Controllers
         public async Task<IActionResult> Index()
         {
             var memberId = User.GetMemberId();
+            if (string.IsNullOrWhiteSpace(memberId))
+                return Unauthorized();
+
             var isCreator = User.IsInRole("02");
             var isAdmin = User.IsInRole("03") || User.IsInRole("04");
 
@@ -28,6 +31,9 @@ namespace CraftDailyCorner.Controllers
         public async Task<IActionResult> Detail(int id)
         {
             var memberId = User.GetMemberId();
+            if (string.IsNullOrWhiteSpace(memberId))
+                return Unauthorized();
+
             var isCreator = User.IsInRole("02");
             var isAdmin = User.IsInRole("03") || User.IsInRole("04");
 

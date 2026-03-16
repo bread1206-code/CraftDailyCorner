@@ -14,7 +14,7 @@ namespace CraftDailyCorner.ViewModels.CreatorPortfolio.Front
 
         public List<VMPortfolioDetailItem> Items { get; set; } = new();
 
-        public VMReactionButton ReactionButton { get; set; } = new VMReactionButton();
+        public VMReactionButton? ReactionButton { get; set; }
 
         public bool IsReportBanned { get; set; }
         public DateTime? ReportBanUntil { get; set; }

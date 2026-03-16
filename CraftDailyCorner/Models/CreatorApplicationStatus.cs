@@ -18,6 +18,6 @@ namespace CraftDailyCorner.Models
         public string? Description { get; set; }
         [Display(Name = "是否啟用")]
         public bool IsActive { get; set; }
-        public virtual List<CreatorApplication>? CreatorApplications { get; set; }
+        public virtual List<CreatorApplication> CreatorApplications { get; set; } = new List<CreatorApplication>();
     }
 }

@@ -36,6 +36,9 @@ public class ImageManagementController : Controller
         List<IFormFile> files)
     {
         var creatorId = User.GetCreatorId();
+        if (string.IsNullOrWhiteSpace(creatorId))
+            return Unauthorized();
+
         var service = GetService(entityType);
 
         foreach (var file in files)
@@ -56,9 +59,12 @@ public class ImageManagementController : Controller
         string entityType,
         long imageId)
     {
+        var creatorId = User.GetCreatorId();
+        if (string.IsNullOrWhiteSpace(creatorId))
+            return Unauthorized();
+
         try
         {
-            var creatorId = User.GetCreatorId();
             var service = GetService(entityType);
 
             await service.DeleteWithValidationAsync(imageId, creatorId);
@@ -82,6 +88,9 @@ public class ImageManagementController : Controller
         List<long> orderedIds)
     {
         var creatorId = User.GetCreatorId();
+        if (string.IsNullOrWhiteSpace(creatorId))
+            return Unauthorized();
+
         var service = GetService(entityType);
 
         await service.UpdateSortWithValidationAsync(entityId, orderedIds, creatorId);
