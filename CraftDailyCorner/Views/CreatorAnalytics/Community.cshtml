@@ -1,8 +1,14 @@
 ﻿@model CraftDailyCorner.ViewModels.CreatorAnalytics.Community.VMCommunityDashboard
-@using System.Text.Json
 
 @{
     ViewData["Title"] = "社群經營分析";
+
+    var now = DateTime.Now;
+    var currentYear = now.Year;
+    var currentMonth = now.Month;
+
+    var yearOptions = Model.FilterOptions.AvailableYears;
+    var monthOptions = Model.FilterOptions.AvailableMonths;
 }
 
 <div class="container-fluid py-4">
@@ -16,8 +22,8 @@
 
         <div>
             <a asp-controller="Creator"
-               asp-action="Dashboard"
-               class="btn btn-outline-secondary">
+                   asp-action="Dashboard"
+                   class="btn btn-outline-secondary">
                 回創作者中心
             </a>
         </div>
@@ -71,14 +77,91 @@
     </div>
 
     <!-- 發文趨勢 -->
-    <div class="card shadow-sm border-0 mb-5">
+    <div class="card shadow-sm border-0 mb-5 js-community-chart-card"
+         data-chart-key="post"
+         data-api-url="@Url.Action("GetCommunityPostTrend", "CreatorAnalytics")"
+         data-default-mode="year"
+         data-value-type="count">
         <div class="card-body">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <h5 class="fw-bold mb-0">發文趨勢</h5>
-                <span class="badge bg-primary">
-                    成長率 @Model.ContentAnalysis.MonthlyGrowthRate.ToString("P")
-                </span>
+
+            <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 mb-3">
+                <div>
+                    <div class="d-flex align-items-center gap-2 flex-wrap">
+                        <h5 class="fw-bold mb-0">發文趨勢</h5>
+                        <span class="badge bg-primary js-growth-badge">
+                            成長率 @Model.ContentAnalysis.MonthlyGrowthRate.ToString("P")
+                        </span>
+                    </div>
+                    <small class="text-muted js-range-text">@currentYear 年</small>
+                </div>
+
+                <div class="d-flex flex-column flex-md-row gap-2 align-items-md-center">
+
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-outline-primary btn-sm js-mode-btn active" data-mode="year">
+                            年度
+                        </button>
+                        <button type="button" class="btn btn-outline-primary btn-sm js-mode-btn" data-mode="rolling12">
+                            近12個月
+                        </button>
+                        <button type="button" class="btn btn-outline-primary btn-sm js-mode-btn" data-mode="month">
+                            單月
+                        </button>
+                    </div>
+
+                    <div class="js-filter-year">
+                        <select class="form-select form-select-sm js-year-select">
+                            @foreach (var y in yearOptions)
+                            {
+                                if (y == currentYear)
+                                {
+                                    <option value="@y" selected>@y 年</option>
+                                }
+                                else
+                                {
+                                    <option value="@y">@y 年</option>
+                                }
+                            }
+                        </select>
+                    </div>
+
+                    <div class="js-filter-rolling12 d-none">
+                        <select class="form-select form-select-sm js-rolling12-select">
+                            @foreach (var item in monthOptions)
+                            {
+                                if (item.Year == currentYear && item.Month == currentMonth)
+                                {
+                                    <option value="@item.Value" selected>@item.Text</option>
+                                }
+                                else
+                                {
+                                    <option value="@item.Value">@item.Text</option>
+                                }
+                            }
+                        </select>
+                    </div>
+
+                    <div class="js-filter-month d-none">
+                        <select class="form-select form-select-sm js-month-select">
+                            @foreach (var item in monthOptions)
+                            {
+                                if (item.Year == currentYear && item.Month == currentMonth)
+                                {
+                                    <option value="@item.Value" selected>@item.Text</option>
+                                }
+                                else
+                                {
+                                    <option value="@item.Value">@item.Text</option>
+                                }
+                            }
+                        </select>
+                    </div>
+
+                </div>
             </div>
+
+            <div class="text-muted small mb-2 js-loading-text d-none">載入中...</div>
+
             <div style="height:320px;">
                 <canvas id="postTrendChart"></canvas>
             </div>
@@ -86,14 +169,91 @@
     </div>
 
     <!-- 作品集趨勢 -->
-    <div class="card shadow-sm border-0 mb-5">
+    <div class="card shadow-sm border-0 mb-5 js-community-chart-card"
+         data-chart-key="portfolio"
+         data-api-url="@Url.Action("GetCommunityPortfolioTrend", "CreatorAnalytics")"
+         data-default-mode="year"
+         data-value-type="count">
         <div class="card-body">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <h5 class="fw-bold mb-0">作品集趨勢</h5>
-                <span class="badge bg-secondary">
-                    成長率 @Model.PortfolioAnalysis.MonthlyGrowthRate.ToString("P")
-                </span>
+
+            <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 mb-3">
+                <div>
+                    <div class="d-flex align-items-center gap-2 flex-wrap">
+                        <h5 class="fw-bold mb-0">作品集趨勢</h5>
+                        <span class="badge bg-secondary js-growth-badge">
+                            成長率 @Model.PortfolioAnalysis.MonthlyGrowthRate.ToString("P")
+                        </span>
+                    </div>
+                    <small class="text-muted js-range-text">@currentYear 年</small>
+                </div>
+
+                <div class="d-flex flex-column flex-md-row gap-2 align-items-md-center">
+
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-outline-primary btn-sm js-mode-btn active" data-mode="year">
+                            年度
+                        </button>
+                        <button type="button" class="btn btn-outline-primary btn-sm js-mode-btn" data-mode="rolling12">
+                            近12個月
+                        </button>
+                        <button type="button" class="btn btn-outline-primary btn-sm js-mode-btn" data-mode="month">
+                            單月
+                        </button>
+                    </div>
+
+                    <div class="js-filter-year">
+                        <select class="form-select form-select-sm js-year-select">
+                            @foreach (var y in yearOptions)
+                            {
+                                if (y == currentYear)
+                                {
+                                    <option value="@y" selected>@y 年</option>
+                                }
+                                else
+                                {
+                                    <option value="@y">@y 年</option>
+                                }
+                            }
+                        </select>
+                    </div>
+
+                    <div class="js-filter-rolling12 d-none">
+                        <select class="form-select form-select-sm js-rolling12-select">
+                            @foreach (var item in monthOptions)
+                            {
+                                if (item.Year == currentYear && item.Month == currentMonth)
+                                {
+                                    <option value="@item.Value" selected>@item.Text</option>
+                                }
+                                else
+                                {
+                                    <option value="@item.Value">@item.Text</option>
+                                }
+                            }
+                        </select>
+                    </div>
+
+                    <div class="js-filter-month d-none">
+                        <select class="form-select form-select-sm js-month-select">
+                            @foreach (var item in monthOptions)
+                            {
+                                if (item.Year == currentYear && item.Month == currentMonth)
+                                {
+                                    <option value="@item.Value" selected>@item.Text</option>
+                                }
+                                else
+                                {
+                                    <option value="@item.Value">@item.Text</option>
+                                }
+                            }
+                        </select>
+                    </div>
+
+                </div>
             </div>
+
+            <div class="text-muted small mb-2 js-loading-text d-none">載入中...</div>
+
             <div style="height:320px;">
                 <canvas id="portfolioTrendChart"></canvas>
             </div>
@@ -101,14 +261,91 @@
     </div>
 
     <!-- 留言趨勢 -->
-    <div class="card shadow-sm border-0 mb-5">
+    <div class="card shadow-sm border-0 mb-5 js-community-chart-card"
+         data-chart-key="comment"
+         data-api-url="@Url.Action("GetCommunityCommentTrend", "CreatorAnalytics")"
+         data-default-mode="year"
+         data-value-type="count">
         <div class="card-body">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <h5 class="fw-bold mb-0">留言趨勢</h5>
-                <span class="badge bg-info">
-                    成長率 @Model.InteractionAnalysis.CommentGrowthRate.ToString("P")
-                </span>
+
+            <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 mb-3">
+                <div>
+                    <div class="d-flex align-items-center gap-2 flex-wrap">
+                        <h5 class="fw-bold mb-0">留言趨勢</h5>
+                        <span class="badge bg-info js-growth-badge">
+                            成長率 @Model.InteractionAnalysis.CommentGrowthRate.ToString("P")
+                        </span>
+                    </div>
+                    <small class="text-muted js-range-text">@currentYear 年</small>
+                </div>
+
+                <div class="d-flex flex-column flex-md-row gap-2 align-items-md-center">
+
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-outline-primary btn-sm js-mode-btn active" data-mode="year">
+                            年度
+                        </button>
+                        <button type="button" class="btn btn-outline-primary btn-sm js-mode-btn" data-mode="rolling12">
+                            近12個月
+                        </button>
+                        <button type="button" class="btn btn-outline-primary btn-sm js-mode-btn" data-mode="month">
+                            單月
+                        </button>
+                    </div>
+
+                    <div class="js-filter-year">
+                        <select class="form-select form-select-sm js-year-select">
+                            @foreach (var y in yearOptions)
+                            {
+                                if (y == currentYear)
+                                {
+                                    <option value="@y" selected>@y 年</option>
+                                }
+                                else
+                                {
+                                    <option value="@y">@y 年</option>
+                                }
+                            }
+                        </select>
+                    </div>
+
+                    <div class="js-filter-rolling12 d-none">
+                        <select class="form-select form-select-sm js-rolling12-select">
+                            @foreach (var item in monthOptions)
+                            {
+                                if (item.Year == currentYear && item.Month == currentMonth)
+                                {
+                                    <option value="@item.Value" selected>@item.Text</option>
+                                }
+                                else
+                                {
+                                    <option value="@item.Value">@item.Text</option>
+                                }
+                            }
+                        </select>
+                    </div>
+
+                    <div class="js-filter-month d-none">
+                        <select class="form-select form-select-sm js-month-select">
+                            @foreach (var item in monthOptions)
+                            {
+                                if (item.Year == currentYear && item.Month == currentMonth)
+                                {
+                                    <option value="@item.Value" selected>@item.Text</option>
+                                }
+                                else
+                                {
+                                    <option value="@item.Value">@item.Text</option>
+                                }
+                            }
+                        </select>
+                    </div>
+
+                </div>
             </div>
+
+            <div class="text-muted small mb-2 js-loading-text d-none">載入中...</div>
+
             <div style="height:320px;">
                 <canvas id="commentTrendChart"></canvas>
             </div>
@@ -116,14 +353,91 @@
     </div>
 
     <!-- Reaction 趨勢 -->
-    <div class="card shadow-sm border-0 mb-5">
+    <div class="card shadow-sm border-0 mb-5 js-community-chart-card"
+         data-chart-key="reaction"
+         data-api-url="@Url.Action("GetCommunityReactionTrend", "CreatorAnalytics")"
+         data-default-mode="year"
+         data-value-type="count">
         <div class="card-body">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <h5 class="fw-bold mb-0">反應（Reaction）趨勢</h5>
-                <span class="badge bg-dark">
-                    成長率 @Model.ReactionAnalysis.ReactionGrowthRate.ToString("P")
-                </span>
+
+            <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 mb-3">
+                <div>
+                    <div class="d-flex align-items-center gap-2 flex-wrap">
+                        <h5 class="fw-bold mb-0">反應（Reaction）趨勢</h5>
+                        <span class="badge bg-dark js-growth-badge">
+                            成長率 @Model.ReactionAnalysis.ReactionGrowthRate.ToString("P")
+                        </span>
+                    </div>
+                    <small class="text-muted js-range-text">@currentYear 年</small>
+                </div>
+
+                <div class="d-flex flex-column flex-md-row gap-2 align-items-md-center">
+
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-outline-primary btn-sm js-mode-btn active" data-mode="year">
+                            年度
+                        </button>
+                        <button type="button" class="btn btn-outline-primary btn-sm js-mode-btn" data-mode="rolling12">
+                            近12個月
+                        </button>
+                        <button type="button" class="btn btn-outline-primary btn-sm js-mode-btn" data-mode="month">
+                            單月
+                        </button>
+                    </div>
+
+                    <div class="js-filter-year">
+                        <select class="form-select form-select-sm js-year-select">
+                            @foreach (var y in yearOptions)
+                            {
+                                if (y == currentYear)
+                                {
+                                    <option value="@y" selected>@y 年</option>
+                                }
+                                else
+                                {
+                                    <option value="@y">@y 年</option>
+                                }
+                            }
+                        </select>
+                    </div>
+
+                    <div class="js-filter-rolling12 d-none">
+                        <select class="form-select form-select-sm js-rolling12-select">
+                            @foreach (var item in monthOptions)
+                            {
+                                if (item.Year == currentYear && item.Month == currentMonth)
+                                {
+                                    <option value="@item.Value" selected>@item.Text</option>
+                                }
+                                else
+                                {
+                                    <option value="@item.Value">@item.Text</option>
+                                }
+                            }
+                        </select>
+                    </div>
+
+                    <div class="js-filter-month d-none">
+                        <select class="form-select form-select-sm js-month-select">
+                            @foreach (var item in monthOptions)
+                            {
+                                if (item.Year == currentYear && item.Month == currentMonth)
+                                {
+                                    <option value="@item.Value" selected>@item.Text</option>
+                                }
+                                else
+                                {
+                                    <option value="@item.Value">@item.Text</option>
+                                }
+                            }
+                        </select>
+                    </div>
+
+                </div>
             </div>
+
+            <div class="text-muted small mb-2 js-loading-text d-none">載入中...</div>
+
             <div style="height:320px;">
                 <canvas id="reactionTrendChart"></canvas>
             </div>
@@ -159,7 +473,7 @@
                                         <tr>
                                             <td class="text-truncate" style="max-width:320px;">
                                                 <a class="text-decoration-none"
-                                                   href="@Url.Action("Detail", "Post", new { id = p.PostID })">
+                                                       href="@Url.Action("Detail", "Post", new { id = p.PostID })">
                                                     @p.Title
                                                 </a>
                                             </td>
@@ -201,7 +515,7 @@
                                         <tr>
                                             <td class="text-truncate" style="max-width:320px;">
                                                 <a class="text-decoration-none"
-                                                   href="@Url.Action("Detail", "Portfolio", new { id = p.PortfolioID })">
+                                                       href="@Url.Action("Detail", "Portfolio", new { id = p.PortfolioID })">
                                                     @p.Title
                                                 </a>
                                             </td>
@@ -221,15 +535,7 @@
 
 </div>
 
-<!-- Chart Data -->
-<div id="chartData"
-     data-post='@Html.Raw(JsonSerializer.Serialize(Model.ContentAnalysis.MonthlyTrend))'
-     data-portfolio='@Html.Raw(JsonSerializer.Serialize(Model.PortfolioAnalysis.MonthlyTrend))'
-     data-comment='@Html.Raw(JsonSerializer.Serialize(Model.InteractionAnalysis.CommentTrend))'
-     data-reaction='@Html.Raw(JsonSerializer.Serialize(Model.ReactionAnalysis.MonthlyTrend))'>
-</div>
-
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="~/js/creatorCommunityDashboard.js"></script>
+    <script src="~/js/creatorCommunityDashboard.js" asp-append-version="true"></script>
 }

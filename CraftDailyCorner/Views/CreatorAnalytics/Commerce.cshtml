@@ -1,8 +1,14 @@
 ﻿@model CraftDailyCorner.ViewModels.CreatorAnalytics.Commerce.VMCommerceDashboard
-@using System.Text.Json
 
 @{
     ViewData["Title"] = "銷售分析";
+
+    var now = DateTime.Now;
+    var currentYear = now.Year;
+    var currentMonth = now.Month;
+
+    var yearOptions = Model.FilterOptions.AvailableYears;
+    var monthOptions = Model.FilterOptions.AvailableMonths;
 }
 
 <div class="container-fluid py-4">
@@ -16,8 +22,8 @@
 
         <div>
             <a asp-controller="Creator"
-               asp-action="Dashboard"
-               class="btn btn-outline-secondary">
+                   asp-action="Dashboard"
+                   class="btn btn-outline-secondary">
                 回創作者中心
             </a>
         </div>
@@ -98,15 +104,90 @@
     </div>
 
     <!-- Revenue Trend -->
-    <div class="card shadow-sm border-0 mb-5">
+    <div class="card shadow-sm border-0 mb-5 js-analytics-chart-card"
+         data-chart-key="revenue"
+         data-api-url="@Url.Action("GetCommerceRevenueTrend", "CreatorAnalytics")"
+         data-default-mode="year"
+         data-value-type="currency">
         <div class="card-body">
 
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <h5 class="fw-bold mb-0">月營收趨勢</h5>
-                <span class="badge bg-primary">
-                    成長率 @Model.RevenueTrend.MonthlyGrowthRate.ToString("P")
-                </span>
+            <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 mb-3">
+                <div>
+                    <div class="d-flex align-items-center gap-2 flex-wrap">
+                        <h5 class="fw-bold mb-0">營收趨勢</h5>
+                        <span class="badge bg-primary js-growth-badge">
+                            成長率 @Model.RevenueTrend.MonthlyGrowthRate.ToString("P")
+                        </span>
+                    </div>
+                    <small class="text-muted js-range-text">@currentYear 年</small>
+                </div>
+
+                <div class="d-flex flex-column flex-md-row gap-2 align-items-md-center">
+
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-outline-primary btn-sm js-mode-btn active" data-mode="year">
+                            年度
+                        </button>
+                        <button type="button" class="btn btn-outline-primary btn-sm js-mode-btn" data-mode="rolling12">
+                            近12個月
+                        </button>
+                        <button type="button" class="btn btn-outline-primary btn-sm js-mode-btn" data-mode="month">
+                            單月
+                        </button>
+                    </div>
+
+                    <div class="js-filter-year">
+                        <select class="form-select form-select-sm js-year-select">
+                            @foreach (var y in yearOptions)
+                            {
+                                if (y == currentYear)
+                                {
+                                    <option value="@y" selected>@y 年</option>
+                                }
+                                else
+                                {
+                                    <option value="@y">@y 年</option>
+                                }
+                            }
+                        </select>
+                    </div>
+
+                    <div class="js-filter-rolling12 d-none">
+                        <select class="form-select form-select-sm js-rolling12-select">
+                            @foreach (var item in monthOptions)
+                            {
+                                if (item.Year == currentYear && item.Month == currentMonth)
+                                {
+                                    <option value="@item.Value" selected>@item.Text</option>
+                                }
+                                else
+                                {
+                                    <option value="@item.Value">@item.Text</option>
+                                }
+                            }
+                        </select>
+                    </div>
+
+                    <div class="js-filter-month d-none">
+                        <select class="form-select form-select-sm js-month-select">
+                            @foreach (var item in monthOptions)
+                            {
+                                if (item.Year == currentYear && item.Month == currentMonth)
+                                {
+                                    <option value="@item.Value" selected>@item.Text</option>
+                                }
+                                else
+                                {
+                                    <option value="@item.Value">@item.Text</option>
+                                }
+                            }
+                        </select>
+                    </div>
+
+                </div>
             </div>
+
+            <div class="text-muted small mb-2 js-loading-text d-none">載入中...</div>
 
             <div style="height:350px;">
                 <canvas id="revenueTrendChart"></canvas>
@@ -116,12 +197,88 @@
     </div>
 
     <!-- Order Trend -->
-    <div class="card shadow-sm border-0 mb-5">
+    <div class="card shadow-sm border-0 mb-5 js-analytics-chart-card"
+         data-chart-key="orders"
+         data-api-url="@Url.Action("GetCommerceOrderTrend", "CreatorAnalytics")"
+         data-default-mode="year"
+         data-value-type="count">
         <div class="card-body">
 
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <h5 class="fw-bold mb-0">月訂單趨勢</h5>
+            <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 mb-3">
+                <div>
+                    <div class="d-flex align-items-center gap-2 flex-wrap">
+                        <h5 class="fw-bold mb-0">訂單趨勢</h5>
+                        <span class="badge bg-secondary js-growth-badge d-none"></span>
+                    </div>
+                    <small class="text-muted js-range-text">@currentYear 年</small>
+                </div>
+
+                <div class="d-flex flex-column flex-md-row gap-2 align-items-md-center">
+
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-outline-primary btn-sm js-mode-btn active" data-mode="year">
+                            年度
+                        </button>
+                        <button type="button" class="btn btn-outline-primary btn-sm js-mode-btn" data-mode="rolling12">
+                            近12個月
+                        </button>
+                        <button type="button" class="btn btn-outline-primary btn-sm js-mode-btn" data-mode="month">
+                            單月
+                        </button>
+                    </div>
+
+                    <div class="js-filter-year">
+                        <select class="form-select form-select-sm js-year-select">
+                            @foreach (var y in yearOptions)
+                            {
+                                if (y == currentYear)
+                                {
+                                    <option value="@y" selected>@y 年</option>
+                                }
+                                else
+                                {
+                                    <option value="@y">@y 年</option>
+                                }
+                            }
+                        </select>
+                    </div>
+
+                    <div class="js-filter-rolling12 d-none">
+                        <select class="form-select form-select-sm js-rolling12-select">
+                            @foreach (var item in monthOptions)
+                            {
+                                if (item.Year == currentYear && item.Month == currentMonth)
+                                {
+                                    <option value="@item.Value" selected>@item.Text</option>
+                                }
+                                else
+                                {
+                                    <option value="@item.Value">@item.Text</option>
+                                }
+                            }
+                        </select>
+                    </div>
+
+                    <div class="js-filter-month d-none">
+                        <select class="form-select form-select-sm js-month-select">
+                            @foreach (var item in monthOptions)
+                            {
+                                if (item.Year == currentYear && item.Month == currentMonth)
+                                {
+                                    <option value="@item.Value" selected>@item.Text</option>
+                                }
+                                else
+                                {
+                                    <option value="@item.Value">@item.Text</option>
+                                }
+                            }
+                        </select>
+                    </div>
+
+                </div>
             </div>
+
+            <div class="text-muted small mb-2 js-loading-text d-none">載入中...</div>
 
             <div style="height:350px;">
                 <canvas id="orderTrendChart"></canvas>
@@ -219,13 +376,7 @@
 
 </div>
 
-<!-- 傳資料給 JS -->
-<div id="commerceChartData"
-     data-revenue='@Html.Raw(JsonSerializer.Serialize(Model.RevenueTrend.MonthlyTrend))'
-     data-orders='@Html.Raw(JsonSerializer.Serialize(Model.OrderTrend.MonthlyTrend))'>
-</div>
-
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="~/js/creatorCommerceDashboard.js"></script>
+    <script src="~/js/creatorCommerceDashboard.js" asp-append-version="true"></script>
 }

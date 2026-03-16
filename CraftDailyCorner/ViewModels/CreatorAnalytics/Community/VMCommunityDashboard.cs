@@ -1,4 +1,6 @@
-﻿namespace CraftDailyCorner.ViewModels.CreatorAnalytics.Community
+﻿using CraftDailyCorner.ViewModels.CreatorAnalytics.Common;
+
+namespace CraftDailyCorner.ViewModels.CreatorAnalytics.Community
 {
     public class VMCommunityDashboard
     {
@@ -7,5 +9,7 @@
         public VMCommunityPortfolioAnalysis PortfolioAnalysis { get; set; } = new();
         public VMCommunityInteractionAnalysis InteractionAnalysis { get; set; } = new();
         public VMCommunityReactionAnalysis ReactionAnalysis { get; set; } = new();
+
+        public VMAnalyticsFilterOptions FilterOptions { get; set; } = new();
     }
 }

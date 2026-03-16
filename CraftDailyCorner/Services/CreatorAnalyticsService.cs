@@ -3,6 +3,7 @@ using CraftDailyCorner.Models.enums;
 using CraftDailyCorner.Services.Interface;
 using CraftDailyCorner.ViewModels.CreatorAnalytics.Commerce;
 using CraftDailyCorner.ViewModels.CreatorAnalytics.Community;
+using CraftDailyCorner.ViewModels.CreatorAnalytics.Common;
 using Microsoft.EntityFrameworkCore;
 
 namespace CraftDailyCorner.Services
@@ -308,6 +309,8 @@ namespace CraftDailyCorner.Services
                 TopReactedPortfolios = topReactedPortfolios
             };
 
+            dashboard.FilterOptions = await BuildCommunityFilterOptionsAsync(creatorId);
+
             return dashboard;
         }
 
@@ -462,7 +465,613 @@ namespace CraftDailyCorner.Services
                 TopByQuantity = topByQuantity
             };
 
+            dashboard.FilterOptions = await BuildCommerceFilterOptionsAsync(creatorId);
+
             return dashboard;
+        }
+
+        // =========================
+        // Commerce AJAX Trends
+        // =========================
+
+        public async Task<VMAnalyticsChartResponse> GetCommerceRevenueTrendAsync(string creatorId, VMAnalyticsChartQuery query)
+        {
+            var mode = NormalizeMode(query.Mode);
+            var baseQuery = _context.OrderDetails
+                .Where(od => od.Product.CreatorID == creatorId);
+
+            var response = new VMAnalyticsChartResponse
+            {
+                Title = "月營收趨勢",
+                Mode = mode,
+                ValueType = "currency"
+            };
+
+            if (mode == CreatorAnalyticsChartModes.Year)
+            {
+                int year = query.Year ?? DateTime.Now.Year;
+                var axis = BuildYearMonthAxis(year);
+                var periodStart = axis.First();
+                var periodEnd = axis.Last().AddMonths(1);
+
+                var raw = await baseQuery
+                    .Where(x => x.Order.CreatedAt >= periodStart && x.Order.CreatedAt < periodEnd)
+                    .GroupBy(x => x.Order.CreatedAt.Month)
+                    .Select(g => new
+                    {
+                        Month = g.Key,
+                        Revenue = g.Sum(x => x.Quantity * x.PriceSnapshot)
+                    })
+                    .ToListAsync();
+
+                response.RangeText = $"{year} 年";
+                response.Labels = axis.Select(x => $"{x.Month}月").ToList();
+                response.Values = axis
+                    .Select(x => raw.FirstOrDefault(r => r.Month == x.Month)?.Revenue ?? 0m)
+                    .ToList();
+
+                var now = DateTime.Now;
+                if (year == now.Year)
+                {
+                    var firstDayThisMonth = new DateTime(now.Year, now.Month, 1);
+                    var firstDayLastMonth = firstDayThisMonth.AddMonths(-1);
+
+                    var thisMonthRevenue = await baseQuery
+                        .Where(x => x.Order.CreatedAt >= firstDayThisMonth)
+                        .SumAsync(x => (decimal?)x.Quantity * x.PriceSnapshot) ?? 0m;
+
+                    var lastMonthRevenue = await baseQuery
+                        .Where(x => x.Order.CreatedAt >= firstDayLastMonth && x.Order.CreatedAt < firstDayThisMonth)
+                        .SumAsync(x => (decimal?)x.Quantity * x.PriceSnapshot) ?? 0m;
+
+                    response.GrowthRate = CalculateGrowth(thisMonthRevenue, lastMonthRevenue);
+                }
+
+                return response;
+            }
+
+            if (mode == CreatorAnalyticsChartModes.Rolling12)
+            {
+                int endYear = query.EndYear ?? DateTime.Now.Year;
+                int endMonth = query.EndMonth ?? DateTime.Now.Month;
+
+                var axis = BuildRolling12MonthAxis(endYear, endMonth);
+                var periodStart = axis.First();
+                var periodEnd = axis.Last().AddMonths(1);
+
+                var raw = await baseQuery
+                    .Where(x => x.Order.CreatedAt >= periodStart && x.Order.CreatedAt < periodEnd)
+                    .GroupBy(x => new { x.Order.CreatedAt.Year, x.Order.CreatedAt.Month })
+                    .Select(g => new
+                    {
+                        g.Key.Year,
+                        g.Key.Month,
+                        Revenue = g.Sum(x => x.Quantity * x.PriceSnapshot)
+                    })
+                    .ToListAsync();
+
+                response.RangeText = $"{axis.First():yyyy/MM} ～ {axis.Last():yyyy/MM}";
+                response.Labels = axis.Select(x => x.ToString("yyyy/MM")).ToList();
+                response.Values = axis
+                    .Select(x => raw.FirstOrDefault(r => r.Year == x.Year && r.Month == x.Month)?.Revenue ?? 0m)
+                    .ToList();
+
+                var currentMonth = axis.Last();
+                var previousMonth = currentMonth.AddMonths(-1);
+
+                var currentValue = response.Values.LastOrDefault();
+                var previousValue = raw
+                    .FirstOrDefault(x => x.Year == previousMonth.Year && x.Month == previousMonth.Month)?.Revenue ?? 0m;
+
+                response.GrowthRate = CalculateGrowth(currentValue, previousValue);
+
+                return response;
+            }
+
+            // month
+            {
+                int year = query.Year ?? DateTime.Now.Year;
+                int month = query.Month ?? DateTime.Now.Month;
+
+                var axis = BuildMonthDayAxis(year, month);
+                var monthStart = new DateTime(year, month, 1);
+                var monthEndExclusive = axis.Last().Date.AddDays(1);
+
+                var raw = await baseQuery
+                    .Where(x => x.Order.CreatedAt >= monthStart && x.Order.CreatedAt < monthEndExclusive)
+                    .GroupBy(x => x.Order.CreatedAt.Date)
+                    .Select(g => new
+                    {
+                        Date = g.Key,
+                        Revenue = g.Sum(x => x.Quantity * x.PriceSnapshot)
+                    })
+                    .ToListAsync();
+
+                response.RangeText = $"{year}/{month:D2}";
+                response.Labels = axis.Select(x => $"{x.Day}日").ToList();
+                response.Values = axis
+                    .Select(x => raw.FirstOrDefault(r => r.Date == x.Date)?.Revenue ?? 0m)
+                    .ToList();
+
+                response.GrowthRate = null;
+                return response;
+            }
+        }
+
+        public async Task<VMAnalyticsChartResponse> GetCommerceOrderTrendAsync(string creatorId, VMAnalyticsChartQuery query)
+        {
+            var mode = NormalizeMode(query.Mode);
+            var baseQuery = _context.OrderDetails
+                .Where(od => od.Product.CreatorID == creatorId);
+
+            var response = new VMAnalyticsChartResponse
+            {
+                Title = "月訂單趨勢",
+                Mode = mode,
+                ValueType = "count"
+            };
+
+            if (mode == CreatorAnalyticsChartModes.Year)
+            {
+                int year = query.Year ?? DateTime.Now.Year;
+                var axis = BuildYearMonthAxis(year);
+                var periodStart = axis.First();
+                var periodEnd = axis.Last().AddMonths(1);
+
+                var raw = await baseQuery
+                    .Where(x => x.Order.CreatedAt >= periodStart && x.Order.CreatedAt < periodEnd)
+                    .GroupBy(x => x.Order.CreatedAt.Month)
+                    .Select(g => new
+                    {
+                        Month = g.Key,
+                        OrderCount = g.Select(x => x.OrderID).Distinct().Count()
+                    })
+                    .ToListAsync();
+
+                response.RangeText = $"{year} 年";
+                response.Labels = axis.Select(x => $"{x.Month}月").ToList();
+                response.Values = axis
+                    .Select(x => (decimal)(raw.FirstOrDefault(r => r.Month == x.Month)?.OrderCount ?? 0))
+                    .ToList();
+
+                var now = DateTime.Now;
+                if (year == now.Year)
+                {
+                    var firstDayThisMonth = new DateTime(now.Year, now.Month, 1);
+                    var firstDayLastMonth = firstDayThisMonth.AddMonths(-1);
+
+                    var thisMonthOrders = await baseQuery
+                        .Where(x => x.Order.CreatedAt >= firstDayThisMonth)
+                        .Select(x => x.OrderID)
+                        .Distinct()
+                        .CountAsync();
+
+                    var lastMonthOrders = await baseQuery
+                        .Where(x => x.Order.CreatedAt >= firstDayLastMonth && x.Order.CreatedAt < firstDayThisMonth)
+                        .Select(x => x.OrderID)
+                        .Distinct()
+                        .CountAsync();
+
+                    response.GrowthRate = CalculateGrowth(thisMonthOrders, lastMonthOrders);
+                }
+
+                return response;
+            }
+
+            if (mode == CreatorAnalyticsChartModes.Rolling12)
+            {
+                int endYear = query.EndYear ?? DateTime.Now.Year;
+                int endMonth = query.EndMonth ?? DateTime.Now.Month;
+
+                var axis = BuildRolling12MonthAxis(endYear, endMonth);
+                var periodStart = axis.First();
+                var periodEnd = axis.Last().AddMonths(1);
+
+                var raw = await baseQuery
+                    .Where(x => x.Order.CreatedAt >= periodStart && x.Order.CreatedAt < periodEnd)
+                    .GroupBy(x => new { x.Order.CreatedAt.Year, x.Order.CreatedAt.Month })
+                    .Select(g => new
+                    {
+                        g.Key.Year,
+                        g.Key.Month,
+                        OrderCount = g.Select(x => x.OrderID).Distinct().Count()
+                    })
+                    .ToListAsync();
+
+                response.RangeText = $"{axis.First():yyyy/MM} ～ {axis.Last():yyyy/MM}";
+                response.Labels = axis.Select(x => x.ToString("yyyy/MM")).ToList();
+                response.Values = axis
+                    .Select(x => (decimal)(raw.FirstOrDefault(r => r.Year == x.Year && r.Month == x.Month)?.OrderCount ?? 0))
+                    .ToList();
+
+                var previousMonth = axis.Last().AddMonths(-1);
+                var currentValue = (int)response.Values.LastOrDefault();
+                var previousValue = raw
+                    .FirstOrDefault(x => x.Year == previousMonth.Year && x.Month == previousMonth.Month)?.OrderCount ?? 0;
+
+                response.GrowthRate = CalculateGrowth(currentValue, previousValue);
+
+                return response;
+            }
+
+            // month
+            {
+                int year = query.Year ?? DateTime.Now.Year;
+                int month = query.Month ?? DateTime.Now.Month;
+
+                var axis = BuildMonthDayAxis(year, month);
+                var monthStart = new DateTime(year, month, 1);
+                var monthEndExclusive = axis.Last().Date.AddDays(1);
+
+                var raw = await baseQuery
+                    .Where(x => x.Order.CreatedAt >= monthStart && x.Order.CreatedAt < monthEndExclusive)
+                    .GroupBy(x => x.Order.CreatedAt.Date)
+                    .Select(g => new
+                    {
+                        Date = g.Key,
+                        OrderCount = g.Select(x => x.OrderID).Distinct().Count()
+                    })
+                    .ToListAsync();
+
+                response.RangeText = $"{year}/{month:D2}";
+                response.Labels = axis.Select(x => $"{x.Day}日").ToList();
+                response.Values = axis
+                    .Select(x => (decimal)(raw.FirstOrDefault(r => r.Date == x.Date)?.OrderCount ?? 0))
+                    .ToList();
+
+                response.GrowthRate = null;
+                return response;
+            }
+        }
+
+        // =========================
+        // Community AJAX Trends
+        // =========================
+
+        public async Task<VMAnalyticsChartResponse> GetCommunityPostTrendAsync(string creatorId, VMAnalyticsChartQuery query)
+        {
+            var mode = NormalizeMode(query.Mode);
+            var baseQuery = _context.CreatorPosts
+                .Where(p => p.CreatorID == creatorId);
+
+            return await BuildCountChartResponseAsync(
+                baseQuery.Select(x => x.CreatedAt),
+                mode,
+                query,
+                "發文趨勢");
+        }
+
+        public async Task<VMAnalyticsChartResponse> GetCommunityPortfolioTrendAsync(string creatorId, VMAnalyticsChartQuery query)
+        {
+            var mode = NormalizeMode(query.Mode);
+            var baseQuery = _context.Portfolios
+                .Where(p => p.CreatorID == creatorId);
+
+            return await BuildCountChartResponseAsync(
+                baseQuery.Select(x => x.CreatedAt),
+                mode,
+                query,
+                "作品集趨勢");
+        }
+
+        public async Task<VMAnalyticsChartResponse> GetCommunityCommentTrendAsync(string creatorId, VMAnalyticsChartQuery query)
+        {
+            var mode = NormalizeMode(query.Mode);
+            var baseQuery = _context.PostComments
+                .Where(c => c.CreatorPost.CreatorID == creatorId);
+
+            return await BuildCountChartResponseAsync(
+                baseQuery.Select(x => x.CreatedAt),
+                mode,
+                query,
+                "留言趨勢");
+        }
+
+        public async Task<VMAnalyticsChartResponse> GetCommunityReactionTrendAsync(string creatorId, VMAnalyticsChartQuery query)
+        {
+            var mode = NormalizeMode(query.Mode);
+
+            var postsQuery = _context.CreatorPosts.Where(p => p.CreatorID == creatorId);
+            var portfoliosQuery = _context.Portfolios.Where(p => p.CreatorID == creatorId);
+            var commentsQuery = _context.PostComments.Where(c => c.CreatorPost.CreatorID == creatorId);
+
+            var postReactionsQuery = _context.Reactions
+                .Where(r => r.TargetType == ReactionTargetType.CreatorPost)
+                .Join(postsQuery, r => r.TargetID, p => p.PostID, (r, p) => r.CreatedAt);
+
+            var portfolioReactionsQuery = _context.Reactions
+                .Where(r => r.TargetType == ReactionTargetType.Portfolio)
+                .Join(portfoliosQuery, r => r.TargetID, p => p.PortfolioID, (r, p) => r.CreatedAt);
+
+            var commentReactionsQuery = _context.Reactions
+                .Where(r => r.TargetType == ReactionTargetType.PostComment)
+                .Join(commentsQuery, r => r.TargetID, c => c.CommentID, (r, c) => r.CreatedAt);
+
+            var allDates = postReactionsQuery
+                .Concat(portfolioReactionsQuery)
+                .Concat(commentReactionsQuery);
+
+            return await BuildCountChartResponseAsync(
+                allDates,
+                mode,
+                query,
+                "反應（Reaction）趨勢");
+        }
+
+        // =========================
+        // Common Helpers
+        // =========================
+
+        private async Task<VMAnalyticsChartResponse> BuildCountChartResponseAsync(
+            IQueryable<DateTime> dateQuery,
+            string mode,
+            VMAnalyticsChartQuery query,
+            string title)
+        {
+            var response = new VMAnalyticsChartResponse
+            {
+                Title = title,
+                Mode = mode,
+                ValueType = "count"
+            };
+
+            if (mode == CreatorAnalyticsChartModes.Year)
+            {
+                int year = query.Year ?? DateTime.Now.Year;
+                var axis = BuildYearMonthAxis(year);
+                var periodStart = axis.First();
+                var periodEnd = axis.Last().AddMonths(1);
+
+                var raw = await dateQuery
+                    .Where(x => x >= periodStart && x < periodEnd)
+                    .GroupBy(x => x.Month)
+                    .Select(g => new
+                    {
+                        Month = g.Key,
+                        Count = g.Count()
+                    })
+                    .ToListAsync();
+
+                response.RangeText = $"{year} 年";
+                response.Labels = axis.Select(x => $"{x.Month}月").ToList();
+                response.Values = axis
+                    .Select(x => (decimal)(raw.FirstOrDefault(r => r.Month == x.Month)?.Count ?? 0))
+                    .ToList();
+
+                var now = DateTime.Now;
+                if (year == now.Year)
+                {
+                    var firstDayThisMonth = new DateTime(now.Year, now.Month, 1);
+                    var firstDayLastMonth = firstDayThisMonth.AddMonths(-1);
+
+                    var currentCount = await dateQuery
+                        .Where(x => x >= firstDayThisMonth)
+                        .CountAsync();
+
+                    var previousCount = await dateQuery
+                        .Where(x => x >= firstDayLastMonth && x < firstDayThisMonth)
+                        .CountAsync();
+
+                    response.GrowthRate = CalculateGrowth(currentCount, previousCount);
+                }
+
+                return response;
+            }
+
+            if (mode == CreatorAnalyticsChartModes.Rolling12)
+            {
+                int endYear = query.EndYear ?? DateTime.Now.Year;
+                int endMonth = query.EndMonth ?? DateTime.Now.Month;
+
+                var axis = BuildRolling12MonthAxis(endYear, endMonth);
+                var periodStart = axis.First();
+                var periodEnd = axis.Last().AddMonths(1);
+
+                var raw = await dateQuery
+                    .Where(x => x >= periodStart && x < periodEnd)
+                    .GroupBy(x => new { x.Year, x.Month })
+                    .Select(g => new
+                    {
+                        g.Key.Year,
+                        g.Key.Month,
+                        Count = g.Count()
+                    })
+                    .ToListAsync();
+
+                response.RangeText = $"{axis.First():yyyy/MM} ～ {axis.Last():yyyy/MM}";
+                response.Labels = axis.Select(x => x.ToString("yyyy/MM")).ToList();
+                response.Values = axis
+                    .Select(x => (decimal)(raw.FirstOrDefault(r => r.Year == x.Year && r.Month == x.Month)?.Count ?? 0))
+                    .ToList();
+
+                var previousMonth = axis.Last().AddMonths(-1);
+                var currentValue = (int)response.Values.LastOrDefault();
+                var previousValue = raw
+                    .FirstOrDefault(x => x.Year == previousMonth.Year && x.Month == previousMonth.Month)?.Count ?? 0;
+
+                response.GrowthRate = CalculateGrowth(currentValue, previousValue);
+                return response;
+            }
+
+            // month
+            {
+                int year = query.Year ?? DateTime.Now.Year;
+                int month = query.Month ?? DateTime.Now.Month;
+
+                var axis = BuildMonthDayAxis(year, month);
+                var monthStart = new DateTime(year, month, 1);
+                var monthEndExclusive = axis.Last().Date.AddDays(1);
+
+                var raw = await dateQuery
+                    .Where(x => x >= monthStart && x < monthEndExclusive)
+                    .GroupBy(x => x.Date)
+                    .Select(g => new
+                    {
+                        Date = g.Key,
+                        Count = g.Count()
+                    })
+                    .ToListAsync();
+
+                response.RangeText = $"{year}/{month:D2}";
+                response.Labels = axis.Select(x => $"{x.Day}日").ToList();
+                response.Values = axis
+                    .Select(x => (decimal)(raw.FirstOrDefault(r => r.Date == x.Date)?.Count ?? 0))
+                    .ToList();
+
+                response.GrowthRate = null;
+                return response;
+            }
+        }
+
+        private async Task<VMAnalyticsFilterOptions> BuildCommerceFilterOptionsAsync(string creatorId)
+        {
+            var monthDates = await _context.OrderDetails
+                .Where(od => od.Product.CreatorID == creatorId)
+                .Select(od => new DateTime(od.Order.CreatedAt.Year, od.Order.CreatedAt.Month, 1))
+                .Distinct()
+                .OrderByDescending(x => x)
+                .ToListAsync();
+
+            return BuildFilterOptionsFromMonths(monthDates);
+        }
+
+        private async Task<VMAnalyticsFilterOptions> BuildCommunityFilterOptionsAsync(string creatorId)
+        {
+            var postsMonths = _context.CreatorPosts
+                .Where(p => p.CreatorID == creatorId)
+                .Select(p => new DateTime(p.CreatedAt.Year, p.CreatedAt.Month, 1));
+
+            var portfoliosMonths = _context.Portfolios
+                .Where(p => p.CreatorID == creatorId)
+                .Select(p => new DateTime(p.CreatedAt.Year, p.CreatedAt.Month, 1));
+
+            var commentsMonths = _context.PostComments
+                .Where(c => c.CreatorPost.CreatorID == creatorId)
+                .Select(c => new DateTime(c.CreatedAt.Year, c.CreatedAt.Month, 1));
+
+            var reactionPostMonths = _context.Reactions
+                .Where(r => r.TargetType == ReactionTargetType.CreatorPost)
+                .Join(
+                    _context.CreatorPosts.Where(p => p.CreatorID == creatorId),
+                    r => r.TargetID,
+                    p => p.PostID,
+                    (r, p) => new DateTime(r.CreatedAt.Year, r.CreatedAt.Month, 1)
+                );
+
+            var reactionPortfolioMonths = _context.Reactions
+                .Where(r => r.TargetType == ReactionTargetType.Portfolio)
+                .Join(
+                    _context.Portfolios.Where(p => p.CreatorID == creatorId),
+                    r => r.TargetID,
+                    p => p.PortfolioID,
+                    (r, p) => new DateTime(r.CreatedAt.Year, r.CreatedAt.Month, 1)
+                );
+
+            var reactionCommentMonths = _context.Reactions
+                .Where(r => r.TargetType == ReactionTargetType.PostComment)
+                .Join(
+                    _context.PostComments.Where(c => c.CreatorPost.CreatorID == creatorId),
+                    r => r.TargetID,
+                    c => c.CommentID,
+                    (r, c) => new DateTime(r.CreatedAt.Year, r.CreatedAt.Month, 1)
+                );
+
+            var monthDates = await postsMonths
+                .Concat(portfoliosMonths)
+                .Concat(commentsMonths)
+                .Concat(reactionPostMonths)
+                .Concat(reactionPortfolioMonths)
+                .Concat(reactionCommentMonths)
+                .Distinct()
+                .OrderByDescending(x => x)
+                .ToListAsync();
+
+            return BuildFilterOptionsFromMonths(monthDates);
+        }
+
+        private VMAnalyticsFilterOptions BuildFilterOptionsFromMonths(List<DateTime> monthDates)
+        {
+            var now = DateTime.Now;
+            var currentMonth = new DateTime(now.Year, now.Month, 1);
+
+            if (!monthDates.Any())
+            {
+                monthDates = new List<DateTime> { currentMonth };
+            }
+
+            if (!monthDates.Contains(currentMonth))
+            {
+                monthDates.Insert(0, currentMonth);
+            }
+
+            monthDates = monthDates
+                .Distinct()
+                .OrderByDescending(x => x)
+                .ToList();
+
+            return new VMAnalyticsFilterOptions
+            {
+                AvailableYears = monthDates
+                    .Select(x => x.Year)
+                    .Distinct()
+                    .OrderByDescending(x => x)
+                    .ToList(),
+
+                AvailableMonths = monthDates
+                    .Select(x => new VMAnalyticsMonthOption
+                    {
+                        Year = x.Year,
+                        Month = x.Month
+                    })
+                    .ToList()
+            };
+        }
+
+        private string NormalizeMode(string? mode)
+        {
+            return mode switch
+            {
+                CreatorAnalyticsChartModes.Year => CreatorAnalyticsChartModes.Year,
+                CreatorAnalyticsChartModes.Rolling12 => CreatorAnalyticsChartModes.Rolling12,
+                CreatorAnalyticsChartModes.Month => CreatorAnalyticsChartModes.Month,
+                _ => CreatorAnalyticsChartModes.Year
+            };
+        }
+
+        private List<DateTime> BuildYearMonthAxis(int year)
+        {
+            return Enumerable.Range(1, 12)
+                .Select(month => new DateTime(year, month, 1))
+                .ToList();
+        }
+
+        private List<DateTime> BuildRolling12MonthAxis(int endYear, int endMonth)
+        {
+            var end = new DateTime(endYear, endMonth, 1);
+
+            return Enumerable.Range(0, 12)
+                .Select(i => end.AddMonths(-11 + i))
+                .ToList();
+        }
+
+        private List<DateTime> BuildMonthDayAxis(int year, int month)
+        {
+            var now = DateTime.Now;
+
+            int dayCount;
+
+            if (year == now.Year && month == now.Month)
+            {
+                dayCount = now.Day;
+            }
+            else
+            {
+                dayCount = DateTime.DaysInMonth(year, month);
+            }
+
+            return Enumerable.Range(1, dayCount)
+                .Select(day => new DateTime(year, month, day))
+                .ToList();
         }
 
         private decimal CalculateGrowth(decimal current, decimal previous)

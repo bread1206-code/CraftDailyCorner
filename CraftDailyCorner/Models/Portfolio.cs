@@ -18,7 +18,6 @@ namespace CraftDailyCorner.Models
         [Display(Name = "標題")]
         public string Title { get; set; } = null!;
 
-        [Required(ErrorMessage = "必填欄位")]
         [Column(TypeName = "nvarchar(max)")]
         [Display(Name = "簡介")]
         public string? Description { get; set; }
