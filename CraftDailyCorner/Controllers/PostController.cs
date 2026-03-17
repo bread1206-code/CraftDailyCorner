@@ -28,7 +28,7 @@ namespace CraftDailyCorner.Controllers
             {
                 Keyword = keyword,
                 Page = page,
-                PageSize = 16
+                PageSize = 9
             };
 
             var currentMemberId = User.Identity?.IsAuthenticated == true

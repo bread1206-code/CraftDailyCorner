@@ -25,7 +25,7 @@
             new()
             {
             new ImageSizeOption { FolderName = "Medium", Width = 300, Height = 300 },
-            new ImageSizeOption { FolderName = "Large", Width = 800, Height = 450 }
+            new ImageSizeOption { FolderName = "Large", Width = 800, Height = 800 }
             };
         public static List<ImageSizeOption> Post =>
             new()

@@ -1,6 +1,0 @@
-@CraftDailyCornerAPI_HostAddress = http://localhost:5047
-
-GET {{CraftDailyCornerAPI_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###
