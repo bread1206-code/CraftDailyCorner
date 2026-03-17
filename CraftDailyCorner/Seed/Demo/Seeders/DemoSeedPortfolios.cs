@@ -111,34 +111,24 @@ namespace CraftDailyCorner.Seed.Demo.Seeders
             if (!creatorBrandFiles.Any())
                 throw new Exception("CreatorBrand 資料夾沒有任何圖片，無法建立 BrandCodeToCreatorMap");
 
-            var creatorProfiles = _context.CreatorProfiles
+            var creatorIds = _context.CreatorProfiles
                 .AsNoTracking()
-                .Select(x => new
-                {
-                    x.CreatorID,
-                    x.BrandName
-                })
+                .OrderBy(x => x.CreatorID)
+                .Select(x => x.CreatorID)
                 .ToList();
 
-            var brandNameToCreatorMap = creatorProfiles
-                .GroupBy(x => x.BrandName)
-                .ToDictionary(g => g.Key, g => g.First().CreatorID);
+            if (!creatorIds.Any())
+                throw new Exception("資料庫中沒有 CreatorProfiles，無法建立 BrandCodeToCreatorMap");
 
-            foreach (var file in creatorBrandFiles)
+            if (creatorBrandFiles.Count != creatorIds.Count)
+                throw new Exception(
+                    $"CreatorBrand 圖片數量與 CreatorProfiles 數量不一致。圖片數：{creatorBrandFiles.Count}，CreatorProfiles 數：{creatorIds.Count}");
+
+            for (int i = 0; i < creatorBrandFiles.Count; i++)
             {
-                var fileNameWithoutExt = Path.GetFileNameWithoutExtension(file);
-
-                if (string.IsNullOrWhiteSpace(fileNameWithoutExt) || fileNameWithoutExt.Length < 4)
-                    throw new Exception($"CreatorBrand 檔名格式錯誤：{fileNameWithoutExt}");
-
-                var brandCode = fileNameWithoutExt[..3];
-                var brandName = fileNameWithoutExt[3..].Trim();
-
-                if (string.IsNullOrWhiteSpace(brandName))
-                    throw new Exception($"CreatorBrand 檔名缺少品牌名稱：{fileNameWithoutExt}");
-
-                if (!brandNameToCreatorMap.TryGetValue(brandName, out var creatorId))
-                    throw new Exception($"CreatorBrand 檔名中的品牌名稱找不到對應 CreatorProfile：{brandName}");
+                var file = creatorBrandFiles[i];
+                var brandCode = GetBrandCodeFromFileName(file);
+                var creatorId = creatorIds[i];
 
                 seedContext.BrandCodeToCreatorMap[brandCode] = creatorId;
             }
@@ -146,12 +136,12 @@ namespace CraftDailyCorner.Seed.Demo.Seeders
 
         private static string GetPortfolioSourceFolder()
         {
-            return Path.Combine(Directory.GetCurrentDirectory(), "SeedAssets", "Portfolio");
+            return Path.Combine(Directory.GetCurrentDirectory(), "Seed", "SeedAssets", "Portfolio");
         }
 
         private static string GetCreatorBrandSourceFolder()
         {
-            return Path.Combine(Directory.GetCurrentDirectory(), "SeedAssets", "CreatorBrand");
+            return Path.Combine(Directory.GetCurrentDirectory(), "Seed", "SeedAssets", "CreatorBrand");
         }
 
         private static string GetBrandCodeFromFileName(string filePath)
@@ -159,9 +149,14 @@ namespace CraftDailyCorner.Seed.Demo.Seeders
             var fileNameWithoutExt = Path.GetFileNameWithoutExtension(filePath);
 
             if (string.IsNullOrWhiteSpace(fileNameWithoutExt) || fileNameWithoutExt.Length < 3)
-                throw new Exception($"作品集圖片檔名格式錯誤：{fileNameWithoutExt}");
+                throw new Exception($"圖片檔名格式錯誤：{fileNameWithoutExt}");
 
-            return fileNameWithoutExt[..3];
+            var brandCode = fileNameWithoutExt[..3];
+
+            if (!int.TryParse(brandCode, out _))
+                throw new Exception($"圖片檔名前 3 碼不是有效品牌代碼：{fileNameWithoutExt}");
+
+            return brandCode;
         }
 
         private static bool IsSupportedImageFile(string filePath)

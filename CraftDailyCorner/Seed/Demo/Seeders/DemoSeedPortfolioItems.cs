@@ -23,9 +23,6 @@ namespace CraftDailyCorner.Seed.Demo.Seeders
             if (seedContext == null)
                 throw new ArgumentNullException(nameof(seedContext));
 
-            if (!seedContext.CreatorPortfolioMap.Any())
-                return;
-
             var portfolioFolder = GetPortfolioSourceFolder();
 
             var allFiles = _imageHelper.GetOrderedFiles(portfolioFolder)
@@ -38,14 +35,23 @@ namespace CraftDailyCorner.Seed.Demo.Seeders
             if (!seedContext.BrandCodeToCreatorMap.Any())
                 throw new Exception("BrandCodeToCreatorMap 沒有資料，請先執行 DemoSeedPortfolios");
 
-            var portfolioCreatedAtMap = _context.Portfolios
+            // 改成直接從 DB 撈所有 Portfolio，而不是只看本次新建的 CreatorPortfolioMap
+            var portfolioMap = _context.Portfolios
                 .AsNoTracking()
                 .Select(x => new
                 {
+                    x.CreatorID,
                     x.PortfolioID,
                     x.CreatedAt
                 })
-                .ToDictionary(x => x.PortfolioID, x => x.CreatedAt);
+                .ToDictionary(x => x.CreatorID, x => new
+                {
+                    x.PortfolioID,
+                    x.CreatedAt
+                });
+
+            if (!portfolioMap.Any())
+                return;
 
             var existingItemKeys = _context.PortfolioItems
                 .AsNoTracking()
@@ -66,12 +72,11 @@ namespace CraftDailyCorner.Seed.Demo.Seeders
                 if (!seedContext.BrandCodeToCreatorMap.TryGetValue(brandCode, out var creatorId))
                     throw new Exception($"找不到品牌代碼對應的 CreatorID：{brandCode}");
 
-                // 規則：只有本次新建立的 Portfolio 才建立 PortfolioItem
-                if (!seedContext.CreatorPortfolioMap.TryGetValue(creatorId, out var portfolioId))
+                if (!portfolioMap.TryGetValue(creatorId, out var portfolioInfo))
                     continue;
 
-                if (!portfolioCreatedAtMap.TryGetValue(portfolioId, out var createdAt))
-                    throw new Exception($"找不到 Portfolio.CreatedAt：{portfolioId}");
+                var portfolioId = portfolioInfo.PortfolioID;
+                var createdAt = portfolioInfo.CreatedAt;
 
                 var orderedFiles = group
                     .OrderBy(Path.GetFileName)
@@ -81,7 +86,13 @@ namespace CraftDailyCorner.Seed.Demo.Seeders
 
                 foreach (var file in orderedFiles)
                 {
-                    if (existingItemKeys.Contains(new { PortfolioID = portfolioId, SortOrder = sortOrder }))
+                    var key = new
+                    {
+                        PortfolioID = portfolioId,
+                        SortOrder = sortOrder
+                    };
+
+                    if (existingItemKeys.Contains(key))
                     {
                         sortOrder++;
                         continue;
@@ -115,7 +126,7 @@ namespace CraftDailyCorner.Seed.Demo.Seeders
 
         private static string GetPortfolioSourceFolder()
         {
-            return Path.Combine(Directory.GetCurrentDirectory(), "SeedAssets", "Portfolio");
+            return Path.Combine(Directory.GetCurrentDirectory(), "Seed","SeedAssets", "Portfolio");
         }
 
         private static string GetBrandCodeFromFileName(string filePath)

@@ -32,6 +32,9 @@ namespace CraftDailyCorner.Seed.Demo.Seeders
                 .Select(x => new { x.MemberID, x.CreatorID })
                 .ToHashSet();
 
+            // 新增：避免同一批 seed 重複加入相同 (MemberID, CreatorID)
+            var pendingFollowKeys = new HashSet<string>();
+
             var follows = new List<FollowCreator>();
 
             foreach (var row in seedContext.Follows)
@@ -59,6 +62,11 @@ namespace CraftDailyCorner.Seed.Demo.Seeders
                 };
 
                 if (existingFollowKeys.Contains(key))
+                    continue;
+
+                // 新增：同一批資料若重複，也跳過
+                var pendingKey = $"{row.MemberID}_{creatorId}";
+                if (!pendingFollowKeys.Add(pendingKey))
                     continue;
 
                 if (!seedContext.CreatorConfirmedAtMap.TryGetValue(creatorId, out var confirmedAt))

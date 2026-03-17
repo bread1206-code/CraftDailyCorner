@@ -34,6 +34,9 @@ namespace CraftDailyCorner.Seed.Demo.Seeders
                 .Select(x => new { x.MemberID, x.TargetID })
                 .ToHashSet();
 
+            // 新增：避免同一批 seed 內部重複
+            var pendingReactionKeys = new HashSet<string>();
+
             var reactions = new List<Reaction>();
 
             foreach (var row in seedContext.Reactions)
@@ -53,8 +56,13 @@ namespace CraftDailyCorner.Seed.Demo.Seeders
                     TargetID = postId
                 };
 
-                // 同一會員對同一篇貼文只保留一筆 reaction
+                // DB 已有就跳過
                 if (existingReactionKeys.Contains(key))
+                    continue;
+
+                // 同一批資料若重複，也跳過
+                var pendingKey = $"{row.MemberID}_{postId}";
+                if (!pendingReactionKeys.Add(pendingKey))
                     continue;
 
                 if (!seedContext.PostCreatedAtMap.TryGetValue(postId, out var postCreatedAt))

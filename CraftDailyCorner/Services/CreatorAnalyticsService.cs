@@ -925,12 +925,21 @@ namespace CraftDailyCorner.Services
 
         private async Task<VMAnalyticsFilterOptions> BuildCommerceFilterOptionsAsync(string creatorId)
         {
-            var monthDates = await _context.OrderDetails
+            var monthKeys = await _context.OrderDetails
                 .Where(od => od.Product.CreatorID == creatorId)
-                .Select(od => new DateTime(od.Order.CreatedAt.Year, od.Order.CreatedAt.Month, 1))
+                .Select(od => new
+                {
+                    od.Order.CreatedAt.Year,
+                    od.Order.CreatedAt.Month
+                })
                 .Distinct()
-                .OrderByDescending(x => x)
+                .OrderByDescending(x => x.Year)
+                .ThenByDescending(x => x.Month)
                 .ToListAsync();
+
+            var monthDates = monthKeys
+                .Select(x => new DateTime(x.Year, x.Month, 1))
+                .ToList();
 
             return BuildFilterOptionsFromMonths(monthDates);
         }
@@ -939,15 +948,27 @@ namespace CraftDailyCorner.Services
         {
             var postsMonths = _context.CreatorPosts
                 .Where(p => p.CreatorID == creatorId)
-                .Select(p => new DateTime(p.CreatedAt.Year, p.CreatedAt.Month, 1));
+                .Select(p => new
+                {
+                    p.CreatedAt.Year,
+                    p.CreatedAt.Month
+                });
 
             var portfoliosMonths = _context.Portfolios
                 .Where(p => p.CreatorID == creatorId)
-                .Select(p => new DateTime(p.CreatedAt.Year, p.CreatedAt.Month, 1));
+                .Select(p => new
+                {
+                    p.CreatedAt.Year,
+                    p.CreatedAt.Month
+                });
 
             var commentsMonths = _context.PostComments
                 .Where(c => c.CreatorPost.CreatorID == creatorId)
-                .Select(c => new DateTime(c.CreatedAt.Year, c.CreatedAt.Month, 1));
+                .Select(c => new
+                {
+                    c.CreatedAt.Year,
+                    c.CreatedAt.Month
+                });
 
             var reactionPostMonths = _context.Reactions
                 .Where(r => r.TargetType == ReactionTargetType.CreatorPost)
@@ -955,7 +976,11 @@ namespace CraftDailyCorner.Services
                     _context.CreatorPosts.Where(p => p.CreatorID == creatorId),
                     r => r.TargetID,
                     p => p.PostID,
-                    (r, p) => new DateTime(r.CreatedAt.Year, r.CreatedAt.Month, 1)
+                    (r, p) => new
+                    {
+                        r.CreatedAt.Year,
+                        r.CreatedAt.Month
+                    }
                 );
 
             var reactionPortfolioMonths = _context.Reactions
@@ -964,7 +989,11 @@ namespace CraftDailyCorner.Services
                     _context.Portfolios.Where(p => p.CreatorID == creatorId),
                     r => r.TargetID,
                     p => p.PortfolioID,
-                    (r, p) => new DateTime(r.CreatedAt.Year, r.CreatedAt.Month, 1)
+                    (r, p) => new
+                    {
+                        r.CreatedAt.Year,
+                        r.CreatedAt.Month
+                    }
                 );
 
             var reactionCommentMonths = _context.Reactions
@@ -973,18 +1002,27 @@ namespace CraftDailyCorner.Services
                     _context.PostComments.Where(c => c.CreatorPost.CreatorID == creatorId),
                     r => r.TargetID,
                     c => c.CommentID,
-                    (r, c) => new DateTime(r.CreatedAt.Year, r.CreatedAt.Month, 1)
+                    (r, c) => new
+                    {
+                        r.CreatedAt.Year,
+                        r.CreatedAt.Month
+                    }
                 );
 
-            var monthDates = await postsMonths
+            var monthKeys = await postsMonths
                 .Concat(portfoliosMonths)
                 .Concat(commentsMonths)
                 .Concat(reactionPostMonths)
                 .Concat(reactionPortfolioMonths)
                 .Concat(reactionCommentMonths)
                 .Distinct()
-                .OrderByDescending(x => x)
+                .OrderByDescending(x => x.Year)
+                .ThenByDescending(x => x.Month)
                 .ToListAsync();
+
+            var monthDates = monthKeys
+                .Select(x => new DateTime(x.Year, x.Month, 1))
+                .ToList();
 
             return BuildFilterOptionsFromMonths(monthDates);
         }

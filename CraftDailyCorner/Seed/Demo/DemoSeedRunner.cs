@@ -128,10 +128,10 @@ namespace CraftDailyCorner.Seed.Demo
             _demoSeedPortfolios.Run(seedContext);
             _demoSeedPortfolioItems.Run(seedContext);
 
-            //_demoSeedCreatorPosts.Run(seedContext);
-            //_demoSeedPostComments.Run(seedContext);
-            //_demoSeedFollowCreators.Run(seedContext);
-            //_demoSeedReactions.Run(seedContext);
+            _demoSeedCreatorPosts.Run(seedContext);
+            _demoSeedPostComments.Run(seedContext);
+            _demoSeedFollowCreators.Run(seedContext);
+            _demoSeedReactions.Run(seedContext);
 
             _demoSeedOrders.Run(seedContext);
             _demoSeedOrderDetails.Run(seedContext);

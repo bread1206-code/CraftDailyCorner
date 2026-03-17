@@ -16,6 +16,7 @@ namespace CraftDailyCorner.Models
 
         [Required]
         [StringLength(100)]
+        [Display(Name = "通知標題")]
         public string Title { get; set; } = null!;
 
         [Column(TypeName = "nvarchar(max)")]
@@ -24,17 +25,22 @@ namespace CraftDailyCorner.Models
         public string Content { get; set; } = null!;
 
         [StringLength(255)]
+        [Display(Name = "相關連結")]
         public string? LinkUrl { get; set; }
 
         [Required]
+        [Display(Name = "是否已讀")]
         public bool IsRead { get; set; } = false;
 
+        [Display(Name = "閱讀時間")]
         public DateTime? ReadAt { get; set; }
 
         [StringLength(30)]
+        [Display(Name = "相關實體類型")]
         public string? RelatedEntityType { get; set; }
 
         [StringLength(36)]
+        [Display(Name = "相關實體編號")]
         public string? RelatedEntityId { get; set; }
 
         [Display(Name = "建立時間")]
