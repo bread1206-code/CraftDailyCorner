@@ -311,6 +311,23 @@ namespace CraftDailyCorner.Seed
                     fileNameWithoutExt: "default",
                     sizes: sizes
                 );
+
+            string baseGuid = "4deacede-2561-4052-95fa-5e1438aaef";
+
+            for (int i = 1; i <= 20; i++)
+            {
+                string index = i.ToString("D2"); // 01~20
+                string fileName = $"{baseGuid}{index}";
+                string sourceFile = $"Seed/SeedPhotos/01Member/Image/{fileName}.png";
+
+                _imageUploadService.UploadFromSeed(
+                    seedFolder: "01Member",
+                    sourceFile: sourceFile,
+                    fileNameWithoutExt: fileName,
+                    sizes: sizes
+                );
+            }
+
             var sizesLogo = _folderSizeMapping.ContainsKey("07Logo")
                 ? _folderSizeMapping["07Logo"]
                 : ImageSizePresets.Logo;

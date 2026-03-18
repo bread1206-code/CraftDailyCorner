@@ -168,6 +168,82 @@ namespace CraftDailyCorner.Seed.Demo.Loaders
             return rows;
         }
 
+        public List<ProductReviewSeedRow> LoadProductReviews(string csvPath)
+        {
+            if (string.IsNullOrWhiteSpace(csvPath))
+                throw new ArgumentException("CSV 路徑不可為空");
+
+            if (!File.Exists(csvPath))
+                throw new FileNotFoundException("找不到 ProductReviews.csv", csvPath);
+
+            var lines = File.ReadAllLines(csvPath, Encoding.UTF8);
+
+            if (lines.Length <= 1)
+                return new List<ProductReviewSeedRow>();
+
+            var rows = new List<ProductReviewSeedRow>();
+
+            foreach (var line in lines.Skip(1))
+            {
+                if (string.IsNullOrWhiteSpace(line))
+                    continue;
+
+                var parts = line.Split(',');
+
+                if (parts.Length < 8)
+                    throw new Exception($"ProductReviews.csv 欄位數不足：{line}");
+
+                rows.Add(new ProductReviewSeedRow
+                {
+                    ReviewID = long.Parse(parts[0].Trim()),
+                    Rating = byte.Parse(parts[1].Trim()),
+                    Comment = parts.Length > 2 ? ParseNullableString(parts[2]) : null,
+                    CreatedAt = DateTime.Parse(parts[3].Trim(), CultureInfo.InvariantCulture),
+                    UpdatedAt = ParseNullableDateTime(parts[4]),
+                    MemberID = parts[5].Trim(),
+                    OrderID = parts[6].Trim(),
+                    ProductID = parts[7].Trim()
+                });
+            }
+
+            return rows;
+        }
+
+        public List<FavoriteProductSeedRow> LoadFavoriteProducts(string csvPath)
+        {
+            if (string.IsNullOrWhiteSpace(csvPath))
+                throw new ArgumentException("CSV 路徑不可為空");
+
+            if (!File.Exists(csvPath))
+                throw new FileNotFoundException("找不到 FavoriteProducts.csv", csvPath);
+
+            var lines = File.ReadAllLines(csvPath, Encoding.UTF8);
+
+            if (lines.Length <= 1)
+                return new List<FavoriteProductSeedRow>();
+
+            var rows = new List<FavoriteProductSeedRow>();
+
+            foreach (var line in lines.Skip(1))
+            {
+                if (string.IsNullOrWhiteSpace(line))
+                    continue;
+
+                var parts = line.Split(',');
+
+                if (parts.Length < 3)
+                    throw new Exception($"FavoriteProducts.csv 欄位數不足：{line}");
+
+                rows.Add(new FavoriteProductSeedRow
+                {
+                    MemberID = parts[0].Trim(),
+                    ProductID = parts[1].Trim(),
+                    CreatedAt = DateTime.Parse(parts[2].Trim(), CultureInfo.InvariantCulture)
+                });
+            }
+
+            return rows;
+        }
         private static DateTime? ParseNullableDateTime(string value)
         {
             var text = value?.Trim();
@@ -176,6 +252,12 @@ namespace CraftDailyCorner.Seed.Demo.Loaders
                 return null;
 
             return DateTime.Parse(text, CultureInfo.InvariantCulture);
+        }
+
+        private static string? ParseNullableString(string value)
+        {
+            var text = value?.Trim();
+            return string.IsNullOrWhiteSpace(text) ? null : text;
         }
     }
 }

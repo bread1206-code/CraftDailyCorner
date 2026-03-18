@@ -1619,6 +1619,7 @@ body {
 
 #musicToggleBtn {
     transition: transform 0.15s ease;
+    box-shadow: none;
 }
 
     #musicToggleBtn:hover {

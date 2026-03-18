@@ -54,6 +54,12 @@
             Path.Combine(Directory.GetCurrentDirectory(),
                 "Seed", "Demo", "DataFiles", "Shipments.csv");
 
+        public static string ProductReviewsCsv =>
+            Path.Combine(Directory.GetCurrentDirectory(),
+                "Seed", "Demo", "DataFiles", "ProductReviews.csv");
+        public static string FavoriteProductsCsv =>
+            Path.Combine(Directory.GetCurrentDirectory(),
+                "Seed", "Demo", "DataFiles", "FavoriteProducts.csv");
         // ================================
         // Seed 圖片素材
         // ================================

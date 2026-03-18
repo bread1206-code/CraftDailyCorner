@@ -22,6 +22,8 @@ namespace CraftDailyCorner.Seed.Demo.Context
         public List<OrderDetailSeedRow> OrderDetails { get; set; } = new();
         public List<PaymentSeedRow> Payments { get; set; } = new();
         public List<ShipmentSeedRow> Shipments { get; set; } = new();
+        public List<FavoriteProductSeedRow> FavoriteProducts { get; set; } = new();
+        public List<ProductReviewSeedRow> ProductReviews { get; set; } = new();
 
         // ================================
         // 對照資料

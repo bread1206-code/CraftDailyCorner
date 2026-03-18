@@ -148,7 +148,7 @@
                        name="keyword"
                        placeholder="搜尋商品"
                        value="@Context.Request.Query["keyword"]" />
-                <button class="btn btn-primary" type="submit">
+                <button class="btn btn-primary focus-none" type="submit">
                     <i class="bi bi-search"></i>
                 </button>
             </form>
@@ -168,7 +168,7 @@
                     {
                         @if (!User.Identity!.IsAuthenticated)
                         {
-                            <button class="btn btn-primary position-relative"
+                            <button class="btn btn-primary position-relative focus-none"
                                     type="button"
                                     onclick="prepareLoginModal(); openLoginModal();">
                                 <i class="bi bi-cart"></i>
@@ -176,7 +176,7 @@
                         }
                         else
                         {
-                            <button class="btn btn-primary position-relative"
+                            <button class="btn btn-primary position-relative focus-none"
                                     type="button"
                                     data-bs-toggle="modal"
                                     data-bs-target="#CartModal">
@@ -199,7 +199,7 @@
                 @if (!User.Identity?.IsAuthenticated == true)
                 {
                     <li class="nav-item">
-                        <button class="btn btn-primary w-100 w-xl-auto"
+                        <button class="btn btn-primary w-100 w-xl-auto focus-none"
                                 type="button"
                                 onclick="prepareLoginModal()"
                                 data-bs-toggle="modal"

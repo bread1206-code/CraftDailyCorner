@@ -30,6 +30,8 @@ namespace CraftDailyCorner.Seed.Demo
         private readonly DemoSeedOrderDetails _demoSeedOrderDetails;
         private readonly DemoSeedPayments _demoSeedPayments;
         private readonly DemoSeedShipments _demoSeedShipments;
+        private readonly DemoSeedProductReviews _demoSeedProductReviews;
+        private readonly DemoSeedFavoriteProducts _demoSeedFavoriteProducts;
 
         private readonly DemoSeedPortfolios _demoSeedPortfolios;
         private readonly DemoSeedPortfolioItems _demoSeedPortfolioItems;
@@ -63,6 +65,8 @@ namespace CraftDailyCorner.Seed.Demo
             DemoSeedOrderDetails demoSeedOrderDetails,
             DemoSeedPayments demoSeedPayments,
             DemoSeedShipments demoSeedShipments,
+            DemoSeedProductReviews demoSeedProductReviews,
+            DemoSeedFavoriteProducts demoSeedFavoriteProducts,
             MemberSeedLoader memberSeedLoader,
             CreatorSeedLoader creatorSeedLoader,
             ProductSeedLoader productSeedLoader,
@@ -95,6 +99,8 @@ namespace CraftDailyCorner.Seed.Demo
             _demoSeedOrderDetails = demoSeedOrderDetails;
             _demoSeedPayments = demoSeedPayments;
             _demoSeedShipments = demoSeedShipments;
+            _demoSeedProductReviews = demoSeedProductReviews;
+            _demoSeedFavoriteProducts = demoSeedFavoriteProducts;
 
             _demoSeedPortfolios = demoSeedPortfolios;
             _demoSeedPortfolioItems = demoSeedPortfolioItems;
@@ -137,6 +143,8 @@ namespace CraftDailyCorner.Seed.Demo
             _demoSeedOrderDetails.Run(seedContext);
             _demoSeedPayments.Run(seedContext);
             _demoSeedShipments.Run(seedContext);
+            _demoSeedProductReviews.Run(seedContext);
+            _demoSeedFavoriteProducts.Run(seedContext);
         }
 
         private DemoSeedContext BuildContext()
@@ -156,7 +164,9 @@ namespace CraftDailyCorner.Seed.Demo
                 Orders = _orderSeedLoader.LoadOrders(DemoSeedPaths.OrdersCsv),
                 OrderDetails = _orderSeedLoader.LoadOrderDetails(DemoSeedPaths.OrderDetailsCsv),
                 Payments = _orderSeedLoader.LoadPayments(DemoSeedPaths.PaymentsCsv),
-                Shipments = _orderSeedLoader.LoadShipments(DemoSeedPaths.ShipmentsCsv)
+                Shipments = _orderSeedLoader.LoadShipments(DemoSeedPaths.ShipmentsCsv),
+                ProductReviews = _orderSeedLoader.LoadProductReviews(DemoSeedPaths.ProductReviewsCsv),
+                FavoriteProducts = _orderSeedLoader.LoadFavoriteProducts(DemoSeedPaths.FavoriteProductsCsv)
             };
 
             return seedContext;
