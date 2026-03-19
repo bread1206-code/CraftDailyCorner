@@ -216,11 +216,11 @@ using (var scope = app.Services.CreateScope())
 }
 
 /*DemoSeed*/
-//using (var scope = app.Services.CreateScope())
-//{
-//    var demoSeedRunner = scope.ServiceProvider.GetRequiredService<DemoSeedRunner>();
-//    demoSeedRunner.Run();
-//}
+using (var scope = app.Services.CreateScope())
+{
+    var demoSeedRunner = scope.ServiceProvider.GetRequiredService<DemoSeedRunner>();
+    demoSeedRunner.Run();
+}
 
 
 // Configure the HTTP request pipeline.

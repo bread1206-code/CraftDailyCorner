@@ -440,7 +440,7 @@ namespace CraftDailyCorner.Services
                     ProductID = g.Key.ProductID,
                     ProductName = g.Key.ProductName,
                     QuantitySold = g.Sum(x => x.Quantity),
-                    Revenue = g.Sum(x => x.Quantity * x.PriceSnapshot)
+                    Revenue = (int)g.Sum(x => x.Quantity * x.PriceSnapshot)
                 })
                 .OrderByDescending(x => x.Revenue)
                 .Take(5)
@@ -453,7 +453,7 @@ namespace CraftDailyCorner.Services
                     ProductID = g.Key.ProductID,
                     ProductName = g.Key.ProductName,
                     QuantitySold = g.Sum(x => x.Quantity),
-                    Revenue = g.Sum(x => x.Quantity * x.PriceSnapshot)
+                    Revenue = (int)g.Sum(x => x.Quantity * x.PriceSnapshot)
                 })
                 .OrderByDescending(x => x.QuantitySold)
                 .Take(5)

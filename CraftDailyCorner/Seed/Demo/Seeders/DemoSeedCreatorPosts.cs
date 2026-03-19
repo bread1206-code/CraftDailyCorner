@@ -45,6 +45,9 @@ namespace CraftDailyCorner.Seed.Demo.Seeders
 
             var creatorPosts = new List<CreatorPost>();
 
+            // 每位創作者各自重新編號
+            var creatorPostCounter = new Dictionary<string, int>();
+
             for (int i = 0; i < seedContext.CreatorPosts.Count; i++)
             {
                 var row = seedContext.CreatorPosts[i];
@@ -56,7 +59,7 @@ namespace CraftDailyCorner.Seed.Demo.Seeders
 
                 var key = $"{creatorId}|||{title}";
 
-                // 這裡是關鍵：如果 DB 已存在，也要把 map 補回 seedContext
+                // 如果 DB 已存在，也要把 map 補回 seedContext
                 if (existingPostMap.TryGetValue(key, out var existingPost))
                 {
                     seedContext.CsvPostIdToDbPostIdMap[row.CsvPostID] = existingPost.PostID;
@@ -66,6 +69,13 @@ namespace CraftDailyCorner.Seed.Demo.Seeders
 
                 if (!seedContext.CreatorConfirmedAtMap.TryGetValue(creatorId, out var confirmedAt))
                     throw new Exception($"找不到 CreatorConfirmedAt：{creatorId}");
+
+                if (!creatorPostCounter.ContainsKey(creatorId))
+                    creatorPostCounter[creatorId] = 0;
+
+                creatorPostCounter[creatorId]++;
+
+                var postIndex = creatorPostCounter[creatorId];
 
                 var postId = Guid.NewGuid().ToString();
 
@@ -78,7 +88,8 @@ namespace CraftDailyCorner.Seed.Demo.Seeders
                     sourceFilePath: sourceImagePath,
                     creatorId: creatorId);
 
-                var createdAt = confirmedAt.AddDays(3 + i % 20);
+                // 每位 Creator 依自己的發文數往後 +1 天
+                var createdAt = confirmedAt.AddDays(3 + postIndex);
                 var updatedAt = createdAt;
 
                 var visibility = ParseVisibility(row.Visibility);

@@ -5,7 +5,7 @@
     ViewData["Title"] = "編輯創作日誌";
 }
 
-<div class="container py-5" style="max-width:900px;">
+<div class="container py-5">
 
     <div class="page-header mb-4">
         <h2 class="fw-bold">編輯創作日誌</h2>
@@ -98,14 +98,13 @@
                 </div>
 
                 <!-- 按鈕 -->
-                <div class="d-flex gap-2">
-                    <button type="submit" class="btn btn-dark">
+                <div class="text-end">
+                    <a asp-action="List" class="btn btn-soft-secondary">
+                        取消
+                    </a>
+                    <button type="submit" class="btn btn-soft-primary">
                         儲存修改
                     </button>
-
-                    <a asp-action="List" class="btn btn-outline-secondary">
-                        返回列表
-                    </a>
                 </div>
 
             </form>

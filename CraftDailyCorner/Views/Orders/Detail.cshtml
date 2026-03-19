@@ -83,7 +83,7 @@
         <h3 class="fw-bold">訂單明細</h3>
 
         <a asp-action="Index"
-           class="btn btn-outline-secondary btn-sm fs-5">
+           class="btn btn-soft-secondary btn-sm fs-5">
             返回我的訂單
         </a>
     </div>
@@ -230,7 +230,7 @@
                 NT$ @Model.TotalAmount.ToString("N0")
             </div>
             <!-- ===== 查看付款紀錄 ===== -->
-            <button class="btn btn-outline-primary mt-2"
+            <button class="btn btn-soft-filter mt-2"
                     data-bs-toggle="collapse"
                     data-bs-target="#orderPaymentCollapse">
                 查看此訂單的付款紀錄
@@ -282,7 +282,7 @@
                             {
                                 <td class="text-end">
                                     <button type="button"
-                                            class="btn @(item.HasReview ? "btn-outline-secondary" : "btn-outline-primary") btn-sm"
+                                            class="btn @(item.HasReview ? "btn-soft-secondary" : "btn-soft-primary") btn-sm"
                                             data-bs-toggle="modal"
                                             data-bs-target="#productReviewModal"
                                             data-order-id="@Model.OrderID"
@@ -404,8 +404,8 @@
                         </div>
 
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">取消</button>
-                            <button type="submit" class="btn btn-primary" id="reviewSubmitButton">儲存評價</button>
+                            <button type="button" class="btn btn-soft-secondary" data-bs-dismiss="modal">取消</button>
+                            <button type="submit" class="btn btn-soft-primary" id="reviewSubmitButton">儲存評價</button>
                         </div>
                     </form>
                 </div>

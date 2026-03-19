@@ -104,11 +104,6 @@
                     {
                         <div class="p-3 border-bottom bg-white z-1 shadow-sm">
                             <div class="fw-bold fs-5">@Model.CurrentThread.DisplayName</div>
-
-                            @if (!string.IsNullOrWhiteSpace(Model.CurrentThread.SubTitle))
-                            {
-                                <div class="text-muted small">@Model.CurrentThread.SubTitle</div>
-                            }
                         </div>
 
                         @if (!string.IsNullOrWhiteSpace(Model.CurrentThread.ProductID))
@@ -151,7 +146,7 @@
                                                 <a asp-controller="Products"
                                                    asp-action="Detail"
                                                    asp-route-id="@Model.CurrentThread.ProductID"
-                                                   class="btn btn-sm btn-outline-primary rounded-pill px-3 mt-2">
+                                                   class="btn btn-sm btn-soft-primary rounded-pill px-3 mt-2">
                                                     查看商品
                                                 </a>
                                             </div>
@@ -165,7 +160,7 @@
                         {
                             <div class="p-2 border-bottom bg-white">
                                 <div class="d-flex justify-content-between align-items-center px-2 py-1">
-                                    <button class="btn btn-sm btn-link text-decoration-none text-muted p-0"
+                                    <button class="btn btn-sm btn-soft-filter"
                                             type="button"
                                             data-bs-toggle="collapse"
                                             data-bs-target="#quickReplyCollapse"
@@ -176,7 +171,7 @@
 
                                     <a asp-controller="Messages"
                                        asp-action="MessageTemplates"
-                                       class="btn btn-sm btn-outline-secondary rounded-pill" style="font-size:0.75rem;">
+                                       class="btn btn-sm btn-soft-filter">
                                         <i class="bi bi-gear"></i> 管理
                                     </a>
                                 </div>
@@ -201,7 +196,7 @@
                                 <div class="small text-muted"><i class="bi bi-info-circle me-1"></i> 尚無快速回覆模板</div>
                                 <a asp-controller="Messages"
                                        asp-action="CreateMessageTemplate"
-                                   class="btn btn-sm btn-outline-secondary rounded-pill">
+                                   class="btn btn-sm btn-soft-filter rounded-pill">
                                     新增模板
                                 </a>
                             </div>
@@ -228,7 +223,7 @@
 
                                             <div style="white-space: pre-wrap;">@msg.Content</div>
 
-                                            <div class="msg-time @(msg.IsMine ? "text-white-50 text-end" : "text-secondary text-start")">
+                                            <div class="msg-time">
                                                 @msg.CreatedAt.ToString("yyyy/MM/dd HH:mm")
                                             </div>
 
@@ -255,7 +250,7 @@
                                       required>@Model.CurrentThread.DraftContent</textarea>
 
                                 <div class="d-flex justify-content-end align-items-center mt-1">
-                                    <button type="submit" class="btn btn-primary rounded-pill px-4 fw-semibold shadow-sm">
+                                    <button type="submit" class="btn btn-soft-primary rounded-pill px-4 fw-semibold shadow-sm">
                                         送出 <i class="bi bi-send-fill ms-1"></i>
                                     </button>
                                 </div>

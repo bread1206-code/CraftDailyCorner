@@ -4,7 +4,7 @@
     ViewData["Title"] = "新增作品集";
 }
 
-<div class="container py-5" style="max-width:900px;">
+<div class="container py-5">
 
     <!-- 標題 -->
     <div class="mb-4">
@@ -83,17 +83,18 @@
                 </div>
 
                 <!-- 按鈕 -->
-                <div class="d-flex gap-2">
+                <div class="text-end">
+                    <a asp-action="List"
+                           class="btn btn-outline-secondary">
+                        取消
+                    </a>
+
                     <button type="submit"
-                            class="btn btn-dark">
-                        <i class="bi bi-plus-lg me-1"></i>
+                            class="btn btn-soft-primary">
                         建立作品集
                     </button>
 
-                    <a asp-action="List"
-                       class="btn btn-outline-secondary">
-                        返回列表
-                    </a>
+                    
                 </div>
 
             </form>

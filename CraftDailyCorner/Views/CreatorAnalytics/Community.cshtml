@@ -23,7 +23,7 @@
         <div>
             <a asp-controller="Creator"
                    asp-action="Dashboard"
-                   class="btn btn-outline-secondary">
+                   class="btn btn-soft-secondary">
                 回創作者中心
             </a>
         </div>
@@ -67,9 +67,9 @@
         <div class="col-md-3">
             <div class="card shadow-sm border-0 h-100 bg-light">
                 <div class="card-body">
-                    <h6 class="text-muted">本月反應（Reaction）</h6>
+                    <h6 class="text-muted">本月人氣</h6>
                     <h3 class="fw-bold">@Model.Overview.ReactionsThisMonth</h3>
-                    <small class="text-muted">總反應 @Model.Overview.TotalReactions</small>
+                    <small class="text-muted">總人氣 @Model.Overview.TotalReactions</small>
                 </div>
             </div>
         </div>
@@ -98,13 +98,13 @@
                 <div class="d-flex flex-column flex-md-row gap-2 align-items-md-center">
 
                     <div class="btn-group" role="group">
-                        <button type="button" class="btn btn-outline-primary btn-sm js-mode-btn active" data-mode="year">
+                        <button type="button" class="btn btn-soft-filter btn-sm js-mode-btn active" data-mode="year">
                             年度
                         </button>
-                        <button type="button" class="btn btn-outline-primary btn-sm js-mode-btn" data-mode="rolling12">
+                        <button type="button" class="btn btn-soft-filter btn-sm js-mode-btn" data-mode="rolling12">
                             近12個月
                         </button>
-                        <button type="button" class="btn btn-outline-primary btn-sm js-mode-btn" data-mode="month">
+                        <button type="button" class="btn btn-soft-filter btn-sm js-mode-btn" data-mode="month">
                             單月
                         </button>
                     </div>
@@ -190,13 +190,13 @@
                 <div class="d-flex flex-column flex-md-row gap-2 align-items-md-center">
 
                     <div class="btn-group" role="group">
-                        <button type="button" class="btn btn-outline-primary btn-sm js-mode-btn active" data-mode="year">
+                        <button type="button" class="btn btn-soft-filter btn-sm js-mode-btn active" data-mode="year">
                             年度
                         </button>
-                        <button type="button" class="btn btn-outline-primary btn-sm js-mode-btn" data-mode="rolling12">
+                        <button type="button" class="btn btn-soft-filter btn-sm js-mode-btn" data-mode="rolling12">
                             近12個月
                         </button>
-                        <button type="button" class="btn btn-outline-primary btn-sm js-mode-btn" data-mode="month">
+                        <button type="button" class="btn btn-soft-filter btn-sm js-mode-btn" data-mode="month">
                             單月
                         </button>
                     </div>
@@ -282,13 +282,13 @@
                 <div class="d-flex flex-column flex-md-row gap-2 align-items-md-center">
 
                     <div class="btn-group" role="group">
-                        <button type="button" class="btn btn-outline-primary btn-sm js-mode-btn active" data-mode="year">
+                        <button type="button" class="btn btn-soft-filter btn-sm js-mode-btn active" data-mode="year">
                             年度
                         </button>
-                        <button type="button" class="btn btn-outline-primary btn-sm js-mode-btn" data-mode="rolling12">
+                        <button type="button" class="btn btn-soft-filter btn-sm js-mode-btn" data-mode="rolling12">
                             近12個月
                         </button>
-                        <button type="button" class="btn btn-outline-primary btn-sm js-mode-btn" data-mode="month">
+                        <button type="button" class="btn btn-soft-filter btn-sm js-mode-btn" data-mode="month">
                             單月
                         </button>
                     </div>
@@ -363,7 +363,7 @@
             <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 mb-3">
                 <div>
                     <div class="d-flex align-items-center gap-2 flex-wrap">
-                        <h5 class="fw-bold mb-0">反應（Reaction）趨勢</h5>
+                        <h5 class="fw-bold mb-0">反應趨勢</h5>
                         <span class="badge bg-dark js-growth-badge">
                             成長率 @Model.ReactionAnalysis.ReactionGrowthRate.ToString("P")
                         </span>
@@ -374,13 +374,13 @@
                 <div class="d-flex flex-column flex-md-row gap-2 align-items-md-center">
 
                     <div class="btn-group" role="group">
-                        <button type="button" class="btn btn-outline-primary btn-sm js-mode-btn active" data-mode="year">
+                        <button type="button" class="btn btn-soft-filter btn-sm js-mode-btn active" data-mode="year">
                             年度
                         </button>
-                        <button type="button" class="btn btn-outline-primary btn-sm js-mode-btn" data-mode="rolling12">
+                        <button type="button" class="btn btn-soft-filter btn-sm js-mode-btn" data-mode="rolling12">
                             近12個月
                         </button>
-                        <button type="button" class="btn btn-outline-primary btn-sm js-mode-btn" data-mode="month">
+                        <button type="button" class="btn btn-soft-filter btn-sm js-mode-btn" data-mode="month">
                             單月
                         </button>
                     </div>
@@ -450,7 +450,7 @@
         <div class="col-lg-6">
             <div class="card shadow-sm border-0 h-100">
                 <div class="card-body">
-                    <h5 class="fw-bold mb-3">Top 貼文（依 Reaction）</h5>
+                    <h5 class="fw-bold mb-3">Top 日誌</h5>
 
                     @if (!Model.ReactionAnalysis.TopReactedPosts.Any())
                     {
@@ -463,8 +463,8 @@
                                 <thead>
                                     <tr class="text-muted">
                                         <th>標題</th>
-                                        <th class="text-end">Reaction</th>
-                                        <th class="text-end">日期</th>
+                                        <th class="text-end">人氣</th>
+                                        <th class="text-end">發佈日期</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -492,7 +492,7 @@
         <div class="col-lg-6">
             <div class="card shadow-sm border-0 h-100">
                 <div class="card-body">
-                    <h5 class="fw-bold mb-3">Top 作品集（依 Reaction）</h5>
+                    <h5 class="fw-bold mb-3">Top 作品集</h5>
 
                     @if (!Model.ReactionAnalysis.TopReactedPortfolios.Any())
                     {
@@ -505,8 +505,8 @@
                                 <thead>
                                     <tr class="text-muted">
                                         <th>標題</th>
-                                        <th class="text-end">Reaction</th>
-                                        <th class="text-end">日期</th>
+                                        <th class="text-end">人氣</th>
+                                        <th class="text-end">發佈日期</th>
                                     </tr>
                                 </thead>
                                 <tbody>

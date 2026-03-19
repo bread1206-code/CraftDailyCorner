@@ -5,7 +5,7 @@
     ViewData["Title"] = "編輯商品";
 }
 
-<div class="container py-5" style="max-width:1100px;">
+<div class="container py-5">
 
     <h2 class="fw-bold mb-4">編輯商品</h2>
 
@@ -139,7 +139,7 @@
 
         <div class="card shadow-sm border-0 mb-4">
             <div class="card-header bg-light fw-semibold">
-                商品標籤（最多 10 個）
+                商品標籤（最多 10 個）<span class="text-muted">使用Ctrl+F搜尋，可以加快速度唷</span>
             </div>
 
             <div class="card-body">
@@ -171,14 +171,14 @@
 
         <!-- ================= 按鈕 ================= -->
 
-        <div class="text-end mb-4">
+        <div class="text-end">
             <a asp-action="Index"
-                   class="btn btn-outline-secondary me-2">
+                   class="btn btn-soft-secondary me-2">
                 取消
             </a>
 
             <button type="submit"
-                    class="btn btn-primary">
+                    class="btn btn-soft-primary">
                 儲存修改
             </button>
         </div>

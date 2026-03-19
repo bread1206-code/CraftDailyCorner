@@ -37,20 +37,20 @@
                     <a asp-controller="Payment"
                        asp-action="Create"
                        asp-route-orderId="@Model.OrderID"
-                       class="btn btn-primary btn-lg mb-3">
+                       class="btn btn-soft-primary btn-lg mb-3">
                         前往付款
                     </a>
 
                     <div class="d-grid gap-2 mt-4">
                         <a asp-controller="Products"
                            asp-action="Index"
-                           class="btn btn-primary">
+                           class="btn btn-soft-success">
                             繼續購物
                         </a>
 
                         <a asp-controller="Orders"
                            asp-action="Index"
-                           class="btn btn-outline-secondary">
+                           class="btn btn-soft-secondary">
                             查看我的訂單
                         </a>
                     </div>

@@ -55,17 +55,17 @@
                                     }
                                 </li>
                             </ul>
+                        </div>
 
-                            @if (!Model.IsReportBanned)
-                            {
-                                <partial name="_ReportModal"
-                                         model="new VMReport
+                        @if (!Model.IsReportBanned)
+                        {
+                            <partial name="_ReportModal"
+                                     model="new VMReport
                                          {
                                              ReportType = ReportTargetType.Comment,
                                              TargetID = Model.CommentID
                                          }" />
-                                                }
-                        </div>
+                        }
                     }
                 </div>
 
@@ -82,13 +82,15 @@
 
             <div class="mt-1 text-content">@Model.Content</div>
 
-            @if (Model.ReactionButton?.TotalCount > 0)
-            {
-                <div class="mt-2 small">
+            <div class="reaction-summary-container mt-2 small">
+                <div class="mt-2 small @(Model.ReactionButton?.TotalCount > 0 ? "" : "d-none")"
+                     data-reaction-summary
+                     data-target-type="Comment"
+                     data-target-id="@Model.CommentID">
                     <partial name="_ReactionSummaryPartial"
                              model="Model.ReactionButton" />
                 </div>
-            }
+            </div>
 
         </div>
     </div>

@@ -14,7 +14,7 @@
 
         <a asp-controller="Member"
            asp-action="Index"
-           class="btn btn-outline-secondary btn-sm fs-5">
+           class="btn btn-soft-secondary btn-sm fs-5">
             返回會員中心
         </a>
     </div>
@@ -91,7 +91,7 @@
                                         _ => "bg-secondary"
                                     };
                                 }
-                                <span class="badge @statusBadgeClass" ">
+                                <span class="badge @statusBadgeClass">
                                     @if (order.StatusText == "取消")
                                     {
                                         @order.StatusText <span>-</span> @order.UpdatedAt.ToString("yyyy/MM/dd HH:mm")
@@ -107,7 +107,7 @@
                             <td class="text-end">
                                 <a asp-action="Detail"
                                    asp-route-orderId="@order.OrderID"
-                                   class="btn btn-sm btn-outline-primary">
+                                   class="btn btn-sm btn-soft-filter">
                                     查看明細
                                 </a>
                             </td>

@@ -1,0 +1,352 @@
+﻿:root {
+    /* ===== 品牌暖色系 ===== */
+    --soft-brown-1: #5f4632;
+    --soft-brown-2: #7a5c43;
+    --soft-brown-3: #8c6b4f;
+    --soft-brown-4: #a88464;
+    --soft-cream-1: #fffdfb;
+    --soft-cream-2: #fff8f3;
+    --soft-cream-3: #f8efe6;
+    --soft-cream-4: #f2e6d8;
+    --soft-beige-1: #eadbc8;
+    --soft-beige-2: #dbc6af;
+    --soft-beige-3: #d9c3ad;
+    --soft-warning-1: #fffaf4;
+    --soft-warning-2: #fff2df;
+    --soft-warning-3: #f3c98b;
+    --soft-warning-4: #ecbb72;
+    --soft-warning-text: #9b6934;
+    --soft-success-1: #f7fbf5;
+    --soft-success-2: #edf6e9;
+    --soft-success-3: #86a67d;
+    --soft-success-text: #5a7252;
+    --soft-info-1: #f7fafc;
+    --soft-info-2: #edf4f8;
+    --soft-info-3: #8ea7b8;
+    --soft-info-text: #617887;
+    --soft-danger-1: #fff6f5;
+    --soft-danger-2: #fdebea;
+    --soft-danger-3: #d99898;
+    --soft-danger-text: #9b5f5f;
+    --soft-text-main: #5f4632;
+    --soft-text-sub: #8a7463;
+    --soft-text-light: #9f8d7f;
+    --soft-shadow-sm: 0 6px 16px rgba(121, 92, 66, 0.06);
+    --soft-shadow-md: 0 10px 28px rgba(121, 92, 66, 0.08);
+    --soft-shadow-lg: 0 14px 36px rgba(121, 92, 66, 0.12);
+    --soft-radius-sm: 12px;
+    --soft-radius-md: 16px;
+    --soft-radius-lg: 20px;
+    --soft-radius-pill: 10px;
+}
+
+/* ===== 全站基本語氣 ===== */
+body {
+    color: var(--soft-text-main);
+}
+
+.soft-page {
+    background: linear-gradient(180deg, var(--soft-cream-1) 0%, var(--soft-cream-2) 100%);
+    border-radius: 24px;
+    padding: 1.5rem;
+}
+
+.soft-title {
+    color: var(--soft-text-main);
+    font-weight: 800;
+    letter-spacing: 0.3px;
+}
+
+.soft-subtitle {
+    color: var(--soft-text-sub);
+}
+
+/* ===== 共用卡片 ===== */
+.soft-card {
+    border: 0;
+    border-radius: var(--soft-radius-lg);
+    background-color: #fffdfb;
+    box-shadow: var(--soft-shadow-md);
+}
+
+    .soft-card .card-header {
+        background-color: transparent;
+        border-bottom: 1px solid #f1e7dc;
+        color: var(--soft-text-main);
+    }
+
+/* ===== 共用按鈕基底 ===== */
+.btn-soft,
+.btn-soft-primary,
+.btn-soft-secondary,
+.btn-soft-warning,
+.btn-soft-success,
+.btn-soft-info,
+.btn-soft-danger,
+.btn-soft-outline {
+    border-radius: var(--soft-radius-pill);
+    font-weight: 600;
+    transition: all 0.2s ease;
+    box-shadow: none;
+}
+
+    .btn-soft:focus,
+    .btn-soft-primary:focus,
+    .btn-soft-secondary:focus,
+    .btn-soft-warning:focus,
+    .btn-soft-success:focus,
+    .btn-soft-info:focus,
+    .btn-soft-danger:focus,
+    .btn-soft-outline:focus {
+        box-shadow: 0 0 0 0.2rem rgba(168, 132, 100, 0.18);
+    }
+
+/* ===== 主按鈕 ===== */
+.btn-soft-primary {
+    background-color: var(--soft-brown-3);
+    color: #fff;
+    border: 1px solid var(--soft-brown-3);
+}
+
+    .btn-soft-primary:hover,
+    .btn-soft-primary:active {
+        background-color: var(--soft-brown-2);
+        border-color: var(--soft-brown-2);
+        color: #fff;
+        transform: translateY(-1px);
+    }
+
+/* ===== 次按鈕 ===== */
+.btn-soft-secondary {
+    background-color: var(--soft-cream-3);
+    color: var(--soft-brown-2);
+    border: 1px solid var(--soft-beige-1);
+}
+
+    .btn-soft-secondary:hover,
+    .btn-soft-secondary:active {
+        background-color: var(--soft-cream-4);
+        color: var(--soft-brown-1);
+        border-color: var(--soft-beige-2);
+        transform: translateY(-1px);
+    }
+
+/* ===== 溫暖提醒 ===== */
+.btn-soft-warning {
+    background-color: var(--soft-warning-3);
+    color: #6b4b2f;
+    border: 1px solid var(--soft-warning-3);
+}
+
+    .btn-soft-warning:hover,
+    .btn-soft-warning:active {
+        background-color: var(--soft-warning-4);
+        border-color: var(--soft-warning-4);
+        color: #5f4127;
+        transform: translateY(-1px);
+    }
+
+/* ===== 成功 ===== */
+.btn-soft-success {
+    background-color: var(--soft-success-3);
+    color: #fff;
+    border: 1px solid var(--soft-success-3);
+}
+
+    .btn-soft-success:hover,
+    .btn-soft-success:active {
+        background-color: #76976d;
+        border-color: #76976d;
+        color: #fff;
+        transform: translateY(-1px);
+    }
+
+/* ===== 資訊 ===== */
+.btn-soft-info {
+    background-color: var(--soft-info-3);
+    color: #fff;
+    border: 1px solid var(--soft-info-3);
+}
+
+    .btn-soft-info:hover,
+    .btn-soft-info:active {
+        background-color: #7e98aa;
+        border-color: #7e98aa;
+        color: #fff;
+        transform: translateY(-1px);
+    }
+
+/* ===== 危險 ===== */
+.btn-soft-danger {
+    background-color: var(--soft-danger-3);
+    color: #fff;
+    border: 1px solid var(--soft-danger-3);
+}
+
+    .btn-soft-danger:hover,
+    .btn-soft-danger:active {
+        background-color: #c98787;
+        border-color: #c98787;
+        color: #fff;
+        transform: translateY(-1px);
+    }
+
+/* ===== 外框按鈕 ===== */
+.btn-soft-outline {
+    background-color: #fff;
+    color: var(--soft-brown-2);
+    border: 1px solid var(--soft-beige-3);
+}
+
+    .btn-soft-outline:hover,
+    .btn-soft-outline:active {
+        background-color: var(--soft-cream-3);
+        color: var(--soft-brown-1);
+        border-color: var(--soft-beige-2);
+        transform: translateY(-1px);
+    }
+
+/* ===== 小型篩選按鈕 ===== */
+.btn-soft-filter {
+    border-radius: var(--soft-radius-pill);
+    font-weight: 600;
+    padding: 0.4rem 0.9rem;
+    background-color: #fff;
+    border: 1px solid var(--soft-beige-3);
+    color: var(--soft-brown-2);
+    transition: all 0.2s ease;
+}
+
+    .btn-soft-filter:hover {
+        background-color: var(--soft-cream-3);
+        color: var(--soft-brown-1);
+    }
+
+    .btn-soft-filter.active {
+        background-color: var(--soft-brown-2);
+        border-color: var(--soft-brown-2);
+        color: #fff;
+    }
+
+/* ===== badge ===== */
+.badge-soft-brown {
+    background-color: #f3e8dc;
+    color: var(--soft-brown-2);
+    border-radius: var(--soft-radius-pill);
+    padding: 0.35rem 0.7rem;
+    font-weight: 600;
+}
+
+.badge-soft-warning {
+    background-color: #f6dfc7;
+    color: #7a5330;
+    border-radius: var(--soft-radius-pill);
+    padding: 0.35rem 0.7rem;
+    font-weight: 600;
+}
+
+.badge-soft-success {
+    background-color: #ddebd9;
+    color: #5f7658;
+    border-radius: var(--soft-radius-pill);
+    padding: 0.35rem 0.7rem;
+    font-weight: 600;
+}
+
+.badge-soft-danger {
+    background-color: #f4d7d7;
+    color: #8a5555;
+    border-radius: var(--soft-radius-pill);
+    padding: 0.35rem 0.7rem;
+    font-weight: 600;
+}
+
+/* ===== 表單 ===== */
+.form-control,
+.form-select {
+    border-radius: 14px;
+    border: 1px solid #e7d9ca;
+    color: var(--soft-text-main);
+}
+
+    .form-control:focus,
+    .form-select:focus {
+        border-color: #cfae8f;
+        box-shadow: 0 0 0 0.2rem rgba(207, 174, 143, 0.18);
+    }
+
+/* ===== 分頁 ===== */
+.pagination .page-link {
+    color: var(--soft-brown-2);
+    border: 1px solid var(--soft-beige-1);
+    background-color: #fffdfb;
+}
+
+    .pagination .page-link:hover {
+        background-color: var(--soft-cream-3);
+        color: var(--soft-brown-1);
+        border-color: var(--soft-beige-2);
+    }
+
+.pagination .page-item.active .page-link {
+    background-color: var(--soft-brown-3);
+    border-color: var(--soft-brown-3);
+    color: #fff;
+}
+
+.pagination .page-item.disabled .page-link {
+    color: #b7a79a;
+    background-color: #faf6f1;
+    border-color: #efe5da;
+}
+
+/* =========================
+   Card System（溫馨卡片）
+   ========================= */
+
+.card-soft {
+    border: 1px solid #e7b37a;
+    border-radius: 5px;
+    background-color: #FCF8F3;
+    box-shadow: 0 6px 20px rgba(180, 140, 90, 0.08);
+    transition: all 0.2s ease;
+}
+
+.text-soft-primary {
+    color: #d89b5a;
+}
+
+/* =========================
+   Checkbox / Radio（溫馨風格）
+   ========================= */
+
+.form-check-input {
+    border: 1.5px solid #e5d3bd;
+    background-color: #fffdf9;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+    /* hover */
+    .form-check-input:hover {
+        border-color: #d89b5a;
+    }
+
+    /* focus */
+    .form-check-input:focus {
+        box-shadow: 0 0 0 0.15rem rgba(216, 155, 90, 0.25);
+        border-color: #d89b5a;
+    }
+
+    /* checked（重點） */
+    .form-check-input:checked {
+        background-color: #d89b5a;
+        border-color: #d89b5a;
+    }
+
+    /* disabled */
+    .form-check-input:disabled {
+        background-color: #f5eee6;
+        border-color: #e0d4c5;
+    }
+

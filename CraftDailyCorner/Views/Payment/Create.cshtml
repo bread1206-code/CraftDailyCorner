@@ -29,10 +29,10 @@
         <input type="hidden" name="OrderID" value="@Model.OrderID" />
 
         <!-- 付款方式 -->
-        <div class="card mb-4 border-primary shadow-sm">
+        <div class="card mb-4 card-soft card-soft-highlight">
             <div class="card-body">
                 <div class="d-flex align-items-center mb-3">
-                    <i class="bi bi-credit-card fs-3 text-primary me-2"></i>
+                    <i class="bi bi-credit-card fs-3 text-soft-primary me-2"></i>
                     <label class="form-label fs-4 fw-semibold mb-0">
                         選擇付款方式
                     </label>
@@ -78,13 +78,13 @@
 
         <!-- 操作按鈕 -->
         <div class="d-flex gap-2">
-            <button type="submit" class="btn btn-primary">
+            <button type="submit" class="btn btn-soft-primary">
                 確認付款
             </button>
             <a asp-controller="Orders"
                asp-action="Detail"
                asp-route-orderId="@Model.OrderID"
-               class="btn btn-outline-secondary">
+               class="btn btn-soft-secondary">
                 返回訂單
             </a>
         </div>

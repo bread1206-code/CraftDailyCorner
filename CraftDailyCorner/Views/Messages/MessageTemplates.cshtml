@@ -20,17 +20,11 @@
             <p class="text-muted mb-0">管理自動回覆與快速回覆模板</p>
         </div>
 
-        <div class="d-flex gap-2">
+        <div class="">
             <a asp-controller="Messages"
                asp-action="Index"
-               class="btn btn-outline-secondary">
+               class="btn btn-soft-secondary">
                 返回我的訊息
-            </a>
-
-            <a asp-controller="Messages"
-               asp-action="CreateMessageTemplate"
-               class="btn btn-primary">
-                <i class="bi bi-plus-circle me-1"></i> 新增快速回覆模板
             </a>
         </div>
     </div>
@@ -60,11 +54,11 @@
                 {
                     @if (autoReplyTemplate.IsActive)
                     {
-                        <span class="badge bg-success">啟用中</span>
+                        <span class="badge-soft-success">啟用中</span>
                     }
                     else
                     {
-                        <span class="badge bg-secondary">已禁用</span>
+                        <span class="badge-soft-danger">已禁用</span>
                     }
                 }
             </div>
@@ -93,7 +87,7 @@
                         <a asp-controller="Messages"
                            asp-action="EditMessageTemplate"
                            asp-route-id="@autoReplyTemplate.TemplateID"
-                           class="btn btn-outline-primary btn-sm">
+                           class="btn btn-soft-primary btn-sm">
                             編輯
                         </a>
 
@@ -105,7 +99,7 @@
                                   method="post"
                                   class="d-inline">
                                 @Html.AntiForgeryToken()
-                                <button type="submit" class="btn btn-outline-warning btn-sm">
+                                <button type="submit" class="btn btn-soft-danger btn-sm">
                                     禁用
                                 </button>
                             </form>
@@ -118,7 +112,7 @@
                                   method="post"
                                   class="d-inline">
                                 @Html.AntiForgeryToken()
-                                <button type="submit" class="btn btn-outline-success btn-sm">
+                                <button type="submit" class="btn btn-soft-success btn-sm">
                                     啟用
                                 </button>
                             </form>
@@ -138,11 +132,10 @@
                 <div class="fw-bold">快速回覆模板</div>
                 <div class="small text-muted">可新增、修改、啟用 / 禁用</div>
             </div>
-
             <a asp-controller="Messages"
                asp-action="CreateMessageTemplate"
-               class="btn btn-primary btn-sm">
-                <i class="bi bi-plus-circle me-1"></i> 新增
+               class="btn btn-soft-primary btn-sm">
+                <i class="bi bi-plus-circle me-1"></i> 新增快速回覆模板
             </a>
         </div>
 
@@ -165,11 +158,11 @@
 
                                     @if (item.IsActive)
                                     {
-                                        <span class="badge bg-success">啟用</span>
+                                        <span class="badge-soft-success ">啟用</span>
                                     }
                                     else
                                     {
-                                        <span class="badge bg-secondary">禁用</span>
+                                        <span class="badge-soft-danger">禁用</span>
                                     }
                                 </div>
 
@@ -183,7 +176,7 @@
                                     <a asp-controller="Messages"
                                        asp-action="EditMessageTemplate"
                                        asp-route-id="@item.TemplateID"
-                                       class="btn btn-outline-primary btn-sm">
+                                       class="btn btn-soft-primary btn-sm">
                                         編輯
                                     </a>
 
@@ -195,7 +188,7 @@
                                               method="post"
                                               class="d-inline">
                                             @Html.AntiForgeryToken()
-                                            <button type="submit" class="btn btn-outline-warning btn-sm">
+                                            <button type="submit" class="btn btn-soft-danger btn-sm">
                                                 禁用
                                             </button>
                                         </form>
@@ -208,7 +201,7 @@
                                               method="post"
                                               class="d-inline">
                                             @Html.AntiForgeryToken()
-                                            <button type="submit" class="btn btn-outline-success btn-sm">
+                                            <button type="submit" class="btn btn-soft-success btn-sm">
                                                 啟用
                                             </button>
                                         </form>

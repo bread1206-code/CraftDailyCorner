@@ -48,7 +48,7 @@ namespace CraftDailyCorner.Models.enums
         // ===== 創作者互動 / 訂單 =====
         [Display(Name = "日誌回應通知")]
         PostComment = 50,
-
+        // ===== 訂單：創作者 =====
         [Display(Name = "訂單完成通知")]
         OrderCompleted = 51
     }

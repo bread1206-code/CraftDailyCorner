@@ -39,32 +39,36 @@
 
 /* 訊息氣泡基礎設定 */
 .msg-bubble {
-    padding: 0.75rem 1.25rem;
-    border-radius: 1.25rem;
-    max-width: 75%;
+    max-width: 70%;
+    padding: 10px 14px;
+    border-radius: 16px;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    box-shadow: 0 4px 12px rgba(180, 140, 90, 0.08);
     position: relative;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    transition: all 0.2s ease;
     word-wrap: break-word;
 }
 
-/* 我的訊息 (藍底白字) */
+/* 我的訊息*/
 .msg-mine {
-    background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
-    color: #ffffff;
-    border-bottom-right-radius: 0.25rem; /* 右下角收尖 */
+    background: linear-gradient(135deg, #e7b37a, #d89b5a);
+    color: #fff;
+    border-bottom-right-radius: 6px;
 }
-
-/* 對方的訊息 (灰底黑字) */
+/* 對方的訊息*/
 .msg-other {
-    background-color: #f1f5f9;
-    color: #1e293b;
-    border-bottom-left-radius: 0.25rem; /* 左下角收尖 */
+    background-color: #fffdf9;
+    border: 1px solid #eadbc8;
+    color: #5a4633;
+    border-bottom-left-radius: 6px;
 }
 
 /* 時間標籤微調 */
 .msg-time {
     font-size: 0.75rem;
-    margin-top: 0.25rem;
+    margin-top: 6px;
+    opacity: 0.8;
 }
 
 /* 輸入區美化 */

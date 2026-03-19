@@ -25,7 +25,7 @@
 
                 <a asp-controller="Messages"
                    asp-action="MessageTemplates"
-                   class="btn btn-outline-secondary">
+                   class="btn btn-soft-secondary">
                     返回列表
                 </a>
             </div>
@@ -67,11 +67,11 @@
                             <label asp-for="IsActive" class="form-check-label"></label>
                         </div>
 
-                        <div class="d-flex gap-2">
-                            <button type="submit" class="btn btn-primary">儲存</button>
+                        <div class="text-end">
                             <a asp-controller="Messages"
                                asp-action="MessageTemplates"
-                               class="btn btn-outline-secondary">返回列表</a>
+                               class="btn btn-soft-secondary">返回列表</a>
+                            <button type="submit" class="btn btn-soft-primary ms-2">儲存</button>
                         </div>
                     </form>
                 </div>

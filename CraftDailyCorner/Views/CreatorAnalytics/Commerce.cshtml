@@ -23,7 +23,7 @@
         <div>
             <a asp-controller="Creator"
                    asp-action="Dashboard"
-                   class="btn btn-outline-secondary">
+                   class="btn btn-soft-secondary">
                 回創作者中心
             </a>
         </div>
@@ -38,10 +38,10 @@
                 <div class="card-body">
                     <h6 class="text-muted">本月營收</h6>
                     <h3 class="fw-bold text-success">
-                        @Model.Overview.Revenue.Current.ToString("C")
+                        @Model.Overview.Revenue.Current.ToString("N0")
                     </h3>
                     <small class="text-muted d-block">
-                        上月 @Model.Overview.Revenue.Previous.ToString("C")
+                        上月 @Model.Overview.Revenue.Previous.ToString("N0")
                     </small>
                     <small class="text-muted d-block">
                         成長 @Model.Overview.Revenue.GrowthRate.ToString("P")
@@ -92,7 +92,7 @@
                 <div class="card-body">
                     <h6 class="text-muted">本月平均客單價</h6>
                     <h3 class="fw-bold">
-                        @Model.Overview.AverageOrderValue.ToString("C")
+                        @Model.Overview.AverageOrderValue.ToString("N0")
                     </h3>
                     <small class="text-muted d-block">
                         （本月營收 ÷ 本月訂單數）
@@ -125,13 +125,13 @@
                 <div class="d-flex flex-column flex-md-row gap-2 align-items-md-center">
 
                     <div class="btn-group" role="group">
-                        <button type="button" class="btn btn-outline-primary btn-sm js-mode-btn active" data-mode="year">
+                        <button type="button" class="btn btn-soft-filter btn-sm js-mode-btn active" data-mode="year">
                             年度
                         </button>
-                        <button type="button" class="btn btn-outline-primary btn-sm js-mode-btn" data-mode="rolling12">
+                        <button type="button" class="btn btn-soft-filter btn-sm js-mode-btn" data-mode="rolling12">
                             近12個月
                         </button>
-                        <button type="button" class="btn btn-outline-primary btn-sm js-mode-btn" data-mode="month">
+                        <button type="button" class="btn btn-soft-filter btn-sm js-mode-btn" data-mode="month">
                             單月
                         </button>
                     </div>
@@ -216,13 +216,13 @@
                 <div class="d-flex flex-column flex-md-row gap-2 align-items-md-center">
 
                     <div class="btn-group" role="group">
-                        <button type="button" class="btn btn-outline-primary btn-sm js-mode-btn active" data-mode="year">
+                        <button type="button" class="btn btn-soft-filter btn-sm js-mode-btn active" data-mode="year">
                             年度
                         </button>
-                        <button type="button" class="btn btn-outline-primary btn-sm js-mode-btn" data-mode="rolling12">
+                        <button type="button" class="btn btn-soft-filter btn-sm js-mode-btn" data-mode="rolling12">
                             近12個月
                         </button>
-                        <button type="button" class="btn btn-outline-primary btn-sm js-mode-btn" data-mode="month">
+                        <button type="button" class="btn btn-soft-filter btn-sm js-mode-btn" data-mode="month">
                             單月
                         </button>
                     </div>
@@ -318,7 +318,7 @@
                                             <td class="text-truncate" style="max-width:260px;">
                                                 @item.ProductName
                                             </td>
-                                            <td class="text-end">@item.Revenue.ToString("C")</td>
+                                            <td class="text-end">@item.Revenue.ToString("N0")</td>
                                             <td class="text-end">@item.QuantitySold</td>
                                         </tr>
                                     }
@@ -360,7 +360,7 @@
                                                 @item.ProductName
                                             </td>
                                             <td class="text-end">@item.QuantitySold</td>
-                                            <td class="text-end">@item.Revenue.ToString("C")</td>
+                                            <td class="text-end">@item.Revenue.ToString("N0")</td>
                                         </tr>
                                     }
                                 </tbody>

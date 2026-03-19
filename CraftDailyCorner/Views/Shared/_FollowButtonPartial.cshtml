@@ -12,7 +12,7 @@
     <input type="hidden" name="creatorId" value="@Model.CreatorID" />
 
     <button type="submit"
-            class="btn follow-btn @(Model.IsFollowing ? "btn-outline-dark" : "btn-dark")"
+            class="btn follow-btn @(Model.IsFollowing ? "btn-soft-danger" : "btn-soft-warning")"
             aria-busy="false">
         <span class="follow-text">@(Model.IsFollowing ? "已追蹤" : "追蹤")</span>
         (<span class="follow-count">@Model.FollowerCount</span>)

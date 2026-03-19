@@ -89,7 +89,7 @@
 
             <input asp-for="CreatorId" type="hidden" />
 
-            @* 新增：把本次勾選的商品清單一併 POST 回後端 *@
+            @* 把本次勾選的商品清單一併 POST 回後端 *@
             @foreach (var productId in Model.SelectedProductIds)
             {
                 <input type="hidden" name="SelectedProductIds" value="@productId" />
@@ -122,11 +122,11 @@
                 <div class="card-footer text-end">
                     <a asp-controller="Products"
                        asp-action="Index"
-                       class="btn btn-outline-secondary me-2">
+                       class="btn btn-soft-secondary me-2">
                         繼續購物
                     </a>
 
-                    <button type="submit" class="btn btn-primary">
+                    <button type="submit" class="btn btn-soft-primary">
                         確認下單
                     </button>
                 </div>

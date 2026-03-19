@@ -7,6 +7,7 @@
 }
 
 <div class="container py-4">
+    <div class="notification-page">
 
     @if (TempData["Success"] != null)
     {
@@ -15,100 +16,100 @@
 
     <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 mb-4">
         <div>
-            <h2 class="fw-bold mb-1">我的通知</h2>
-            <div class="text-muted">
-                未讀通知：@Model.UnreadCount
-            </div>
+                <h2 class="notification-page-title mb-1">我的通知</h2>
+                <div class="notification-page-subtitle">
+                    未讀通知：@Model.UnreadCount
+                </div>
         </div>
 
         <div class="d-flex flex-wrap gap-2">
-            <a asp-controller="Notification"
-               asp-action="Index"
-               asp-route-unreadOnly="false"
-               asp-route-filterType="@Model.FilterType"
-               class="btn @(Model.UnreadOnly ? "btn-outline-dark" : "btn-dark")">
-                全部
-            </a>
+                <a asp-controller="Notification"
+                       asp-action="Index"
+                       asp-route-unreadOnly="false"
+                       asp-route-filterType="@Model.FilterType"
+                       class="btn @(Model.UnreadOnly ? "btn-outline-soft-brown" : "btn-soft-brown")">
+                    全部
+                </a>
 
-            <a asp-controller="Notification"
-               asp-action="Index"
-               asp-route-unreadOnly="true"
-               asp-route-filterType="@Model.FilterType"
-               class="btn @(Model.UnreadOnly ? "btn-warning" : "btn-outline-warning")">
-                只看未讀
-            </a>
+                <a asp-controller="Notification"
+                       asp-action="Index"
+                       asp-route-unreadOnly="true"
+                       asp-route-filterType="@Model.FilterType"
+                       class="btn @(Model.UnreadOnly ? "btn-soft-warning" : "btn-outline-soft-warning")">
+                    只看未讀
+                </a>
 
-            <form asp-controller="Notification"
-                  asp-action="MarkAllAsRead"
-                  method="post"
-                  class="d-inline">
-                @Html.AntiForgeryToken()
-                <button type="submit"
-                        class="btn btn-outline-primary"
+                <form asp-controller="Notification"
+                      asp-action="MarkAllAsRead"
+                      method="post"
+                      class="d-inline">
+                    @Html.AntiForgeryToken()
+                    <button type="submit"
+                            class="btn btn-soft-secondary"
                         @(Model.UnreadCount == 0 ? "disabled" : null)>
-                    全部標記為已讀
-                </button>
-            </form>
+                        全部標記為已讀
+                    </button>
+                </form>
 
-            <a asp-controller="Notification"
-               asp-action="Preferences"
-               class="btn btn-outline-secondary">
-                通知設定
-            </a>
+                <a asp-controller="Notification"
+                       asp-action="Preferences"
+                       class="btn btn-soft-secondary">
+                    通知設定
+                </a>
         </div>
     </div>
 
-    <div class="d-flex flex-wrap gap-2 mb-3">
-        <a asp-controller="Notification"
-           asp-action="Index"
-           asp-route-unreadOnly="@Model.UnreadOnly"
-           asp-route-filterType="All"
-           class="btn btn-sm @(Model.FilterType == NotificationFilterType.All ? "btn-dark" : "btn-outline-dark")">
-            全部類型
-        </a>
+        <div class="d-flex flex-wrap gap-2 mb-3">
+            <a asp-controller="Notification"
+                   asp-action="Index"
+                   asp-route-unreadOnly="@Model.UnreadOnly"
+                   asp-route-filterType="All"
+                   class="btn btn-sm notification-filter-btn @(Model.FilterType == NotificationFilterType.All ? "notification-filter-all-active" : "notification-filter-all")">
+                全部類型
+            </a>
 
-        <a asp-controller="Notification"
-           asp-action="Index"
-           asp-route-unreadOnly="@Model.UnreadOnly"
-           asp-route-filterType="Announcement"
-           class="btn btn-sm @(Model.FilterType == NotificationFilterType.Announcement ? "btn-primary" : "btn-outline-primary")">
-            公告
-        </a>
+            <a asp-controller="Notification"
+                   asp-action="Index"
+                   asp-route-unreadOnly="@Model.UnreadOnly"
+                   asp-route-filterType="Announcement"
+                   class="btn btn-sm notification-filter-btn @(Model.FilterType == NotificationFilterType.Announcement ? "notification-filter-announcement-active" : "notification-filter-announcement")">
+                公告
+            </a>
 
-        <a asp-controller="Notification"
-           asp-action="Index"
-           asp-route-unreadOnly="@Model.UnreadOnly"
-           asp-route-filterType="Order"
-           class="btn btn-sm @(Model.FilterType == NotificationFilterType.Order ? "btn-success" : "btn-outline-success")">
-            訂單
-        </a>
+            <a asp-controller="Notification"
+                   asp-action="Index"
+                   asp-route-unreadOnly="@Model.UnreadOnly"
+                   asp-route-filterType="Order"
+                   class="btn btn-sm notification-filter-btn @(Model.FilterType == NotificationFilterType.Order ? "notification-filter-order-active" : "notification-filter-order")">
+                訂單
+            </a>
 
-        <a asp-controller="Notification"
-           asp-action="Index"
-           asp-route-unreadOnly="@Model.UnreadOnly"
-           asp-route-filterType="Product"
-           class="btn btn-sm @(Model.FilterType == NotificationFilterType.Product ? "btn-warning" : "btn-outline-warning")">
-            商品
-        </a>
+            <a asp-controller="Notification"
+                   asp-action="Index"
+                   asp-route-unreadOnly="@Model.UnreadOnly"
+                   asp-route-filterType="Product"
+                   class="btn btn-sm notification-filter-btn @(Model.FilterType == NotificationFilterType.Product ? "notification-filter-product-active" : "notification-filter-product")">
+                商品
+            </a>
 
-        <a asp-controller="Notification"
-           asp-action="Index"
-           asp-route-unreadOnly="@Model.UnreadOnly"
-           asp-route-filterType="Creator"
-           class="btn btn-sm @(Model.FilterType == NotificationFilterType.Creator ? "btn-info" : "btn-outline-info")">
-            創作者互動
-        </a>
-    </div>
+            <a asp-controller="Notification"
+                   asp-action="Index"
+                   asp-route-unreadOnly="@Model.UnreadOnly"
+                   asp-route-filterType="Creator"
+                   class="btn btn-sm notification-filter-btn @(Model.FilterType == NotificationFilterType.Creator ? "notification-filter-creator-active" : "notification-filter-creator")">
+                創作者互動
+            </a>
+        </div>
 
-    <div class="card shadow-sm border-0">
+        <div class="card notification-card">
         <div class="card-body p-0">
 
             @if (!Model.Items.Any())
             {
-                <div class="p-5 text-center text-muted">
-                    <i class="bi bi-bell fs-2 d-block mb-2"></i>
-                    目前沒有符合條件的通知
-                </div>
+                    <div class="notification-empty">
+                        <i class="bi bi-bell notification-empty-icon"></i>
+                        目前沒有符合條件的通知
+                    </div>
             }
             else
             {
@@ -142,36 +143,72 @@
 
                             _ => "notification-default"
                         };
+                        var announcementClass = item.NotificationType == CraftDailyCorner.Models.enums.NotificationType.Announcement
+                        ? "notification-announcement"
+                        : "";
 
-                        <a href="@targetUrl"
-                           class="list-group-item list-group-item-action notification-center-link notification-center-item @(item.IsRead ? "" : "notification-unread")"
-                           data-event-id="@item.EventID"
-                           data-is-read="@item.IsRead.ToString().ToLower()">
+                        var iconClass = item.NotificationType switch
+                        {
+                            CraftDailyCorner.Models.enums.NotificationType.Announcement => "bi-megaphone-fill text-warning",
+                            CraftDailyCorner.Models.enums.NotificationType.OrderCompleted => "bi-check-circle text-primary",
 
-                            <div class="d-flex justify-content-between align-items-start gap-3 mb-2">
-                                <div class="d-flex align-items-center gap-2 flex-grow-1 min-w-0">
-                                    <i class="bi bi-broadcast text-muted flex-shrink-0"></i>
-                                    <span class="notification-title @typeClass">
-                                        @item.Title
-                                    </span>
+                            CraftDailyCorner.Models.enums.NotificationType.OrderCreated => "bi-bag-check text-success",
+                            CraftDailyCorner.Models.enums.NotificationType.OrderPaid => "bi-credit-card text-success",
+                            CraftDailyCorner.Models.enums.NotificationType.OrderShipped => "bi-truck text-success",
+                            CraftDailyCorner.Models.enums.NotificationType.OrderDelivered => "bi-house-check text-success",
+
+                            CraftDailyCorner.Models.enums.NotificationType.ProductOutOfStock => "bi-x-circle text-danger",
+                            CraftDailyCorner.Models.enums.NotificationType.ProductLowStock => "bi-exclamation-circle text-warning",
+
+                            CraftDailyCorner.Models.enums.NotificationType.FavoriteProductPublished => "bi-stars text-secondary",
+                            CraftDailyCorner.Models.enums.NotificationType.FavoriteProductRestocked => "bi-arrow-repeat text-secondary",
+                            CraftDailyCorner.Models.enums.NotificationType.CreatorNewPost => "bi-journal-richtext text-secondary",
+                            CraftDailyCorner.Models.enums.NotificationType.CreatorNewProduct => "bi-box-seam text-secondary",
+                            CraftDailyCorner.Models.enums.NotificationType.CreatorNewPortfolio => "bi-images text-secondary",
+                            CraftDailyCorner.Models.enums.NotificationType.PostComment => "bi-chat-dots text-secondary",
+
+                            _ => "bi-bell text-muted"
+                        };
+
+                            <a href="@targetUrl"
+                                   class="list-group-item list-group-item-action notification-center-link notification-center-item @announcementClass @(item.IsRead ? "" : "notification-unread")"
+                                   data-event-id="@item.EventID"
+                                   data-is-read="@item.IsRead.ToString().ToLower()">
+
+                                <div class="notification-content-wrap">
+                                    <div class="d-flex justify-content-between align-items-start gap-3 mb-2">
+                                        <div class="d-flex align-items-center gap-2 flex-grow-1 min-w-0">
+                                            <i class="bi @iconClass notification-icon flex-shrink-0"></i>
+
+                                            <span class="notification-title @typeClass">
+                                                @item.Title
+                                            </span>
+
+                                            @if (item.NotificationType == CraftDailyCorner.Models.enums.NotificationType.Announcement)
+                                            {
+                                                <span class="notification-badge-announcement">
+                                                    公告
+                                                </span>
+                                            }
+                                        </div>
+
+                                        <small class="notification-time flex-shrink-0">
+                                            @item.CreatedAt.ToString("yyyy/MM/dd HH:mm")
+                                        </small>
+                                    </div>
+
+                                    <div class="small notification-content">
+                                        @item.Content
+                                    </div>
+
+                                    @if (!item.IsRead)
+                                    {
+                                        <div class="mt-2">
+                                            <span class="notification-badge-unread">未讀</span>
+                                        </div>
+                                    }
                                 </div>
-
-                                <small class="text-muted flex-shrink-0">
-                                    @item.CreatedAt.ToString("yyyy/MM/dd HH:mm")
-                                </small>
-                            </div>
-
-                            <div class="text-muted small notification-content">
-                                @item.Content
-                            </div>
-
-                            @if (!item.IsRead)
-                            {
-                                <div class="mt-2">
-                                    <span class="badge bg-danger">未讀</span>
-                                </div>
-                            }
-                        </a>
+                            </a>
                     }
                 </div>
             }
@@ -181,9 +218,9 @@
     @if (Model.TotalPages > 1)
     {
         <div class="mt-4 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
-            <div class="text-muted small">
-                第 @Model.Page / @Model.TotalPages 頁，共 @Model.TotalCount 筆
-            </div>
+                <div class="small notification-pagination-summary">
+                    第 @Model.Page / @Model.TotalPages 頁，共 @Model.TotalCount 筆
+                </div>
 
             <nav>
                 <ul class="pagination mb-0">
@@ -227,7 +264,10 @@
         </div>
     }
 </div>
-
+</div>
+@section Styles {
+    <link rel="stylesheet" href="~/css/Notification.css" asp-append-version="true" />
+}
 <script>
     (function () {
         const links = document.querySelectorAll(".notification-center-link");

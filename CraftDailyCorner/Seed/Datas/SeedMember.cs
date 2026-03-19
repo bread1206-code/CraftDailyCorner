@@ -23,7 +23,7 @@ namespace CraftDailyCorner.Seed.Datas
                     ImageUrl = imageGuids[0],
                     DisplayName = "超級管理者",
                     StatusID = 1,
-                    CreatedAt = DateTime.Now
+                    CreatedAt = DateTime.Parse("2026-01-01")
                 }
                 //,new Member
                 //{

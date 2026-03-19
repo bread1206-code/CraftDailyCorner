@@ -6,7 +6,7 @@
     ViewData["Title"] = "編輯作品集";
 }
 
-<div class="container py-5" style="max-width:1000px;">
+<div class="container py-5">
 
     <!-- ================= 基本資料 ================= -->
 
@@ -46,16 +46,17 @@
                     </select>
                 </div>
 
-                <div class="d-flex gap-2">
+                <div class="text-end">
+                    <a asp-action="List"
+                           class="btn btn-soft-secondary">
+                        取消
+                    </a>
                     <button type="submit"
-                            class="btn btn-dark">
+                            class="btn btn-soft-primary">
                         儲存修改
                     </button>
 
-                    <a asp-action="List"
-                       class="btn btn-outline-secondary">
-                        返回列表
-                    </a>
+                    
                 </div>
             </form>
 

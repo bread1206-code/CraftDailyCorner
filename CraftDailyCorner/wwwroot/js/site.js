@@ -655,12 +655,12 @@ function updateFollowButtonUI(form, isFollowing, followerCount) {
     if (!btn || !textEl) return;
 
     if (isFollowing) {
-        btn.classList.remove("btn-dark");
-        btn.classList.add("btn-outline-dark");
+        btn.classList.remove("btn-soft-warning");
+        btn.classList.add("btn-soft-danger");
         textEl.textContent = "已追蹤";
     } else {
-        btn.classList.remove("btn-outline-dark");
-        btn.classList.add("btn-dark");
+        btn.classList.remove("btn-soft-danger");
+        btn.classList.add("btn-soft-warning");
         textEl.textContent = "追蹤";
     }
 }

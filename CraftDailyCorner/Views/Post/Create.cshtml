@@ -5,7 +5,7 @@
     ViewData["Title"] = "新增創作日誌";
 }
 
-<div class="container py-5" style="max-width:900px;">
+<div class="container py-5">
 
     <div class="page-header mb-4">
         <h2 class="fw-bold">新增創作日誌</h2>
@@ -84,15 +84,14 @@
                     </select>
                 </div>
 
-                <div class="d-flex gap-2">
-                    <button type="submit" class="btn btn-dark">
-                        發佈日誌
-                    </button>
-
+                <div class="text-end">
                     <a asp-action="List"
                        class="btn btn-outline-secondary">
                         取消
                     </a>
+                    <button type="submit" class="btn btn-soft-primary">
+                        發佈日誌
+                    </button>
                 </div>
 
             </form>

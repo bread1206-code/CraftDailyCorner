@@ -93,9 +93,25 @@
                 <div class="col-md-6 d-flex flex-column">
 
                     <div class="row">
-                        <div class="col">
+                        <div class="col-auto">
                             <h2 class="fw-bold">@Model.ProductName</h2>
                         </div>
+                        <div class="col">
+                            <!-- 訊息功能 -->
+                            @if (!Model.IsOwner)
+                            {
+                                <form asp-controller="Messages"
+                                      asp-action="StartFromProduct"
+                                      method="post">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="productId" value="@Model.ProductId" />
+                                    <button type="submit" class="btn btn-soft-outline btn-icon-soft">
+                                        <i class="bi bi-chat-dots fs-5"></i>
+                                    </button>
+                                </form>
+                            }
+                        </div>
+
                         <div class="col-auto">
                             @if (User.Identity?.IsAuthenticated == true)
                             {
@@ -141,19 +157,7 @@
                         }
                     </p>
 
-                    <!-- 訊息功能 -->
-                    @if (!Model.IsOwner)
-                    {
-                        <form asp-controller="Messages"
-                              asp-action="StartFromProduct"
-                              method="post">
-                            @Html.AntiForgeryToken()
-                            <input type="hidden" name="productId" value="@Model.ProductId" />
-                            <button type="submit" class="btn btn-outline-primary">
-                                <i class="bi bi-chat-dots fs-5"></i>
-                            </button>
-                        </form>
-                    }
+                    
 
                     <hr />
 
@@ -169,13 +173,13 @@
                                 <span>
                                     <partial name="_ReportButtonPartial"
                                              model="new VMReport
-                                                                                 {
-                                                                                     ReportType = ReportTargetType.Product,
-                                                                                     TargetID = Model.ProductId,
-                                                                                     IsReportBanned = Model.IsReportBanned,
-                                                                                     ReportBanUntil = Model.ReportBanUntil
-                                                                                 }" />
-</span>
+                                        {
+                                            ReportType = ReportTargetType.Product,
+                                            TargetID = Model.ProductId,
+                                            IsReportBanned = Model.IsReportBanned,
+                                            ReportBanUntil = Model.ReportBanUntil
+                                        }" />
+                                </span>
                             }
                         }
                     </div>
@@ -232,14 +236,14 @@
                                    value="@Model.DefaultQty"
                             @(Model.IsOutOfStock ? "disabled" : "") />
 
-                            <button class="btn btn-primary ms-2 mt-3"
+                            <button class="btn btn-soft-primary ms-2 mt-3"
                                     onclick="addToCart('@Model.ProductId', this)"
                                     data-id="@Model.ProductId"
                                 @(Model.IsOutOfStock ? "disabled" : "")>
                                 <i class="bi bi-cart"></i> 加入購物車
                             </button>
 
-                            <button class="btn btn-info ms-2 mt-3"
+                            <button class="btn btn-soft-info ms-2 mt-3"
                                     data-bs-toggle="modal"
                                     data-bs-target="#ProductReviewModal">
                                 <i class="bi bi-star"></i> 商品評價

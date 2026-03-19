@@ -1,7 +1,6 @@
 ﻿using CraftDailyCorner.DTOs;
 using CraftDailyCorner.Models;
 using CraftDailyCorner.Models.enums;
-using CraftDailyCorner.Services.Interface;
 using CraftDailyCorner.ViewModels.Member;
 using CraftDailyCorner.ViewModels.Order;
 using CraftDailyCorner.ViewModels.Payment;
@@ -21,215 +20,238 @@ namespace CraftDailyCorner.Services
         }
 
         // 建立訂單
-        public VMCreateOrderResult CreateOrder(string memberId, VMCreateOrderRequest request)
+public VMCreateOrderResult CreateOrder(string memberId, VMCreateOrderRequest request)
+    {
+        using var transaction = _context.Database.BeginTransaction();
+
+        try
         {
-            using var transaction = _context.Database.BeginTransaction();
+            var now = DateTime.Now;
+
+            var selectedProductIds = request.SelectedProductIds?
+                .Where(id => !string.IsNullOrWhiteSpace(id))
+                .Distinct()
+                .ToList() ?? new List<string>();
+
+            if (!selectedProductIds.Any())
+            {
+                return new VMCreateOrderResult
+                {
+                    Success = false,
+                    Message = "請先勾選要結帳的商品"
+                };
+            }
+
+            var cartItems = _context.CartItems
+                .Include(ci => ci.Cart)
+                .Include(ci => ci.Product)
+                    .ThenInclude(p => p.Inventory)
+                .Include(ci => ci.Product)
+                    .ThenInclude(p => p.CreatorProfile)
+                .Where(ci =>
+                    ci.Cart.MemberID == memberId &&
+                    ci.Product.CreatorID == request.CreatorId &&
+                    selectedProductIds.Contains(ci.ProductID))
+                .ToList();
+
+            if (!cartItems.Any())
+            {
+                return new VMCreateOrderResult
+                {
+                    Success = false,
+                    Message = "購物車內無本次勾選的商品"
+                };
+            }
+
+            if (cartItems.Count != selectedProductIds.Count)
+            {
+                return new VMCreateOrderResult
+                {
+                    Success = false,
+                    Message = "部分勾選商品不存在，請重新確認購物車內容"
+                };
+            }
+
+            var orderId = GetNewOrderID();
+            var totalAmount = cartItems.Sum(ci => ci.Product.Price * ci.Quantity);
+
+            var order = new Order
+            {
+                OrderID = orderId,
+                MemberID = memberId,
+                CreatedAt = now,
+                ReceiverName = request.ReceiverName,
+                ReceiverPhone = request.ReceiverPhone,
+                ShippingAddress = request.ReceiverAddress,
+                TotalAmount = totalAmount,
+                StatusID = 1
+            };
+
+            _context.Orders.Add(order);
+
+            var lowStockCreatorDtos = new List<CreateNotificationDTO>();
+            var outOfStockCreatorDtos = new List<CreateNotificationDTO>();
+
+            foreach (var item in cartItems)
+            {
+                var product = item.Product;
+                var inventory = product.Inventory;
+
+                if (inventory == null || inventory.StockQty < item.Quantity)
+                {
+                    throw new Exception($"商品「{product.ProductName}」庫存不足（僅剩 {inventory?.StockQty ?? 0} 件）");
+                }
+
+                var oldStock = inventory.StockQty;
+                inventory.StockQty -= item.Quantity;
+                inventory.UpdatedAt = now;
+
+                var newStock = inventory.StockQty;
+                var alertQty = inventory.AlertQty;
+
+                var orderDetail = new OrderDetail
+                {
+                    OrderID = order.OrderID,
+                    ProductID = product.ProductID,
+                    ProductNameSnapshot = product.ProductName,
+                    PriceSnapshot = product.Price,
+                    CostSnapshot = product.CostPrice,
+                    Quantity = item.Quantity
+                };
+                _context.OrderDetails.Add(orderDetail);
+
+                var creatorMemberId = product.CreatorProfile?.MemberID;
+                if (!string.IsNullOrWhiteSpace(creatorMemberId))
+                {
+                    if (oldStock > alertQty && newStock > 0 && newStock <= alertQty)
+                    {
+                        lowStockCreatorDtos.Add(new CreateNotificationDTO
+                        {
+                            MemberID = creatorMemberId,
+                            NotificationType = NotificationType.ProductLowStock,
+                            Title = "商品低庫存通知",
+                            Content = $"商品「{product.ProductName}」目前庫存僅剩 {newStock} 件，已達警戒值。",
+                            LinkUrl = $"/CreatorProducts/Edit/{product.ProductID}",
+                            RelatedEntityType = "Product",
+                            RelatedEntityId = product.ProductID
+                        });
+                    }
+
+                    if (oldStock > 0 && newStock == 0)
+                    {
+                        outOfStockCreatorDtos.Add(new CreateNotificationDTO
+                        {
+                            MemberID = creatorMemberId,
+                            NotificationType = NotificationType.ProductOutOfStock,
+                            Title = "商品缺貨通知",
+                            Content = $"商品「{product.ProductName}」目前已缺貨。",
+                            LinkUrl = $"/CreatorProducts/Edit/{product.ProductID}",
+                            RelatedEntityType = "Product",
+                            RelatedEntityId = product.ProductID
+                        });
+                    }
+                }
+            }
+
+            _context.CartItems.RemoveRange(cartItems);
 
             try
             {
-                var now = DateTime.Now;
-
-                var selectedProductIds = request.SelectedProductIds?
-                    .Where(id => !string.IsNullOrWhiteSpace(id))
-                    .Distinct()
-                    .ToList() ?? new List<string>();
-
-                if (!selectedProductIds.Any())
-                {
-                    return new VMCreateOrderResult
-                    {
-                        Success = false,
-                        Message = "請先勾選要結帳的商品"
-                    };
-                }
-
-                var cartItems = _context.CartItems
-                    .Include(ci => ci.Cart)
-                    .Include(ci => ci.Product)
-                        .ThenInclude(p => p.Inventory)
-                    .Include(ci => ci.Product)
-                        .ThenInclude(p => p.CreatorProfile)
-                    .Where(ci =>
-                        ci.Cart.MemberID == memberId &&
-                        ci.Product.CreatorID == request.CreatorId &&
-                        selectedProductIds.Contains(ci.ProductID))
-                    .ToList();
-
-                if (!cartItems.Any())
-                {
-                    return new VMCreateOrderResult
-                    {
-                        Success = false,
-                        Message = "購物車內無本次勾選的商品"
-                    };
-                }
-
-                if (cartItems.Count != selectedProductIds.Count)
-                {
-                    return new VMCreateOrderResult
-                    {
-                        Success = false,
-                        Message = "部分勾選商品不存在，請重新確認購物車內容"
-                    };
-                }
-
-                var orderId = GetNewOrderID();
-                var totalAmount = cartItems.Sum(ci => ci.Product.Price * ci.Quantity);
-
-                var order = new Order
-                {
-                    OrderID = orderId,
-                    MemberID = memberId,
-                    CreatedAt = now,
-                    ReceiverName = request.ReceiverName,
-                    ReceiverPhone = request.ReceiverPhone,
-                    ShippingAddress = request.ReceiverAddress,
-                    TotalAmount = totalAmount,
-                    StatusID = 1 // 待付款
-                };
-
-                _context.Orders.Add(order);
-
-                var lowStockCreatorDtos = new List<CreateNotificationDTO>();
-                var outOfStockCreatorDtos = new List<CreateNotificationDTO>();
-
-                foreach (var item in cartItems)
-                {
-                    var product = item.Product;
-                    var inventory = product.Inventory;
-
-                    if (inventory == null || inventory.StockQty < item.Quantity)
-                    {
-                        throw new Exception($"商品「{product.ProductName}」庫存不足（僅剩 {inventory?.StockQty ?? 0} 件）");
-                    }
-
-                    var oldStock = inventory.StockQty;
-                    inventory.StockQty -= item.Quantity;
-                    inventory.UpdatedAt = now;
-
-                    var newStock = inventory.StockQty;
-                    var alertQty = inventory.AlertQty;
-
-                    var orderDetail = new OrderDetail
-                    {
-                        OrderID = order.OrderID,
-                        ProductID = product.ProductID,
-                        ProductNameSnapshot = product.ProductName,
-                        PriceSnapshot = product.Price,
-                        CostSnapshot = product.CostPrice,
-                        Quantity = item.Quantity
-                    };
-                    _context.OrderDetails.Add(orderDetail);
-
-                    var creatorMemberId = product.CreatorProfile?.MemberID;
-                    if (!string.IsNullOrWhiteSpace(creatorMemberId))
-                    {
-                        if (oldStock > alertQty && newStock > 0 && newStock <= alertQty)
-                        {
-                            lowStockCreatorDtos.Add(new CreateNotificationDTO
-                            {
-                                MemberID = creatorMemberId,
-                                NotificationType = NotificationType.ProductLowStock,
-                                Title = "商品低庫存通知",
-                                Content = $"商品「{product.ProductName}」目前庫存僅剩 {newStock} 件，已達警戒值。",
-                                LinkUrl = $"/CreatorProducts/Edit/{product.ProductID}",
-                                RelatedEntityType = "Product",
-                                RelatedEntityId = product.ProductID
-                            });
-                        }
-
-                        if (oldStock > 0 && newStock == 0)
-                        {
-                            outOfStockCreatorDtos.Add(new CreateNotificationDTO
-                            {
-                                MemberID = creatorMemberId,
-                                NotificationType = NotificationType.ProductOutOfStock,
-                                Title = "商品缺貨通知",
-                                Content = $"商品「{product.ProductName}」目前已缺貨。",
-                                LinkUrl = $"/CreatorProducts/Edit/{product.ProductID}",
-                                RelatedEntityType = "Product",
-                                RelatedEntityId = product.ProductID
-                            });
-                        }
-                    }
-                }
-
-                _context.CartItems.RemoveRange(cartItems);
-
                 _context.SaveChanges();
-
-                // ===== 會員：訂單已成立 =====
-                _context.NotificationEvents.Add(new NotificationEvent
-                {
-                    MemberID = memberId,
-                    NotificationType = NotificationType.OrderCreated,
-                    Title = "訂單已成立通知",
-                    Content = $"訂單 {order.OrderID} 已成立，請前往完成付款。",
-                    LinkUrl = $"/Orders/Detail?orderId={order.OrderID}",
-                    IsRead = false,
-                    RelatedEntityType = "Order",
-                    RelatedEntityId = order.OrderID,
-                    CreatedAt = now
-                });
-
-                // ===== 創作者：低庫存 =====
-                foreach (var dto in lowStockCreatorDtos)
-                {
-                    _context.NotificationEvents.Add(new NotificationEvent
-                    {
-                        MemberID = dto.MemberID,
-                        NotificationType = dto.NotificationType,
-                        Title = dto.Title,
-                        Content = dto.Content,
-                        LinkUrl = dto.LinkUrl,
-                        IsRead = false,
-                        RelatedEntityType = dto.RelatedEntityType,
-                        RelatedEntityId = dto.RelatedEntityId,
-                        CreatedAt = now
-                    });
-                }
-
-                // ===== 創作者：缺貨 =====
-                foreach (var dto in outOfStockCreatorDtos)
-                {
-                    _context.NotificationEvents.Add(new NotificationEvent
-                    {
-                        MemberID = dto.MemberID,
-                        NotificationType = dto.NotificationType,
-                        Title = dto.Title,
-                        Content = dto.Content,
-                        LinkUrl = dto.LinkUrl,
-                        IsRead = false,
-                        RelatedEntityType = dto.RelatedEntityType,
-                        RelatedEntityId = dto.RelatedEntityId,
-                        CreatedAt = now
-                    });
-                }
-
-                _context.SaveChanges();
-
-                transaction.Commit();
-
-                return new VMCreateOrderResult
-                {
-                    Success = true,
-                    Message = "訂單建立成功",
-                    OrderID = order.OrderID
-                };
             }
-            catch (Exception ex)
+            catch (DbUpdateException dbEx)
             {
                 transaction.Rollback();
                 return new VMCreateOrderResult
                 {
                     Success = false,
-                    Message = ex.Message
+                    Message = "[第一次 SaveChanges 失敗] " +
+                              (dbEx.InnerException?.Message ?? dbEx.Message)
                 };
             }
-        }
 
-        // 我的訂單列表
-        public List<VMMyOrder> GetMyOrders(string memberId, string? statusCode)
+            _context.NotificationEvents.Add(new NotificationEvent
+            {
+                MemberID = memberId,
+                NotificationType = NotificationType.OrderCreated,
+                Title = "訂單已成立通知",
+                Content = $"訂單 {order.OrderID} 已成立，請前往完成付款。",
+                LinkUrl = $"/Orders/Detail?orderId={order.OrderID}",
+                IsRead = false,
+                RelatedEntityType = "Order",
+                RelatedEntityId = order.OrderID,
+                CreatedAt = now
+            });
+
+            foreach (var dto in lowStockCreatorDtos)
+            {
+                _context.NotificationEvents.Add(new NotificationEvent
+                {
+                    MemberID = dto.MemberID,
+                    NotificationType = dto.NotificationType,
+                    Title = dto.Title,
+                    Content = dto.Content,
+                    LinkUrl = dto.LinkUrl,
+                    IsRead = false,
+                    RelatedEntityType = dto.RelatedEntityType,
+                    RelatedEntityId = dto.RelatedEntityId,
+                    CreatedAt = now
+                });
+            }
+
+            foreach (var dto in outOfStockCreatorDtos)
+            {
+                _context.NotificationEvents.Add(new NotificationEvent
+                {
+                    MemberID = dto.MemberID,
+                    NotificationType = dto.NotificationType,
+                    Title = dto.Title,
+                    Content = dto.Content,
+                    LinkUrl = dto.LinkUrl,
+                    IsRead = false,
+                    RelatedEntityType = dto.RelatedEntityType,
+                    RelatedEntityId = dto.RelatedEntityId,
+                    CreatedAt = now
+                });
+            }
+
+            try
+            {
+                _context.SaveChanges();
+            }
+            catch (DbUpdateException dbEx)
+            {
+                transaction.Rollback();
+                return new VMCreateOrderResult
+                {
+                    Success = false,
+                    Message = "[第二次 SaveChanges 失敗] " +
+                              (dbEx.InnerException?.Message ?? dbEx.Message)
+                };
+            }
+
+            transaction.Commit();
+
+            return new VMCreateOrderResult
+            {
+                Success = true,
+                Message = "訂單建立成功",
+                OrderID = order.OrderID
+            };
+        }
+        catch (Exception ex)
+        {
+            transaction.Rollback();
+            return new VMCreateOrderResult
+            {
+                Success = false,
+                Message = ex.InnerException?.Message ?? ex.Message
+            };
+        }
+    }
+
+    // 我的訂單列表
+    public List<VMMyOrder> GetMyOrders(string memberId, string? statusCode)
         {
             var query = _context.Orders
                 .AsNoTracking()
