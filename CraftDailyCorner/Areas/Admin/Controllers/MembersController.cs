@@ -57,11 +57,11 @@ namespace CraftDailyCorner.Areas.Admin.Controllers
 
             if (!ok)
             {
-                TempData["Warning"] = message ?? "停權失敗";
+                TempData["MembersWarning"] = message ?? "停權失敗";
                 return RedirectToAction(nameof(Detail), new { id, mode });
             }
 
-            TempData["Success"] = "會員已停權";
+            TempData["MembersSuccess"] = "會員已停權";
             return RedirectToAction(nameof(Detail), new { id, mode });
         }
 
@@ -77,11 +77,11 @@ namespace CraftDailyCorner.Areas.Admin.Controllers
 
             if (!ok)
             {
-                TempData["Warning"] = message ?? "啟用失敗";
+                TempData["MembersWarning"] = message ?? "啟用失敗";
                 return RedirectToAction(nameof(Detail), new { id, mode });
             }
 
-            TempData["Success"] = "會員已恢復啟用";
+            TempData["MembersSuccess"] = "會員已恢復啟用";
             return RedirectToAction(nameof(Detail), new { id, mode });
         }
     }

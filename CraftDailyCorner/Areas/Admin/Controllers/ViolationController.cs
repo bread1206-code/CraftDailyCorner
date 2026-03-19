@@ -44,11 +44,11 @@ namespace CraftDailyCorner.Areas.Admin.Controllers
             try
             {
                 await _service.MarkViolationAsync(id, adminMemberId, adminNote);
-                TempData["Danger"] = "已判定為違規，並已更新目標狀態。";
+                TempData["ViolationDanger"] = "已判定為違規，並已更新目標狀態。";
             }
             catch (ValidationException ex)
             {
-                TempData["Warning"] = ex.Message;
+                TempData["ViolationWarning"] = ex.Message;
             }
 
             return RedirectToAction(nameof(Detail), new { id });
@@ -64,7 +64,7 @@ namespace CraftDailyCorner.Areas.Admin.Controllers
 
             await _service.MarkNormalAsync(id, adminMemberId, adminNote, isMalicious);
 
-            TempData["Success"] = isMalicious
+            TempData["ViolationSuccess"] = isMalicious
                 ? "已判定為正常，並記錄一次惡意檢舉。"
                 : "已判定為正常（無違規）。";
 

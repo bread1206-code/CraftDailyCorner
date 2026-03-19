@@ -64,7 +64,7 @@ namespace CraftDailyCorner.Areas.Admin.Controllers
             try
             {
                 var id = await _service.CreateAsync(vm, currentMemberId, isSuperAdmin);
-                TempData["Success"] = "公告已新增";
+                TempData["AnnouncementSuccess"] = "公告已新增";
                 return RedirectToAction(nameof(Detail), new { id });
             }
             catch (ArgumentException ex)
@@ -121,7 +121,7 @@ namespace CraftDailyCorner.Areas.Admin.Controllers
                 var ok = await _service.UpdateAsync(vm, currentMemberId, isSuperAdmin);
                 if (!ok) return NotFound();
 
-                TempData["Success"] = "公告已更新";
+                TempData["AnnouncementSuccess"] = "公告已更新";
                 return RedirectToAction(nameof(Detail), new { id = vm.AnnouncementID });
             }
             catch (ArgumentException ex)
@@ -156,11 +156,11 @@ namespace CraftDailyCorner.Areas.Admin.Controllers
 
             if (!ok)
             {
-                TempData["Warning"] = message ?? "啟用失敗";
+                TempData["AnnouncementWarning"] = message ?? "啟用失敗";
                 return RedirectToAction(nameof(Index));
             }
 
-            TempData["Success"] = "公告已啟用";
+            TempData["AnnouncementSuccess"] = "公告已啟用";
             return RedirectToAction(nameof(Index));
         }
 
@@ -178,11 +178,11 @@ namespace CraftDailyCorner.Areas.Admin.Controllers
 
             if (!ok)
             {
-                TempData["Warning"] = message ?? "停用失敗";
+                TempData["AnnouncementWarning"] = message ?? "停用失敗";
                 return RedirectToAction(nameof(Index));
             }
 
-            TempData["Success"] = "公告已停用";
+            TempData["AnnouncementSuccess"] = "公告已停用";
             return RedirectToAction(nameof(Index));
         }
     }

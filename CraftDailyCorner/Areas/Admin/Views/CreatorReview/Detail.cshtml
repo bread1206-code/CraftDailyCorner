@@ -10,17 +10,13 @@
 
 <div class="container-fluid">
 
-    @if (TempData["Danger"] != null)
+    @if (TempData["CreatorReviewSuccess"] != null)
     {
-        <div class="alert alert-danger">@TempData["Danger"]</div>
+        <div class="alert alert-success">@TempData["CreatorReviewSuccess"]</div>
     }
-    @if (TempData["Success"] != null)
+    @if (TempData["CreatorReviewWarning"] != null)
     {
-        <div class="alert alert-success">@TempData["Success"]</div>
-    }
-    @if (TempData["Warning"] != null)
-    {
-        <div class="alert alert-warning">@TempData["Warning"]</div>
+        <div class="alert alert-warning">@TempData["CreatorReviewWarning"]</div>
     }
 
     <div class="d-flex justify-content-between align-items-end mb-4">

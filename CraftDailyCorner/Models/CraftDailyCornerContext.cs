@@ -673,6 +673,9 @@ namespace CraftDailyCorner.Models
                .HasIndex(e => new { e.MemberID, e.OrderID, e.ProductID })
                .IsUnique();
 
+            modelBuilder.Entity<CreatorProfile>()
+                .HasIndex(x => x.BrandName)
+                .IsUnique();
             #endregion
 
             modelBuilder.Entity<PortfolioItem>()

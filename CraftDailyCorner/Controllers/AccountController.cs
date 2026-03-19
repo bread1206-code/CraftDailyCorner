@@ -176,7 +176,6 @@ namespace CraftDailyCorner.Controllers
             var user = _context.Privacies.FirstOrDefault(u => u.Email == vm.Email);
             if (user == null)
             {
-                TempData["Info"] = "已發送重設密碼 Email，請檢查收件匣";
                 return RedirectToAction("Login");
             }
 
@@ -195,8 +194,7 @@ namespace CraftDailyCorner.Controllers
 
             var resetLink = Url.Action("ResetPassword", "Account", new { token = token }, Request.Scheme);
 
-            TempData["Info"] = "已發送重設密碼 Email，請檢查收件匣";
-            TempData["ResetLink"] = resetLink;
+            TempData["AccountResetLink"] = resetLink;
             return RedirectToAction("ForgetPasswordConfirmation");
         }
 
@@ -241,7 +239,7 @@ namespace CraftDailyCorner.Controllers
 
             await _context.SaveChangesAsync();
 
-            TempData["Success"] = "密碼已重設成功，請重新登入";
+            TempData["AccountSuccess"] = "密碼已重設成功，請重新登入";
             return RedirectToAction("Login");
         }
     }

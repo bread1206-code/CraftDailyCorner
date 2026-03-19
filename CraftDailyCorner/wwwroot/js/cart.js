@@ -232,7 +232,7 @@ document.addEventListener('change', function (e) {
         const siblings = document.querySelectorAll(`.product-check[data-creator-id="${creatorId}"]`);
         const anyChecked = Array.from(siblings).some(s => s.checked);
 
-        creatorCheckbox.checked = anyChecked; // 只要有一個商品選中，標題就勾選 (或你可以改為全選才勾選)
+        creatorCheckbox.checked = anyChecked; // 只要有一個商品選中，標題就勾選
 
         updateCartSummary();
     }

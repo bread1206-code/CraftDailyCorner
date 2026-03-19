@@ -66,7 +66,7 @@ namespace CraftDailyCorner.Areas.Admin.Controllers
                 var ok = await _service.UpdateAsync(vm, adminId);
                 if (!ok) return NotFound();
 
-                TempData["Success"] = "平台參數已更新";
+                TempData["PlatformSettingSuccess"] = "平台參數已更新";
                 return RedirectToAction(nameof(Index));
             }
             catch (ArgumentException ex)

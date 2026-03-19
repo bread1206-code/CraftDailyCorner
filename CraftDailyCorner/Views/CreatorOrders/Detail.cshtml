@@ -1,17 +1,17 @@
 ﻿@using CraftDailyCorner.ViewModels.CreatorOrder
 @model VMCreatorOrderDetail
 
-@if (TempData["Error"] != null)
+@if (TempData["OrderDetailError"] != null)
 {
     <div class="alert alert-danger">
-        @TempData["Error"]
+        @TempData["OrderDetailError"]
     </div>
 }
 
-@if (TempData["Success"] != null)
+@if (TempData["OrderDetailSuccess"] != null)
 {
     <div class="alert alert-success">
-        @TempData["Success"]
+        @TempData["OrderDetailSuccess"]
     </div>
 }
 

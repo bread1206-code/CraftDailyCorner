@@ -21,13 +21,13 @@
         </a>
     </div>
 
-    @if (TempData["Success"] != null)
+    @if (TempData["CategorySuccess"] != null)
     {
-        <div class="alert alert-success">@TempData["Success"]</div>
+        <div class="alert alert-success">@TempData["CategorySuccess"]</div>
     }
-    @if (TempData["Warning"] != null)
+    @if (TempData["CategoryWarning"] != null)
     {
-        <div class="alert alert-warning">@TempData["Warning"]</div>
+        <div class="alert alert-warning">@TempData["CategoryWarning"]</div>
     }
 
     <div class="card shadow-sm border-0">

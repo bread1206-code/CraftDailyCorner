@@ -67,7 +67,7 @@ namespace CraftDailyCorner.Controllers
             }
             catch (ArgumentException ex)
             {
-                TempData["Warning"] = ex.Message;
+                TempData["MessageWarning"] = ex.Message;
             }
 
             return RedirectToAction(nameof(Index), new { threadId });
@@ -124,7 +124,7 @@ namespace CraftDailyCorner.Controllers
             try
             {
                 await _messageTemplateService.CreateAsync(vm, creatorId);
-                TempData["Success"] = "快速回覆模板已新增";
+                TempData["MessageSuccess"] = "快速回覆模板已新增";
                 return RedirectToAction(nameof(MessageTemplates));
             }
             catch (ArgumentException ex)
@@ -177,7 +177,7 @@ namespace CraftDailyCorner.Controllers
                 if (!ok)
                     return NotFound();
 
-                TempData["Success"] = "訊息模板已更新";
+                TempData["MessageSuccess"] = "訊息模板已更新";
                 return RedirectToAction(nameof(MessageTemplates));
             }
             catch (ArgumentException ex)
@@ -201,7 +201,7 @@ namespace CraftDailyCorner.Controllers
             if (!ok)
                 return NotFound();
 
-            TempData["Success"] = "訊息模板已啟用";
+            TempData["MessageSuccess"] = "訊息模板已啟用";
             return RedirectToAction(nameof(MessageTemplates));
         }
 
@@ -219,7 +219,7 @@ namespace CraftDailyCorner.Controllers
             if (!ok)
                 return NotFound();
 
-            TempData["Success"] = "訊息模板已禁用";
+            TempData["MessageSuccess"] = "訊息模板已禁用";
             return RedirectToAction(nameof(MessageTemplates));
         }
     }

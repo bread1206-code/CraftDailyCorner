@@ -29,14 +29,14 @@
         </div>
     </div>
 
-    @if (TempData["Success"] != null)
+    @if (TempData["MessageSuccess"] != null)
     {
-        <div class="alert alert-success">@TempData["Success"]</div>
+        <div class="alert alert-success">@TempData["MessageSuccess"]</div>
     }
 
-    @if (TempData["Warning"] != null)
+    @if (TempData["MessageWarning"] != null)
     {
-        <div class="alert alert-warning">@TempData["Warning"]</div>
+        <div class="alert alert-warning">@TempData["MessageWarning"]</div>
     }
 
     <!-- ============================= -->

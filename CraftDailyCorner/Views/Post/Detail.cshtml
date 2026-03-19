@@ -6,19 +6,6 @@
 @{
     ViewData["Title"] = Model.Title;
 }
-@if (TempData["Success"] != null)
-{
-    <div class="alert alert-success">
-        @TempData["Success"]
-    </div>
-}
-
-@if (TempData["Warning"] != null)
-{
-    <div class="alert alert-warning">
-        @TempData["Warning"]
-    </div>
-}
 
 <div class="container py-5" style="max-width:900px;">
 

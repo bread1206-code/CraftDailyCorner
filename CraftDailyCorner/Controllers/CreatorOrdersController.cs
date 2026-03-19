@@ -78,7 +78,7 @@ public class CreatorOrdersController : Controller
 
         if (string.IsNullOrWhiteSpace(trackingNo))
         {
-            TempData["Error"] = "請輸入物流編號";
+            TempData["OrderDetailError"] = "請輸入物流編號";
             return RedirectToAction(nameof(Detail), new { id = orderId });
         }
 
@@ -86,7 +86,7 @@ public class CreatorOrdersController : Controller
 
         if (!result.Success)
         {
-            TempData["Error"] = result.ErrorMessage ?? "出貨失敗";
+            TempData["OrderDetailError"] = result.ErrorMessage ?? "出貨失敗";
             return RedirectToAction(nameof(Detail), new { id = orderId });
         }
 
@@ -104,7 +104,7 @@ public class CreatorOrdersController : Controller
 
         var success = await _orderService.MarkDeliveredAsync(creatorId, orderId);
 
-        TempData[success ? "Success" : "Error"] = success
+        TempData[success ? "OrderDetailSuccess" : "OrderDetailError"] = success
             ? "已更新為商品送達"
             : "商品送達更新失敗";
 

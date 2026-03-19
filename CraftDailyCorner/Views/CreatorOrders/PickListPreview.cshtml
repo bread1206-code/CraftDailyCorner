@@ -22,22 +22,31 @@
         <div class="no-print">
 
             <!-- 取消 -->
-            <a asp-action="Index"
-               asp-route-status="new"
-               class="btn btn-outline-secondary me-2">
-                取消返回
-            </a>
+            <div class="no-print">
+                <a asp-action="Index"
+                   asp-route-status="new"
+                   class="btn btn-soft-secondary me-2">
+                    取消返回
+                </a>
 
-            <!-- 確認列印 -->
-            <form asp-action="ConfirmPrint"
-                  method="post"
-                  class="d-inline">
-                <button type="submit"
-                        class="btn btn-danger">
-                    <i class="bi bi-printer"> </i>確認列印並開始準備
+                <button type="button"
+                        id="printBtn"
+                        class="btn btn-soft-warning me-2">
+                    <i class="bi bi-printer"></i> 列印
                 </button>
-            </form>
 
+                <form asp-action="ConfirmPrint" method="post" class="d-inline">
+                    <button type="submit"
+                            id="confirmPrintBtn"
+                            class="btn btn-soft-primary"
+                            disabled>
+                        確認已列印並開始準備
+                    </button>
+                    <div class="small text-muted mt-2 no-print text-end">
+                        請先點擊「列印」後，再確認進入準備流程。
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 
@@ -141,7 +150,26 @@
 
 </div>
 
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const printBtn = document.getElementById('printBtn');
+            const confirmPrintBtn = document.getElementById('confirmPrintBtn');
 
+            if (!printBtn || !confirmPrintBtn) return;
 
+            let hasOpenedPrintDialog = false;
 
+            printBtn.addEventListener('click', function () {
+                hasOpenedPrintDialog = true;
+                window.print();
+            });
 
+            window.addEventListener('afterprint', function () {
+                if (hasOpenedPrintDialog) {
+                    confirmPrintBtn.disabled = false;
+                }
+            });
+        });
+    </script>
+}

@@ -1,10 +1,10 @@
 ﻿using CraftDailyCorner.DTOs;
 using CraftDailyCorner.Models;
+using CraftDailyCorner.Models.enums;
 using CraftDailyCorner.Services.Interface;
 using CraftDailyCorner.ViewModels.CreatorApplication;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
-using CraftDailyCorner.Models.enums;
 using System.Data;
 
 namespace CraftDailyCorner.Services.Creator
@@ -14,13 +14,15 @@ namespace CraftDailyCorner.Services.Creator
         private readonly CraftDailyCornerContext _context;
         private readonly IImageUploadService _imageUploadService;
 
-        public CreatorApplicationService(CraftDailyCornerContext context, IImageUploadService imageUploadService)
+        public CreatorApplicationService(
+            CraftDailyCornerContext context,
+            IImageUploadService imageUploadService)
         {
             _context = context;
             _imageUploadService = imageUploadService;
         }
 
-        //取得申請頁應顯示的畫面
+        // 取得申請頁應顯示的畫面
         public async Task<object> GetApplyPageAsync(string memberId)
         {
             var latest = await _context.CreatorApplications
@@ -64,7 +66,7 @@ namespace CraftDailyCorner.Services.Creator
             }
         }
 
-        //是否有審核中的申請
+        // 是否有審核中的申請
         public async Task<bool> HasPendingAsync(string memberId)
         {
             return await _context.CreatorApplications
@@ -74,11 +76,21 @@ namespace CraftDailyCorner.Services.Creator
                     ca.CreatorApplicationStatus.StatusCode == "Pending");
         }
 
-        //建立申請
+        // 建立前先做驗證，讓 Controller 可先驗證再上傳圖片
+        public async Task ValidateBeforeCreateAsync(string memberId, string brandName)
+        {
+            if (await HasPendingAsync(memberId))
+                throw new InvalidOperationException("已有審核中的申請");
+
+            if (await IsBrandNameDuplicateAsync(brandName, memberId))
+                throw new InvalidOperationException("品牌名稱已被使用，請更換其他名稱");
+        }
+
+        // 建立申請
         public async Task CreateAsync(CreatorApplicationCreateDTO dto)
         {
-            if (await HasPendingAsync(dto.MemberId))
-                throw new InvalidOperationException("已有審核中的申請");
+            // 第二層保險，避免未來其他地方直接呼叫 CreateAsync 時漏掉檢查
+            await ValidateBeforeCreateAsync(dto.MemberId, dto.BrandName);
 
             var pendingStatus = await _context.CreatorApplicationStatuses
                 .Where(s => s.StatusCode == "Pending" && s.IsActive)
@@ -90,7 +102,7 @@ namespace CraftDailyCorner.Services.Creator
             var entity = new CreatorApplication
             {
                 MemberID = dto.MemberId,
-                BrandName = dto.BrandName,
+                BrandName = (dto.BrandName ?? string.Empty).Trim(),
                 BrandIntro = dto.BrandIntro,
                 PortfolioSampleUrl = dto.PortfolioSampleUrl,
                 StartDate = dto.StartDate,
@@ -102,7 +114,7 @@ namespace CraftDailyCorner.Services.Creator
             await _context.SaveChangesAsync();
         }
 
-        //取得會員最新一筆申請
+        // 取得會員最新一筆申請
         public async Task<CreatorApplication?> GetLatestByMemberAsync(string memberId)
         {
             return await _context.CreatorApplications
@@ -130,7 +142,7 @@ namespace CraftDailyCorner.Services.Creator
 
             if (app == null) return null;
 
-            // 必須是「已通過」(StatusID=2) 才能填資料建立 CreatorProfile
+            // 必須是「已通過」(StatusID = 2) 才能填資料建立 CreatorProfile
             if (app.StatusID != 2) return null;
 
             return new VMApprovedConfirm
@@ -139,8 +151,8 @@ namespace CraftDailyCorner.Services.Creator
                 BrandName = app.BrandName ?? string.Empty,
                 BrandIntro = app.BrandIntro ?? string.Empty,
                 StartDate = app.StartDate,
-                BankCode = "",
-                BankAccount = ""
+                BankCode = string.Empty,
+                BankAccount = string.Empty
             };
         }
 
@@ -152,7 +164,7 @@ namespace CraftDailyCorner.Services.Creator
             if (app == null)
                 throw new Exception("找不到申請資料");
 
-            // 必須是「已通過」(StatusID=2) 才能進入此流程
+            // 必須是「已通過」(StatusID = 2) 才能進入此流程
             if (app.StatusID != 2)
                 throw new Exception("此申請狀態不可確認");
 
@@ -187,20 +199,18 @@ namespace CraftDailyCorner.Services.Creator
                     BrandName = (app.BrandName ?? string.Empty).Trim(),
                     BrandIntro = (app.BrandIntro ?? string.Empty).Trim(),
                     StartDate = app.StartDate,
-                    BankCode = vm.BankCode.Trim(),
-                    BankAccount = vm.BankAccount.Trim(),
-                    StatusID = 1,                 // 依你 Seed：1=啟用（若你的 CreatorProfileStatus 定義不同請改）
+                    BankCode = (vm.BankCode ?? string.Empty).Trim(),
+                    BankAccount = (vm.BankAccount ?? string.Empty).Trim(),
+                    StatusID = 1, // 依你 Seed：1 = 啟用
                     ImageUrl = imageKey ?? "default",
                     CreatedAt = DateTime.Now,
                     UpdatedAt = DateTime.Now
                 });
 
                 // 建立預設訊息模板
-                // 1. 固定建立 1 筆 FirstMessage 自動回覆模板
-                // 2. 一併建立其他預設 QuickReply 模板
                 AddDefaultMessageTemplates(creatorId);
 
-                // 若你「管理者審核通過」時沒有掛 Role(02)，在這裡補一次最保險
+                // 若管理者審核通過時沒有掛 Role(02)，這裡補一次
                 var hasRole = await _context.MemberRoles
                     .AnyAsync(r => r.MemberID == memberId && r.RoleID == "02");
 
@@ -213,23 +223,25 @@ namespace CraftDailyCorner.Services.Creator
                         AssignedAt = DateTime.Now
                     });
 
-                    var operatorId = string.IsNullOrWhiteSpace(app.ReviewedBy) ? null : app.ReviewedBy;
+                    var operatorId = string.IsNullOrWhiteSpace(app.ReviewedBy)
+                        ? null
+                        : app.ReviewedBy;
 
                     _context.MemberRoleHistories.Add(new MemberRoleHistory
                     {
-                        Action = (MemberRoleHistoryAction)1,          // 1=Add（依你 Seed 寫法）
+                        Action = (MemberRoleHistoryAction)1,
                         OperatedAt = DateTime.Now,
                         MemberID = memberId,
                         RoleID = "02",
-                        OperatedBy = (MemberRoleHistoryOperated)1,    // 1=Admin/System 視你 Seed
+                        OperatedBy = (MemberRoleHistoryOperated)1,
                         OperatorMemberID = operatorId
                     });
                 }
 
-                // 更新申請狀態 => Confirm(StatusID=4)
+                // 更新申請狀態 => Confirm(StatusID = 4)
                 app.StatusID = 4;
-                await _context.SaveChangesAsync();
 
+                await _context.SaveChangesAsync();
                 await tx.CommitAsync();
             }
             catch
@@ -253,7 +265,7 @@ namespace CraftDailyCorner.Services.Creator
 
             if (app == null) return null;
 
-            // 必須是「已拒絕」(StatusID=3) 才能進入此頁確認
+            // 必須是「已拒絕」(StatusID = 3) 才能進入此頁確認
             if (app.StatusID != 3) return null;
 
             return new VMRejectedConfirm
@@ -278,6 +290,7 @@ namespace CraftDailyCorner.Services.Creator
             app.StatusID = 4; // Confirm
             await _context.SaveChangesAsync();
         }
+
         private string GetNewCreatorID()
         {
             var outputParam = new SqlParameter
@@ -293,13 +306,14 @@ namespace CraftDailyCorner.Services.Creator
                 outputParam
             );
 
-            var newId = (outputParam.Value?.ToString() ?? "").Trim();
+            var newId = (outputParam.Value?.ToString() ?? string.Empty).Trim();
 
             if (string.IsNullOrWhiteSpace(newId))
                 throw new Exception("產生創作者編號失敗");
 
             return newId;
         }
+
         /// <summary>
         /// 建立新創作者的預設訊息模板
         /// 規則：
@@ -312,10 +326,6 @@ namespace CraftDailyCorner.Services.Creator
 
             var templates = new List<AutoReplyTemplate>
             {
-                // =============================
-                // 系統固定模板：第一次訊息自動回覆
-                // 每位創作者只有一筆
-                // =============================
                 new AutoReplyTemplate
                 {
                     Title = "首次訊息自動回覆",
@@ -325,10 +335,6 @@ namespace CraftDailyCorner.Services.Creator
                     CreatedAt = now,
                     CreatorID = creatorId
                 },
-
-                // =============================
-                // 其他預設快速回覆模板（標記位置）
-                // =============================
                 new AutoReplyTemplate
                 {
                     Title = "感謝詢問",
@@ -359,6 +365,32 @@ namespace CraftDailyCorner.Services.Creator
             };
 
             _context.AutoReplyTemplates.AddRange(templates);
+        }
+
+        private async Task<bool> IsBrandNameDuplicateAsync(string brandName, string? excludeMemberId = null)
+        {
+            if (string.IsNullOrWhiteSpace(brandName))
+                return false;
+
+            var normalized = brandName.Trim();
+
+            // 1. 檢查正式創作者資料
+            var existsInProfiles = await _context.CreatorProfiles
+                .AnyAsync(x => x.BrandName == normalized);
+
+            if (existsInProfiles)
+                return true;
+
+            // 2. 檢查創作者申請資料
+            var appQuery = _context.CreatorApplications
+                .Where(x => x.BrandName == normalized && (x.StatusID == 1 || x.StatusID == 2));
+
+            if (!string.IsNullOrWhiteSpace(excludeMemberId))
+            {
+                appQuery = appQuery.Where(x => x.MemberID != excludeMemberId);
+            }
+
+            return await appQuery.AnyAsync();
         }
     }
 }

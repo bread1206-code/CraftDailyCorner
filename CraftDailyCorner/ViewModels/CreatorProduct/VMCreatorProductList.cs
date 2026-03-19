@@ -22,7 +22,7 @@ namespace CraftDailyCorner.ViewModels.CreatorProduct
 
         [Display(Name = "狀態")]
         public string StatusName { get; set; } = null!;
-
+        public int StatusID { get; set; }
         [Display(Name = "庫存")]
         public int StockQty { get; set; }
 

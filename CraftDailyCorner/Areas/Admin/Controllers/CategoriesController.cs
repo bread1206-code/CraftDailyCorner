@@ -40,7 +40,7 @@ namespace CraftDailyCorner.Areas.Admin.Controllers
             }
 
             await _service.CreateAsync(vm);
-            TempData["Success"] = "分類已新增";
+            TempData["CategorySuccess"] = "分類已新增";
             return RedirectToAction(nameof(Index));
         }
 
@@ -69,7 +69,7 @@ namespace CraftDailyCorner.Areas.Admin.Controllers
             var ok = await _service.UpdateAsync(vm);
             if (!ok) return NotFound();
 
-            TempData["Success"] = "分類已更新";
+            TempData["CategorySuccess"] = "分類已更新";
             return RedirectToAction(nameof(Index));
         }
 
@@ -82,11 +82,11 @@ namespace CraftDailyCorner.Areas.Admin.Controllers
 
             if (!ok)
             {
-                TempData["Warning"] = message ?? "停用失敗";
+                TempData["CategoryWarning"] = message ?? "停用失敗";
                 return RedirectToAction(nameof(Index));
             }
 
-            TempData["Success"] = "分類已停用";
+            TempData["CategorySuccess"] = "分類已停用";
             return RedirectToAction(nameof(Index));
         }
 
@@ -99,11 +99,11 @@ namespace CraftDailyCorner.Areas.Admin.Controllers
 
             if (!ok)
             {
-                TempData["Warning"] = message ?? "啟用失敗";
+                TempData["CategoryWarning"] = message ?? "啟用失敗";
                 return RedirectToAction(nameof(Index));
             }
 
-            TempData["Success"] = "分類已啟用";
+            TempData["CategorySuccess"] = "分類已啟用";
             return RedirectToAction(nameof(Index));
         }
     }

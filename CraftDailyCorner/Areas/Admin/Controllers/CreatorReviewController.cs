@@ -42,7 +42,7 @@ namespace CraftDailyCorner.Areas.Admin.Controllers
                 return Unauthorized();
 
             await _reviewService.ApproveAsync(id, adminMemberId, reviewNote);
-            TempData["Success"] = "已通過創作者申請。";
+            TempData["CreatorReviewSuccess"] = "已通過創作者申請。";
             return RedirectToAction(nameof(Detail), new { id });
         }
 
@@ -55,7 +55,7 @@ namespace CraftDailyCorner.Areas.Admin.Controllers
                 return Unauthorized();
 
             await _reviewService.RejectAsync(id, adminMemberId, reviewNote);
-            TempData["Warning"] = "已駁回創作者申請。";
+            TempData["CreatorReviewWarning"] = "已駁回創作者申請。";
             return RedirectToAction(nameof(Detail), new { id });
         }
 

@@ -63,6 +63,7 @@ namespace CraftDailyCorner.Controllers
                     vm.ImageFiles);
             }
 
+            TempData["ProductsSuccess"] = "商品已建立";
             return RedirectToAction(nameof(Index));
         }
 
@@ -85,19 +86,6 @@ namespace CraftDailyCorner.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(VMCreatorProductForm vm)
         {
-            Console.WriteLine("進入 Edit POST");
-
-            if (!ModelState.IsValid)
-            {
-                foreach (var state in ModelState)
-                {
-                    foreach (var error in state.Value.Errors)
-                    {
-                        Console.WriteLine($"{state.Key}: {error.ErrorMessage}");
-                    }
-                }
-            }
-
             var creatorId = User.GetCreatorId();
             if (string.IsNullOrWhiteSpace(creatorId))
                 return Unauthorized();
@@ -115,7 +103,7 @@ namespace CraftDailyCorner.Controllers
                 if (!success)
                     return NotFound();
 
-                TempData["Success"] = "商品已更新";
+                TempData["ProductsSuccess"] = "商品已更新";
                 return RedirectToAction(nameof(Index));
             }
             catch (Exception ex)
@@ -126,7 +114,29 @@ namespace CraftDailyCorner.Controllers
             }
         }
 
-        // 軟刪除（下架）
+        // 快速切換上架 / 下架
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ToggleStatus(string id)
+        {
+            var creatorId = User.GetCreatorId();
+            if (string.IsNullOrWhiteSpace(creatorId))
+                return Unauthorized();
+
+            try
+            {
+                await _productService.TogglePublishStatusAsync(id, creatorId);
+                TempData["ProductsSuccess"] = "商品狀態已更新";
+            }
+            catch (Exception ex)
+            {
+                TempData["ProductsWarning"] = ex.Message;
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        // 舊的 Delete 可先保留不用，或之後刪掉
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(string id)
@@ -144,6 +154,7 @@ namespace CraftDailyCorner.Controllers
 
             await _productService.UpdateAsync(vm, creatorId);
 
+            TempData["ProductsSuccess"] = "商品已下架";
             return RedirectToAction(nameof(Index));
         }
     }

@@ -85,7 +85,7 @@ namespace CraftDailyCorner.Controllers
 
             await HttpContext.SignInAsync("CraftDailyCornerLogin", principal);
 
-            TempData["Success"] = "個人資料已更新";
+            TempData["MemberProfileSuccess"] = "個人資料已更新";
             return RedirectToAction(nameof(Profile));
         }
 
@@ -139,7 +139,7 @@ namespace CraftDailyCorner.Controllers
                 return View(vm);
             }
 
-            TempData["Success"] = message;
+            TempData["ChangePasswordSuccess"] = message;
             return RedirectToAction(nameof(ChangePassword));
         }
     }

@@ -65,7 +65,7 @@ namespace CraftDailyCorner.Controllers
 
             if (!selectedProductIdList.Any())
             {
-                TempData["Error"] = "請先勾選要結帳的商品";
+                TempData["OrdersError"] = "請先勾選要結帳的商品";
                 return RedirectToAction("Index", "Products");
             }
 
@@ -148,7 +148,7 @@ namespace CraftDailyCorner.Controllers
                     SelectedProductIds = request.SelectedProductIds ?? new List<string>()
                 };
 
-                TempData["Error"] = result.Message;
+                TempData["OrdersError"] = result.Message;
                 return View("Checkout", vm);
             }
 
@@ -182,11 +182,11 @@ namespace CraftDailyCorner.Controllers
 
             if (result.Success)
             {
-                TempData["Success"] = result.Message;
+                TempData["OrdersSuccess"] = result.Message;
                 return RedirectToAction(nameof(Detail), new { orderId });
             }
 
-            TempData["Error"] = result.Message;
+            TempData["OrdersError"] = result.Message;
             return RedirectToAction(nameof(Detail), new { orderId });
         }
 
@@ -201,7 +201,7 @@ namespace CraftDailyCorner.Controllers
 
             var result = _orderService.ConfirmPickup(orderId, memberId);
 
-            TempData[result.Success ? "Success" : "Error"] = result.Message;
+            TempData[result.Success ? "OrdersSuccess" : "OrdersError"] = result.Message;
             return RedirectToAction(nameof(Detail), new { orderId });
         }
     }

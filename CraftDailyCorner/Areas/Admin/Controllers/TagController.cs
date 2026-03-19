@@ -40,7 +40,7 @@ namespace CraftDailyCorner.Areas.Admin.Controllers
             try
             {
                 await _tagService.CreateAsync(vm);
-                TempData["Success"] = "標籤新增成功";
+                TempData["TagSuccess"] = "標籤新增成功";
                 return RedirectToAction(nameof(Index));
             }
             catch (ArgumentException ex)
@@ -71,7 +71,7 @@ namespace CraftDailyCorner.Areas.Admin.Controllers
                 var ok = await _tagService.UpdateAsync(vm);
                 if (!ok) return NotFound();
 
-                TempData["Success"] = "標籤更新成功";
+                TempData["TagSuccess"] = "標籤更新成功";
                 return RedirectToAction(nameof(Index));
             }
             catch (ArgumentException ex)
@@ -89,7 +89,7 @@ namespace CraftDailyCorner.Areas.Admin.Controllers
             var ok = await _tagService.ToggleActiveAsync(id);
             if (!ok) return NotFound();
 
-            TempData["Success"] = "標籤狀態已更新";
+            TempData["TagSuccess"] = "標籤狀態已更新";
             return RedirectToAction(nameof(Index));
         }
     }

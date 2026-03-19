@@ -27,13 +27,13 @@
 
 <div class="container-fluid">
 
-    @if (TempData["Success"] != null)
+    @if (TempData["MembersSuccess"] != null)
     {
-        <div class="alert alert-success">@TempData["Success"]</div>
+        <div class="alert alert-success">@TempData["MembersSuccess"]</div>
     }
-    @if (TempData["Warning"] != null)
+    @if (TempData["MembersWarning"] != null)
     {
-        <div class="alert alert-warning">@TempData["Warning"]</div>
+        <div class="alert alert-warning">@TempData["MembersWarning"]</div>
     }
 
     <div class="d-flex justify-content-between align-items-end mb-4">
@@ -216,13 +216,37 @@
 
             @if (showPagination && Model.TotalPages > 1)
             {
-                <div class="p-3 border-top border-secondary d-flex justify-content-between align-items-center">
+                
+                var currentPage = Model.Page;
+                var totalPages = Model.TotalPages;
+
+                var pages = new List<int>();
+
+                for (int p = Math.Max(1, currentPage - 1); p <= Math.Min(totalPages, currentPage + 1); p++)
+                {
+                    pages.Add(p);
+                }
+
+                if (!pages.Contains(1))
+                {
+                    pages.Insert(0, 1);
+                }
+
+                if (!pages.Contains(totalPages))
+                {
+                    pages.Add(totalPages);
+                }
+
+                pages = pages.Distinct().OrderBy(x => x).ToList();
+                
+
+                <div class="p-3 border-top border-secondary d-flex flex-column flex-md-row justify-content-between align-items-center gap-2">
                     <div class="text-light opacity-75 small">
                         第 @Model.Page / @Model.TotalPages 頁，共 @Model.TotalCount 筆
                     </div>
 
                     <nav aria-label="Page navigation">
-                        <ul class="pagination pagination-sm mb-0">
+                        <ul class="pagination pagination-sm mb-0 flex-wrap justify-content-center">
 
                             <li class="page-item @(Model.Page <= 1 ? "disabled" : "")">
                                 <a class="page-link bg-dark text-light border-secondary"
@@ -236,8 +260,17 @@
                                 </a>
                             </li>
 
-                            @for (int p = 1; p <= Model.TotalPages; p++)
+                            @for (int i = 0; i < pages.Count; i++)
                             {
+                                var p = pages[i];
+
+                                if (i > 0 && pages[i] - pages[i - 1] > 1)
+                                {
+                                    <li class="page-item disabled">
+                                        <span class="page-link bg-dark text-light border-secondary">...</span>
+                                    </li>
+                                }
+
                                 <li class="page-item @(p == Model.Page ? "active" : "")">
                                     <a class="page-link bg-dark text-light border-secondary"
                                        asp-area="Admin"

@@ -24,5 +24,6 @@ namespace CraftDailyCorner.Services.Interface
 
         Task<VMRejectedConfirm?> GetRejectedConfirmAsync(string memberId, int? applicationId = null);
         Task SubmitRejectedConfirmAsync(string memberId, int applicationId);
+        Task ValidateBeforeCreateAsync(string memberId, string brandName);
     }
 }

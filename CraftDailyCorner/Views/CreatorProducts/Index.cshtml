@@ -6,6 +6,16 @@
 
 <div class="container py-4">
 
+    @if (TempData["ProductsSuccess"] != null)
+    {
+        <div class="alert alert-success">@TempData["ProductsSuccess"]</div>
+    }
+
+    @if (TempData["ProductsWarning"] != null)
+    {
+        <div class="alert alert-warning">@TempData["ProductsWarning"]</div>
+    }
+
     <!-- 標題區 -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
@@ -75,11 +85,11 @@
                                 </td>
 
                                 <td>
-                                    @if (item.StatusName == "上架中")
+                                    @if (item.StatusID == 2)
                                     {
                                         <span class="badge bg-success">上架中</span>
                                     }
-                                    else if (item.StatusName == "草稿")
+                                    else if (item.StatusID == 1)
                                     {
                                         <span class="badge bg-primary">草稿</span>
                                     }
@@ -111,21 +121,38 @@
                                 <td class="text-end">
                                     <a asp-action="Edit"
                                            asp-route-id="@item.ProductID"
-                                           class="btn btn-sm btn-outline-secondary me-2">
+                                           class="btn btn-sm btn-soft-secondary me-2">
                                         編輯
                                     </a>
 
-                                    <form asp-action="Delete"
-                                          asp-route-id="@item.ProductID"
-                                          method="post"
-                                          class="d-inline"
-                                          onsubmit="return confirm('確定要下架此商品嗎？');">
-
-                                        <button type="submit"
-                                                class="btn btn-sm btn-outline-danger">
-                                            下架
-                                        </button>
-                                    </form>
+                                    @if (item.StatusID == 2)
+                                    {
+                                        <form asp-action="ToggleStatus"
+                                              asp-route-id="@item.ProductID"
+                                              method="post"
+                                              class="d-inline"
+                                              onsubmit="return confirm('確定要下架此商品嗎？');">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit"
+                                                    class="btn btn-sm btn-soft-danger">
+                                                下架
+                                            </button>
+                                        </form>
+                                    }
+                                    else
+                                    {
+                                        <form asp-action="ToggleStatus"
+                                              asp-route-id="@item.ProductID"
+                                              method="post"
+                                              class="d-inline"
+                                              onsubmit="return confirm('確定要上架此商品嗎？');">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit"
+                                                    class="btn btn-sm btn-soft-success">
+                                                上架
+                                            </button>
+                                        </form>
+                                    }
                                 </td>
                             </tr>
                         }

@@ -75,7 +75,19 @@
         _ => "bg-secondary"
     };
 }
+@if (TempData["OrdersError"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["OrdersError"]
+    </div>
+}
 
+@if (TempData["OrdersSuccess"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["OrdersSuccess"]
+    </div>
+}
 <div class="container my-5">
 
     <!-- ===== 標題列 ===== -->

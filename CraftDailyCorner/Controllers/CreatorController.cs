@@ -1,7 +1,6 @@
 ﻿using CraftDailyCorner.DTOs;
 using CraftDailyCorner.Extensions;
 using CraftDailyCorner.Services;
-using CraftDailyCorner.Services.Creator;
 using CraftDailyCorner.Services.Interface;
 using CraftDailyCorner.ViewModels.Creator;
 using CraftDailyCorner.ViewModels.CreatorApplication;
@@ -67,6 +66,16 @@ namespace CraftDailyCorner.Controllers.Front
             if (!ModelState.IsValid)
                 return View(vm);
 
+            try
+            {
+                await _applicationService.ValidateBeforeCreateAsync(memberId, vm.BrandName);
+            }
+            catch (InvalidOperationException ex)
+            {
+                ModelState.AddModelError(nameof(vm.BrandName), ex.Message);
+                return View(vm);
+            }
+
             string imageKey;
             try
             {
@@ -83,14 +92,27 @@ namespace CraftDailyCorner.Controllers.Front
                 return View(vm);
             }
 
-            await _applicationService.CreateAsync(new CreatorApplicationCreateDTO
+            try
             {
-                MemberId = memberId,
-                BrandName = vm.BrandName,
-                BrandIntro = vm.BrandIntro,
-                PortfolioSampleUrl = imageKey,
-                StartDate = vm.StartDate
-            });
+                await _applicationService.CreateAsync(new CreatorApplicationCreateDTO
+                {
+                    MemberId = memberId,
+                    BrandName = vm.BrandName,
+                    BrandIntro = vm.BrandIntro,
+                    PortfolioSampleUrl = imageKey,
+                    StartDate = vm.StartDate
+                });
+            }
+            catch (InvalidOperationException ex)
+            {
+                ModelState.AddModelError(nameof(vm.BrandName), ex.Message);
+                return View(vm);
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError(string.Empty, ex.Message);
+                return View(vm);
+            }
 
             return RedirectToAction("Index", "Member");
         }
@@ -179,7 +201,7 @@ namespace CraftDailyCorner.Controllers.Front
             try
             {
                 await _creatorProfileService.UpdateBrandAsync(creatorId, vm);
-                TempData["Success"] = "品牌資料已更新";
+                TempData["CreatorBrandSuccess"] = "品牌資料已更新";
                 return RedirectToAction(nameof(BrandEdit));
             }
             catch (Exception ex)
@@ -203,7 +225,7 @@ namespace CraftDailyCorner.Controllers.Front
             var vm = await _applicationService.GetApprovedConfirmAsync(memberId, applicationId);
             if (vm == null)
             {
-                TempData["Warning"] = "目前沒有可確認的『已通過』申請。";
+                TempData["CreatorApplicationWarning"] = "目前沒有可確認的『已通過』申請。";
                 return RedirectToAction("Index", "Member");
             }
 
@@ -239,7 +261,7 @@ namespace CraftDailyCorner.Controllers.Front
 
                 await _authService.RefreshSignInAsync(HttpContext, memberId);
 
-                TempData["Success"] = "創作者資料建立完成！歡迎加入創作者行列。";
+                TempData["CreatorApplicationSuccess"] = "創作者資料建立完成！歡迎加入創作者行列。";
                 return RedirectToAction("Dashboard", "Creator");
             }
             catch (Exception ex)
@@ -271,7 +293,7 @@ namespace CraftDailyCorner.Controllers.Front
             var vm = await _applicationService.GetRejectedConfirmAsync(memberId, applicationId);
             if (vm == null)
             {
-                TempData["Warning"] = "目前沒有可確認的『已拒絕』申請。";
+                TempData["CreatorApplicationWarning"] = "目前沒有可確認的『已拒絕』申請。";
                 return RedirectToAction("Index", "Member");
             }
 
@@ -292,7 +314,7 @@ namespace CraftDailyCorner.Controllers.Front
             try
             {
                 await _applicationService.SubmitRejectedConfirmAsync(memberId, vm.ApplicationID);
-                TempData["Success"] = "已確認申請結果。期待你調整後再次申請！";
+                TempData["CreatorApplicationSuccess"] = "已確認申請結果。期待你調整後再次申請！";
                 return RedirectToAction("Index", "Member");
             }
             catch (Exception ex)

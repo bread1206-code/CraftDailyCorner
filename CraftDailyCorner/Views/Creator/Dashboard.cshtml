@@ -8,7 +8,14 @@
         ? "/Photos/Creator/Brand/default.png"
         : $"/Photos/03CreatorBrand/{Model.CreatorID}/Large/{Model.ImageUrl}.png?v={Model.UpdatedAt.Ticks}";
 }
-
+@if (TempData["CreatorApplicationSuccess"] != null)
+{
+    <div class="alert alert-success">@TempData["CreatorApplicationSuccess"]</div>
+}
+@if (TempData["CreatorApplicationWarning"] != null)
+{
+    <div class="alert alert-warning">@TempData["CreatorApplicationWarning"]</div>
+}
 <div class="container my-5">
 
     <!--創作者歡迎資訊區塊（品牌形象 + 基本資料） -->

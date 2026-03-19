@@ -64,7 +64,7 @@ namespace CraftDailyCorner.Controllers
 
             await _notificationService.MarkAllAsReadAsync(memberId);
 
-            TempData["Success"] = "已將所有通知標記為已讀";
+            TempData["NotificationSuccess"] = "已將所有通知標記為已讀";
             return RedirectToAction(nameof(Index));
         }
 
@@ -95,7 +95,7 @@ namespace CraftDailyCorner.Controllers
 
             _notificationPreferenceService.UpdatePreference(memberId, vm);
 
-            TempData["Success"] = "通知設定已更新";
+            TempData["PreferencesSuccess"] = "通知設定已更新";
             return RedirectToAction(nameof(Preferences));
         }
     }

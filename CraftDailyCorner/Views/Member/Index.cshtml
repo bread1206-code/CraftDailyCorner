@@ -8,7 +8,14 @@
         ? "/Photos/01Member/Medium//default.png"
         : $"/Photos/01Member/Medium/{Model.ImageUrl}.png";
 }
-
+@if (TempData["CreatorApplicationWarning"] != null)
+{
+    <div class="alert alert-warning">@TempData["CreatorApplicationWarning"]</div>
+}
+@if (TempData["CreatorApplicationSuccess"] != null)
+{
+    <div class="alert alert-success">@TempData["CreatorApplicationSuccess"]</div>
+}
 <div class="container my-5">
     
     <!-- ===== 會員識別區（左：會員資訊｜右：創作者申請） ===== -->

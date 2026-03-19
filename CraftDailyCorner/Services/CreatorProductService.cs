@@ -40,6 +40,7 @@ namespace CraftDailyCorner.Services
                     CreatorID = p.CreatorID,
                     ProductName = p.ProductName,
                     Price = p.Price,
+                    StatusID = p.StatusID,
                     StatusName = p.ProductStatus.StatusName,
                     StockQty = p.Inventory.StockQty,
                     CoverImageUrl = p.ProductImages
@@ -388,12 +389,76 @@ namespace CraftDailyCorner.Services
             return true;
         }
 
+        // 快速切換上架 / 下架
+        public async Task TogglePublishStatusAsync(string productId, string creatorId)
+        {
+            var product = await _context.Products
+                .Include(p => p.Inventory)
+                .Include(p => p.ProductImages)
+                .FirstOrDefaultAsync(p =>
+                    p.ProductID == productId &&
+                    p.CreatorID == creatorId);
+
+            if (product == null)
+                throw new Exception("找不到商品資料");
+
+            var oldStatusId = product.StatusID;
+
+            // 目前是上架中 => 改成下架
+            if (product.StatusID == 2)
+            {
+                product.StatusID = 3;
+                await _context.SaveChangesAsync();
+                return;
+            }
+
+            // 草稿 / 下架 => 改成上架
+            if (product.Inventory == null)
+                throw new Exception("商品庫存資料不存在，無法上架");
+
+            if (product.Inventory.StockQty <= 0)
+                throw new Exception("庫存為 0 無法上架");
+
+            var imageCount = product.ProductImages.Count(i => i.StatusID == 1);
+            if (imageCount == 0)
+                throw new Exception("上架商品必須至少一張圖片");
+
+            product.StatusID = 2;
+            await _context.SaveChangesAsync();
+
+            // 收藏商品已上架通知：只在非上架 -> 上架時發
+            if (oldStatusId != 2)
+            {
+                var favoriteMemberIds = await _context.FavoriteProducts
+                    .Where(x => x.ProductID == product.ProductID)
+                    .Select(x => x.MemberID)
+                    .Distinct()
+                    .ToListAsync();
+
+                if (favoriteMemberIds.Any())
+                {
+                    var dtos = favoriteMemberIds.Select(memberId => new CreateNotificationDTO
+                    {
+                        MemberID = memberId,
+                        NotificationType = NotificationType.FavoriteProductPublished,
+                        Title = "收藏商品已上架通知",
+                        Content = $"你收藏的商品「{product.ProductName}」已上架。",
+                        LinkUrl = $"/Products/Detail/{product.ProductID}",
+                        RelatedEntityType = "Product",
+                        RelatedEntityId = product.ProductID
+                    });
+
+                    await _notificationService.CreateBatchAsync(dtos);
+                }
+            }
+        }
+
         // 載入選單
         public void LoadOptions(VMCreatorProductForm vm)
         {
             vm.StatusSelectList = _context.ProductStatuses
                 .Where(s => s.IsActive)
-                .Select(s => new SelectListItem
+                .Select(s => new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem
                 {
                     Value = s.StatusID.ToString(),
                     Text = s.StatusName,
@@ -403,7 +468,7 @@ namespace CraftDailyCorner.Services
 
             vm.TagSelectList = _context.Tags
                 .Where(t => t.IsActive)
-                .Select(t => new SelectListItem
+                .Select(t => new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem
                 {
                     Value = t.TagID.ToString(),
                     Text = t.TagName,
