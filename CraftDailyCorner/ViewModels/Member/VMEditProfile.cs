@@ -15,12 +15,11 @@ namespace CraftDailyCorner.ViewModels.Member
         public string DisplayName { get; set; } = null!;
 
         [Display(Name = "電子郵件")]
-        [EmailAddress(ErrorMessage = "Email 格式不正確")]
         public string Email { get; set; } = null!;
 
-        [Display(Name = "聯絡電話")]
-        [MaxLength(20)]
-        public string? Phone { get; set; }
+        [Display(Name = "手機號碼")]
+        [RegularExpression(@"^\d{10}$", ErrorMessage = "請輸入10碼手機號碼")]
+        public string Phone { get; set; } = null!;
 
         // 目前頭像（顯示用）
         public string? ImageUrl { get; set; }

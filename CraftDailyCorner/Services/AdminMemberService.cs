@@ -1,5 +1,6 @@
 ﻿using CraftDailyCorner.Areas.Admin.ViewModels.Member;
 using CraftDailyCorner.Models;
+using CraftDailyCorner.Models.enums;
 using CraftDailyCorner.Services.Interface;
 using Microsoft.EntityFrameworkCore;
 
@@ -11,6 +12,8 @@ namespace CraftDailyCorner.Services
 
         private const byte MEMBER_ACTIVE = 1;
         private const byte MEMBER_SUSPENDED = 2;
+        private const string GENERAL_ADMIN_ROLE_ID = "03";
+        private const string SUPER_ADMIN_ROLE_ID = "04";
 
         public AdminMemberService(CraftDailyCornerContext context)
         {
@@ -70,7 +73,7 @@ namespace CraftDailyCorner.Services
 
                 case "admin":
                     query = query
-                        .Where(x => x.MemberRoles.Any(r => r.RoleID == "03" || r.RoleID == "04"))
+                        .Where(x => x.MemberRoles.Any(r => r.RoleID == GENERAL_ADMIN_ROLE_ID || r.RoleID == SUPER_ADMIN_ROLE_ID))
                         .OrderByDescending(x => x.CreatedAt)
                         .ThenBy(x => x.MemberID);
 
@@ -208,7 +211,7 @@ namespace CraftDailyCorner.Services
             if (mode == "risk" && member.ViolationCount <= 5)
                 return null;
 
-            if (mode == "admin" && !member.MemberRoles.Any(r => r.RoleID == "03" || r.RoleID == "04"))
+            if (mode == "admin" && !member.MemberRoles.Any(r => r.RoleID == GENERAL_ADMIN_ROLE_ID || r.RoleID == SUPER_ADMIN_ROLE_ID))
                 return null;
 
             if (mode == "creator" && member.CreatorProfile == null)
@@ -242,6 +245,118 @@ namespace CraftDailyCorner.Services
             };
         }
 
+        public async Task<VMAdminAssignGeneralAdmin> GetAssignGeneralAdminAsync(string? phone, string operatorMemberId)
+        {
+            var vm = new VMAdminAssignGeneralAdmin
+            {
+                SearchPhone = string.IsNullOrWhiteSpace(phone) ? null : phone.Trim()
+            };
+
+            if (string.IsNullOrWhiteSpace(vm.SearchPhone))
+                return vm;
+
+            vm.HasSearched = true;
+
+            var member = await _context.Members
+                .AsNoTracking()
+                .Include(x => x.MemberStatus)
+                .Include(x => x.Privacy)
+                .Include(x => x.MemberRoles)
+                    .ThenInclude(x => x.Role)
+                .FirstOrDefaultAsync(x => x.Privacy != null && x.Privacy.Phone == vm.SearchPhone);
+
+            if (member == null)
+            {
+                vm.SearchMessage = "查無符合此電話的會員資料";
+                return vm;
+            }
+
+            vm.IsFound = true;
+            vm.MemberID = member.MemberID;
+            vm.DisplayName = member.DisplayName;
+            vm.StatusID = member.StatusID;
+            vm.StatusName = member.MemberStatus?.StatusName ?? string.Empty;
+            vm.Email = member.Privacy?.Email;
+            vm.Phone = member.Privacy?.Phone;
+            vm.RoleIDs = member.MemberRoles.Select(x => x.RoleID).ToList();
+            vm.RoleNames = member.MemberRoles.Select(x => x.Role.RoleName).ToList();
+
+            if (member.StatusID != MEMBER_ACTIVE)
+            {
+                vm.CanAssign = false;
+                vm.BlockReason = "僅限啟用中的會員可指派為一般管理者";
+                return vm;
+            }
+
+            if (member.MemberID == operatorMemberId)
+            {
+                vm.CanAssign = false;
+                vm.BlockReason = "不可將自己指派為一般管理者";
+                return vm;
+            }
+
+            if (member.MemberRoles.Any(x => x.RoleID == SUPER_ADMIN_ROLE_ID))
+            {
+                vm.CanAssign = false;
+                vm.BlockReason = "超級管理者不可再指派為一般管理者";
+                return vm;
+            }
+
+            if (member.MemberRoles.Any(x => x.RoleID == GENERAL_ADMIN_ROLE_ID))
+            {
+                vm.CanAssign = false;
+                vm.BlockReason = "此會員已是一般管理者";
+                return vm;
+            }
+
+            vm.CanAssign = true;
+            return vm;
+        }
+
+        public async Task<(bool ok, string? message)> AssignGeneralAdminAsync(string memberId, string operatorMemberId)
+        {
+            var member = await _context.Members
+                .Include(x => x.MemberRoles)
+                .FirstOrDefaultAsync(x => x.MemberID == memberId);
+
+            if (member == null)
+                return (false, "會員不存在");
+
+            if (member.StatusID != MEMBER_ACTIVE)
+                return (false, "僅限啟用中的會員可指派為一般管理者");
+
+            if (member.MemberID == operatorMemberId)
+                return (false, "不可將自己指派為一般管理者");
+
+            if (member.MemberRoles.Any(x => x.RoleID == SUPER_ADMIN_ROLE_ID))
+                return (false, "超級管理者不可再指派為一般管理者");
+
+            if (member.MemberRoles.Any(x => x.RoleID == GENERAL_ADMIN_ROLE_ID))
+                return (false, "此會員已是一般管理者");
+
+            var now = DateTime.Now;
+
+            _context.MemberRoles.Add(new MemberRole
+            {
+                MemberID = member.MemberID,
+                RoleID = GENERAL_ADMIN_ROLE_ID,
+                AssignedAt = now
+            });
+
+            _context.MemberRoleHistories.Add(new MemberRoleHistory
+            {
+                MemberID = member.MemberID,
+                RoleID = GENERAL_ADMIN_ROLE_ID,
+                Action = MemberRoleHistoryAction.Updated,
+                OperatedAt = now,
+                OperatedBy = MemberRoleHistoryOperated.Admin,
+                OperatorMemberID = operatorMemberId
+            });
+
+            await _context.SaveChangesAsync();
+            return (true, null);
+        }
+
         public async Task<(bool ok, string? message)> SuspendAsync(string memberId, string adminMemberId)
         {
             var member = await _context.Members
@@ -254,7 +369,7 @@ namespace CraftDailyCorner.Services
             if (member.MemberID == adminMemberId)
                 return (false, "不能停權自己的帳號");
 
-            if (member.MemberRoles.Any(r => r.RoleID == "04"))
+            if (member.MemberRoles.Any(r => r.RoleID == SUPER_ADMIN_ROLE_ID))
                 return (false, "不可停權超級管理者");
 
             if (member.StatusID == MEMBER_SUSPENDED)

@@ -23,6 +23,7 @@
 
     var showSearch = Model.Mode == "all" || Model.Mode == "creator";
     var showPagination = Model.Mode == "all" || Model.Mode == "creator";
+    var canAssignGeneralAdmin = Model.Mode == "admin" && User.IsInRole("04");
 }
 
 <div class="container-fluid">
@@ -42,41 +43,53 @@
             <div class="text-light opacity-75">@subtitle</div>
         </div>
 
-        @if (showSearch)
-        {
-            <form method="get"
-                  asp-area="Admin"
-                  asp-controller="Members"
-                  asp-action="Index"
-                  class="d-flex gap-2 align-items-center justify-content-center"
-                  style="min-width:520px;">
-
-                <input type="hidden" name="mode" value="@Model.Mode" />
-
-                <div class="input-group" style="width:300px;">
-                    <span class="input-group-text bg-dark text-light border-secondary">
-                        <i class="bi bi-search"></i>
-                    </span>
-
-                    <input name="memberId"
-                           value="@Model.SearchMemberId"
-                           class="form-control bg-dark text-light border-secondary"
-                           placeholder="輸入 MemberID" />
-                </div>
-
-                <button class="btn btn-outline-light" type="submit">
-                    搜尋
-                </button>
-
-                <a class="btn btn-outline-secondary @(string.IsNullOrWhiteSpace(Model.SearchMemberId) ? "invisible" : "")"
-                   asp-area="Admin"
-                   asp-controller="Members"
-                   asp-action="Index"
-                   asp-route-mode="@Model.Mode">
-                    清除
+        <div class="d-flex gap-2 align-items-center">
+            @if (canAssignGeneralAdmin)
+            {
+                <a class="btn btn-outline-warning"
+                       asp-area="Admin"
+                       asp-controller="Members"
+                       asp-action="AssignGeneralAdmin">
+                    <i class="bi bi-person-plus me-1"></i> 新增一般管理者
                 </a>
-            </form>
-        }
+            }
+
+            @if (showSearch)
+            {
+                <form method="get"
+                      asp-area="Admin"
+                      asp-controller="Members"
+                      asp-action="Index"
+                      class="d-flex gap-2 align-items-center justify-content-center"
+                      style="min-width:520px;">
+
+                    <input type="hidden" name="mode" value="@Model.Mode" />
+
+                    <div class="input-group" style="width:300px;">
+                        <span class="input-group-text bg-dark text-light border-secondary">
+                            <i class="bi bi-search"></i>
+                        </span>
+
+                        <input name="memberId"
+                               value="@Model.SearchMemberId"
+                               class="form-control bg-dark text-light border-secondary"
+                               placeholder="輸入 MemberID" />
+                    </div>
+
+                    <button class="btn btn-outline-light" type="submit">
+                        搜尋
+                    </button>
+
+                    <a class="btn btn-outline-secondary @(string.IsNullOrWhiteSpace(Model.SearchMemberId) ? "invisible" : "")"
+                           asp-area="Admin"
+                           asp-controller="Members"
+                           asp-action="Index"
+                           asp-route-mode="@Model.Mode">
+                        清除
+                    </a>
+                </form>
+            }
+        </div>
     </div>
 
     <div class="card shadow-sm border-0">
@@ -150,11 +163,11 @@
 
                                     <td class="text-end">
                                         <a class="btn btn-sm btn-outline-light me-2"
-                                           asp-area="Admin"
-                                           asp-controller="Members"
-                                           asp-action="Detail"
-                                           asp-route-id="@x.MemberID"
-                                           asp-route-mode="@Model.Mode">
+                                               asp-area="Admin"
+                                               asp-controller="Members"
+                                               asp-action="Detail"
+                                               asp-route-id="@x.MemberID"
+                                               asp-route-mode="@Model.Mode">
                                             查看
                                         </a>
 
@@ -216,7 +229,6 @@
 
             @if (showPagination && Model.TotalPages > 1)
             {
-                
                 var currentPage = Model.Page;
                 var totalPages = Model.TotalPages;
 
@@ -238,7 +250,6 @@
                 }
 
                 pages = pages.Distinct().OrderBy(x => x).ToList();
-                
 
                 <div class="p-3 border-top border-secondary d-flex flex-column flex-md-row justify-content-between align-items-center gap-2">
                     <div class="text-light opacity-75 small">
@@ -250,12 +261,12 @@
 
                             <li class="page-item @(Model.Page <= 1 ? "disabled" : "")">
                                 <a class="page-link bg-dark text-light border-secondary"
-                                   asp-area="Admin"
-                                   asp-controller="Members"
-                                   asp-action="Index"
-                                   asp-route-mode="@Model.Mode"
-                                   asp-route-memberId="@Model.SearchMemberId"
-                                   asp-route-page="@(Model.Page - 1)">
+                                       asp-area="Admin"
+                                       asp-controller="Members"
+                                       asp-action="Index"
+                                       asp-route-mode="@Model.Mode"
+                                       asp-route-memberId="@Model.SearchMemberId"
+                                       asp-route-page="@(Model.Page - 1)">
                                     上一頁
                                 </a>
                             </li>
@@ -273,12 +284,12 @@
 
                                 <li class="page-item @(p == Model.Page ? "active" : "")">
                                     <a class="page-link bg-dark text-light border-secondary"
-                                       asp-area="Admin"
-                                       asp-controller="Members"
-                                       asp-action="Index"
-                                       asp-route-mode="@Model.Mode"
-                                       asp-route-memberId="@Model.SearchMemberId"
-                                       asp-route-page="@p">
+                                           asp-area="Admin"
+                                           asp-controller="Members"
+                                           asp-action="Index"
+                                           asp-route-mode="@Model.Mode"
+                                           asp-route-memberId="@Model.SearchMemberId"
+                                           asp-route-page="@p">
                                         @p
                                     </a>
                                 </li>
@@ -286,12 +297,12 @@
 
                             <li class="page-item @(Model.Page >= Model.TotalPages ? "disabled" : "")">
                                 <a class="page-link bg-dark text-light border-secondary"
-                                   asp-area="Admin"
-                                   asp-controller="Members"
-                                   asp-action="Index"
-                                   asp-route-mode="@Model.Mode"
-                                   asp-route-memberId="@Model.SearchMemberId"
-                                   asp-route-page="@(Model.Page + 1)">
+                                       asp-area="Admin"
+                                       asp-controller="Members"
+                                       asp-action="Index"
+                                       asp-route-mode="@Model.Mode"
+                                       asp-route-memberId="@Model.SearchMemberId"
+                                       asp-route-page="@(Model.Page + 1)">
                                     下一頁
                                 </a>
                             </li>

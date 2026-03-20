@@ -1,4 +1,5 @@
-﻿using CraftDailyCorner.Extensions;
+﻿using CraftDailyCorner.Areas.Admin.ViewModels.Member;
+using CraftDailyCorner.Extensions;
 using CraftDailyCorner.Services.Interface;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -43,6 +44,49 @@ namespace CraftDailyCorner.Areas.Admin.Controllers
             if (vm == null) return NotFound();
 
             return View(vm);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> AssignGeneralAdmin(string? searchPhone = null)
+        {
+            if (!User.IsInRole("04"))
+                return Forbid();
+
+            var operatorMemberId = User.GetMemberId();
+            if (string.IsNullOrWhiteSpace(operatorMemberId))
+                return Unauthorized();
+
+            var vm = await _service.GetAssignGeneralAdminAsync(searchPhone, operatorMemberId);
+            return View(vm);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AssignGeneralAdmin(string memberId, string? searchPhone = null)
+        {
+            if (!User.IsInRole("04"))
+                return Forbid();
+
+            var operatorMemberId = User.GetMemberId();
+            if (string.IsNullOrWhiteSpace(operatorMemberId))
+                return Unauthorized();
+
+            if (string.IsNullOrWhiteSpace(memberId))
+            {
+                TempData["MembersWarning"] = "請先查詢會員後再進行指派。";
+                return RedirectToAction(nameof(AssignGeneralAdmin), new { phone = searchPhone });
+            }
+
+            var (ok, message) = await _service.AssignGeneralAdminAsync(memberId, operatorMemberId);
+
+            if (!ok)
+            {
+                TempData["MembersWarning"] = message ?? "指派一般管理者失敗";
+                return RedirectToAction(nameof(AssignGeneralAdmin), new { phone = searchPhone });
+            }
+
+            TempData["MembersSuccess"] = "已成功賦予一般管理者角色";
+            return RedirectToAction(nameof(Index), new { mode = "admin" });
         }
 
         [HttpPost]

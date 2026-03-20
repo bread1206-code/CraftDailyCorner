@@ -7,7 +7,7 @@ namespace CraftDailyCorner.Models.enums
         Created = 0,    //建立
         [Display(Name = "更新")]
         Updated = 1, //更新
-        [Display(Name = "違規")]
-        Violation = 2   //違規
+        [Display(Name = "停權")]
+        Violation = 2   //停權
     }
 }

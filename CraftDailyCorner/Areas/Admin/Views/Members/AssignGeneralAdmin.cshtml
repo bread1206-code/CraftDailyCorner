@@ -1,0 +1,243 @@
+﻿@model CraftDailyCorner.Areas.Admin.ViewModels.Member.VMAdminAssignGeneralAdmin
+
+@functions {
+    public string MaskEmail(string? email)
+    {
+        if (string.IsNullOrWhiteSpace(email) || !email.Contains("@"))
+            return "（未提供）";
+
+        var parts = email.Split('@');
+        var name = parts[0];
+        var domain = parts[1];
+
+        if (name.Length <= 2)
+            return $"{name[0]}***@{domain}";
+
+        return $"{name.Substring(0, 2)}***@{domain}";
+    }
+
+    public string MaskPhone(string? phone)
+    {
+        if (string.IsNullOrWhiteSpace(phone))
+            return "（未提供）";
+
+        var trimmed = phone.Trim();
+        if (trimmed.Length <= 4)
+            return "***";
+
+        return $"{trimmed.Substring(0, 2)}***{trimmed.Substring(trimmed.Length - 2)}";
+    }
+}
+
+@{
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container-fluid">
+
+    @if (TempData["MembersSuccess"] != null)
+    {
+        <div class="alert alert-success">@TempData["MembersSuccess"]</div>
+    }
+    @if (TempData["MembersWarning"] != null)
+    {
+        <div class="alert alert-warning">@TempData["MembersWarning"]</div>
+    }
+
+    <div class="d-flex justify-content-between align-items-end mb-4">
+        <div>
+            <h2 class="fw-bold mb-1 text-light">新增一般管理者</h2>
+            <div class="text-light opacity-75">查詢既有會員後，指派一般管理者角色</div>
+        </div>
+
+        <a class="btn btn-outline-secondary"
+               asp-area="Admin"
+               asp-controller="Members"
+               asp-action="Index"
+               asp-route-mode="admin">
+            返回管理者列表
+        </a>
+    </div>
+
+    <div class="row g-4">
+
+        <div class="col-lg-5">
+            <div class="card shadow-sm border-0">
+                <div class="card-body">
+                    <div class="fw-semibold text-light mb-3">
+                        <i class="bi bi-search me-2"></i>查詢會員
+                    </div>
+
+                    <hr />
+
+                    <form method="get"
+                          asp-area="Admin"
+                          asp-controller="Members"
+                          asp-action="AssignGeneralAdmin">
+                        <div class="mb-3">
+                            <label asp-for="SearchPhone" class="form-label text-light"></label>
+                            <input asp-for="SearchPhone"
+                                   class="form-control bg-dark text-light border-secondary"
+                                   maxlength="10"
+                                   placeholder="請輸入會員電話（10碼）" />
+                            <div class="form-text text-secondary">
+                                請輸入完整手機號碼進行精準查詢
+                            </div>
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-outline-light">
+                                <i class="bi bi-search me-1"></i> 查詢
+                            </button>
+
+                            <a class="btn btn-outline-secondary"
+                                   asp-area="Admin"
+                                   asp-controller="Members"
+                                   asp-action="AssignGeneralAdmin">
+                                清除
+                            </a>
+                        </div>
+                    </form>
+
+                    @if (Model.HasSearched && !Model.IsFound && !string.IsNullOrWhiteSpace(Model.SearchMessage))
+                    {
+                        <div class="alert alert-warning mt-4 mb-0">
+                            @Model.SearchMessage
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-7">
+            <div class="card shadow-sm border-0">
+                <div class="card-body">
+
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div class="fw-semibold text-light">
+                            <i class="bi bi-person-badge me-2"></i>查詢結果
+                        </div>
+
+                        @if (Model.IsFound)
+                        {
+                            if (Model.StatusID == 1)
+                            {
+                                <span class="badge bg-success">@Model.StatusName</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">@Model.StatusName</span>
+                            }
+                        }
+                    </div>
+
+                    <hr />
+
+                    @if (!Model.HasSearched)
+                    {
+                        <div class="text-center py-5 text-light opacity-75">
+                            <i class="bi bi-person-lines-fill fs-1"></i>
+                            <div class="mt-3">請先輸入電話號碼查詢會員</div>
+                        </div>
+                    }
+                    else if (!Model.IsFound)
+                    {
+                        <div class="text-center py-5 text-light opacity-75">
+                            <i class="bi bi-search fs-1"></i>
+                            <div class="mt-3">沒有可顯示的會員資料</div>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <div class="text-secondary small mb-1">@Html.DisplayNameFor(m => m.MemberID)</div>
+                                <div class="text-light fw-semibold">@Model.MemberID</div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="text-secondary small mb-1">@Html.DisplayNameFor(m => m.DisplayName)</div>
+                                <div class="text-light fw-semibold">@Model.DisplayName</div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="text-secondary small mb-1">@Html.DisplayNameFor(m => m.StatusName)</div>
+                                <div class="text-light">@Model.StatusName</div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="text-secondary small mb-1">@Html.DisplayNameFor(m => m.Phone)</div>
+                                <div class="text-light">@MaskPhone(Model.Phone)</div>
+                            </div>
+
+                            <div class="col-12">
+                                <div class="text-secondary small mb-1">@Html.DisplayNameFor(m => m.Email)</div>
+                                <div class="text-light">@MaskEmail(Model.Email)</div>
+                            </div>
+
+                            <div class="col-12">
+                                <div class="text-secondary small mb-2">角色資訊</div>
+
+                                @if (Model.RoleNames.Any())
+                                {
+                                    @for (int i = 0; i < Model.RoleNames.Count; i++)
+                                    {
+                                        var roleId = Model.RoleIDs[i];
+                                        var badgeClass = roleId switch
+                                        {
+                                            "01" => "bg-primary",
+                                            "02" => "bg-success",
+                                            "03" => "bg-warning text-dark",
+                                            "04" => "bg-danger",
+                                            _ => "bg-secondary"
+                                        };
+
+                                        <span class="badge @badgeClass me-2 mb-2 px-3 py-2">
+                                            @Model.RoleNames[i]
+                                        </span>
+                                    }
+                                }
+                                else
+                                {
+                                    <div class="text-secondary">沒有角色資料</div>
+                                }
+                            </div>
+                        </div>
+
+                        @if (Model.CanAssign)
+                        {
+                            <div class="alert alert-info">
+                                確認無誤後，可將此會員指派為一般管理者。
+                            </div>
+
+                            <form asp-area="Admin"
+                                  asp-controller="Members"
+                                  asp-action="AssignGeneralAdmin"
+                                  method="post"
+                                  onsubmit="return confirm('確定要將此會員指派為一般管理者嗎？');">
+                                @Html.AntiForgeryToken()
+
+                                <input type="hidden" name="memberId" value="@Model.MemberID" />
+                                <input type="hidden" name="searchPhone" value="@Model.SearchPhone" />
+
+                                <button type="submit" class="btn btn-outline-warning">
+                                    <i class="bi bi-person-plus me-1"></i> 指派為一般管理者
+                                </button>
+                            </form>
+                        }
+                        else
+                        {
+                            <div class="alert alert-warning mb-3">
+                                @(Model.BlockReason ?? "目前不可進行指派")
+                            </div>
+
+                            <button type="button" class="btn btn-outline-secondary" disabled>
+                                目前不可指派
+                            </button>
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
