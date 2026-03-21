@@ -1,6 +1,6 @@
 ﻿namespace CraftDailyCorner.ViewModels.Member
 {
-    // 會員中心首頁
+    // 個人中心首頁
     public class VMMemberDashboard
     {
         // 會員識別 

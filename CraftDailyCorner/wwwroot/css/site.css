@@ -664,7 +664,7 @@ body {
    9. Follow / 追蹤創作者
    ========================================================= */
 
-/* 會員中心，讓卡片 Hover 時 icon 也會動 */
+/* 個人中心，讓卡片 Hover 時 icon 也會動 */
 .hover-card:hover .stat-icon-wrapper {
     transform: scale(1.1) rotate(5deg);
 }
