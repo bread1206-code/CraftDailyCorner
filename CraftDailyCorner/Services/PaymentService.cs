@@ -170,8 +170,8 @@ namespace CraftDailyCorner.Services
                         {
                             MemberID = creatorMemberId,
                             NotificationType = NotificationType.OrderPaid,
-                            Title = "付款完成通知",
-                            Content = $"訂單 {order.OrderID} 已付款，請準備出貨。",
+                            Title = "新訂單通知",
+                            Content = $"訂單 {order.OrderID} 已完成付款，請準備出貨。",
                             LinkUrl = $"/CreatorOrders/Detail?id={order.OrderID}",
                             IsRead = false,
                             RelatedEntityType = "Order",
