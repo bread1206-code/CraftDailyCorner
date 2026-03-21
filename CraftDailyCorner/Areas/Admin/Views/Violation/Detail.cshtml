@@ -1,5 +1,6 @@
 ﻿@using CraftDailyCorner.Extensions
 @using CraftDailyCorner.Models.enums;
+@using CraftDailyCorner.Helpers
 @model CraftDailyCorner.Areas.Admin.ViewModels.Violation.VMAdminViolationDetail
 
 @{
@@ -91,11 +92,11 @@
                                     <div class="text-secondary small mt-1">
                                         @if (!string.IsNullOrWhiteSpace(Model.ReporterEmail))
                                         {
-                                            <span>@Model.ReporterEmail</span>
+                                            <span>@PrivacyMaskHelper.MaskEmail(Model.ReporterEmail)</span>
                                         }
                                         @if (!string.IsNullOrWhiteSpace(Model.ReporterPhone))
                                         {
-                                            <span> @Model.ReporterPhone</span>
+                                            <span> | @PrivacyMaskHelper.MaskPhone(Model.ReporterPhone)</span>
                                         }
                                     </div>
                                 }
@@ -318,22 +319,24 @@
             </div>
 
             <!-- 下一筆待審核 -->
-            <div class="card shadow-sm border-0 mt-4">
-                <div class="card-body">
-                    <a asp-area="Admin"
-                       asp-controller="Violation"
-                       asp-action="Next"
-                       asp-route-id="@Model.ReportID"
-                       class="btn btn-outline-info w-100">
-                        <i class="bi bi-skip-forward-circle me-1"></i> 下一筆待審核
-                    </a>
+            @if (Model.StatusID == 1 && !isSelfReport)
+            {
+                <div class="card shadow-sm border-0 mt-4">
+                    <div class="card-body">
+                        <a asp-area="Admin"
+                           asp-controller="Violation"
+                           asp-action="Next"
+                           asp-route-id="@Model.ReportID"
+                           class="btn btn-outline-info w-100">
+                            <i class="bi bi-skip-forward-circle me-1"></i> 下一筆待審核
+                        </a>
 
-                    <div class="text-secondary small mt-2">
-                        若已沒有下一筆待審核，會自動返回列表
+                        <div class="text-secondary small mt-2">
+                            若已沒有下一筆待審核，會自動返回列表
+                        </div>
                     </div>
                 </div>
-            </div>
-
+            }
         </div>
     </div>
 </div>

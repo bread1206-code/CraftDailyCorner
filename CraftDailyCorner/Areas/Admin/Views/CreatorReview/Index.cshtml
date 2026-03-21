@@ -1,5 +1,5 @@
 ﻿@model CraftDailyCorner.Areas.Admin.ViewModels.CreatorReview.VMAdminCreatorReviewIndex
-
+@using CraftDailyCorner.Helpers
 @{
     var isHistory = Model.Mode == "history";
 
@@ -108,7 +108,10 @@
                                     <td>#@x.ApplicationID</td>
                                     <td>
                                         <div class="fw-semibold">@x.MemberName</div>
-                                        <div class="small text-light opacity-75">@x.Email / @x.Phone</div>
+                                        <div class="small text-light opacity-75">
+                                            @PrivacyMaskHelper.MaskEmail(x.Email) /
+                                            @PrivacyMaskHelper.MaskPhone(x.Phone)
+                                        </div>
                                         <div class="small text-light opacity-75">@x.MemberID</div>
                                     </td>
                                     <td class="fw-semibold">@x.BrandName</td>

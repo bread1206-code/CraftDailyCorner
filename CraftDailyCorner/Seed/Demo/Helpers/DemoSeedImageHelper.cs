@@ -38,8 +38,7 @@ namespace CraftDailyCorner.Seed.Demo.Helpers
                 seedFolder: "02CreatorApplication",
                 sourceFile: sourceFilePath,
                 fileNameWithoutExt: imageGuid,
-                sizes: ImageSizePresets.CreatorApplication,
-                entitySubFolder: creatorId
+                sizes: ImageSizePresets.CreatorApplication
             );
 
             return imageGuid;

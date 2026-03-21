@@ -1,5 +1,6 @@
 ﻿@using CraftDailyCorner.Extensions
 @model CraftDailyCorner.Areas.Admin.ViewModels.CreatorReview.VMAdminCreatorReviewDetail
+@using CraftDailyCorner.Helpers
 
 @{
     ViewData["Title"] = "申請詳情";
@@ -136,11 +137,11 @@
                         </div>
                         <div class="col-12">
                             <div class="text-secondary small mb-1">Email</div>
-                            <div class="text-light">@((Model.Email ?? "（未提供）"))</div>
+                            <div class="text-light">@((PrivacyMaskHelper.MaskEmail(Model.Email) ?? "（未提供）"))</div>
                         </div>
                         <div class="col-12">
                             <div class="text-secondary small mb-1">連絡電話</div>
-                            <div class="text-light">@((Model.Phone ?? "（未提供）"))</div>
+                            <div class="text-light">@((PrivacyMaskHelper.MaskPhone(Model.Phone) ?? "（未提供）"))</div>
                         </div>
                     </div>
                 </div>
