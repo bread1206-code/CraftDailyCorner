@@ -41,8 +41,20 @@ namespace CraftDailyCorner.Services.Creator
 
                     // ================= POSTS =================
                     LatestPosts = c.CreatorPosts
-                        .Where(p => p.StatusID == 1 &&
-                                    p.Visibility == CreatorVisibility.Public)
+                        .Where(p =>
+                            p.StatusID == 1 &&
+                            (
+                                p.Visibility == CreatorVisibility.Public
+                                || (memberId != null && c.MemberID == memberId)
+                                || (
+                                    p.Visibility == CreatorVisibility.Followers &&
+                                    memberId != null &&
+                                    _context.FollowCreators.Any(f =>
+                                        f.CreatorID == p.CreatorID &&
+                                        f.MemberID == memberId)
+                                )
+                            )
+                        )
                         .OrderByDescending(p => p.CreatedAt)
                         .Take(3)
                         .Select(p => new VMPostListItem
@@ -88,8 +100,20 @@ namespace CraftDailyCorner.Services.Creator
 
                     // ================= PORTFOLIOS =================
                     LatestPortfolios = c.Portfolios
-                        .Where(p => p.StatusID == 1 &&
-                                    p.Visibility == CreatorVisibility.Public)
+                        .Where(p =>
+                            p.StatusID == 1 &&
+                            (
+                                p.Visibility == CreatorVisibility.Public
+                                || (memberId != null && c.MemberID == memberId)
+                                || (
+                                    p.Visibility == CreatorVisibility.Followers &&
+                                    memberId != null &&
+                                    _context.FollowCreators.Any(f =>
+                                        f.CreatorID == p.CreatorID &&
+                                        f.MemberID == memberId)
+                                )
+                            )
+                        )
                         .OrderByDescending(p => p.CreatedAt)
                         .Take(3)
                         .Select(p => new VMCreatorPortfolioPublicListItem

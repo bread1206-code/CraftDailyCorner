@@ -31,7 +31,7 @@ namespace CraftDailyCorner.ViewModels.CreatorPost
 
         public string AvatarPath =>
             string.IsNullOrEmpty(MemberAvatar)
-                ? "/images/default-avatar.png"
+                ? "/Photos/01Member/Thumbnail/default.png"
                 : $"/Photos/01Member/Thumbnail/{MemberAvatar}.png";
 
 

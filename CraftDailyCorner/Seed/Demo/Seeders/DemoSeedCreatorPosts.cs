@@ -89,7 +89,7 @@ namespace CraftDailyCorner.Seed.Demo.Seeders
                     creatorId: creatorId);
 
                 // 每位 Creator 依自己的發文數往後 +1 天
-                var createdAt = confirmedAt.AddDays(3 + postIndex);
+                var createdAt = confirmedAt.AddDays(0 + postIndex);
                 var updatedAt = createdAt;
 
                 var visibility = ParseVisibility(row.Visibility);

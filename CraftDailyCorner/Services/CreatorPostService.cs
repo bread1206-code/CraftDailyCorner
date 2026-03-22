@@ -268,7 +268,8 @@ namespace CraftDailyCorner.Services
             _context.CreatorPosts.Add(post);
             await _context.SaveChangesAsync();
 
-            if (post.Visibility == CreatorVisibility.Public)
+            if (post.Visibility == CreatorVisibility.Public ||
+                post.Visibility == CreatorVisibility.Followers)
             {
                 var followerMemberIds = await _context.FollowCreators
                     .Where(x => x.CreatorID == creatorId)
