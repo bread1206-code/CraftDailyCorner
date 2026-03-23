@@ -161,9 +161,9 @@ namespace CraftDailyCorner.Controllers.Front
         }
 
         [AllowAnonymous]
-        public async Task<IActionResult> Index(string? keyword, int page = 1)
+        public async Task<IActionResult> Index(string? CreatorKeyword, int page = 1)
         {
-            var vm = await _creatorPublicService.GetCreatorIndexAsync(keyword, page);
+            var vm = await _creatorPublicService.GetCreatorIndexAsync(CreatorKeyword, page);
             return View(vm);
         }
 

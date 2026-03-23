@@ -37,11 +37,11 @@ namespace CraftDailyCorner.Services
                 .AsNoTracking()
                 .Where(p => p.StatusID == 1);
 
-            if (!string.IsNullOrWhiteSpace(query.Keyword))
+            if (!string.IsNullOrWhiteSpace(query.PortfolioKeyword))
             {
                 baseQuery = baseQuery.Where(p =>
-                    p.Title.Contains(query.Keyword) ||
-                    (p.Description != null && p.Description.Contains(query.Keyword)));
+                    p.Title.Contains(query.PortfolioKeyword) ||
+                    (p.Description != null && p.Description.Contains(query.PortfolioKeyword)));
             }
 
             baseQuery = baseQuery.Where(p =>

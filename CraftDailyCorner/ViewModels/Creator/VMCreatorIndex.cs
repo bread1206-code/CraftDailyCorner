@@ -13,7 +13,7 @@
 
     public class VMCreatorIndexQuery
     {
-        public string? Keyword { get; set; }
+        public string? CreatorKeyword { get; set; }
         public int Page { get; set; } = 1;
 
         // 你可自行調整預設一頁幾筆

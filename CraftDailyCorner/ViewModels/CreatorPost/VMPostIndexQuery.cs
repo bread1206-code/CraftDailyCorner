@@ -2,7 +2,7 @@
 {
     public class VMPostIndexQuery
     {
-        public string? Keyword { get; set; }
+        public string? PostKeyword { get; set; }
 
         public int Page { get; set; } = 1;
 

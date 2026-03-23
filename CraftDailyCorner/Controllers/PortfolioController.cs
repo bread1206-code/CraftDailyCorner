@@ -18,11 +18,11 @@ namespace CraftDailyCorner.Controllers.Front
         }
 
         // 前台列表
-        public async Task<IActionResult> Index(string? keyword, int page = 1)
+        public async Task<IActionResult> Index(string? PortfolioKeyword, int page = 1)
         {
             var query = new VMPortfolioIndexQuery
             {
-                Keyword = keyword,
+                PortfolioKeyword = PortfolioKeyword,
                 Page = page,
                 PageSize = 9
             };

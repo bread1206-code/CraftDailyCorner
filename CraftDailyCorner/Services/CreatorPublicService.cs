@@ -228,18 +228,18 @@ namespace CraftDailyCorner.Services.Creator
             vm.FollowInfo.LogoUrl = vm.CreatorImagePath;
             return vm;
         }
-        public async Task<VMCreatorIndex> GetCreatorIndexAsync(string? keyword, int page)
+        public async Task<VMCreatorIndex> GetCreatorIndexAsync(string? CreatorKeyword, int page)
         {
-            keyword = keyword?.Trim();
+            CreatorKeyword = CreatorKeyword?.Trim();
             if (page < 1) page = 1;
 
             var query = _context.CreatorProfiles.AsQueryable();
 
-            if (!string.IsNullOrWhiteSpace(keyword))
+            if (!string.IsNullOrWhiteSpace(CreatorKeyword))
             {
                 query = query.Where(c =>
-                    c.BrandName.Contains(keyword) ||
-                    c.BrandIntro.Contains(keyword));
+                    c.BrandName.Contains(CreatorKeyword) ||
+                    c.BrandIntro.Contains(CreatorKeyword));
             }
 
             // PageSize 建議在 VM 預設 9；這裡也可以固定
@@ -269,7 +269,7 @@ namespace CraftDailyCorner.Services.Creator
             {
                 Query = new VMCreatorIndexQuery
                 {
-                    Keyword = keyword,
+                    CreatorKeyword = CreatorKeyword,
                     Page = page,
                     PageSize = pageSize
                 },

@@ -16,8 +16,8 @@
     <form method="get" class="row justify-content-center mb-3">
         <div class="col-md-6 d-flex gap-2">
             <input type="text"
-                   name="keyword"
-                   value="@Model.Query.Keyword"
+                   name="PortfolioKeyword"
+                   value="@Model.Query.PortfolioKeyword"
                    class="form-control"
                    placeholder="搜尋標題或內容..." />
 
@@ -136,7 +136,7 @@
                         <a class="page-link"
                            asp-action="Index"
                            asp-route-page="1"
-                           asp-route-keyword="@Model.Query.Keyword"
+                           asp-route-PortfolioKeyword="@Model.Query.PortfolioKeyword"
                            aria-label="第一頁">
                             &laquo;
                         </a>
@@ -147,7 +147,7 @@
                         <a class="page-link"
                            asp-action="Index"
                            asp-route-page="@(currentPage - 1)"
-                           asp-route-keyword="@Model.Query.Keyword"
+                           asp-route-PortfolioKeyword="@Model.Query.PortfolioKeyword"
                            aria-label="上一頁">
                             &lsaquo;
                         </a>
@@ -160,7 +160,7 @@
                             <a class="page-link"
                                asp-action="Index"
                                asp-route-page="1"
-                               asp-route-keyword="@Model.Query.Keyword">1</a>
+                               asp-route-PortfolioKeyword="@Model.Query.PortfolioKeyword">1</a>
                         </li>
 
                         @if (startPage > 2)
@@ -178,7 +178,7 @@
                             <a class="page-link"
                                asp-action="Index"
                                asp-route-page="@i"
-                               asp-route-keyword="@Model.Query.Keyword">@i</a>
+                               asp-route-PortfolioKeyword="@Model.Query.PortfolioKeyword">@i</a>
                         </li>
                     }
 
@@ -196,7 +196,7 @@
                             <a class="page-link"
                                asp-action="Index"
                                asp-route-page="@totalPages"
-                               asp-route-keyword="@Model.Query.Keyword">@totalPages</a>
+                               asp-route-PortfolioKeyword="@Model.Query.PortfolioKeyword">@totalPages</a>
                         </li>
                     }
 
@@ -205,7 +205,7 @@
                         <a class="page-link"
                            asp-action="Index"
                            asp-route-page="@(currentPage + 1)"
-                           asp-route-keyword="@Model.Query.Keyword"
+                           asp-route-PortfolioKeyword="@Model.Query.PortfolioKeyword"
                            aria-label="下一頁">
                             &rsaquo;
                         </a>
@@ -216,7 +216,7 @@
                         <a class="page-link"
                            asp-action="Index"
                            asp-route-page="@totalPages"
-                           asp-route-keyword="@Model.Query.Keyword"
+                           asp-route-PortfolioKeyword="@Model.Query.PortfolioKeyword"
                            aria-label="最後頁">
                             &raquo;
                         </a>

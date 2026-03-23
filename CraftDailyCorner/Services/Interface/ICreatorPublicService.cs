@@ -6,6 +6,6 @@ namespace CraftDailyCorner.Services.Interface
     {
         Task<VMCreatorPublicProfile?> GetProfileAsync(string creatorId, string? memberId, string? loginCreatorId);
 
-        Task<VMCreatorIndex> GetCreatorIndexAsync(string? keyword, int page);
+        Task<VMCreatorIndex> GetCreatorIndexAsync(string? CreatorKeyword, int page);
     }
 }

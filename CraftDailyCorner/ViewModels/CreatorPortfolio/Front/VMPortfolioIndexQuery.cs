@@ -2,7 +2,7 @@
 {
     public class VMPortfolioIndexQuery
     {
-        public string? Keyword { get; set; }
+        public string? PortfolioKeyword { get; set; }
 
         public int Page { get; set; } = 1;
 

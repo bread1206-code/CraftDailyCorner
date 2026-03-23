@@ -22,11 +22,11 @@ namespace CraftDailyCorner.Controllers
         }
 
         // 前台列表
-        public async Task<IActionResult> Index(string? keyword, int page = 1)
+        public async Task<IActionResult> Index(string? PostKeyword, int page = 1)
         {
             var query = new VMPostIndexQuery
             {
-                Keyword = keyword,
+                PostKeyword = PostKeyword,
                 Page = page,
                 PageSize = 9
             };
