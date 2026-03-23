@@ -37,7 +37,7 @@ namespace CraftDailyCorner.Models
         public DbSet<CreatorPost> CreatorPosts => Set<CreatorPost>();
         public DbSet<PostComment> PostComments => Set<PostComment>();
         public DbSet<Inventory> Inventories => Set<Inventory>();
-        public DbSet<InventoryAlert> InventoryAlerts => Set<InventoryAlert>();
+        //public DbSet<InventoryAlert> InventoryAlerts => Set<InventoryAlert>();
         public DbSet<PlatformAnnouncement> PlatformAnnouncements => Set<PlatformAnnouncement>();
         public DbSet<HomepageBanner> HomepageBanners => Set<HomepageBanner>();
         public DbSet<PlatformSetting> PlatformSettings => Set<PlatformSetting>();
@@ -402,11 +402,11 @@ namespace CraftDailyCorner.Models
                 .HasForeignKey<Inventory>(i => i.ProductID)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            modelBuilder.Entity<InventoryAlert>()
-                .HasOne(ia => ia.Inventory)
-                .WithMany(i => i.InventoryAlerts)
-                .HasForeignKey(ia => ia.InventoryID)
-                .OnDelete(DeleteBehavior.Cascade);
+            //modelBuilder.Entity<InventoryAlert>()
+            //    .HasOne(ia => ia.Inventory)
+            //    .WithMany(i => i.InventoryAlerts)
+            //    .HasForeignKey(ia => ia.InventoryID)
+            //    .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<PlatformAnnouncement>()
                 .HasOne(pa => pa.Member)
