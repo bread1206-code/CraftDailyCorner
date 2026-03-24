@@ -42,7 +42,7 @@ namespace CraftDailyCorner.Seed.Datas
                         SettingValue = "8",
                         DataType = "int",
                         CategoryID = 2,
-                        Description = "首頁精選商品數",
+                        Description = "發燒新品展示數量",
                         UpdatedAt = DateTime.Now,
                         UpdatedBy = "M0000000"
                     },
