@@ -51,17 +51,17 @@ namespace CraftDailyCorner.ViewModels.Product
         public string GetLargeImagePath(string imageUrl)
         {
             if (string.IsNullOrWhiteSpace(imageUrl) || string.IsNullOrWhiteSpace(CreatorID))
-                return "/images/no-image.png";
+                return "/images/no-image.webp";
 
-            return $"/Photos/04ProductImage/{CreatorID}/Large/{imageUrl}.png";
+            return $"/Photos/04ProductImage/{CreatorID}/Large/{imageUrl}.webp";
         }
 
         public string GetMediumImagePath(string imageUrl)
         {
             if (string.IsNullOrWhiteSpace(imageUrl) || string.IsNullOrWhiteSpace(CreatorID))
-                return "/images/no-image.png";
+                return "/images/no-image.webp";
 
-            return $"/Photos/04ProductImage/{CreatorID}/Medium/{imageUrl}.png";
+            return $"/Photos/04ProductImage/{CreatorID}/Medium/{imageUrl}.webp";
         }
     }
 }

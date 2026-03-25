@@ -1,4 +1,4 @@
-using CraftDailyCorner.Filters;
+ï»¿using CraftDailyCorner.Filters;
 using CraftDailyCorner.ImageManagementCore.Services;
 using CraftDailyCorner.ImageManagementCore.Services.Interfaces;
 using CraftDailyCorner.Models;
@@ -170,9 +170,9 @@ builder.Services.AddScoped<DemoSeedImageHelper>();
 
 builder.Services.AddAuthentication("CraftDailyCornerLogin").AddCookie("CraftDailyCornerLogin", option =>
 {
-    option.LoginPath = "/Account/Login";//³]©wµn¤J­¶­±¸ô®|(¤J¤f)¡A­Y»İµn¤J¦Ó¥¼µn¤J®É±j¨î¾É¨ì¦¹¸ô®|
-    option.LogoutPath = "/Account/Logout";//³]©wµn¥X­¶­±¸ô®|
-    option.AccessDeniedPath = "/Home/Index";//³]©w¦s¨ú³Q©Úµ´­¶­±¸ô®|(­Y¤wµn¤J¦ı¨¤¦âÅv­­¤£²Å,«h±j¨î¾É¨ì¦¹¸ô®|)
+    option.LoginPath = "/Account/Login";//è¨­å®šç™»å…¥é é¢è·¯å¾‘(å…¥å£)ï¼Œè‹¥éœ€ç™»å…¥è€Œæœªç™»å…¥æ™‚å¼·åˆ¶å°åˆ°æ­¤è·¯å¾‘
+    option.LogoutPath = "/Account/Logout";//è¨­å®šç™»å‡ºé é¢è·¯å¾‘
+    option.AccessDeniedPath = "/Home/Index";//è¨­å®šå­˜å–è¢«æ‹’çµ•é é¢è·¯å¾‘(è‹¥å·²ç™»å…¥ä½†è§’è‰²æ¬Šé™ä¸ç¬¦,å‰‡å¼·åˆ¶å°åˆ°æ­¤è·¯å¾‘)
 });
 builder.Services.AddScoped<IAccountService, AccountService>();
 builder.Services.AddScoped<CartService>();
@@ -193,10 +193,10 @@ builder.Services.AddAntiforgery(options =>
 {
     options.HeaderName = "RequestVerificationToken";
 });
-//´£°ª¤W¶Ç®e¶q
+//æé«˜ä¸Šå‚³å®¹é‡
 builder.Services.Configure<FormOptions>(options =>
 {
-    options.MultipartBodyLengthLimit = 200 * 1024 * 1024; // 200MB (¾ã¥]ªí³æ)
+    options.MultipartBodyLengthLimit = 200 * 1024 * 1024; // 200MB (æ•´åŒ…è¡¨å–®)
 });
 builder.WebHost.ConfigureKestrel(options =>
 {
@@ -206,20 +206,58 @@ builder.WebHost.ConfigureKestrel(options =>
 
 var app = builder.Build();
 
-/*Seed*/
-using (var scope = app.Services.CreateScope())
+// CLI Seeder æ§åˆ¶ï¼ˆå–ä»£åŸæœ¬è‡ªå‹• Seedï¼‰
+if (args.Contains("seed"))
 {
-    //SeedData.Initialize(scope.ServiceProvider);
+    using var scope = app.Services.CreateScope();
     var services = scope.ServiceProvider;
-    var runner = services.GetRequiredService<SeedRunner>();
-    runner.Run();
-}
 
-/*DemoSeed*/
-using (var scope = app.Services.CreateScope())
-{
-    var demoSeedRunner = scope.ServiceProvider.GetRequiredService<DemoSeedRunner>();
-    demoSeedRunner.Run();
+    var db = services.GetRequiredService<CraftDailyCornerContext>();
+    var baseSeeder = services.GetRequiredService<SeedRunner>();
+    var demoSeeder = services.GetRequiredService<DemoSeedRunner>();
+
+    bool force = args.Contains("--force");
+
+    bool runBase = args.Contains("base") || (!args.Contains("base") && !args.Contains("demo"));
+    bool runDemo = args.Contains("demo") || (!args.Contains("base") && !args.Contains("demo"));
+
+    Console.WriteLine("=== Seeder Start ===");
+
+    // Base Seedï¼ˆå¹³å°åŸºç¤è³‡æ–™ï¼‰
+    if (runBase)
+    {
+        Console.WriteLine("Running Base Seed...");
+
+        if (!force && db.MemberStatuses.Any()) // âš ï¸ ç”¨ä½ ã€Œä¸€å®šå­˜åœ¨çš„è¡¨ã€
+        {
+            Console.WriteLine("Base Seed å·²å­˜åœ¨ï¼Œç•¥é");
+        }
+        else
+        {
+            baseSeeder.Run();
+            Console.WriteLine("Base Seed å®Œæˆ");
+        }
+    }
+
+    // Demo Seedï¼ˆå±•ç¤ºè³‡æ–™ï¼‰
+    if (runDemo)
+    {
+        Console.WriteLine("Running Demo Seed...");
+
+        if (!force && db.Products.Any())
+        {
+            Console.WriteLine("Demo è³‡æ–™å·²å­˜åœ¨ï¼Œç•¥é");
+        }
+        else
+        {
+            demoSeeder.Run();
+            Console.WriteLine("Demo Seed å®Œæˆ");
+        }
+    }
+
+    Console.WriteLine("=== Seeder End ===");
+
+    return; // è·‘å®Œ Seeder å°±çµæŸï¼Œä¸å•Ÿå‹•ç¶²ç«™
 }
 
 
@@ -241,7 +279,7 @@ app.MapControllerRoute(
     pattern: "{area:exists}/{controller=Dashboard}/{action=Index}/{id?}");
 
 
-//¹w³]¸ô¥Ñ
+//é è¨­è·¯ç”±
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");

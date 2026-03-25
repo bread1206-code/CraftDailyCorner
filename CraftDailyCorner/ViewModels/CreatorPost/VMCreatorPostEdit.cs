@@ -34,6 +34,6 @@ namespace CraftDailyCorner.ViewModels.CreatorPost
         public DateTime UpdatedAt { get; set; }
 
         public string CoverImagePath =>
-            $"/Photos/05CreatorPost/{CreatorID}/Large/{CurrentImageUrl}.png";
+            $"/Photos/05CreatorPost/{CreatorID}/Large/{CurrentImageUrl}.webp";
     }
 }

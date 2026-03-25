@@ -40,7 +40,7 @@ namespace CraftDailyCorner.Services
                     folderName,
                     creatorId,
                     "Large",
-                    imageName + ".png");
+                    imageName + ".webp");
 
                 var mediumPath = Path.Combine(
                     _env.WebRootPath,
@@ -48,7 +48,7 @@ namespace CraftDailyCorner.Services
                     folderName,
                     creatorId,
                     "Medium",
-                    imageName + ".png");
+                    imageName + ".webp");
 
                 if (File.Exists(largePath))
                     File.Delete(largePath);

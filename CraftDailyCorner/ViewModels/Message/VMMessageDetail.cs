@@ -20,8 +20,8 @@ namespace CraftDailyCorner.ViewModels.Message
 
         public string ProductImagePath =>
             string.IsNullOrWhiteSpace(ProductImageUrl) || string.IsNullOrWhiteSpace(ProductCreatorID)
-                ? "/images/no-image.png"
-                : $"/Photos/04ProductImage/{ProductCreatorID}/Medium/{ProductImageUrl}.png";
+                ? "/images/no-image.webp"
+                : $"/Photos/04ProductImage/{ProductCreatorID}/Medium/{ProductImageUrl}.webp";
 
         // 訊息清單
         public List<VMMessageItem> Messages { get; set; } = new();

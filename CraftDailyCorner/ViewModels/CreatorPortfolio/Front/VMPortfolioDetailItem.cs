@@ -7,6 +7,6 @@
         public string CreatorID { get; set; } = null!;
 
         public string ImagePath =>
-            $"/Photos/06Portfolio/{CreatorID}/Large/{ImageUrl}.png";
+            $"/Photos/06Portfolio/{CreatorID}/Large/{ImageUrl}.webp";
     }
 }

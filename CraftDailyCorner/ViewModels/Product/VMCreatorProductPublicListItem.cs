@@ -15,6 +15,6 @@
         // ===== UI Helper（可選）=====
 
         public string CoverImagePath =>
-            $"/Photos/04ProductImage/{CreatorID}/Large/{ImageUrl}.png";
+            $"/Photos/04ProductImage/{CreatorID}/Large/{ImageUrl}.webp";
     }
 }

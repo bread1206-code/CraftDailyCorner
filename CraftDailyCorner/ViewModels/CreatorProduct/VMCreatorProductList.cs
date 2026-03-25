@@ -43,7 +43,7 @@ namespace CraftDailyCorner.ViewModels.CreatorProduct
 
         public string CoverImagePath =>
             string.IsNullOrEmpty(CoverImageUrl)
-                ? "/Photos/04ProductImage/default.png"
-                : $"/Photos/04ProductImage/{CreatorID}/Medium/{CoverImageUrl}.png";
+                ? "/Photos/04ProductImage/default.webp"
+                : $"/Photos/04ProductImage/{CreatorID}/Medium/{CoverImageUrl}.webp";
     }
 }

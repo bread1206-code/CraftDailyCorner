@@ -28,7 +28,7 @@ namespace CraftDailyCorner.ViewModels.CreatorPost
         public int CommentCount { get; set; }
 
         public string CoverImagePath =>
-            $"/Photos/05CreatorPost/{CreatorID}/Medium/{ImageUrl}.png";
+            $"/Photos/05CreatorPost/{CreatorID}/Medium/{ImageUrl}.webp";
 
         public string VisibilityText =>
             Visibility switch

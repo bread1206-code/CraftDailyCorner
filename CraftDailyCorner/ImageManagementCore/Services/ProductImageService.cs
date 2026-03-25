@@ -192,7 +192,7 @@ namespace CraftDailyCorner.ImageManagementCore.Services
 
             foreach (var folder in folders)
             {
-                var path = Path.Combine(basePath, folder, $"{fileName}.png");
+                var path = Path.Combine(basePath, folder, $"{fileName}.webp");
 
                 if (File.Exists(path))
                 {

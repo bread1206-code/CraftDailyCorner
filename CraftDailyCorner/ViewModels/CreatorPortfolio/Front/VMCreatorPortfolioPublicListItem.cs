@@ -32,7 +32,7 @@ namespace CraftDailyCorner.ViewModels.CreatorPortfolio.Front
         public string CoverImagePath =>
             string.IsNullOrEmpty(CoverImageUrl)
                 ? "/images/default-cover.jpg"
-                : $"/Photos/06Portfolio/{CreatorID}/Large/{CoverImageUrl}.png";
+                : $"/Photos/06Portfolio/{CreatorID}/Large/{CoverImageUrl}.webp";
 
         public string Url => $"/Portfolio/Detail/{PortfolioID}";
     }

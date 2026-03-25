@@ -5,8 +5,8 @@
     ViewData["Title"] = "個人資料";
 
     string avatarUrl = string.IsNullOrEmpty(Model.ImageUrl)
-    ? "/Photos/01Member/Medium/default.png"
-    : $"/Photos/01Member/Medium/{Model.ImageUrl}.png?v={DateTime.Now.Ticks}";
+    ? "/Photos/01Member/Medium/default.webp"
+    : $"/Photos/01Member/Medium/{Model.ImageUrl}.webp?v={DateTime.Now.Ticks}";
 }
 
 <div class="container my-5">

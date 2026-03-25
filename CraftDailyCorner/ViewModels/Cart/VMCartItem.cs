@@ -23,7 +23,7 @@ namespace CraftDailyCorner.ViewModels.Cart
 
         public string ImagePath =>
             string.IsNullOrWhiteSpace(ImageUrl) || string.IsNullOrWhiteSpace(CreatorId)
-                ? "/images/no-image.png"
-                : $"/Photos/04ProductImage/{CreatorId}/Medium/{ImageUrl}.png";
+                ? "/images/no-image.webp"
+                : $"/Photos/04ProductImage/{CreatorId}/Medium/{ImageUrl}.webp";
     }
 }

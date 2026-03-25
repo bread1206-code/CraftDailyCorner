@@ -676,7 +676,7 @@ function playFollowLogoHeartbeatAndFirework(form) {
     let logoUrl = form.dataset.logo;
     if (!logoUrl) {
         const profileAvatar = document.querySelector('img.rounded-circle');
-        logoUrl = profileAvatar?.getAttribute("src") || "/images/no-image.png";
+        logoUrl = profileAvatar?.getAttribute("src") || "/images/no-image.webp";
     }
 
     let stage = document.getElementById("follow-anim-stage");

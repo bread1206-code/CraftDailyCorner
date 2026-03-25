@@ -144,7 +144,7 @@ public class ImageManagementController : Controller
             var creatorId = productImage.Product?.CreatorID
                 ?? throw new Exception("找不到商品對應的 CreatorID");
 
-            return $"/Photos/04ProductImage/{creatorId}/Medium/{productImage.ImageUrl}.png";
+            return $"/Photos/04ProductImage/{creatorId}/Medium/{productImage.ImageUrl}.webp";
         }
 
         if (image is PortfolioItem portfolioItem)
@@ -152,7 +152,7 @@ public class ImageManagementController : Controller
             var creatorId = portfolioItem.Portfolio?.CreatorID
                 ?? throw new Exception("找不到作品集對應的 CreatorID");
 
-            return $"/Photos/06Portfolio/{creatorId}/Medium/{portfolioItem.ImageUrl}.png";
+            return $"/Photos/06Portfolio/{creatorId}/Medium/{portfolioItem.ImageUrl}.webp";
         }
 
         throw new Exception("未知圖片類型");

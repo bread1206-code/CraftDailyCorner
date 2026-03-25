@@ -5,8 +5,8 @@
     ViewData["Title"] = "創作者專區";
 
     string brandImageUrl = string.IsNullOrEmpty(Model.ImageUrl)
-        ? "/Photos/Creator/Brand/default.png"
-        : $"/Photos/03CreatorBrand/{Model.CreatorID}/Large/{Model.ImageUrl}.png?v={Model.UpdatedAt.Ticks}";
+        ? "/Photos/Creator/Brand/default.webp"
+        : $"/Photos/03CreatorBrand/{Model.CreatorID}/Large/{Model.ImageUrl}.webp?v={Model.UpdatedAt.Ticks}";
 }
 @if (TempData["CreatorApplicationSuccess"] != null)
 {

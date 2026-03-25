@@ -58,7 +58,7 @@ namespace CraftDailyCorner.ViewModels.Creator
         // UI 輔助屬性
 
         public string ProfileImagePath =>
-            $"/Photos/Creator/Medium/{ImageUrl}.png";
+            $"/Photos/Creator/Medium/{ImageUrl}.webp";
 
         public int YearsOfExperience =>
             DateTime.Today.Year - StartDate.Year;

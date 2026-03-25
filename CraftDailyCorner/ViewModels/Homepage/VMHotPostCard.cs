@@ -18,7 +18,7 @@ namespace CraftDailyCorner.ViewModels.Homepage
 
         public string ImagePath =>
             string.IsNullOrWhiteSpace(ImageUrl)
-                ? "/images/no-image.png"
-                : $"/Photos/05CreatorPost/{CreatorID}/Medium/{ImageUrl}.png";
+                ? "/images/no-image.webp"
+                : $"/Photos/05CreatorPost/{CreatorID}/Medium/{ImageUrl}.webp";
     }
 }

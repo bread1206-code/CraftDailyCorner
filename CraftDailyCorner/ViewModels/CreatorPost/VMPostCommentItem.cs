@@ -31,8 +31,8 @@ namespace CraftDailyCorner.ViewModels.CreatorPost
 
         public string AvatarPath =>
             string.IsNullOrEmpty(MemberAvatar)
-                ? "/Photos/01Member/Thumbnail/default.png"
-                : $"/Photos/01Member/Thumbnail/{MemberAvatar}.png";
+                ? "/Photos/01Member/Thumbnail/default.webp"
+                : $"/Photos/01Member/Thumbnail/{MemberAvatar}.webp";
 
 
         //是否為留言者本人

@@ -109,7 +109,7 @@ namespace CraftDailyCorner.Services
                     .Where(i => i.StatusID == 1)
                     .OrderBy(i => i.SortOrder)
                     .Select(i => i.ImageUrl)
-                    .FirstOrDefault() ?? "no-image.png";
+                    .FirstOrDefault() ?? "no-image.webp";
 
                 return new VMProductListItem
                 {

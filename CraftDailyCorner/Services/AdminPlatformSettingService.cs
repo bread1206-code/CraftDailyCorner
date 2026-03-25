@@ -154,7 +154,7 @@ namespace CraftDailyCorner.Services
             Directory.CreateDirectory(folder);
 
             // 固定覆蓋檔名
-            var fixedFileName = "platformLogo.png";
+            var fixedFileName = "platformLogo.webp";
             var fullPath = Path.Combine(folder, fixedFileName);
 
             using var stream = new FileStream(fullPath, FileMode.Create, FileAccess.Write);
@@ -246,7 +246,7 @@ namespace CraftDailyCorner.Services
                 "BannerAutoplaySeconds" => "首頁 Banner 自動輪播秒數，建議 3 ~ 10。",
                 "ProductListPageSize" => "商品列表每頁顯示筆數，建議 8 ~ 40。",
                 "RegistrationEnabled" => "控制是否開放新會員註冊。",
-                "PlatformLogo" => "上傳平台 LOGO，固定覆蓋為 platformLogo.png。",
+                "PlatformLogo" => "上傳平台 LOGO，固定覆蓋為 platformLogo.webp。",
                 _ => null
             };
         }

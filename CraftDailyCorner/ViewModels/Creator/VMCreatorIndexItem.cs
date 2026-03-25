@@ -11,6 +11,6 @@
         public int FollowerCount { get; set; }
 
         public string ImagePath =>
-            $"/Photos/03CreatorBrand/{CreatorID}/Medium/{ImageUrl}.png";
+            $"/Photos/03CreatorBrand/{CreatorID}/Medium/{ImageUrl}.webp";
     }
 }

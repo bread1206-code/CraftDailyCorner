@@ -27,7 +27,7 @@ namespace CraftDailyCorner.ViewModels.CreatorPortfolio
         public string CoverImagePath =>
             string.IsNullOrEmpty(CoverImageUrl)
                 ? "/images/default-cover.jpg"
-                : $"/Photos/06Portfolio/{CreatorID}/Medium/{CoverImageUrl}.png";
+                : $"/Photos/06Portfolio/{CreatorID}/Medium/{CoverImageUrl}.webp";
 
         public string VisibilityText =>
             Visibility switch

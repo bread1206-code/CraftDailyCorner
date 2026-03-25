@@ -7,6 +7,7 @@ namespace CraftDailyCorner.Seed
     public class SeedRunner
     {
         private readonly CraftDailyCornerContext _context;
+        private readonly IWebHostEnvironment _env;
         private readonly IImageUploadService _imageUploadService;
         private readonly SeedMember _seedMember;
         private readonly SeedPrivacy _seedPrivacy;
@@ -77,6 +78,7 @@ namespace CraftDailyCorner.Seed
 
         public SeedRunner(
             CraftDailyCornerContext context,
+            IWebHostEnvironment env,
             IImageUploadService imageUploadService,
             SeedMember seedMember,
             SeedPrivacy seedPrivacy,
@@ -131,6 +133,7 @@ namespace CraftDailyCorner.Seed
         )
         {
             _context = context;
+            _env = env;
             _imageUploadService = imageUploadService;
             _seedMember = seedMember;
             _seedPrivacy = seedPrivacy;
@@ -208,7 +211,7 @@ namespace CraftDailyCorner.Seed
             //UploadImages(creatorPostGuids, "05CreatorPost");
             //UploadImages(seedPortfolioItemGuids, "06Portfolio");
             UploadImages(homepageBannerGuids, "08HomepageBanner");
-            UploadImages();// 上傳預設會員圖片、預設Logo圖片
+            UploadDefaultImages();// 上傳預設會員圖片、預設Logo圖片
             Console.WriteLine("上傳圖片 完成");
 
 
@@ -273,7 +276,7 @@ namespace CraftDailyCorner.Seed
         private void UploadImages(string[] guids, string seedFolder)
         {
             string seedPhotoPath = Path.Combine(
-                Directory.GetCurrentDirectory(),
+                _env.ContentRootPath,
                 "Seed",
                 "SeedPhotos",
                 seedFolder
@@ -300,43 +303,78 @@ namespace CraftDailyCorner.Seed
                 );
             }
         }
-        private void UploadImages()
+        private void UploadDefaultImages()
         {
-            var sizes = _folderSizeMapping.ContainsKey("01Member")
+            var memberSizes = _folderSizeMapping.ContainsKey("01Member")
                 ? _folderSizeMapping["01Member"]
-                : ImageSizePresets.Member; // 預設使用 Member
+                : ImageSizePresets.Member;
+
+            var defaultMemberSource = Path.Combine(
+                _env.ContentRootPath,
+                "Seed",
+                "SeedPhotos",
+                "01Member",
+                "default.png"
+            );
+
+            if (!File.Exists(defaultMemberSource))
+                throw new FileNotFoundException("找不到預設會員圖片", defaultMemberSource);
+
             _imageUploadService.UploadFromSeed(
-                    seedFolder: "01Member",
-                    sourceFile: "Seed/SeedPhotos/01Member/default.png",
-                    fileNameWithoutExt: "default",
-                    sizes: sizes
-                );
+                seedFolder: "01Member",
+                sourceFile: defaultMemberSource,
+                fileNameWithoutExt: "default",
+                sizes: memberSizes
+            );
 
             string baseGuid = "4deacede-2561-4052-95fa-5e1438aaef";
 
             for (int i = 1; i <= 20; i++)
             {
-                string index = i.ToString("D2"); // 01~20
+                string index = i.ToString("D2");
                 string fileName = $"{baseGuid}{index}";
-                string sourceFile = $"Seed/SeedPhotos/01Member/Image/{fileName}.png";
+
+                string sourceFile = Path.Combine(
+                    _env.ContentRootPath,
+                    "Seed",
+                    "SeedPhotos",
+                    "01Member",
+                    "Image",
+                    $"{fileName}.png"
+                );
+
+                if (!File.Exists(sourceFile))
+                    throw new FileNotFoundException("找不到會員 Seed 圖片", sourceFile);
 
                 _imageUploadService.UploadFromSeed(
                     seedFolder: "01Member",
                     sourceFile: sourceFile,
                     fileNameWithoutExt: fileName,
-                    sizes: sizes
+                    sizes: memberSizes
                 );
             }
 
-            var sizesLogo = _folderSizeMapping.ContainsKey("07Logo")
+            var logoSizes = _folderSizeMapping.ContainsKey("07Logo")
                 ? _folderSizeMapping["07Logo"]
                 : ImageSizePresets.Logo;
+
+            var logoSource = Path.Combine(
+                _env.ContentRootPath,
+                "Seed",
+                "SeedPhotos",
+                "07Logo",
+                "platformLogo.png"
+            );
+
+            if (!File.Exists(logoSource))
+                throw new FileNotFoundException("找不到平台 Logo 圖片", logoSource);
+
             _imageUploadService.UploadFromSeed(
-                    seedFolder: "07Logo",
-                    sourceFile: "Seed/SeedPhotos/07Logo/platformLogo.png",
-                    fileNameWithoutExt: "platformLogo",
-                    sizes: sizesLogo
-                );
+                seedFolder: "07Logo",
+                sourceFile: logoSource,
+                fileNameWithoutExt: "platformLogo",
+                sizes: logoSizes
+            );
         }
 
         private string[] GenerateGuids(int count)

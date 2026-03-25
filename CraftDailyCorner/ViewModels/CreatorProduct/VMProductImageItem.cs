@@ -11,6 +11,6 @@
         public byte SortOrder { get; set; }
 
         public string ImagePath =>
-            $"/Photos/04ProductImage/{CreatorID}/Medium/{ImageUrl}.png";
+            $"/Photos/04ProductImage/{CreatorID}/Medium/{ImageUrl}.webp";
     }
 }

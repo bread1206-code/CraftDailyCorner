@@ -1,5 +1,6 @@
-﻿using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Formats.Png;
+﻿using CraftDailyCorner.Services.Interface;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Formats.Webp;
 using SixLabors.ImageSharp.Processing;
 
 namespace CraftDailyCorner.Services
@@ -7,6 +8,9 @@ namespace CraftDailyCorner.Services
     public class ImageUploadService : IImageUploadService
     {
         private readonly IWebHostEnvironment _env;
+
+        // 你可以依需求微調
+        private const int WebpQuality = 75;
 
         public ImageUploadService(IWebHostEnvironment env)
         {
@@ -22,7 +26,7 @@ namespace CraftDailyCorner.Services
             string? entitySubFolder = null)
         {
             // Seed 圖片
-            if (file == null && !string.IsNullOrEmpty(seedSourcePath))
+            if (file == null && !string.IsNullOrWhiteSpace(seedSourcePath))
             {
                 var finalFileName = entityId ?? Guid.NewGuid().ToString();
 
@@ -60,11 +64,21 @@ namespace CraftDailyCorner.Services
             List<ImageSizeOption> sizes,
             string? entitySubFolder = null)
         {
-            if (string.IsNullOrWhiteSpace(sourceFile) || !File.Exists(sourceFile))
-                throw new FileNotFoundException("Seed 圖片來源不存在", sourceFile);
+            var resolvedSourcePath = ResolveSourcePath(sourceFile);
 
-            using var image = Image.Load(sourceFile);
-            ProcessAndSaveImage(image, seedFolder, fileNameWithoutExt, sizes, entitySubFolder);
+            if (string.IsNullOrWhiteSpace(resolvedSourcePath) || !File.Exists(resolvedSourcePath))
+                throw new FileNotFoundException("Seed 圖片來源不存在", resolvedSourcePath);
+
+            using var image = Image.Load(resolvedSourcePath);
+            image.Mutate(x => x.AutoOrient());
+
+            ProcessAndSaveImage(
+                image,
+                seedFolder,
+                fileNameWithoutExt,
+                sizes,
+                entitySubFolder
+            );
         }
 
         // 表單圖片上傳
@@ -78,31 +92,24 @@ namespace CraftDailyCorner.Services
             if (file == null || file.Length == 0)
                 throw new ArgumentException("檔案不存在");
 
-            var allowedTypes = new[] { "image/jpeg", "image/png", "image/jpg" };
-            if (!allowedTypes.Contains(file.ContentType))
-                throw new InvalidOperationException("只允許上傳 jpg、jpeg 或 png 圖片");
-
-            var ext = Path.GetExtension(file.FileName).ToLowerInvariant();
-            var allowedExts = new[] { ".jpg", ".jpeg", ".png" };
-            if (!allowedExts.Contains(ext))
-                throw new InvalidOperationException("圖片副檔名不正確");
+            ValidateUploadedFile(file);
 
             string fileName = entityId ?? Guid.NewGuid().ToString();
 
             using var stream = file.OpenReadStream();
-            Image image;
-            try
-            {
-                image = Image.Load(stream);
-            }
-            catch
-            {
-                throw new InvalidOperationException("圖片格式無法解析");
-            }
+            using var image = LoadImageFromStream(stream);
 
-            ProcessAndSaveImage(image, folderName, fileName, sizes, entitySubFolder);
+            image.Mutate(x => x.AutoOrient());
 
-            return fileName; // DB 存檔名主體
+            ProcessAndSaveImage(
+                image,
+                folderName,
+                fileName,
+                sizes,
+                entitySubFolder
+            );
+
+            return fileName; // DB 只存檔名主體，不含副檔名
         }
 
         // 重設尺寸，儲存檔案
@@ -113,6 +120,15 @@ namespace CraftDailyCorner.Services
             List<ImageSizeOption> sizes,
             string? entitySubFolder = null)
         {
+            if (image == null)
+                throw new ArgumentNullException(nameof(image));
+
+            if (string.IsNullOrWhiteSpace(folderName))
+                throw new ArgumentException("folderName 不可為空", nameof(folderName));
+
+            if (sizes == null || sizes.Count == 0)
+                throw new ArgumentException("sizes 不可為空", nameof(sizes));
+
             string basePhotoPath = string.IsNullOrWhiteSpace(entitySubFolder)
                 ? Path.Combine(_env.WebRootPath, "Photos", folderName)
                 : Path.Combine(_env.WebRootPath, "Photos", folderName, entitySubFolder);
@@ -131,9 +147,56 @@ namespace CraftDailyCorner.Services
 
                 using var resized = image.Clone(ctx => ctx.Resize(options));
 
-                string destFile = Path.Combine(folderPath, $"{fileNameWithoutExt}.png");
-                resized.Save(destFile, new PngEncoder());
+                string destFile = Path.Combine(folderPath, $"{fileNameWithoutExt}.webp");
+
+                var encoder = new WebpEncoder
+                {
+                    Quality = WebpQuality,
+                    FileFormat = WebpFileFormatType.Lossy
+                };
+
+                resized.Save(destFile, encoder);
             }
+        }
+
+        private static void ValidateUploadedFile(IFormFile file)
+        {
+            var allowedTypes = new[]
+            {
+                "image/jpeg",
+                "image/png",
+                "image/jpg",
+                "image/webp"
+            };
+
+            if (!allowedTypes.Contains(file.ContentType.ToLowerInvariant()))
+                throw new InvalidOperationException("只允許上傳 jpg、jpeg、png 或 webp 圖片");
+
+            var ext = Path.GetExtension(file.FileName).ToLowerInvariant();
+            var allowedExts = new[] { ".jpg", ".jpeg", ".png", ".webp" };
+
+            if (!allowedExts.Contains(ext))
+                throw new InvalidOperationException("圖片副檔名不正確");
+        }
+
+        private static Image LoadImageFromStream(Stream stream)
+        {
+            try
+            {
+                return Image.Load(stream);
+            }
+            catch
+            {
+                throw new InvalidOperationException("圖片格式無法解析");
+            }
+        }
+
+        private string ResolveSourcePath(string sourceFile)
+        {
+            if (Path.IsPathRooted(sourceFile))
+                return sourceFile;
+
+            return Path.Combine(_env.ContentRootPath, sourceFile);
         }
     }
 }

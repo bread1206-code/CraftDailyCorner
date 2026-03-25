@@ -29,7 +29,7 @@ namespace CraftDailyCorner.ViewModels.CreatorPost
         public List<VMPostCommentItem> Comments { get; set; } = new();
 
         public string CoverImagePath =>
-            $"/Photos/05CreatorPost/{CreatorID}/Large/{ImageUrl}.png";
+            $"/Photos/05CreatorPost/{CreatorID}/Large/{ImageUrl}.webp";
 
         public bool IsUpdated => UpdatedAt > CreatedAt;
 

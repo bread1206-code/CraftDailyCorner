@@ -15,7 +15,7 @@
 
         public string CoverImagePath =>
             string.IsNullOrWhiteSpace(CoverImageUrl) || string.IsNullOrWhiteSpace(CreatorID)
-                ? "/images/no-image.png"
-                : $"/Photos/04ProductImage/{CreatorID}/Large/{CoverImageUrl}.png";
+                ? "/images/no-image.webp"
+                : $"/Photos/04ProductImage/{CreatorID}/Large/{CoverImageUrl}.webp";
     }
 }

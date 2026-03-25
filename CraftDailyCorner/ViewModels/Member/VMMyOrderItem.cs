@@ -14,8 +14,8 @@
 
         public string ProductImagePath =>
             string.IsNullOrWhiteSpace(ProductImage)
-                ? "/images/no-image.png"
-                : $"/Photos/04ProductImage/{CreatorID}/Medium/{ProductImage}.png";
+                ? "/images/no-image.webp"
+                : $"/Photos/04ProductImage/{CreatorID}/Medium/{ProductImage}.webp";
 
         // ===== 商品評價 =====
         public bool HasReview { get; set; }

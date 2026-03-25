@@ -5,8 +5,8 @@
     ViewData["Title"] = "個人中心";
 
     string avatarUrl = string.IsNullOrEmpty(Model.ImageUrl)
-        ? "/Photos/01Member/Medium//default.png"
-        : $"/Photos/01Member/Medium/{Model.ImageUrl}.png";
+        ? "/Photos/01Member/Medium//default.webp"
+        : $"/Photos/01Member/Medium/{Model.ImageUrl}.webp";
 }
 @if (TempData["CreatorApplicationWarning"] != null)
 {

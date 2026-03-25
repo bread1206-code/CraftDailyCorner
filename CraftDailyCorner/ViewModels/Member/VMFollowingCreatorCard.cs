@@ -23,8 +23,8 @@ namespace CraftDailyCorner.ViewModels.Member
         // 創作者品牌圖路徑
         public string CreatorLogoPath =>
             string.IsNullOrWhiteSpace(CreatorLogo)
-                ? $"/Photos/03CreatorBrand/{CreatorId}/Medium/default.png"
-                : $"/Photos/03CreatorBrand/{CreatorId}/Medium/{CreatorLogo}.png";
+                ? $"/Photos/03CreatorBrand/{CreatorId}/Medium/default.webp"
+                : $"/Photos/03CreatorBrand/{CreatorId}/Medium/{CreatorLogo}.webp";
 
         // 最近新增商品
 
@@ -41,8 +41,8 @@ namespace CraftDailyCorner.ViewModels.Member
 
         public string LatestProductImagePath =>
             string.IsNullOrWhiteSpace(LatestProductImage)
-                ? "/images/no-image.png"
-                : $"/Photos/04ProductImage/{CreatorId}/Medium/{LatestProductImage}.png";
+                ? "/images/no-image.webp"
+                : $"/Photos/04ProductImage/{CreatorId}/Medium/{LatestProductImage}.webp";
 
         // 最近新增日誌
 
@@ -59,8 +59,8 @@ namespace CraftDailyCorner.ViewModels.Member
 
         public string LatestPostImagePath =>
             string.IsNullOrWhiteSpace(LatestPostImage)
-                ? "/images/no-image.png"
-                : $"/Photos/05CreatorPost/{CreatorId}/Medium/{LatestPostImage}.png";
+                ? "/images/no-image.webp"
+                : $"/Photos/05CreatorPost/{CreatorId}/Medium/{LatestPostImage}.webp";
 
         // 最近新增作品集
 
@@ -77,7 +77,7 @@ namespace CraftDailyCorner.ViewModels.Member
 
         public string LatestPortfolioImagePath =>
             string.IsNullOrWhiteSpace(LatestPortfolioImage)
-                ? "/images/no-image.png"
-                : $"/Photos/06Portfolio/{CreatorId}/Medium/{LatestPortfolioImage}.png";
+                ? "/images/no-image.webp"
+                : $"/Photos/06Portfolio/{CreatorId}/Medium/{LatestPortfolioImage}.webp";
     }
 }
