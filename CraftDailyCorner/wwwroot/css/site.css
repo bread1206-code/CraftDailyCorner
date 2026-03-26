@@ -1053,7 +1053,41 @@ body {
         transition: none !important;
     }
 }
+/* 手機版：只縮小登入信封動畫，不改氣球/禮物爆炸 */
+@media (max-width: 768px) {
+    .login-anim-icon {
+        font-size: 72px;
+    }
 
+    @keyframes envelopeZoom {
+        0% {
+            transform: scale(0.25);
+            opacity: 0;
+        }
+
+        20% {
+            opacity: 1;
+        }
+
+        100% {
+            transform: scale(2.2);
+            opacity: 1;
+        }
+    }
+
+    .login-anim-envelope .login-stamp {
+        right: -6px;
+        bottom: 2px;
+        padding: 8px 10px;
+        border-width: 2px;
+        font-size: 12px;
+        letter-spacing: 1px;
+    }
+
+    .login-anim-overlay {
+        padding: 16px;
+    }
+}
 /* =========================================================
    11. Apply / Upload / Form UX
    ========================================================= */
@@ -1614,7 +1648,7 @@ body {
     }
 
 /* =====================================================
-   主播放按鈕動畫
+   音樂主播放按鈕動畫
    ===================================================== */
 
 #musicToggleBtn {
@@ -1656,4 +1690,54 @@ body {
     align-items: center;
     justify-content: center;
     font-size: 26px;
+}
+/* =====================================================
+   手機版加入購物車：+1 提示（加強版）
+   ===================================================== */
+
+.cart-plus-one {
+    position: absolute;
+    left: 50%;
+    bottom: calc(100% + 6px);
+    transform: translateX(-50%) translateY(0) scale(0.7);
+    font-size: 1.35rem;
+    font-weight: 800;
+    line-height: 1;
+    color: #ff4d6d;
+    opacity: 0;
+    pointer-events: none;
+    white-space: nowrap;
+    z-index: 9999;
+    text-shadow: 0 1px 0 rgba(255,255,255,.95), 0 0 8px rgba(255,255,255,.85), 0 4px 10px rgba(0,0,0,.16);
+}
+
+    .cart-plus-one.show {
+        animation: cartPlusOneFloat 1.15s cubic-bezier(.22,.8,.24,1) forwards;
+    }
+
+@keyframes cartPlusOneFloat {
+    0% {
+        opacity: 0;
+        transform: translateX(-50%) translateY(8px) scale(0.55);
+    }
+
+    18% {
+        opacity: 1;
+        transform: translateX(-50%) translateY(-2px) scale(1.22);
+    }
+
+    38% {
+        opacity: 1;
+        transform: translateX(-50%) translateY(-8px) scale(0.98);
+    }
+
+    72% {
+        opacity: 1;
+        transform: translateX(-50%) translateY(-16px) scale(1);
+    }
+
+    100% {
+        opacity: 0;
+        transform: translateX(-50%) translateY(-30px) scale(1.02);
+    }
 }

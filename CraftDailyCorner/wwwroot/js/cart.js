@@ -55,7 +55,11 @@ function addToCart(productId, btn) {
 
             updateBadge(res.summary.totalQuantity);
             if (btn) {
-                playFlyAnimation(btn);
+                if (isMobileCartView()) {
+                    showCartPlusOne(btn);
+                } else {
+                    playFlyAnimation(btn);
+                }
             }
         });
 }
@@ -177,7 +181,38 @@ function playFlyAnimation(btn) {
         imgClone.remove();
     }, 900);
 }
+//手機板  加入購物車互動效果
+function isMobileCartView() {
+    return window.innerWidth <= 576;
+}
 
+function showCartPlusOne(btn) {
+    if (!btn) return;
+
+    const existing = btn.querySelector('.cart-plus-one');
+    if (existing) {
+        existing.remove();
+    }
+
+    const plusOne = document.createElement('span');
+    plusOne.className = 'cart-plus-one';
+    plusOne.textContent = '+1';
+
+    const currentPosition = window.getComputedStyle(btn).position;
+    if (currentPosition === 'static') {
+        btn.style.position = 'relative';
+    }
+
+    btn.appendChild(plusOne);
+
+    requestAnimationFrame(() => {
+        plusOne.classList.add('show');
+    });
+
+    plusOne.addEventListener('animationend', () => {
+        plusOne.remove();
+    }, { once: true });
+}
 // 初始化
 document.addEventListener('DOMContentLoaded', () => {
     initCartBadge();
