@@ -1,6 +1,8 @@
 MemberID、OrderID、ProductID、CreatorID使用預存程序產生。
 
 Seed修改成使用CLI觸發，指令：dotnet run seed
+確認執行指令的位置D:\Project\CraftDailyCorner\CraftDailyCorner>
+
 Dome資料時間為2026/01/01~2026/03/24左右
 
 超級管理者帳號0912345000
